@@ -2,6 +2,7 @@ import "server-only";
 
 import type { Metadata } from "next";
 import { getLocalePath, type Locale } from "@/i18n/config";
+import { withLocalizedAlternates } from "@/i18n/seo";
 import enMessages from "@/messages/en/public-pages.json";
 import koMessages from "@/messages/ko/public-pages.json";
 import type { PublicPageId } from "./ids";
@@ -47,7 +48,11 @@ export function getPublicPageMetadata(
   locale: Locale,
   pageId: PublicPageId,
 ): Metadata {
-  return messagesByLocale[locale].pages[pageId].metadata;
+  return withLocalizedAlternates(
+    messagesByLocale[locale].pages[pageId].metadata,
+    locale,
+    (targetLocale) => getPublicPagePath(targetLocale, pageId),
+  );
 }
 
 export function getPublicPageLinks(locale: Locale): readonly PublicPageLink[] {
