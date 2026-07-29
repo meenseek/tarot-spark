@@ -1,4 +1,5 @@
 import { tarotCardIds, type TarotCardId } from "./ids";
+import { stableHash } from "./stable-hash";
 import type { TarotCard } from "./types";
 
 export const dailyQuestionAlgorithmVersion = "daily-v1";
@@ -23,7 +24,7 @@ export function getDailyTarotCardId(localDateKey: string): TarotCardId {
     localDateKey,
     tarotCardIds.join(","),
   ].join("|");
-  const cardId = tarotCardIds[hashString(seed) % tarotCardIds.length];
+  const cardId = tarotCardIds[stableHash(seed) % tarotCardIds.length];
 
   if (!cardId) {
     throw new RangeError("Daily question card set must not be empty.");
@@ -84,15 +85,4 @@ function getDaysInMonth(year: number, month: number) {
 
 function isLeapYear(year: number) {
   return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
-}
-
-function hashString(value: string) {
-  let hash = 2_166_136_261;
-
-  for (let index = 0; index < value.length; index += 1) {
-    hash ^= value.charCodeAt(index);
-    hash = Math.imul(hash, 16_777_619);
-  }
-
-  return hash >>> 0;
 }
