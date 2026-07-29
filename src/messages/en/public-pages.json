@@ -39,7 +39,7 @@
     "privacy": {
       "metadata": {
         "title": "Privacy Policy | tarot-spark",
-        "description": "Read how tarot-spark handles analytics, browser features, and contact messages."
+        "description": "Read how tarot-spark handles analytics, advertising, browser features, and contact messages."
       },
       "linkLabel": "Privacy",
       "title": "Privacy Policy",
@@ -69,15 +69,16 @@
         {
           "heading": "Third-party services",
           "paragraphs": [
-            "The site may be hosted on Vercel and may use Google Analytics when a measurement id is configured.",
-            "Those providers process technical and analytics data according to their own terms and privacy policies."
+            "The site may be hosted on Vercel and may use Google Analytics or Google AdSense when the corresponding identifiers are configured.",
+            "Google AdSense and its partners may use cookies or other local storage and process device, page, and ad interaction data to serve, measure, and, where permitted, personalize ads.",
+            "Those providers process technical, analytics, and advertising data according to their own terms and privacy policies. Where required, ad personalization depends on consent choices and available privacy controls."
           ]
         },
         {
           "heading": "Contact",
           "paragraphs": [
             "For privacy questions or deletion requests related to emails you sent, contact tarotspark.app@gmail.com.",
-            "Last updated: May 25, 2026."
+            "Last updated: July 29, 2026."
           ]
         }
       ]

@@ -23,6 +23,7 @@ describe("PublicPage", () => {
     expect(
       screen.getByText(/does not require an account/i),
     ).toBeInTheDocument();
+    expect(screen.getByText(/Google AdSense and its partners/i)).toBeVisible();
     expect(screen.getByRole("link", { name: "About" })).toHaveAttribute(
       "href",
       "/about",
