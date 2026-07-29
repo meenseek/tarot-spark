@@ -176,6 +176,13 @@ test("draws tarot cards and copies the generated prompt", async ({ page }) => {
   await expect(page.getByLabel("Generated prompt")).toContainText(
     "Topic: Reunion",
   );
+  await expect(page.getByLabel("Generated prompt")).toContainText(
+    "Card-specific angle:",
+  );
+  await expect(page.getByLabel("Generated prompt")).toContainText(
+    "one connected pattern",
+  );
+  await expect(page.getByText(/^Interpretation lens: /)).toBeVisible();
   await expect(
     page.getByText("Tarot content is for entertainment"),
   ).toBeVisible();

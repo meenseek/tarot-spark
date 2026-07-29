@@ -12,6 +12,16 @@ export const spreadPositionIds = ["spark", "shadow", "next-step"] as const;
 
 export type SpreadPositionId = (typeof spreadPositionIds)[number];
 
+export const readingLensIds = [
+  "core-pattern",
+  "tension-and-balance",
+  "blind-spot",
+  "choice-and-agency",
+  "grounded-next-step",
+] as const;
+
+export type ReadingLensId = (typeof readingLensIds)[number];
+
 export const tarotCardIds = [
   "the-fool",
   "the-magician",

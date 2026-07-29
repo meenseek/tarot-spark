@@ -3,7 +3,7 @@ import {
   primaryButtonClassName,
   secondaryButtonClassName,
 } from "@/components/visual/class-names";
-import type { DrawnCard, Topic } from "@/domain/tarot";
+import type { DrawnCard, ReadingLens, Topic } from "@/domain/tarot";
 import type { TarotReadingCopy } from "../i18n";
 import type { CopyState, KakaoShareState, ShareState } from "../types";
 
@@ -15,6 +15,7 @@ type ReadingResultProps = {
   readonly instagramCopyState: CopyState;
   readonly kakaoShareState: KakaoShareState;
   readonly prompt: string;
+  readonly readingLens: ReadingLens | undefined;
   readonly selectedTopic: Topic;
   readonly shareState: ShareState;
   readonly urlCopyState: CopyState;
@@ -33,6 +34,7 @@ export function ReadingResult({
   instagramCopyState,
   kakaoShareState,
   prompt,
+  readingLens,
   selectedTopic,
   shareState,
   urlCopyState,
@@ -73,6 +75,12 @@ export function ReadingResult({
               </article>
             ))}
           </div>
+
+          {readingLens && (
+            <p className="text-sm font-semibold text-ts-action">
+              {copy.interpretationLensLabel}: {readingLens.label}
+            </p>
+          )}
 
           <label className="grid gap-2 text-sm font-semibold text-ts-ink">
             {copy.generatedPromptLabel}

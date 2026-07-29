@@ -1,19 +1,47 @@
 {
   "promptTemplate": {
-    "spreadLine": "- {positionLabel}: {cardName} ({cardTone}) - {upright}. Reflection question: {reflection}",
+    "spreadLine": "- {positionLabel}: {cardName} ({cardTone}) - {upright}. Card-specific angle: {promptAngle}. Reflection question: {reflection}",
     "lines": [
       "Act as a reflective tarot writing partner for entertainment and self-reflection.",
       "Do not present the reading as medical, legal, financial, investment, or mental-health advice.",
       "Topic: {topicLabel}",
       "Reading goal: {promptLead}",
+      "Interpretation lens: {lensLabel}",
+      "Lens direction: {lensInstruction}",
       "Three-card spread:",
       "{spread}",
+      "Synthesize the spread as one connected pattern. Do not write three isolated card summaries.",
+      "Choose the strongest relationship supported by the cards: reinforcement, tension, progression, or integration.",
+      "Use each position and card-specific angle as evidence. Avoid repeating generic card meanings.",
       "Write a concise reading with:",
-      "1. A plain-language theme.",
-      "2. One insight for each card position.",
-      "3. One grounded next-step reflection.",
-      "4. A brief reminder that the reading is for reflection, not professional advice."
+      "1. A plain-language theme that names the chosen relationship.",
+      "2. One synthesis showing how the spark, shadow, and next step interact.",
+      "3. One uncertainty or reasonable alternative interpretation.",
+      "4. One grounded next-step reflection that preserves the user's agency.",
+      "5. A brief reminder that the reading is for reflection, not professional advice."
     ]
+  },
+  "readingLenses": {
+    "core-pattern": {
+      "label": "Core pattern",
+      "instruction": "Trace the strongest repeated motif across the three cards and explain how it develops from spark to shadow to next step."
+    },
+    "tension-and-balance": {
+      "label": "Tension and balance",
+      "instruction": "Focus on where the cards support or challenge one another and what balance could hold both sides without forcing certainty."
+    },
+    "blind-spot": {
+      "label": "Overlooked perspective",
+      "instruction": "Surface one assumption or overlooked perspective the spread invites the user to question; do not claim hidden facts about another person."
+    },
+    "choice-and-agency": {
+      "label": "Choice and agency",
+      "instruction": "Separate what the user can influence from what remains uncertain, then center one values-aligned choice."
+    },
+    "grounded-next-step": {
+      "label": "Grounded next step",
+      "instruction": "Translate the spread into one small, realistic next step while preserving uncertainty and the user's freedom to choose."
+    }
   },
   "topics": {
     "love": {

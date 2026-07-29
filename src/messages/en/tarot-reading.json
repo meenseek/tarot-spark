@@ -13,6 +13,7 @@
   "workspaceLabel": "Tarot reading workspace",
   "cardMarkLabel": "Decorative tarot card mark",
   "generatedPromptLabel": "Generated prompt",
+  "interpretationLensLabel": "Interpretation lens",
   "copyPrompt": "Copy prompt",
   "copied": "Copied",
   "copyUrl": "Copy URL",

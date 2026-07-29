@@ -18,6 +18,7 @@ export type TarotReadingMessages = {
   readonly workspaceLabel: string;
   readonly cardMarkLabel: string;
   readonly generatedPromptLabel: string;
+  readonly interpretationLensLabel: string;
   readonly copyPrompt: string;
   readonly copied: string;
   readonly copyUrl: string;
@@ -70,6 +71,7 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     emptyHeading: copy.emptyHeading,
     generatedPromptLabel: copy.generatedPromptLabel,
     heading: copy.heading,
+    interpretationLensLabel: copy.interpretationLensLabel,
     instagramCopied: copy.instagramCopied,
     instagramShare: copy.instagramShare,
     intro: copy.intro,
