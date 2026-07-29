@@ -3,9 +3,11 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { spreadPositionIds, tarotCardIds, topicIds } from "@/domain/tarot";
 import { publicPageIds } from "@/features/public-pages";
+import enDailyQuestion from "@/messages/en/daily-question.json";
 import enPublicPages from "@/messages/en/public-pages.json";
 import enTarotMessages from "@/messages/en/tarot-domain.json";
 import enCopy from "@/messages/en/tarot-reading.json";
+import koDailyQuestion from "@/messages/ko/daily-question.json";
 import koPublicPages from "@/messages/ko/public-pages.json";
 import koTarotMessages from "@/messages/ko/tarot-domain.json";
 import koCopy from "@/messages/ko/tarot-reading.json";
@@ -33,6 +35,11 @@ const publicPageMessagesByLocale = {
   ko: koPublicPages,
 } satisfies Record<Locale, unknown>;
 
+const dailyQuestionMessagesByLocale = {
+  en: enDailyQuestion,
+  ko: koDailyQuestion,
+} satisfies Record<Locale, unknown>;
+
 const jsonFiles = [
   {
     label: "messages/en/tarot-reading.json",
@@ -57,6 +64,14 @@ const jsonFiles = [
   {
     label: "messages/ko/public-pages.json",
     path: "src/messages/ko/public-pages.json",
+  },
+  {
+    label: "messages/en/daily-question.json",
+    path: "src/messages/en/daily-question.json",
+  },
+  {
+    label: "messages/ko/daily-question.json",
+    path: "src/messages/ko/daily-question.json",
   },
 ] as const;
 
@@ -155,6 +170,25 @@ const publicPageMessagesSchema = {
   }),
 } satisfies JsonSchema;
 
+const dailyQuestionMessagesSchema = {
+  metadata: {
+    title: "string",
+    description: "string",
+  },
+  brand: "string",
+  eyebrow: "string",
+  heading: "string",
+  intro: "string",
+  loadingLabel: "string",
+  todayCardLabel: "string",
+  meaningLabel: "string",
+  questionLabel: "string",
+  deckNote: "string",
+  homeLink: "string",
+  languageSwitchLabel: "string",
+  disclaimer: "string",
+} satisfies JsonSchema;
+
 describe("i18n integrity", () => {
   it("keeps locale files aligned with supported locales", () => {
     expect(Object.keys(uiCopyByLocale).sort()).toEqual(
@@ -164,6 +198,9 @@ describe("i18n integrity", () => {
       [...supportedLocales].sort(),
     );
     expect(Object.keys(publicPageMessagesByLocale).sort()).toEqual(
+      [...supportedLocales].sort(),
+    );
+    expect(Object.keys(dailyQuestionMessagesByLocale).sort()).toEqual(
       [...supportedLocales].sort(),
     );
   });
@@ -191,6 +228,12 @@ describe("i18n integrity", () => {
     );
   });
 
+  it("keeps daily question message keys identical across locales", () => {
+    expect(collectShapePaths(koDailyQuestion)).toEqual(
+      collectShapePaths(enDailyQuestion),
+    );
+  });
+
   it("matches supported locale JSON schemas exactly", () => {
     const schemaErrors = [
       ...collectLocaleSchemaErrors(uiCopyByLocale, uiCopySchema, "$.uiCopy"),
@@ -203,6 +246,11 @@ describe("i18n integrity", () => {
         publicPageMessagesByLocale,
         publicPageMessagesSchema,
         "$.publicPageMessages",
+      ),
+      ...collectLocaleSchemaErrors(
+        dailyQuestionMessagesByLocale,
+        dailyQuestionMessagesSchema,
+        "$.dailyQuestionMessages",
       ),
     ];
 
@@ -279,6 +327,10 @@ describe("i18n integrity", () => {
       ...collectBlankStringPaths(
         publicPageMessagesByLocale,
         "$.publicPageMessages",
+      ),
+      ...collectBlankStringPaths(
+        dailyQuestionMessagesByLocale,
+        "$.dailyQuestionMessages",
       ),
     ];
 
