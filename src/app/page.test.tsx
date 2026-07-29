@@ -82,6 +82,9 @@ describe("Home", () => {
       }),
     ).toBeInTheDocument();
     expect(
+      screen.getByText(/current deck: 12-card Major Arcana preview/i),
+    ).toBeInTheDocument();
+    expect(
       screen.getByText(/entertainment and self-reflection only/i),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Privacy" })).toHaveAttribute(
@@ -103,11 +106,34 @@ describe("Home", () => {
         name: "카드 뽑기",
       }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(/현재 덱: 메이저 아르카나 미리보기 12장/),
+    ).toBeInTheDocument();
     expect(screen.getByText(/의료, 법률, 재정/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "개인정보" })).toHaveAttribute(
       "href",
       "/ko/privacy",
     );
+  });
+
+  it("labels the Korean Instagram action as a link copy", async () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    Reflect.deleteProperty(navigator, "clipboard");
+    document.execCommand = vi.fn(() => true);
+
+    render(<TarotExperience locale="ko" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "카드 뽑기" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Instagram용 링크 복사" }),
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "Instagram용 링크 복사됨" }),
+      ).toBeInTheDocument();
+    });
+    expect(document.execCommand).toHaveBeenCalledWith("copy");
   });
 
   it("draws cards and generates a copyable prompt", () => {
@@ -150,7 +176,7 @@ describe("Home", () => {
     ).not.toBeInTheDocument();
     expect(
       screen.getByRole("button", {
-        name: "Instagram",
+        name: "Copy link for Instagram",
       }),
     ).toBeInTheDocument();
     expect(
@@ -230,8 +256,9 @@ describe("Home", () => {
     }
   });
 
-  it("shows a failure message when prompt copy is blocked", async () => {
+  it("shows a cause-neutral failure message when prompt copy is blocked", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
+    Reflect.deleteProperty(navigator, "clipboard");
     document.execCommand = vi.fn(() => false);
 
     render(<Home />);
@@ -240,9 +267,11 @@ describe("Home", () => {
     fireEvent.click(screen.getByRole("button", { name: "Copy prompt" }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/browser permission blocked that action/i),
-      ).toBeInTheDocument();
+      const failureMessage = screen.getByText(
+        /that action could not be completed/i,
+      );
+      expect(failureMessage).toBeInTheDocument();
+      expect(failureMessage).not.toHaveTextContent(/permission/i);
     });
     expect(
       screen.getByRole("button", { name: "Copy prompt" }),
@@ -268,9 +297,47 @@ describe("Home", () => {
 
     expect(share).toHaveBeenCalledTimes(1);
     expect(
-      screen.queryByText(/browser permission blocked that action/i),
+      screen.queryByText(/that action could not be completed/i),
     ).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Share" })).toBeInTheDocument();
+  });
+
+  it("shows a cause-neutral failure message when native share fails", async () => {
+    const share = vi.fn(() =>
+      Promise.reject(new DOMException("Share failed", "NotAllowedError")),
+    );
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: share,
+    });
+
+    renderDrawnReading();
+
+    fireEvent.click(screen.getByRole("button", { name: "Share" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/that action could not be completed/i),
+      ).toBeInTheDocument();
+    });
+    expect(share).toHaveBeenCalledTimes(1);
+  });
+
+  it("uses cause-neutral Korean failure copy", async () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    Reflect.deleteProperty(navigator, "clipboard");
+    document.execCommand = vi.fn(() => false);
+
+    render(<TarotExperience locale="ko" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "카드 뽑기" }));
+    fireEvent.click(screen.getByRole("button", { name: "프롬프트 복사" }));
+
+    await waitFor(() => {
+      const failureMessage = screen.getByText(/작업을 완료하지 못했습니다/);
+      expect(failureMessage).toBeInTheDocument();
+      expect(failureMessage).not.toHaveTextContent(/권한/);
+    });
   });
 
   it("labels fallback share as copied text", async () => {
@@ -429,11 +496,13 @@ describe("Home", () => {
 
     renderDrawnReading();
 
-    fireEvent.click(screen.getByRole("button", { name: "Instagram" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Copy link for Instagram" }),
+    );
 
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: "Instagram URL copied" }),
+        screen.getByRole("button", { name: "Instagram link copied" }),
       ).toBeInTheDocument();
     });
     expect(writeText).toHaveBeenCalledWith(getExpectedShareUrl());
@@ -462,7 +531,7 @@ describe("Home", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/browser permission blocked that action/i),
+        screen.getByText(/that action could not be completed/i),
       ).toBeInTheDocument();
     });
     expect(document.getElementById(kakaoSdkScriptId)).toBeNull();

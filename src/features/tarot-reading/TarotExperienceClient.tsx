@@ -142,6 +142,17 @@ export function TarotExperienceClient({
       ),
     [copy.cardCountLabel, locale, tarotData.spreadPositions.length],
   );
+  const deckPreviewNote = useMemo(
+    () =>
+      formatTemplateStrict(
+        copy.deckPreviewNote,
+        {
+          count: String(tarotData.cards.length),
+        },
+        `${locale} tarot-reading.deckPreviewNote`,
+      ),
+    [copy.deckPreviewNote, locale, tarotData.cards.length],
+  );
 
   function chooseTopic(topicId: TopicId) {
     setSelectedTopicId(topicId);
@@ -367,6 +378,9 @@ export function TarotExperienceClient({
             </h1>
             <p className="max-w-xl text-base leading-7 text-ts-muted">
               {copy.intro}
+            </p>
+            <p className="max-w-xl text-sm font-medium text-ts-action">
+              {deckPreviewNote}
             </p>
           </div>
 
