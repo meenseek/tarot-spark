@@ -2,6 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { LocaleSwitch } from "@/components/layout/LocaleSwitch";
+import { CelestialMark } from "@/components/visual/CelestialMark";
+import { TarotCardGlyph } from "@/components/visual/TarotCardGlyph";
+import {
+  brandLinkClassName,
+  footerLinkClassName,
+  secondaryButtonClassName,
+} from "@/components/visual/class-names";
 import {
   getDailyTarotCard,
   getLocalDateKey,
@@ -38,93 +46,101 @@ export function DailyQuestionClient({
     : undefined;
 
   return (
-    <main className="min-h-screen bg-[#10110f] text-stone-50">
+    <main className="min-h-screen bg-ts-canvas text-ts-ink">
       <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 py-6 sm:px-8 lg:py-10">
-        <header className="flex flex-col gap-4 border-b border-stone-800 pb-6 sm:flex-row sm:items-center sm:justify-between">
-          <Link
-            className="text-sm font-semibold text-amber-300 transition hover:text-amber-200"
-            href={getLocalePath(locale)}
-          >
+        <header className="flex flex-col gap-4 border-b border-ts-divider pb-6 sm:flex-row sm:items-center sm:justify-between">
+          <Link className={brandLinkClassName} href={getLocalePath(locale)}>
             {copy.brand}
           </Link>
-          <nav aria-label={copy.languageSwitchLabel} className="flex gap-2">
-            {supportedLocales.map((targetLocale) => {
-              const isActive = targetLocale === locale;
-
-              return (
-                <Link
-                  aria-current={isActive ? "page" : undefined}
-                  className={`rounded-md border px-3 py-2 text-xs font-semibold transition ${
-                    isActive
-                      ? "border-amber-300 bg-amber-300 text-neutral-950"
-                      : "border-stone-700 bg-stone-900 text-stone-100 hover:border-emerald-300 hover:text-emerald-200"
-                  }`}
-                  href={getDailyQuestionPath(targetLocale)}
-                  key={targetLocale}
-                >
-                  {localeNames[targetLocale]}
-                </Link>
-              );
-            })}
-          </nav>
+          <LocaleSwitch
+            activeLocale={locale}
+            ariaLabel={copy.languageSwitchLabel}
+            links={supportedLocales.map((targetLocale) => ({
+              href: getDailyQuestionPath(targetLocale),
+              label: localeNames[targetLocale],
+              locale: targetLocale,
+            }))}
+          />
         </header>
 
         <section className="grid flex-1 gap-10 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div className="grid content-start gap-5">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-300">
+            <CelestialMark className="h-8 w-16 text-ts-gold" />
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-ts-action">
               {copy.eyebrow}
             </p>
-            <h1 className="max-w-2xl text-4xl font-semibold leading-tight text-stone-50 sm:text-5xl">
+            <h1
+              className={`max-w-2xl font-ts-display text-4xl font-semibold leading-[1.12] tracking-[-0.02em] text-ts-ink sm:text-[2.75rem] lg:text-5xl ${
+                locale === "ko"
+                  ? "[word-break:keep-all]"
+                  : "[text-wrap:balance]"
+              }`}
+            >
               {copy.heading}
             </h1>
-            <p className="max-w-xl text-base leading-7 text-stone-300">
+            <p className="max-w-xl text-base leading-7 text-ts-muted">
               {copy.intro}
             </p>
-            <p className="max-w-xl text-xs leading-5 text-stone-400">
+            <p className="max-w-xl text-xs leading-5 text-ts-muted">
               {copy.deckNote}
             </p>
           </div>
 
           <section
             aria-live="polite"
-            className="min-h-[26rem] rounded-md border border-stone-700 bg-stone-950 p-5 shadow-2xl shadow-black/30 sm:p-7"
+            className="min-h-[42rem] rounded-ts-panel border border-ts-divider bg-ts-surface p-5 shadow-ts-paper sm:min-h-[36rem] sm:p-7"
+            data-testid="daily-panel"
           >
             {card && localDateKey ? (
               <article
-                className="grid h-full content-center gap-6"
+                className="grid min-h-[37rem] content-center gap-6 sm:min-h-[31rem]"
                 data-card-id={card.id}
                 data-testid="daily-card"
               >
-                <div className="grid gap-2 border-b border-stone-800 pb-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">
-                    {copy.todayCardLabel}
-                  </p>
-                  <h2 className="text-3xl font-semibold text-stone-50">
-                    {card.name}
-                  </h2>
-                  <p className="text-sm text-emerald-200">{card.tone}</p>
+                <div className="grid grid-cols-[1fr_auto] gap-4 border-b border-ts-divider pb-5">
+                  <div className="grid content-start gap-2">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ts-action">
+                      {copy.todayCardLabel}
+                    </p>
+                    <h2 className="font-ts-display text-3xl font-semibold text-ts-ink">
+                      {card.name}
+                    </h2>
+                    <p className="text-sm text-ts-action">{card.tone}</p>
+                  </div>
+                  <div className="grid h-24 w-16 place-items-center rounded-ts-control border border-ts-divider bg-ts-canvas text-ts-action">
+                    <TarotCardGlyph cardId={card.id} className="h-12 w-12" />
+                  </div>
                 </div>
 
                 <div className="grid gap-2">
-                  <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-ts-muted">
                     {copy.meaningLabel}
                   </h3>
-                  <p className="text-sm leading-7 text-stone-300">
+                  <p className="text-sm leading-7 text-ts-muted">
                     {card.upright}
                   </p>
                 </div>
 
-                <div className="grid gap-3 rounded-md border border-emerald-900 bg-emerald-950/30 p-5">
-                  <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300">
+                <div
+                  className="grid gap-3 rounded-ts-inset border-2 border-ts-action bg-ts-blush p-5"
+                  data-testid="daily-question-block"
+                >
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-ts-action">
                     {copy.questionLabel}
                   </h3>
-                  <p className="text-xl font-medium leading-8 text-stone-50">
+                  <p
+                    className={`font-ts-display text-2xl font-semibold leading-8 text-ts-ink ${
+                      locale === "ko"
+                        ? "[word-break:keep-all]"
+                        : "[text-wrap:balance]"
+                    }`}
+                  >
                     {card.reflection}
                   </p>
                 </div>
 
                 <Link
-                  className="w-fit rounded-md border border-stone-600 px-4 py-3 text-sm font-semibold text-stone-100 transition hover:border-emerald-300 hover:text-emerald-200"
+                  className={`${secondaryButtonClassName} w-fit`}
                   href={getLocalePath(locale)}
                 >
                   {copy.homeLink}
@@ -132,26 +148,45 @@ export function DailyQuestionClient({
               </article>
             ) : (
               <div
-                className="grid h-full min-h-[22rem] place-items-center rounded-md border border-dashed border-stone-700"
+                className="grid min-h-[37rem] content-center gap-6 rounded-ts-control border border-dashed border-ts-divider bg-ts-canvas p-5 sm:min-h-[31rem]"
                 data-testid="daily-placeholder"
               >
-                <p className="text-sm text-stone-400">{copy.loadingLabel}</p>
+                <p className="text-sm font-medium text-ts-muted">
+                  {copy.loadingLabel}
+                </p>
+                <div aria-hidden="true" className="grid gap-6">
+                  <div className="grid gap-3 border-b border-ts-divider pb-5">
+                    <div className="h-3 w-24 rounded-full bg-ts-divider" />
+                    <div className="h-9 w-40 rounded-ts-control bg-ts-divider" />
+                    <div className="h-3 w-20 rounded-full bg-ts-divider" />
+                  </div>
+                  <div className="grid gap-3">
+                    <div className="h-3 w-28 rounded-full bg-ts-divider" />
+                    <div className="h-3 w-full rounded-full bg-ts-divider" />
+                    <div className="h-3 w-4/5 rounded-full bg-ts-divider" />
+                  </div>
+                  <div className="grid gap-3 rounded-ts-inset border border-ts-divider p-5">
+                    <div className="h-3 w-24 rounded-full bg-ts-divider" />
+                    <div className="h-5 w-full rounded-full bg-ts-divider" />
+                    <div className="h-5 w-3/4 rounded-full bg-ts-divider" />
+                  </div>
+                </div>
               </div>
             )}
           </section>
         </section>
 
-        <p className="border-t border-stone-800 pt-6 text-xs leading-5 text-stone-400">
+        <p className="border-t border-ts-divider pt-6 text-xs leading-5 text-ts-muted">
           {copy.disclaimer}
         </p>
         <footer className="py-6">
           <nav
             aria-label={publicPageNavigationLabel}
-            className="flex flex-wrap gap-3 text-xs text-stone-400"
+            className="flex flex-wrap gap-x-3 text-xs"
           >
             {publicPageLinks.map((link) => (
               <Link
-                className="transition hover:text-emerald-200"
+                className={footerLinkClassName}
                 href={link.href}
                 key={link.href}
               >

@@ -1,1 +1,87 @@
 @import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --ts-color-canvas: #fbf7f2;
+  --ts-color-surface: #fffdfc;
+  --ts-color-ink: #3a2633;
+  --ts-color-muted: #66515d;
+  --ts-color-action: #704158;
+  --ts-color-action-hover: #5e334c;
+  --ts-color-action-pressed: #4f293f;
+  --ts-color-on-action: #fffdfc;
+  --ts-color-blush: #e9d2dd;
+  --ts-color-blush-strong: #dfc2d0;
+  --ts-color-border: #8b737f;
+  --ts-color-divider: #d9ccd2;
+  --ts-color-gold: #b7863e;
+  --ts-color-danger: #8c2f4a;
+  --ts-color-success: #2f604e;
+  --ts-font-sans:
+    ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --ts-font-display:
+    "Iowan Old Style", "Palatino Linotype", "Noto Serif KR", "Nanum Myeongjo",
+    AppleMyungjo, Georgia, serif;
+  --ts-radius-panel: 0.875rem;
+  --ts-radius-control: 0.75rem;
+  --ts-radius-inset: 1rem;
+  --ts-shadow-paper: 0 1.125rem 3.5rem rgb(58 38 51 / 10%);
+  --ts-shadow-card: 0 0.625rem 1.75rem rgb(58 38 51 / 8%);
+  --ts-motion-fast: 160ms;
+  --ts-motion-base: 200ms;
+  --ts-motion-ease: cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+@theme inline {
+  --color-ts-canvas: var(--ts-color-canvas);
+  --color-ts-surface: var(--ts-color-surface);
+  --color-ts-ink: var(--ts-color-ink);
+  --color-ts-muted: var(--ts-color-muted);
+  --color-ts-action: var(--ts-color-action);
+  --color-ts-action-hover: var(--ts-color-action-hover);
+  --color-ts-action-pressed: var(--ts-color-action-pressed);
+  --color-ts-on-action: var(--ts-color-on-action);
+  --color-ts-blush: var(--ts-color-blush);
+  --color-ts-blush-strong: var(--ts-color-blush-strong);
+  --color-ts-border: var(--ts-color-border);
+  --color-ts-divider: var(--ts-color-divider);
+  --color-ts-gold: var(--ts-color-gold);
+  --color-ts-danger: var(--ts-color-danger);
+  --color-ts-success: var(--ts-color-success);
+  --font-ts-sans: var(--ts-font-sans);
+  --font-ts-display: var(--ts-font-display);
+  --radius-ts-panel: var(--ts-radius-panel);
+  --radius-ts-control: var(--ts-radius-control);
+  --radius-ts-inset: var(--ts-radius-inset);
+  --shadow-ts-paper: var(--ts-shadow-paper);
+  --shadow-ts-card: var(--ts-shadow-card);
+}
+
+html {
+  min-width: 20rem;
+  background: var(--ts-color-canvas);
+}
+
+body {
+  margin: 0;
+  background: var(--ts-color-canvas);
+  color: var(--ts-color-ink);
+  font-family: var(--ts-font-sans);
+}
+
+::selection {
+  background: var(--ts-color-blush);
+  color: var(--ts-color-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

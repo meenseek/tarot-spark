@@ -1,4 +1,10 @@
 import Link from "next/link";
+import { LocaleSwitch } from "@/components/layout/LocaleSwitch";
+import { CelestialMark } from "@/components/visual/CelestialMark";
+import {
+  brandLinkClassName,
+  footerLinkClassName,
+} from "@/components/visual/class-names";
 import {
   getLocalePath,
   localeNames,
@@ -24,49 +30,39 @@ export function PublicPage({ locale, pageId }: PublicPageProps) {
   const publicPageLinks = getPublicPageLinks(locale);
 
   return (
-    <main className="min-h-screen bg-[#10110f] text-stone-50">
+    <main className="min-h-screen bg-ts-canvas text-ts-ink">
       <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col px-5 py-6 sm:px-8 lg:py-10">
-        <header className="flex flex-col gap-4 border-b border-stone-800 pb-6 sm:flex-row sm:items-center sm:justify-between">
-          <Link
-            className="text-sm font-semibold text-amber-300 transition hover:text-amber-200"
-            href={getLocalePath(locale)}
-          >
+        <header className="flex flex-col gap-4 border-b border-ts-divider pb-6 sm:flex-row sm:items-center sm:justify-between">
+          <Link className={brandLinkClassName} href={getLocalePath(locale)}>
             {shellCopy.brand}
           </Link>
-          <nav
-            aria-label={shellCopy.languageSwitchLabel}
-            className="flex gap-2"
-          >
-            {supportedLocales.map((targetLocale) => {
-              const isActive = targetLocale === locale;
-
-              return (
-                <Link
-                  aria-current={isActive ? "page" : undefined}
-                  className={`rounded-md border px-3 py-2 text-xs font-semibold transition ${
-                    isActive
-                      ? "border-amber-300 bg-amber-300 text-neutral-950"
-                      : "border-stone-700 bg-stone-900 text-stone-100 hover:border-emerald-300 hover:text-emerald-200"
-                  }`}
-                  href={getPublicPagePath(targetLocale, pageId)}
-                  key={targetLocale}
-                >
-                  {localeNames[targetLocale]}
-                </Link>
-              );
-            })}
-          </nav>
+          <LocaleSwitch
+            activeLocale={locale}
+            ariaLabel={shellCopy.languageSwitchLabel}
+            links={supportedLocales.map((targetLocale) => ({
+              href: getPublicPagePath(targetLocale, pageId),
+              label: localeNames[targetLocale],
+              locale: targetLocale,
+            }))}
+          />
         </header>
 
-        <article className="grid flex-1 gap-8 py-10">
+        <article className="my-8 grid flex-1 gap-8 rounded-ts-panel border border-ts-divider bg-ts-surface p-6 shadow-ts-paper sm:p-8">
           <div className="grid gap-4">
-            <p className="text-sm font-semibold text-emerald-300">
+            <CelestialMark className="h-8 w-16 text-ts-gold" />
+            <p className="text-sm font-semibold text-ts-action">
               {shellCopy.homeLabel}
             </p>
-            <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-stone-50 sm:text-5xl">
+            <h1
+              className={`max-w-3xl font-ts-display text-4xl font-semibold leading-[1.12] tracking-[-0.02em] text-ts-ink sm:text-5xl ${
+                locale === "ko"
+                  ? "[word-break:keep-all]"
+                  : "[text-wrap:balance]"
+              }`}
+            >
               {content.title}
             </h1>
-            <p className="max-w-3xl text-base leading-7 text-stone-300">
+            <p className="max-w-3xl text-base leading-7 text-ts-muted">
               {content.intro}
             </p>
           </div>
@@ -74,12 +70,12 @@ export function PublicPage({ locale, pageId }: PublicPageProps) {
           <div className="grid gap-7">
             {content.sections.map((section) => (
               <section className="grid gap-3" key={section.heading}>
-                <h2 className="text-xl font-semibold text-stone-100">
+                <h2 className="text-2xl font-semibold text-ts-ink">
                   {section.heading}
                 </h2>
                 {section.paragraphs.map((paragraph) => (
                   <p
-                    className="text-sm leading-7 text-stone-300"
+                    className="text-sm leading-7 text-ts-muted"
                     key={paragraph}
                   >
                     {paragraph}
@@ -90,14 +86,14 @@ export function PublicPage({ locale, pageId }: PublicPageProps) {
           </div>
         </article>
 
-        <footer className="border-t border-stone-800 py-6">
+        <footer className="border-t border-ts-divider py-6">
           <nav
             aria-label={shellCopy.pageNavigationLabel}
-            className="flex flex-wrap gap-3 text-sm"
+            className="flex flex-wrap gap-x-3 text-sm"
           >
             {publicPageLinks.map((link) => (
               <Link
-                className="text-stone-300 transition hover:text-emerald-200"
+                className={footerLinkClassName}
                 href={link.href}
                 key={link.href}
               >
