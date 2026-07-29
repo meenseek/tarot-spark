@@ -1,0 +1,18 @@
+{
+  "metadata": {
+    "title": "Daily Tarot Question | tarot-spark",
+    "description": "Meet one card from tarot-spark's 12-card Major Arcana preview and reflect on one question for today."
+  },
+  "brand": "tarot-spark",
+  "eyebrow": "Daily Question",
+  "heading": "One card. One question for today.",
+  "intro": "Use today's card as a small pause for self-reflection. The same card returns throughout your local calendar day.",
+  "loadingLabel": "Finding today's reflection...",
+  "todayCardLabel": "Today's card",
+  "meaningLabel": "A perspective to consider",
+  "questionLabel": "Your question for today",
+  "deckNote": "This experiment draws from tarot-spark's current 12-card Major Arcana preview.",
+  "homeLink": "Try the 3-card reading",
+  "languageSwitchLabel": "Choose language",
+  "disclaimer": "Tarot content is for entertainment and self-reflection only. It is not medical, legal, financial, or mental-health advice."
+}
