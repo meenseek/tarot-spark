@@ -2,6 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { CelestialMark } from "@/components/visual/CelestialMark";
+import {
+  footerLinkClassName,
+  primaryButtonClassName,
+} from "@/components/visual/class-names";
 import {
   buildPrompt,
   drawCards,
@@ -335,23 +340,32 @@ export function TarotExperienceClient({
   }
 
   return (
-    <main className="min-h-screen bg-[#10110f] text-stone-50">
+    <main className="min-h-screen bg-ts-canvas text-ts-ink">
       <section className="mx-auto grid min-h-screen w-full max-w-6xl gap-8 px-5 py-6 sm:px-8 lg:grid-cols-[0.95fr_1.25fr] lg:items-center lg:py-10">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm font-semibold text-amber-300">
-                {copy.brand}
-              </p>
+              <div className="flex items-center gap-3">
+                <CelestialMark className="h-7 w-12 text-ts-gold" />
+                <p className="text-sm font-semibold text-ts-action">
+                  {copy.brand}
+                </p>
+              </div>
               <LanguageSwitch
                 activeLocale={locale}
                 ariaLabel={copy.languageSwitchLabel}
               />
             </div>
-            <h1 className="max-w-2xl text-4xl font-semibold leading-tight text-stone-50 sm:text-5xl">
+            <h1
+              className={`max-w-2xl font-ts-display text-4xl font-semibold leading-[1.12] tracking-[-0.02em] text-ts-ink sm:text-[2.75rem] lg:text-5xl ${
+                locale === "ko"
+                  ? "[word-break:keep-all]"
+                  : "[text-wrap:balance]"
+              }`}
+            >
               {copy.heading}
             </h1>
-            <p className="max-w-xl text-base leading-7 text-stone-300">
+            <p className="max-w-xl text-base leading-7 text-ts-muted">
               {copy.intro}
             </p>
           </div>
@@ -365,7 +379,7 @@ export function TarotExperienceClient({
           />
 
           <button
-            className="min-h-12 rounded-md bg-emerald-400 px-5 py-3 text-sm font-semibold text-neutral-950 transition hover:bg-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:ring-offset-2 focus:ring-offset-[#10110f]"
+            className={primaryButtonClassName}
             onClick={startDraw}
             type="button"
           >
@@ -375,7 +389,8 @@ export function TarotExperienceClient({
 
         <section
           aria-label={copy.workspaceLabel}
-          className="grid gap-5 rounded-md border border-stone-700 bg-stone-950 p-4 shadow-2xl shadow-black/30 sm:p-5"
+          className="grid gap-5 rounded-ts-panel border border-ts-divider bg-ts-surface p-4 shadow-ts-paper sm:p-5"
+          data-testid="reading-workspace"
         >
           <CardSpread
             cardMarkLabel={copy.cardMarkLabel}
@@ -401,17 +416,17 @@ export function TarotExperienceClient({
             urlCopyState={urlCopyState}
           />
 
-          <p className="text-xs leading-5 text-stone-400">{copy.disclaimer}</p>
+          <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>
         </section>
       </section>
       <footer className="mx-auto w-full max-w-6xl px-5 pb-8 sm:px-8">
         <nav
           aria-label={publicPageNavigationLabel}
-          className="flex flex-wrap justify-center gap-3 text-xs text-stone-400 sm:justify-start"
+          className="flex flex-wrap justify-center gap-x-3 text-xs sm:justify-start"
         >
           {publicPageLinks.map((link) => (
             <Link
-              className="transition hover:text-emerald-200"
+              className={footerLinkClassName}
               href={link.href}
               key={link.href}
             >

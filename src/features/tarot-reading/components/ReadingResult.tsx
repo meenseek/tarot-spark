@@ -1,4 +1,8 @@
 import Image from "next/image";
+import {
+  primaryButtonClassName,
+  secondaryButtonClassName,
+} from "@/components/visual/class-names";
 import type { DrawnCard, Topic } from "@/domain/tarot";
 import type { TarotReadingCopy } from "../i18n";
 import type { CopyState, KakaoShareState, ShareState } from "../types";
@@ -40,20 +44,16 @@ export function ReadingResult({
 }: ReadingResultProps) {
   const actionGridClassName =
     "grid gap-2 sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]";
-  const primaryActionButtonClassName =
-    "inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-amber-300 bg-amber-300 px-3 py-2 text-center text-sm font-semibold leading-5 text-neutral-950 transition hover:border-amber-200 hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:ring-offset-2 focus:ring-offset-stone-950";
-  const secondaryActionButtonClassName =
-    "inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-stone-700 bg-neutral-950 px-3 py-2 text-center text-sm font-semibold leading-5 text-stone-100 transition hover:border-stone-500 hover:bg-stone-900 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:ring-offset-2 focus:ring-offset-stone-950";
 
   return (
     <div aria-live="polite" className="grid gap-4">
       {cards.length > 0 ? (
         <>
           <div className="grid gap-3">
-            <p className="text-sm font-semibold text-amber-300">
+            <p className="text-sm font-semibold text-ts-action">
               {selectedTopic.label}
             </p>
-            <p className="text-base leading-7 text-stone-200">
+            <p className="text-base leading-7 text-ts-ink">
               {selectedTopic.resultFrame}
             </p>
           </div>
@@ -61,23 +61,23 @@ export function ReadingResult({
           <div className="grid gap-3">
             {cards.map(({ position, card }) => (
               <article
-                className="rounded-md border border-stone-700 bg-stone-900 p-4"
+                className="rounded-ts-control border border-ts-divider bg-ts-canvas p-4"
                 key={`${position.id}-${card.id}`}
               >
-                <h3 className="text-sm font-semibold text-stone-50">
+                <h3 className="font-ts-display text-base font-semibold text-ts-ink">
                   {position.label}: {card.name}
                 </h3>
-                <p className="mt-2 text-sm leading-6 text-stone-300">
+                <p className="mt-2 text-sm leading-6 text-ts-muted">
                   {card.reflection}
                 </p>
               </article>
             ))}
           </div>
 
-          <label className="grid gap-2 text-sm font-semibold text-stone-100">
+          <label className="grid gap-2 text-sm font-semibold text-ts-ink">
             {copy.generatedPromptLabel}
             <textarea
-              className="min-h-56 resize-y rounded-md border border-stone-700 bg-neutral-950 p-4 font-mono text-xs leading-5 text-stone-200 outline-none focus:border-emerald-300"
+              className="min-h-56 resize-y rounded-ts-control border-2 border-ts-border bg-ts-surface p-4 font-ts-sans text-sm font-normal leading-6 text-ts-ink outline-none transition-colors duration-[var(--ts-motion-fast)] focus:border-ts-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
               readOnly
               value={prompt}
             />
@@ -85,7 +85,7 @@ export function ReadingResult({
 
           <div className={actionGridClassName}>
             <button
-              className={primaryActionButtonClassName}
+              className={`${primaryButtonClassName} min-h-11 gap-2 px-3 py-2 leading-5`}
               onClick={onCopyPrompt}
               type="button"
             >
@@ -95,7 +95,7 @@ export function ReadingResult({
             </button>
             {hasKakaoShare && (
               <button
-                className={`${secondaryActionButtonClassName} hover:border-[#FEE500]`}
+                className={`${secondaryButtonClassName} gap-2 px-3`}
                 onClick={onKakaoShare}
                 type="button"
               >
@@ -117,7 +117,7 @@ export function ReadingResult({
               </button>
             )}
             <button
-              className={`${secondaryActionButtonClassName} hover:border-pink-300 hover:text-pink-100`}
+              className={`${secondaryButtonClassName} gap-2 px-3`}
               onClick={onInstagramShare}
               type="button"
             >
@@ -136,7 +136,7 @@ export function ReadingResult({
               </span>
             </button>
             <button
-              className={`${secondaryActionButtonClassName} hover:border-emerald-300 hover:text-emerald-200`}
+              className={`${secondaryButtonClassName} gap-2 px-3`}
               onClick={onShareReading}
               type="button"
             >
@@ -145,7 +145,7 @@ export function ReadingResult({
               </span>
             </button>
             <button
-              className={`${secondaryActionButtonClassName} hover:border-emerald-300 hover:text-emerald-200`}
+              className={`${secondaryButtonClassName} gap-2 px-3`}
               onClick={onCopyUrl}
               type="button"
             >
@@ -159,15 +159,17 @@ export function ReadingResult({
             kakaoShareState === "failed" ||
             shareState === "failed" ||
             urlCopyState === "failed") && (
-            <p className="text-sm text-rose-200">{copy.blockedAction}</p>
+            <p className="text-sm font-medium text-ts-danger">
+              {copy.blockedAction}
+            </p>
           )}
         </>
       ) : (
-        <div className="rounded-md border border-stone-700 bg-stone-900 p-4">
-          <h2 className="text-lg font-semibold text-stone-50">
+        <div className="rounded-ts-control border border-ts-divider bg-ts-canvas p-4">
+          <h2 className="text-xl font-semibold text-ts-ink">
             {copy.emptyHeading}
           </h2>
-          <p className="mt-2 text-sm leading-6 text-stone-300">
+          <p className="mt-2 text-sm leading-6 text-ts-muted">
             {copy.emptyBody}
           </p>
         </div>

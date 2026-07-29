@@ -53,6 +53,7 @@ the expected keys.
 
 - [Docs map](docs/README.md)
 - [Frontend structure](docs/architecture/frontend-structure.md)
+- [Visual design system](docs/product/design-system.md)
 
 Run the required verification gates before opening or updating a PR.
 
