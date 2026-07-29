@@ -136,6 +136,26 @@ describe("Home", () => {
     expect(document.execCommand).toHaveBeenCalledWith("copy");
   });
 
+  it("shows the localized deterministic interpretation lens in Korean", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+
+    render(<TarotExperience locale="ko" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "카드 뽑기" }));
+
+    expect(
+      screen.getByText("해석 관점: 선택과 주도성", { selector: "p" }),
+    ).toBeInTheDocument();
+
+    const prompt = screen.getByLabelText(
+      "생성된 프롬프트",
+    ) as HTMLTextAreaElement;
+
+    expect(prompt.value).toContain("해석 관점: 선택과 주도성");
+    expect(prompt.value).toContain("카드별 해석 각도:");
+    expect(prompt.value).toContain("하나의 연결된 패턴");
+  });
+
   it("draws cards and generates a copyable prompt", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
 
@@ -159,6 +179,14 @@ describe("Home", () => {
 
     expect(prompt.value).toContain("Topic: Love");
     expect(prompt.value).toContain("Act as a reflective tarot writing partner");
+    expect(prompt.value).toContain("Card-specific angle:");
+    expect(prompt.value).toContain("Interpretation lens:");
+    expect(prompt.value).toContain("one connected pattern");
+    expect(
+      screen.getByText("Interpretation lens: Choice and agency", {
+        selector: "p",
+      }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("button", {
         name: "Copy prompt",
@@ -211,6 +239,13 @@ describe("Home", () => {
     ) as HTMLTextAreaElement;
     expect(prompt.value).toContain("Topic: Reunion");
     expect(prompt.value).toContain("The High Priestess");
+    const interpretationLens = prompt.value.match(
+      /Interpretation lens: (.+)/,
+    )?.[1];
+    expect(interpretationLens).toBeTruthy();
+    expect(
+      screen.getByText(`Interpretation lens: ${interpretationLens}`),
+    ).toBeInTheDocument();
   });
 
   it("emits behavior analytics with stable ids", () => {

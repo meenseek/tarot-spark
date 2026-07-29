@@ -3,10 +3,17 @@ import "server-only";
 import type { Locale } from "@/i18n/config";
 import enTarotMessages from "@/messages/en/tarot-domain.json";
 import koTarotMessages from "@/messages/ko/tarot-domain.json";
-import { spreadPositionIds, tarotCardIds, topicIds } from "@/domain/tarot";
+import {
+  readingLensIds,
+  spreadPositionIds,
+  tarotCardIds,
+  topicIds,
+} from "@/domain/tarot";
 import type {
   LocaleTarotData,
   PromptTemplate,
+  ReadingLens,
+  ReadingLensId,
   SpreadPosition,
   SpreadPositionId,
   TarotCard,
@@ -18,6 +25,7 @@ import type {
 type RawLocaleTarotMessages = {
   readonly promptTemplate: PromptTemplate;
   readonly topics: Record<TopicId, Omit<Topic, "id">>;
+  readonly readingLenses: Record<ReadingLensId, Omit<ReadingLens, "id">>;
   readonly spreadPositions: Record<
     SpreadPositionId,
     Omit<SpreadPosition, "id">
@@ -42,6 +50,10 @@ function normalizeLocaleMessages(
     topics: topicIds.map((id) => ({
       id,
       ...messages.topics[id],
+    })),
+    readingLenses: readingLensIds.map((id) => ({
+      id,
+      ...messages.readingLenses[id],
     })),
     spreadPositions: spreadPositionIds.map((id) => ({
       id,

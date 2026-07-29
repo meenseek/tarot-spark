@@ -11,6 +11,7 @@ import {
   buildPrompt,
   drawCards,
   getDefaultTopic,
+  getReadingLens,
   getTopic,
   type DrawnCard,
   type LocaleTarotData,
@@ -87,6 +88,13 @@ export function TarotExperienceClient({
   );
 
   const selectedTopic = getTopic(tarotData.topics, selectedTopicId);
+  const readingLens = useMemo(
+    () =>
+      cards.length > 0
+        ? getReadingLens(tarotData.readingLenses, selectedTopic.id, cards)
+        : undefined,
+    [cards, selectedTopic.id, tarotData.readingLenses],
+  );
 
   useEffect(() => {
     const sharedReading = getSharedReadingFromUrl(
@@ -121,15 +129,16 @@ export function TarotExperienceClient({
 
   const prompt = useMemo(
     () =>
-      cards.length > 0
+      cards.length > 0 && readingLens
         ? buildPrompt(
             tarotData.promptTemplate,
             selectedTopic,
             cards,
+            readingLens,
             `${locale} tarot promptTemplate`,
           )
         : "",
-    [cards, locale, selectedTopic, tarotData.promptTemplate],
+    [cards, locale, readingLens, selectedTopic, tarotData.promptTemplate],
   );
   const cardCountLabel = useMemo(
     () =>
@@ -425,6 +434,7 @@ export function TarotExperienceClient({
             onCopyUrl={copyShareUrl}
             onShareReading={shareReading}
             prompt={prompt}
+            readingLens={readingLens}
             selectedTopic={selectedTopic}
             shareState={shareState}
             urlCopyState={urlCopyState}

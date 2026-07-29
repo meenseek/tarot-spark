@@ -1,6 +1,16 @@
-import type { SpreadPositionId, TarotCardId, TopicId } from "./ids";
+import type {
+  ReadingLensId,
+  SpreadPositionId,
+  TarotCardId,
+  TopicId,
+} from "./ids";
 
-export type { SpreadPositionId, TarotCardId, TopicId } from "./ids";
+export type {
+  ReadingLensId,
+  SpreadPositionId,
+  TarotCardId,
+  TopicId,
+} from "./ids";
 
 export type Topic = {
   readonly id: TopicId;
@@ -12,6 +22,12 @@ export type Topic = {
 export type SpreadPosition = {
   readonly id: SpreadPositionId;
   readonly label: string;
+};
+
+export type ReadingLens = {
+  readonly id: ReadingLensId;
+  readonly label: string;
+  readonly instruction: string;
 };
 
 export type TarotCard = {
@@ -36,6 +52,7 @@ export type DrawnCard = {
 export type LocaleTarotData = {
   readonly topics: readonly Topic[];
   readonly spreadPositions: readonly SpreadPosition[];
+  readonly readingLenses: readonly ReadingLens[];
   readonly promptTemplate: PromptTemplate;
   readonly cards: readonly TarotCard[];
 };

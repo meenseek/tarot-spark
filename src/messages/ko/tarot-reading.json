@@ -13,6 +13,7 @@
   "workspaceLabel": "타로 리딩 작업 영역",
   "cardMarkLabel": "장식용 타로 카드 문양",
   "generatedPromptLabel": "생성된 프롬프트",
+  "interpretationLensLabel": "해석 관점",
   "copyPrompt": "프롬프트 복사",
   "copied": "복사됨",
   "copyUrl": "URL 복사",

@@ -1,7 +1,12 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { spreadPositionIds, tarotCardIds, topicIds } from "@/domain/tarot";
+import {
+  readingLensIds,
+  spreadPositionIds,
+  tarotCardIds,
+  topicIds,
+} from "@/domain/tarot";
 import { publicPageIds } from "@/features/public-pages";
 import enDailyQuestion from "@/messages/en/daily-question.json";
 import enPublicPages from "@/messages/en/public-pages.json";
@@ -100,6 +105,7 @@ const uiCopySchema = {
   workspaceLabel: "string",
   cardMarkLabel: "string",
   generatedPromptLabel: "string",
+  interpretationLensLabel: "string",
   copyPrompt: "string",
   copied: "string",
   copyUrl: "string",
@@ -132,6 +138,10 @@ const tarotMessagesSchema = {
     spreadLine: "string",
     lines: ["string"],
   },
+  readingLenses: exactRecordSchema(readingLensIds, {
+    label: "string",
+    instruction: "string",
+  }),
   topics: exactRecordSchema(topicIds, {
     label: "string",
     promptLead: "string",
@@ -271,6 +281,10 @@ describe("i18n integrity", () => {
         `spread position order for ${locale}`,
       ).toEqual(spreadPositionIds);
       expect(
+        data.readingLenses.map((lens) => lens.id),
+        `reading lens order for ${locale}`,
+      ).toEqual(readingLensIds);
+      expect(
         data.cards.map((card) => card.id),
         `card order for ${locale}`,
       ).toEqual(tarotCardIds);
@@ -301,12 +315,25 @@ describe("i18n integrity", () => {
         ...collectTemplatePlaceholderErrors(
           `${locale} tarot promptTemplate.spreadLine`,
           tarotMessages.promptTemplate.spreadLine,
-          ["cardName", "cardTone", "positionLabel", "reflection", "upright"],
+          [
+            "cardName",
+            "cardTone",
+            "positionLabel",
+            "promptAngle",
+            "reflection",
+            "upright",
+          ],
         ),
         ...collectTemplatePlaceholderErrors(
           `${locale} tarot promptTemplate.lines`,
           tarotMessages.promptTemplate.lines.join("\n"),
-          ["promptLead", "spread", "topicLabel"],
+          [
+            "lensInstruction",
+            "lensLabel",
+            "promptLead",
+            "spread",
+            "topicLabel",
+          ],
         ),
       ];
     });
