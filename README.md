@@ -33,6 +33,11 @@ Set `NEXT_PUBLIC_GA_ID` to the Google Analytics measurement ID, such as
 `G-XXXXXXXXXX`, to enable page view tracking and tarot behavior events. Leave it
 unset for local development or preview deployments that should not send GA data.
 
+Set `NEXT_PUBLIC_ADSENSE_CLIENT_ID` to the Google AdSense client id, such as
+`ca-pub-0000000000000000`, to add the account metadata, load the AdSense script,
+and serve the matching authorized seller record from `/ads.txt`. Leave it unset
+for local development and preview deployments.
+
 Set `NEXT_PUBLIC_KAKAO_JS_KEY` to enable KakaoTalk sharing. Kakao domains:
 `App > JavaScript SDK domain` must include the app origin, and
 `App > Product Link > Web domain` must include the shared URL origin
