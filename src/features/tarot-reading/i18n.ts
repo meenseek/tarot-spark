@@ -11,6 +11,7 @@ export type TarotReadingMessages = {
   readonly brand: string;
   readonly heading: string;
   readonly intro: string;
+  readonly deckPreviewNote: string;
   readonly topicSelectorLabel: string;
   readonly cardCountLabel: string;
   readonly drawButton: string;
@@ -62,6 +63,7 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     copyUrl: copy.copyUrl,
     copiedShareText: copy.copiedShareText,
     copyPrompt: copy.copyPrompt,
+    deckPreviewNote: copy.deckPreviewNote,
     disclaimer: copy.disclaimer,
     drawButton: copy.drawButton,
     emptyBody: copy.emptyBody,

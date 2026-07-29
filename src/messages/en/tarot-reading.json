@@ -1,11 +1,12 @@
 {
   "metadata": {
     "title": "tarot-spark",
-    "description": "Draw tarot cards and create an AI-ready reflection prompt."
+    "description": "Draw three cards from the current Major Arcana preview and create an AI-ready reflection prompt."
   },
   "brand": "tarot-spark",
   "heading": "Draw three cards and turn them into an AI-ready tarot prompt.",
   "intro": "Pick a topic, draw a compact spread, then copy a prompt designed for reflective tarot writing.",
+  "deckPreviewNote": "Current deck: {count}-card Major Arcana preview.",
   "topicSelectorLabel": "Choose a tarot topic",
   "cardCountLabel": "{count} cards",
   "drawButton": "Draw cards",
@@ -16,14 +17,14 @@
   "copied": "Copied",
   "copyUrl": "Copy URL",
   "copiedUrl": "URL copied",
-  "instagramShare": "Instagram",
-  "instagramCopied": "Instagram URL copied",
+  "instagramShare": "Copy link for Instagram",
+  "instagramCopied": "Instagram link copied",
   "kakaoShare": "KakaoTalk",
   "kakaoShared": "KakaoTalk opened",
   "share": "Share",
   "shared": "Shared",
   "copiedShareText": "Copied share text",
-  "blockedAction": "Browser permission blocked that action. You can still select and copy the prompt or URL manually.",
+  "blockedAction": "That action could not be completed. You can still select and copy the prompt or URL manually.",
   "emptyHeading": "Choose a topic to begin.",
   "emptyBody": "The first draw creates a three-card spread and a prompt you can use with an AI writing tool.",
   "disclaimer": "Tarot content is for entertainment and self-reflection only. It is not medical, legal, financial, investment, or mental-health advice.",

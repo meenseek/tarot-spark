@@ -93,6 +93,7 @@ const uiCopySchema = {
   brand: "string",
   heading: "string",
   intro: "string",
+  deckPreviewNote: "string",
   topicSelectorLabel: "string",
   cardCountLabel: "string",
   drawButton: "string",
@@ -285,6 +286,11 @@ describe("i18n integrity", () => {
         ...collectTemplatePlaceholderErrors(
           `${locale} tarot-reading.cardCountLabel`,
           copy.cardCountLabel,
+          ["count"],
+        ),
+        ...collectTemplatePlaceholderErrors(
+          `${locale} tarot-reading.deckPreviewNote`,
+          copy.deckPreviewNote,
           ["count"],
         ),
         ...collectTemplatePlaceholderErrors(

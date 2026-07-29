@@ -10,6 +10,9 @@ test("loads the app shell", async ({ page }) => {
       name: "Draw three cards and turn them into an AI-ready tarot prompt.",
     }),
   ).toBeVisible();
+  await expect(
+    page.getByText(/current deck: 12-card Major Arcana preview/i),
+  ).toBeVisible();
 });
 
 test("loads Korean localized content", async ({ page }) => {
@@ -23,6 +26,9 @@ test("loads Korean localized content", async ({ page }) => {
     }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "카드 뽑기" })).toBeVisible();
+  await expect(
+    page.getByText(/현재 덱: 메이저 아르카나 미리보기 12장/),
+  ).toBeVisible();
 });
 
 test("links required public pages in both languages", async ({ page }) => {
@@ -184,10 +190,10 @@ test("draws tarot cards and copies the generated prompt", async ({ page }) => {
     page.getByRole("button", { name: "Copied share text" }),
   ).toBeVisible();
 
-  await page.getByRole("button", { name: "Instagram" }).click();
+  await page.getByRole("button", { name: "Copy link for Instagram" }).click();
 
   await expect(
-    page.getByRole("button", { name: "Instagram URL copied" }),
+    page.getByRole("button", { name: "Instagram link copied" }),
   ).toBeVisible();
 
   await page.getByRole("button", { name: "Copy URL" }).click();
