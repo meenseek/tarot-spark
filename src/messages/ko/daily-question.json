@@ -1,0 +1,18 @@
+{
+  "metadata": {
+    "title": "오늘의 타로 질문 | tarot-spark",
+    "description": "tarot-spark의 메이저 아르카나 미리보기 12장 중 한 장을 만나고 오늘을 위한 질문 하나를 돌아보세요."
+  },
+  "brand": "tarot-spark",
+  "eyebrow": "오늘의 질문",
+  "heading": "한 장의 카드, 오늘을 위한 하나의 질문.",
+  "intro": "오늘의 카드를 잠시 멈춰 자신을 돌아보는 계기로 사용해 보세요. 브라우저의 현지 날짜가 같은 동안에는 같은 카드가 나옵니다.",
+  "loadingLabel": "오늘의 질문을 고르는 중...",
+  "todayCardLabel": "오늘의 카드",
+  "meaningLabel": "살펴볼 관점",
+  "questionLabel": "오늘의 질문",
+  "deckNote": "이 실험은 tarot-spark의 현재 메이저 아르카나 미리보기 12장에서 카드를 고릅니다.",
+  "homeLink": "3장 리딩 해보기",
+  "languageSwitchLabel": "언어 선택",
+  "disclaimer": "타로 콘텐츠는 오락과 자기 성찰을 위한 것이며 의료, 법률, 재정 또는 정신건강 조언이 아닙니다."
+}

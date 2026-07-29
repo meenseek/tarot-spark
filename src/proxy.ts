@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { isDailyQuestionPathSegment } from "@/features/daily-question/paths";
 import { isPublicPageId } from "@/features/public-pages/ids";
 import { defaultLocale, isLocale, isPrefixedLocale } from "@/i18n/config";
 
@@ -26,7 +27,11 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (!isPublicPageId(secondSegment) || thirdSegment) {
+  if (
+    (!isPublicPageId(secondSegment) &&
+      !isDailyQuestionPathSegment(secondSegment)) ||
+    thirdSegment
+  ) {
     return notFoundResponse();
   }
 
