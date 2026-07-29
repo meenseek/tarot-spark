@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { GoogleAnalytics } from "@/components/layout/GoogleAnalytics";
 import { isPrefixedLocale } from "@/i18n/config";
+import { GoogleAdSense } from "@/integrations/google-adsense";
 import "../globals.css";
 
 type LocaleRootLayoutProps = {
@@ -22,6 +23,9 @@ export default async function LocaleRootLayout({
 
   return (
     <html lang={rawLocale}>
+      <head>
+        <GoogleAdSense />
+      </head>
       <body>
         {children}
         <GoogleAnalytics />
