@@ -9,6 +9,7 @@ import {
 const fallbackSiteOrigin = "http://localhost:3000";
 
 type AlternateLanguageUrls = Record<Locale | "x-default", string>;
+type LocalizedPathResolver = (locale: Locale) => string;
 
 export function getSiteUrl(): URL {
   return normalizeSiteUrl(
@@ -36,26 +37,32 @@ export function getAbsoluteLocaleUrl(locale: Locale) {
   return getAbsoluteSiteUrl(getLocalePath(locale));
 }
 
-export function getAbsoluteAlternateLanguageUrls(): AlternateLanguageUrls {
+export function getAbsoluteAlternateLanguageUrls(
+  getLocalizedPath: LocalizedPathResolver = getLocalePath,
+): AlternateLanguageUrls {
   return {
     ...Object.fromEntries(
-      supportedLocales.map((locale) => [locale, getAbsoluteLocaleUrl(locale)]),
+      supportedLocales.map((locale) => [
+        locale,
+        getAbsoluteSiteUrl(getLocalizedPath(locale)),
+      ]),
     ),
-    "x-default": getAbsoluteLocaleUrl(defaultLocale),
+    "x-default": getAbsoluteSiteUrl(getLocalizedPath(defaultLocale)),
   } as AlternateLanguageUrls;
 }
 
 export function withLocalizedAlternates(
   metadata: Metadata,
   locale: Locale,
+  getLocalizedPath: LocalizedPathResolver = getLocalePath,
 ): Metadata {
   return {
     ...metadata,
     metadataBase: getSiteUrl(),
     alternates: {
       ...metadata.alternates,
-      canonical: getAbsoluteLocaleUrl(locale),
-      languages: getAbsoluteAlternateLanguageUrls(),
+      canonical: getAbsoluteSiteUrl(getLocalizedPath(locale)),
+      languages: getAbsoluteAlternateLanguageUrls(getLocalizedPath),
     },
   };
 }

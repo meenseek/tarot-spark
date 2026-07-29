@@ -110,9 +110,23 @@ test("serves localized SEO metadata and discovery files", async ({
 
   const sitemapResponse = await request.get("/sitemap.xml");
   const sitemapXml = await sitemapResponse.text();
+  const sitemapPathnames = getSitemapLocPathnames(sitemapXml);
+
   expect(sitemapResponse.ok()).toBe(true);
-  expect(sitemapXml).toContain("<loc>");
-  expect(sitemapXml).toContain("/ko");
+  expect(sitemapPathnames).toEqual(
+    expect.arrayContaining([
+      "/",
+      "/ko",
+      "/about",
+      "/ko/about",
+      "/privacy",
+      "/ko/privacy",
+      "/contact",
+      "/ko/contact",
+      "/disclaimer",
+      "/ko/disclaimer",
+    ]),
+  );
   expect(sitemapXml).toContain('hreflang="en"');
   expect(sitemapXml).toContain('hreflang="ko"');
   expect(sitemapXml).toContain('hreflang="x-default"');
@@ -186,4 +200,18 @@ test("draws tarot cards and copies the generated prompt", async ({ page }) => {
 function expectPathname(href: string | null, pathname: string) {
   expect(href).not.toBeNull();
   expect(new URL(href ?? "http://localhost").pathname).toBe(pathname);
+}
+
+function getSitemapLocPathnames(sitemapXml: string) {
+  return Array.from(sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)).map(
+    (match) => {
+      const [, loc] = match;
+
+      if (!loc) {
+        throw new Error("Sitemap loc entry is missing a URL.");
+      }
+
+      return new URL(loc).pathname;
+    },
+  );
 }
