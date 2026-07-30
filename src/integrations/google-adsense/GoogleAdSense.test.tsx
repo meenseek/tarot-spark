@@ -1,7 +1,8 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { GoogleAdSense } from "./GoogleAdSense";
+import { GoogleAdSenseAccountMetadata } from "./GoogleAdSense";
+import { GoogleAdSenseScript } from "./GoogleAdSenseScript";
 import {
   getGoogleAdSenseClientId,
   getGoogleAdSensePublisherId,
@@ -23,15 +24,25 @@ describe("GoogleAdSense", () => {
     );
   });
 
-  it("renders the account metadata and script for a valid client id", () => {
+  it("renders account metadata without loading the advertising script", () => {
     process.env["NEXT_PUBLIC_ADSENSE_CLIENT_ID"] = "ca-pub-1234567890123456";
 
-    render(<GoogleAdSense />);
+    render(<GoogleAdSenseAccountMetadata />);
 
     expect(
       document.head.querySelector('meta[name="google-adsense-account"]'),
     ).toHaveAttribute("content", "ca-pub-1234567890123456");
-    const script = document.head.querySelector(
+    expect(
+      document.head.querySelector(
+        'script[src^="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]',
+      ),
+    ).toBeNull();
+  });
+
+  it("renders the advertising script only when its gated component mounts", () => {
+    render(<GoogleAdSenseScript clientId="ca-pub-1234567890123456" />);
+
+    const script = document.querySelector(
       'script[src^="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]',
     );
     expect(script).toHaveAttribute(
@@ -45,7 +56,7 @@ describe("GoogleAdSense", () => {
   it("fails closed when the client id is missing or malformed", () => {
     process.env["NEXT_PUBLIC_ADSENSE_CLIENT_ID"] = "pub-invalid";
 
-    render(<GoogleAdSense />);
+    render(<GoogleAdSenseAccountMetadata />);
 
     expect(
       document.head.querySelector('meta[name="google-adsense-account"]'),

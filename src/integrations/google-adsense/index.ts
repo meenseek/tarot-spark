@@ -1,1 +1,1 @@
-export { GoogleAdSense } from "./GoogleAdSense";
+export { GoogleAdSenseAccountMetadata } from "./GoogleAdSense";

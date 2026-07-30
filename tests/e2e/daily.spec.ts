@@ -1,4 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { rejectOptionalServices } from "./privacy-helpers";
+
+test.beforeEach(async ({ context }) => {
+  await rejectOptionalServices(context);
+});
 
 test("serves the localized daily question without hydration errors", async ({
   page,

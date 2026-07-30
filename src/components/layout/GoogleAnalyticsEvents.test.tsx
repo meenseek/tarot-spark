@@ -24,6 +24,7 @@ describe("GoogleAnalyticsEvents", () => {
       "config",
       "G-TEST1234",
       expect.objectContaining({
+        page_location: `${window.location.origin}/ko`,
         page_path: "/ko",
         send_page_view: true,
       }),
@@ -81,6 +82,29 @@ describe("GoogleAnalyticsEvents", () => {
             unsafe: {
               nested: true,
             },
+          },
+        },
+      }),
+    );
+
+    expect(calls).not.toContainEqual([
+      "event",
+      "topic_click",
+      expect.anything(),
+    ]);
+  });
+
+  it("rejects free text even when it uses an allowed analytics key", () => {
+    const calls = mockGtag();
+
+    render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
+    window.dispatchEvent(
+      new CustomEvent("tarot_spark_event", {
+        detail: {
+          name: "topic_click",
+          payload: {
+            locale: "ko",
+            topic_id: "My private relationship context",
           },
         },
       }),

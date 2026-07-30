@@ -1,0 +1,11 @@
+{
+  "heading": "선택적 개인정보 설정",
+  "body": "tarot-spark가 선택적 Google 서비스를 불러오도록 허용할지 정하세요. 허용하지 않아도 리딩을 이용할 수 있습니다.",
+  "analyticsLabel": "이용 분석",
+  "analyticsDescription": "제품 개선을 위해 제한된 페이지 및 기능 이용 측정을 허용합니다.",
+  "advertisingLabel": "광고",
+  "advertisingDescription": "광고 및 사이트 운영을 위해 리딩 외 페이지에서 Google AdSense가 로드되는 것을 허용합니다.",
+  "saveChoices": "선택 저장",
+  "rejectOptional": "선택 서비스 모두 거부",
+  "settingsButton": "개인정보 설정"
+}
