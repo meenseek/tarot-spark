@@ -184,9 +184,10 @@ test("removes decorative motion when reduced motion is requested", async ({
   await page.getByRole("button", { name: "Draw cards" }).click();
 
   const card = page.getByTestId("reading-card-0");
-  const artFrame = card.locator("[data-card-art-frame]");
+  const art = card.locator("[data-art-id]");
+  await expect(art).toHaveAttribute("data-art-ready", "true");
   const cardAnimation = await getAnimationTiming(card);
-  const artAnimation = await getAnimationTiming(artFrame);
+  const artAnimation = await getAnimationTiming(art);
 
   expect(maximumCssSeconds(cardAnimation.duration)).toBeLessThanOrEqual(0.001);
   expect(maximumCssSeconds(artAnimation.duration)).toBeLessThanOrEqual(0.001);
@@ -202,8 +203,8 @@ test("stages only a user-initiated card reveal with locked timing", async ({
 
   const firstCard = page.getByTestId("reading-card-0");
   const secondCard = page.getByTestId("reading-card-1");
-  const firstArt = firstCard.locator("[data-card-art-frame]");
-  const secondArt = secondCard.locator("[data-card-art-frame]");
+  const firstArt = firstCard.locator("[data-art-id]");
+  const secondArt = secondCard.locator("[data-art-id]");
 
   await expect(firstCard).toHaveAttribute("data-reveal-sequence", "1");
   await expect(firstCard).toHaveCSS("animation-duration", "0.52s");
@@ -211,6 +212,8 @@ test("stages only a user-initiated card reveal with locked timing", async ({
   await expect(secondCard).toHaveCSS("animation-delay", "0.08s");
   await expect(firstCard).toHaveCSS("--ts-card-tilt", "-1.15deg");
   await expect(secondCard).toHaveCSS("--ts-card-tilt", "1.15deg");
+  await expect(firstArt).toHaveAttribute("data-art-ready", "true");
+  await expect(secondArt).toHaveAttribute("data-art-ready", "true");
   await expect(firstArt).toHaveCSS("animation-duration", "0.36s");
   await expect(firstArt).toHaveCSS("animation-delay", "0.12s");
   await expect(secondArt).toHaveCSS("animation-delay", "0.2s");
@@ -232,6 +235,36 @@ test("stages only a user-initiated card reveal with locked timing", async ({
   await expect(page.getByTestId("reading-card-0")).not.toHaveAttribute(
     "data-reveal-sequence",
   );
+  const restoredArt = page
+    .getByTestId("reading-card-0")
+    .locator("[data-art-id]");
+  await expect(restoredArt).toHaveAttribute("data-art-ready", "true");
+  await expect(restoredArt).toHaveCSS("animation-name", "none");
+});
+
+test("keeps a glyph visible until delayed card art can reveal", async ({
+  page,
+}) => {
+  await page.route("**/_next/image**", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1_200));
+    await route.continue();
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Draw cards" }).click();
+
+  const firstCard = page.getByTestId("reading-card-0");
+  const image = firstCard.locator("[data-art-id]");
+
+  await page.waitForTimeout(650);
+  await expect(firstCard.locator("[data-glyph-id]")).toBeVisible();
+  await expect(image).toHaveAttribute("data-art-ready", "false");
+  await expect(image).toHaveCSS("opacity", "0");
+  await expect(image).toHaveCSS("animation-name", "none");
+
+  await expect(image).toHaveAttribute("data-art-ready", "true", {
+    timeout: 3_000,
+  });
+  await expect(image).toHaveCSS("animation-name", "ts-card-face-reveal");
 });
 
 for (const width of [320, 360, 390] as const) {

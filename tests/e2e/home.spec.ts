@@ -36,38 +36,79 @@ test("loads Korean localized content", async ({ page }) => {
   ).toBeVisible();
 });
 
-test("matches every Korean context example to its selected topic", async ({
+test("keeps every localized context example visible at 320px", async ({
   page,
 }) => {
-  await page.goto("/ko");
+  await page.setViewportSize({ height: 844, width: 320 });
 
-  const context = page.getByLabel(/상황 또는 관계 맥락/);
-  const topicExamples = [
-    [
-      "연애 3장",
-      "예: 썸을 타는 사람과 관계를 진전시키고 싶은데, 제가 먼저 마음을 표현해도 건강한 선택일지 고민이에요.",
-    ],
-    [
-      "재회 3장",
-      "예: 헤어진 사람에게 다시 연락할지 고민 중이에요. 같은 문제가 반복되지 않으려면 무엇이 달라져야 할지 살펴보고 싶어요.",
-    ],
-    [
-      "상대의 마음 3장",
-      "예: 최근 상대의 연락이 줄어 혼란스러워요. 실제로 보인 행동과 제 추측을 구분하고 제 감정도 함께 살펴보고 싶어요.",
-    ],
-    [
-      "관계 흐름 3장",
-      "예: 가까운 사람과 대화가 자꾸 어긋나요. 반복되는 관계 패턴과 제가 바꿀 수 있는 부분을 살펴보고 싶어요.",
-    ],
-    [
-      "커리어 방향 3장",
-      "예: 지금 회사에 계속 남을지 새로운 기회를 준비할지 고민이에요. 제가 통제할 수 있는 다음 행동을 정리하고 싶어요.",
-    ],
+  const localizedExamples = [
+    {
+      contextLabel: /Situation or relationship context/,
+      path: "/",
+      topicExamples: [
+        [
+          "Love 3 cards",
+          "Example: I want to move a new romantic connection forward, but I am unsure whether expressing my feelings first would be healthy.",
+        ],
+        [
+          "Reunion 3 cards",
+          "Example: I am considering contacting an ex again and want to reflect on what must change before the same problems repeat.",
+        ],
+        [
+          "Feelings 3 cards",
+          "Example: Their messages have become less frequent. I want to separate observable behavior from my assumptions and understand my own feelings.",
+        ],
+        [
+          "Relationship flow 3 cards",
+          "Example: Conversations with someone close keep going wrong. I want to notice the repeating pattern and what I can change on my side.",
+        ],
+        [
+          "Career direction 3 cards",
+          "Example: I am torn between staying at my current company and preparing for a new opportunity, and I want to clarify my next controllable step.",
+        ],
+      ],
+    },
+    {
+      contextLabel: /상황 또는 관계 맥락/,
+      path: "/ko",
+      topicExamples: [
+        [
+          "연애 3장",
+          "예: 썸을 타는 사람과 관계를 진전시키고 싶은데, 제가 먼저 마음을 표현해도 건강한 선택일지 고민이에요.",
+        ],
+        [
+          "재회 3장",
+          "예: 헤어진 사람에게 다시 연락할지 고민 중이에요. 같은 문제가 반복되지 않으려면 무엇이 달라져야 할지 살펴보고 싶어요.",
+        ],
+        [
+          "상대의 마음 3장",
+          "예: 최근 상대의 연락이 줄어 혼란스러워요. 실제로 보인 행동과 제 추측을 구분하고 제 감정도 함께 살펴보고 싶어요.",
+        ],
+        [
+          "관계 흐름 3장",
+          "예: 가까운 사람과 대화가 자꾸 어긋나요. 반복되는 관계 패턴과 제가 바꿀 수 있는 부분을 살펴보고 싶어요.",
+        ],
+        [
+          "커리어 방향 3장",
+          "예: 지금 회사에 계속 남을지 새로운 기회를 준비할지 고민이에요. 제가 통제할 수 있는 다음 행동을 정리하고 싶어요.",
+        ],
+      ],
+    },
   ] as const;
 
-  for (const [topicButtonName, placeholder] of topicExamples) {
-    await page.getByRole("button", { name: topicButtonName }).click();
-    await expect(context).toHaveAttribute("placeholder", placeholder);
+  for (const { contextLabel, path, topicExamples } of localizedExamples) {
+    await page.goto(path);
+    const context = page.getByLabel(contextLabel);
+
+    for (const [topicButtonName, placeholder] of topicExamples) {
+      await page.getByRole("button", { name: topicButtonName }).click();
+      await expect(context).toHaveAttribute("placeholder", placeholder);
+      expect(
+        await context.evaluate(
+          (element) => element.scrollHeight <= element.clientHeight,
+        ),
+      ).toBe(true);
+    }
   }
 });
 

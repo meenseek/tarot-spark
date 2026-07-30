@@ -11,6 +11,7 @@ type TarotCardArtProps = {
   readonly className?: string;
   readonly glyphClassName?: string;
   readonly placeholderIndex?: number;
+  readonly shouldReveal?: boolean;
   readonly sizes?: string;
 };
 
@@ -19,23 +20,41 @@ export function TarotCardArt({
   className = "object-cover",
   glyphClassName = "h-16 w-16",
   placeholderIndex = 0,
+  shouldReveal = false,
   sizes = "5rem",
 }: TarotCardArtProps) {
   const artSource = cardId ? cardArtSources[cardId] : undefined;
   const [failedArtSource, setFailedArtSource] = useState<string>();
+  const [readyArtSource, setReadyArtSource] = useState<string>();
 
   if (artSource && failedArtSource !== artSource) {
+    const isArtReady = readyArtSource === artSource;
+    const revealClassName = shouldReveal
+      ? isArtReady
+        ? "ts-card-face-reveal"
+        : "ts-card-art-pending"
+      : "";
+
     return (
-      <Image
-        alt=""
-        aria-hidden="true"
-        className={className}
-        data-art-id={cardId}
-        fill
-        onError={() => setFailedArtSource(artSource)}
-        sizes={sizes}
-        src={artSource}
-      />
+      <>
+        <TarotCardGlyph
+          cardId={cardId}
+          className={glyphClassName}
+          placeholderIndex={placeholderIndex}
+        />
+        <Image
+          alt=""
+          aria-hidden="true"
+          className={`${className} ${revealClassName}`}
+          data-art-id={cardId}
+          data-art-ready={isArtReady}
+          fill
+          onError={() => setFailedArtSource(artSource)}
+          onLoad={() => setReadyArtSource(artSource)}
+          sizes={sizes}
+          src={artSource}
+        />
+      </>
     );
   }
 

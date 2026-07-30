@@ -69,9 +69,7 @@ export function CardSpread({
             </div>
             <div className="flex items-center justify-center">
               <div
-                className={`relative grid h-28 w-20 place-items-center overflow-hidden rounded-ts-control border border-ts-divider bg-ts-canvas text-ts-action ${
-                  shouldReveal ? "ts-card-face-reveal" : ""
-                }`}
+                className="relative grid h-28 w-20 place-items-center overflow-hidden rounded-ts-control border border-ts-divider bg-ts-canvas text-ts-action"
                 data-card-art-frame=""
               >
                 <TarotCardArt
@@ -79,6 +77,7 @@ export function CardSpread({
                   className="object-cover"
                   glyphClassName="h-16 w-16"
                   placeholderIndex={index}
+                  shouldReveal={shouldReveal}
                   sizes="5rem"
                 />
                 <span className="sr-only">{cardMarkLabel}</span>
