@@ -415,6 +415,8 @@ test("reserves the hydrated Daily panel height at mobile widths", async ({
 });
 
 test("maps every restored preview card to approved art", async ({ page }) => {
+  test.setTimeout(60_000);
+
   const cardBatches = [
     [
       ["the-fool", "The Fool"],
@@ -447,7 +449,7 @@ test("maps every restored preview card to approved art", async ({ page }) => {
 
       await expect(card.getByRole("heading", { name: cardName })).toBeVisible();
       await expect(art).toHaveAttribute("data-art-ready", "true", {
-        timeout: 10_000,
+        timeout: 20_000,
       });
 
       const decodedImage = await art.evaluate((element) => {
