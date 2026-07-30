@@ -75,7 +75,7 @@ test("clears an active advertising document before showing a reading", async ({
       }),
     },
   );
-  await page.goto("/about");
+  await page.goto("/relationship-flow");
   await expect(
     page.locator('script[src*="googlesyndication.com"]'),
   ).toHaveCount(1);

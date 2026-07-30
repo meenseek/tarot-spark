@@ -11,7 +11,9 @@ import { StrictMode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PrivacyConsent } from "./PrivacyConsent";
 
-const navigationState = vi.hoisted(() => ({ pathname: "/about" }));
+const navigationState = vi.hoisted(() => ({
+  pathname: "/relationship-flow",
+}));
 
 vi.mock("next/navigation", () => ({
   usePathname: () => navigationState.pathname,
@@ -32,7 +34,7 @@ const copy = {
 describe("PrivacyConsent", () => {
   afterEach(() => {
     cleanup();
-    navigationState.pathname = "/about";
+    navigationState.pathname = "/relationship-flow";
     window.localStorage.clear();
     document
       .querySelectorAll(
@@ -113,33 +115,60 @@ describe("PrivacyConsent", () => {
     ).toBeVisible();
   });
 
-  it.each(["/", "/ko", "/share", "/ko/share"])(
-    "never loads AdSense on interactive reading route %s",
-    async (pathname) => {
-      navigationState.pathname = pathname;
-      window.localStorage.setItem(
-        getConsentStorageKey(),
-        JSON.stringify({
-          version: 1,
-          analytics: false,
-          advertising: true,
-        }),
-      );
+  it.each([
+    "/",
+    "/ko",
+    "/share",
+    "/ko/share",
+    "/daily",
+    "/ko/daily",
+    "/about",
+    "/ko/about",
+    "/contact",
+    "/ko/contact",
+    "/disclaimer",
+    "/ko/disclaimer",
+    "/privacy",
+    "/ko/privacy",
+  ])("never loads AdSense on non-allowlisted route %s", async (pathname) => {
+    navigationState.pathname = pathname;
+    window.localStorage.setItem(
+      getConsentStorageKey(),
+      JSON.stringify({
+        version: 1,
+        analytics: false,
+        advertising: true,
+      }),
+    );
 
-      renderConsent();
+    renderConsent();
 
-      expect(
-        await screen.findByRole("button", { name: "Privacy choices" }),
-      ).toBeVisible();
-      expect(
-        document.querySelector('script[src*="googlesyndication.com"]'),
-      ).toBeNull();
-      expect(screen.getByRole("main")).toHaveTextContent("Product content");
-    },
-  );
+    expect(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    ).toBeVisible();
+    expect(
+      document.querySelector('script[src*="googlesyndication.com"]'),
+    ).toBeNull();
+    expect(screen.getByRole("main")).toHaveTextContent("Product content");
+  });
 
-  it.each(["/", "/ko", "/share", "/ko/share"])(
-    "withholds %s until an advertising document is reloaded",
+  it.each([
+    "/",
+    "/ko",
+    "/share",
+    "/ko/share",
+    "/daily",
+    "/ko/daily",
+    "/about",
+    "/ko/about",
+    "/contact",
+    "/ko/contact",
+    "/disclaimer",
+    "/ko/disclaimer",
+    "/privacy",
+    "/ko/privacy",
+  ])(
+    "withholds non-allowlisted route %s until the document reloads",
     async (pathname) => {
       const reloadDocument = vi.fn();
       const advertisingClientId = "ca-pub-1234567890123457";
@@ -174,7 +203,46 @@ describe("PrivacyConsent", () => {
     },
   );
 
-  it("tracks advertising execution across reading-public-reading navigation", async () => {
+  it.each([
+    {
+      advertisingClientId: "ca-pub-1234567890123491",
+      pathname: "/relationship-flow",
+    },
+    {
+      advertisingClientId: "ca-pub-1234567890123492",
+      pathname: "/ko/relationship-flow",
+    },
+  ])(
+    "loads AdSense after stored consent on allowlisted route $pathname",
+    async ({ advertisingClientId, pathname }) => {
+      navigationState.pathname = pathname;
+      window.localStorage.setItem(
+        getConsentStorageKey(),
+        JSON.stringify({
+          version: 1,
+          analytics: false,
+          advertising: true,
+        }),
+      );
+
+      renderConsent(undefined, "Product content", advertisingClientId);
+
+      expect(
+        await screen.findByRole("button", { name: "Privacy choices" }),
+      ).toBeVisible();
+      fireEvent.click(screen.getByRole("button", { name: "Privacy choices" }));
+      expect(
+        screen.getByRole("checkbox", { name: /Advertising/ }),
+      ).toBeChecked();
+      await waitFor(() => {
+        expect(
+          document.querySelector('script[src*="googlesyndication.com"]'),
+        ).not.toBeNull();
+      });
+    },
+  );
+
+  it("tracks advertising across excluded-eligible-excluded navigation", async () => {
     const reloadDocument = vi.fn();
     const advertisingClientId = "ca-pub-1234567890123457";
     navigationState.pathname = "/share";
@@ -201,7 +269,7 @@ describe("PrivacyConsent", () => {
     ).toBeNull();
     expect(screen.getByRole("main")).toHaveTextContent("First reading");
 
-    navigationState.pathname = "/about";
+    navigationState.pathname = "/relationship-flow";
     rerender(
       getConsentElement(reloadDocument, "Public content", advertisingClientId),
     );

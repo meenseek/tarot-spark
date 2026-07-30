@@ -4,7 +4,7 @@
   "analyticsLabel": "Analytics",
   "analyticsDescription": "Allow limited page and feature-use measurement so the product can improve.",
   "advertisingLabel": "Advertising",
-  "advertisingDescription": "Allow Google AdSense to load on non-reading pages for advertising and site monetization.",
+  "advertisingDescription": "Allow Google AdSense to load on approved non-reading content pages for advertising and site monetization.",
   "saveChoices": "Save choices",
   "rejectOptional": "Reject optional services",
   "settingsButton": "Privacy choices"

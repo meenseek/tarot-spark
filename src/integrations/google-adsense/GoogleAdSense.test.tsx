@@ -6,9 +6,11 @@ import { GoogleAdSenseScript } from "./GoogleAdSenseScript";
 import {
   getGoogleAdSenseClientId,
   getGoogleAdSensePublisherId,
+  getGoogleAdSenseScriptClientId,
 } from "./config";
 
 const originalClientId = process.env["NEXT_PUBLIC_ADSENSE_CLIENT_ID"];
+const originalScriptEnabled = process.env["NEXT_PUBLIC_ADSENSE_SCRIPT_ENABLED"];
 
 describe("GoogleAdSense", () => {
   beforeEach(() => {
@@ -21,6 +23,10 @@ describe("GoogleAdSense", () => {
     restoreEnvironmentVariable(
       "NEXT_PUBLIC_ADSENSE_CLIENT_ID",
       originalClientId,
+    );
+    restoreEnvironmentVariable(
+      "NEXT_PUBLIC_ADSENSE_SCRIPT_ENABLED",
+      originalScriptEnabled,
     );
   });
 
@@ -82,6 +88,44 @@ describe("GoogleAdSense", () => {
     process.env["NEXT_PUBLIC_ADSENSE_CLIENT_ID"] = "ca-pub-1234567890123456";
 
     expect(getGoogleAdSensePublisherId()).toBe("pub-1234567890123456");
+  });
+
+  it("keeps script delivery off by default without hiding account metadata", () => {
+    process.env["NEXT_PUBLIC_ADSENSE_CLIENT_ID"] = "ca-pub-1234567890123456";
+    Reflect.deleteProperty(process.env, "NEXT_PUBLIC_ADSENSE_SCRIPT_ENABLED");
+
+    expect(getGoogleAdSenseClientId()).toBe("ca-pub-1234567890123456");
+    expect(getGoogleAdSensePublisherId()).toBe("pub-1234567890123456");
+    expect(getGoogleAdSenseScriptClientId()).toBeNull();
+  });
+
+  it.each([undefined, "false", "TRUE", "1", " true "])(
+    "fails closed for script flag %s",
+    (scriptEnabled) => {
+      process.env["NEXT_PUBLIC_ADSENSE_CLIENT_ID"] = "ca-pub-1234567890123456";
+
+      if (scriptEnabled === undefined) {
+        Reflect.deleteProperty(
+          process.env,
+          "NEXT_PUBLIC_ADSENSE_SCRIPT_ENABLED",
+        );
+      } else {
+        process.env["NEXT_PUBLIC_ADSENSE_SCRIPT_ENABLED"] = scriptEnabled;
+      }
+
+      expect(getGoogleAdSenseScriptClientId()).toBeNull();
+    },
+  );
+
+  it("enables script delivery only with an explicit flag and valid client id", () => {
+    process.env["NEXT_PUBLIC_ADSENSE_CLIENT_ID"] = "ca-pub-1234567890123456";
+    process.env["NEXT_PUBLIC_ADSENSE_SCRIPT_ENABLED"] = "true";
+
+    expect(getGoogleAdSenseScriptClientId()).toBe("ca-pub-1234567890123456");
+
+    process.env["NEXT_PUBLIC_ADSENSE_CLIENT_ID"] = "pub-invalid";
+
+    expect(getGoogleAdSenseScriptClientId()).toBeNull();
   });
 });
 

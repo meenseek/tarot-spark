@@ -1,5 +1,5 @@
 import type { Locale } from "@/i18n/config";
-import { getGoogleAdSenseClientId } from "@/integrations/google-adsense/config";
+import { getGoogleAdSenseScriptClientId } from "@/integrations/google-adsense/config";
 import { PrivacyConsent } from "./PrivacyConsent";
 import { getPrivacyConsentCopy } from "./i18n";
 
@@ -14,7 +14,7 @@ export function OptionalGoogleServices({
 }: OptionalGoogleServicesProps) {
   return (
     <PrivacyConsent
-      advertisingClientId={getGoogleAdSenseClientId() ?? undefined}
+      advertisingClientId={getGoogleAdSenseScriptClientId() ?? undefined}
       analyticsMeasurementId={getGoogleAnalyticsMeasurementId()}
       copy={getPrivacyConsentCopy(locale)}
     >

@@ -1,18 +1,8 @@
-import { getLocalePath, supportedLocales } from "@/i18n/config";
-import { shareReadingPathSegment } from "@/i18n/routing";
+const advertisingEligiblePathnames = new Set([
+  "/relationship-flow",
+  "/ko/relationship-flow",
+]);
 
-const interactiveReadingPathnames = new Set(
-  supportedLocales.flatMap((locale) => {
-    const localePath = getLocalePath(locale);
-    const sharePath =
-      localePath === "/"
-        ? `/${shareReadingPathSegment}`
-        : `${localePath}/${shareReadingPathSegment}`;
-
-    return [localePath, sharePath];
-  }),
-);
-
-export function isInteractiveReadingPathname(pathname: string) {
-  return interactiveReadingPathnames.has(pathname);
+export function isAdvertisingEligiblePathname(pathname: string) {
+  return advertisingEligiblePathnames.has(pathname);
 }

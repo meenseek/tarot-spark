@@ -70,7 +70,7 @@
         {
           "heading": "Third-party services",
           "paragraphs": [
-            "The site may be hosted on Vercel. When the corresponding identifiers are configured, Google Analytics and Google AdSense remain off until you allow those optional services in the privacy choices. AdSense does not load on the interactive reading pages.",
+            "The site may be hosted on Vercel. When the corresponding services and identifiers are enabled, Google Analytics and Google AdSense remain off until you allow those optional services in the privacy choices. Advertising delivery may also be disabled site-wide. When enabled, AdSense loads only on allowlisted non-reading content pages.",
             "Google AdSense and its partners may use cookies or other local storage and process device, page, and ad interaction data to serve, measure, and, where permitted, personalize ads.",
             "Your optional-service choices are stored in this browser and can be revised through the Privacy choices control. Those providers process technical, analytics, and advertising data according to their own terms and privacy policies."
           ]
