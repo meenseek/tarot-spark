@@ -21,6 +21,12 @@
 ## Analytics
 
 - Track behavior-level events only, not personal user data.
+- Keep free-form tarot context out of analytics payloads, URLs, and shared links.
+- Do not load optional analytics or advertising scripts before the user permits
+  the corresponding service.
+- Do not load AdSense on the interactive reading routes that contain the
+  free-form situation or relationship field.
+- Let users revise optional-service choices after the first decision.
 - Core events should include:
   - `topic_click`
   - `draw_start`
