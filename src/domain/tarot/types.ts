@@ -21,6 +21,7 @@ export type {
 export type Topic = {
   readonly id: TopicId;
   readonly label: string;
+  readonly contextPlaceholder: string;
   readonly promptLead: string;
   readonly resultFrame: string;
 };

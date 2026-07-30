@@ -47,6 +47,7 @@ export function CardSpread({
         const revealStyle = shouldReveal
           ? ({
               "--ts-card-index": index,
+              "--ts-card-tilt": index % 2 === 0 ? "-1.15deg" : "1.15deg",
             } as CSSProperties)
           : undefined;
 

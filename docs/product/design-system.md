@@ -85,8 +85,10 @@ instead of palette utilities or color literals.
   loading timer.
 - Animate only user-initiated draws. Do not replay the reveal for restored or
   shared URLs.
-- Use a 520ms card arrival, a 360ms art reveal, an 80ms per-card stagger, and a
-  120ms art offset.
+- Use a 520ms alternating paper-card deal, a 360ms illustrated-face turn, an
+  80ms per-card stagger, and a 120ms face-turn offset.
+- Keep the face turn shallow and tactile. Do not add a shuffle delay, glossy
+  light sweep, particle effect, or full-card spin.
 - Restart the sequence when the user draws again. Do not restart it for reading
   style changes.
 - Set both animation duration and delay to effectively zero when reduced motion

@@ -87,6 +87,7 @@ body {
   animation-duration: var(--ts-motion-card-arrive);
   animation-fill-mode: both;
   animation-timing-function: var(--ts-motion-ease);
+  will-change: opacity, transform;
 }
 
 .ts-card-face-reveal {
@@ -98,12 +99,17 @@ body {
   animation-duration: var(--ts-motion-card-art);
   animation-fill-mode: both;
   animation-timing-function: var(--ts-motion-ease);
+  backface-visibility: hidden;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  will-change: filter, opacity, transform;
 }
 
 @keyframes ts-card-arrive {
   from {
     opacity: 0;
-    transform: translateY(0.75rem) rotate(-0.75deg) scale(0.985);
+    transform: translateY(0.9rem) rotate(var(--ts-card-tilt, -1deg))
+      scale(0.975);
   }
 
   to {
@@ -114,15 +120,21 @@ body {
 
 @keyframes ts-card-face-reveal {
   from {
-    filter: saturate(0.72) brightness(1.04);
-    opacity: 0.24;
-    transform: translateY(0.35rem) scale(0.92);
+    filter: saturate(0.7) brightness(1.06);
+    opacity: 0.18;
+    transform: perspective(28rem) rotateY(-76deg) scale(0.96);
+  }
+
+  72% {
+    filter: saturate(0.94) brightness(1.02);
+    opacity: 1;
+    transform: perspective(28rem) rotateY(3deg) scale(1.01);
   }
 
   to {
     filter: saturate(1) brightness(1);
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: perspective(28rem) rotateY(0) scale(1);
   }
 }
 

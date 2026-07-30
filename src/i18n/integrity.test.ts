@@ -138,7 +138,6 @@ const uiCopySchema = {
   readingStyleSelectorLabel: "string",
   contextLabel: "string",
   contextOptional: "string",
-  contextPlaceholder: "string",
   contextHelp: "string",
   contextCountLabel: "string",
   topicSelectorLabel: "string",
@@ -216,6 +215,7 @@ const tarotMessagesSchema = {
   }),
   topics: exactRecordSchema(topicIds, {
     label: "string",
+    contextPlaceholder: "string",
     promptLead: "string",
     resultFrame: "string",
   }),
