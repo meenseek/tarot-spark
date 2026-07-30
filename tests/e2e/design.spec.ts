@@ -256,17 +256,24 @@ test("keeps a glyph visible until delayed card art can reveal", async ({
   const image = firstCard.locator("[data-art-id]");
 
   await firstCard.evaluate(async (element) => {
-    const ownAnimations = element.getAnimations().filter((animation) => {
+    const arrivalAnimations = element.getAnimations().filter((animation) => {
       const effect = animation.effect as KeyframeEffect | null;
 
-      return effect?.target === element;
+      return (
+        animation instanceof CSSAnimation &&
+        animation.animationName === "ts-card-arrive" &&
+        effect?.target === element
+      );
     });
+    const [arrivalAnimation] = arrivalAnimations;
 
-    if (ownAnimations.length === 0) {
-      throw new Error("Expected the drawn card to have an arrival animation");
+    if (!arrivalAnimation || arrivalAnimations.length !== 1) {
+      throw new Error(
+        `Expected exactly one card arrival animation, found ${arrivalAnimations.length}`,
+      );
     }
 
-    await Promise.all(ownAnimations.map((animation) => animation.finished));
+    await arrivalAnimation.finished;
   });
   await expect(firstCard.locator("[data-glyph-id]")).toBeVisible();
   await expect(image).toHaveAttribute("data-art-ready", "false");
