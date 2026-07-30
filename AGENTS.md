@@ -7,6 +7,8 @@ Keep task details in the linked docs; do not duplicate them here.
 
 - Docs map or document placement: read `docs/README.md`.
 - Workflow choice: read `docs/workflow/task-routing.md`.
+- Phase-gated plan, implementation, and independent review: read
+  `docs/workflow/delivery-phases.md`.
 - Preflight before file edits: follow `docs/workflow/task-routing.md#preflight`.
 - Code changes: read `docs/engineering/code-standards.md` and
   `docs/engineering/verification-gates.md`.

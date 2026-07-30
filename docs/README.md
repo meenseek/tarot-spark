@@ -8,8 +8,11 @@ Use this map when reading, adding, moving, or reviewing repository documents.
 
 - `docs/architecture` answers where code, data, components, and system
   boundaries belong.
-- `docs/workflow` answers how contributors move work through branches, commits,
-  issues, pull requests, reviews, and merges.
+- `docs/workflow` answers how contributors move work through phase-gated
+  delivery, branches, commits, issues, pull requests, reviews, and merges. Start
+  with `docs/workflow/task-routing.md`; use
+  `docs/workflow/delivery-phases.md` for plan, implementation, and independent
+  review gates.
 - `docs/engineering` answers what standards repository artifacts must satisfy
   and which verification commands prove readiness.
 - `docs/product` answers what product, content, analytics, monetization, SEO,
