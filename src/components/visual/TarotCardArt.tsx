@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import type { TarotCardId } from "@/domain/tarot";
 import { TarotCardGlyph } from "./TarotCardGlyph";
-import { pilotArtSources } from "./tarot-card-art-sources";
+import { cardArtSources } from "./tarot-card-art-sources";
 
 type TarotCardArtProps = {
   readonly cardId: TarotCardId | undefined;
@@ -21,7 +21,7 @@ export function TarotCardArt({
   placeholderIndex = 0,
   sizes = "5rem",
 }: TarotCardArtProps) {
-  const artSource = cardId ? pilotArtSources[cardId] : undefined;
+  const artSource = cardId ? cardArtSources[cardId] : undefined;
   const [failedArtSource, setFailedArtSource] = useState<string>();
 
   if (artSource && failedArtSource !== artSource) {

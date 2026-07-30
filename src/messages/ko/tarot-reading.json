@@ -6,7 +6,7 @@
   "brand": "tarot-spark",
   "heading": "나의 상황과 타로 스프레드를 더 선명한 AI 프롬프트로 만드세요.",
   "intro": "주제, 리딩 깊이와 스타일을 고르세요. 선택 입력한 맥락을 더하면 실제로 살펴보고 싶은 상황에 맞는 프롬프트가 만들어집니다.",
-  "deckPreviewNote": "현재 덱: 메이저 아르카나 미리보기 {count}장.",
+  "deckPreviewNote": "현재 덱: 그림으로 완성된 메이저 아르카나 미리보기 {count}장.",
   "personalizationHeading": "리딩 설정",
   "personalizationIntro": "이 선택은 생성되는 프롬프트를 바꾸지만 타인의 마음이나 미래를 확정적으로 단정하지 않습니다.",
   "spreadSelectorLabel": "리딩 깊이 선택",

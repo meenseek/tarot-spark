@@ -78,17 +78,20 @@ weather and time of day without changing the world.
 - Avoid hearts, glitter, neon magic, candy gradients, crowns on every figure,
   or decorative symbols with no interpretive role.
 
-## Pilot Assets
+## Approved Card Assets
 
-- The Fool: `public/cards/the-fool.jpg`; young traveler, dog, open mountain
-  path, and dawn star.
-- The Lovers: `public/cards/the-lovers.jpg`; recurring pair, offered hands,
-  paired birds, and garden threshold.
-- The Star: `public/cards/the-star.jpg`; elder astronomer, water ritual,
-  observatory, and dominant star.
+The current 12-card Major Arcana preview is fully illustrated:
 
-The pilot files establish the production crop and palette. Existing SVG glyphs
-remain the fallback for every card without approved art.
+- The Fool, The Magician, The High Priestess, The Empress, The Emperor, and
+  The Lovers.
+- The Chariot, Strength, The Hermit, Wheel of Fortune, Temperance, and The
+  Star.
+
+All approved files live under `public/cards/` as `700 x 980` JPEGs. The original
+pilot files for The Fool, The Lovers, and The Star establish the production crop
+and palette; the remaining cards extend the same recurring cast, locations, and
+symbol grammar. Existing SVG glyphs remain the fail-safe when an image cannot
+load or when a future card does not yet have approved art.
 
 ## Canonical Prompt System
 

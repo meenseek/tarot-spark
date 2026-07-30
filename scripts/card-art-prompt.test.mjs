@@ -9,7 +9,7 @@ import {
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { pilotArtSources } from "../src/components/visual/tarot-card-art-sources";
+import { cardArtSources } from "../src/components/visual/tarot-card-art-sources";
 import {
   buildCardArtPrompt,
   getCardArtLocks,
@@ -95,7 +95,7 @@ describe("card art prompt system", () => {
         manifest.cards.map((card) => [card.id, card.promptSha256]),
       ),
     ).toEqual(locks.promptSha256);
-    expect(manifestSources).toEqual(pilotArtSources);
+    expect(manifestSources).toEqual(cardArtSources);
 
     for (const path of Object.keys(locks.assetSha256)) {
       expect(readFileSync(resolve(repositoryRoot, path))).not.toHaveLength(0);

@@ -339,29 +339,38 @@ test("reserves the hydrated Daily panel height at mobile widths", async ({
   }
 });
 
-test("maps restored cards to pilot art or typed glyph fallback", async ({
-  page,
-}) => {
-  await page.goto(
-    "/?topic=love&cards=the-fool,the-magician,the-high-priestess",
-  );
-
-  const expectedCards = [
-    ["the-fool", "The Fool", "art"],
-    ["the-magician", "The Magician", "glyph"],
-    ["the-high-priestess", "The High Priestess", "glyph"],
+test("maps every restored preview card to approved art", async ({ page }) => {
+  const cardBatches = [
+    [
+      ["the-fool", "The Fool"],
+      ["the-magician", "The Magician"],
+      ["the-high-priestess", "The High Priestess"],
+      ["the-empress", "The Empress"],
+      ["the-emperor", "The Emperor"],
+      ["the-lovers", "The Lovers"],
+    ],
+    [
+      ["the-chariot", "The Chariot"],
+      ["strength", "Strength"],
+      ["the-hermit", "The Hermit"],
+      ["wheel-of-fortune", "Wheel of Fortune"],
+      ["temperance", "Temperance"],
+      ["the-star", "The Star"],
+    ],
   ] as const;
 
-  for (const [cardId, cardName, visualKind] of expectedCards) {
-    const card = page.locator(`[data-card-id="${cardId}"]`);
-    await expect(card.getByRole("heading", { name: cardName })).toBeVisible();
-    await expect(
-      card.locator(
-        visualKind === "art"
-          ? `[data-art-id="${cardId}"]`
-          : `[data-glyph-id="${cardId}"]`,
-      ),
-    ).toBeVisible();
+  for (const batch of cardBatches) {
+    await page.goto(
+      `/?topic=love&spread=deep&cards=${batch
+        .map(([cardId]) => cardId)
+        .join(",")}`,
+    );
+
+    for (const [cardId, cardName] of batch) {
+      const card = page.locator(`[data-card-id="${cardId}"]`);
+      await expect(card.getByRole("heading", { name: cardName })).toBeVisible();
+      await expect(card.locator(`[data-art-id="${cardId}"]`)).toBeVisible();
+    }
   }
 });
 
@@ -380,8 +389,9 @@ test("uses the same paper system on Daily and public pages", async ({
     "16px",
   );
   const dailyCardId = await dailyCard.getAttribute("data-card-id");
+  expect(dailyCardId).not.toBeNull();
   await expect(
-    dailyCard.locator(`[data-glyph-id="${dailyCardId}"]`),
+    dailyCard.locator(`[data-art-id="${dailyCardId}"]`),
   ).toBeVisible();
 
   await page.goto("/privacy");
