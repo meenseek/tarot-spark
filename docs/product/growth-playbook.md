@@ -10,6 +10,10 @@ the terminal share outcome.
 Do not expand the illustrated deck from the three-card pilot to all 22 Major
 Arcana until the 200-session gate is reviewed.
 
+Use the [revenue validation plan](revenue-validation-plan.md) for monetization.
+Start its interest test only after its production-integrity and activation
+gates pass.
+
 ## Audience
 
 Prioritize people who already use a generative AI writing tool and want a
