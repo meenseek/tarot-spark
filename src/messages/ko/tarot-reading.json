@@ -21,9 +21,42 @@
   "drawButton": "카드 뽑기",
   "workspaceLabel": "타로 리딩 작업 영역",
   "cardMarkLabel": "장식용 타로 카드 문양",
+  "promptPack": {
+    "heading": "지금 필요한 프롬프트를 고르세요",
+    "intro": "모든 프롬프트가 전체 스프레드를 사용합니다. 메인 리딩으로 시작하고 다른 도움이 필요할 때 관점을 바꿔 복사하세요.",
+    "selectorLabel": "프롬프트 팩",
+    "slots": {
+      "main": {
+        "label": "메인 리딩",
+        "description": "대안과 다음 행동까지 포함한 상세한 연결 해석입니다."
+      },
+      "other-view": {
+        "label": "다른 관점",
+        "description": "첫 해석에 질문을 던지고 놓친 가정을 점검합니다."
+      },
+      "action": {
+        "label": "행동 계획",
+        "description": "스프레드를 선택지, 장단점, 작고 되돌릴 수 있는 행동으로 바꿉니다."
+      },
+      "emotion": {
+        "label": "감정 정리",
+        "description": "진단하지 않고 감정, 근거, 욕구, 경계를 구분합니다."
+      }
+    }
+  },
+  "cardDetails": {
+    "archetype": "원형",
+    "keywords": "핵심어",
+    "symbols": "살펴볼 상징",
+    "light": "빛의 표현",
+    "shadow": "그림자의 표현",
+    "agency": "내가 바꿀 수 있는 것",
+    "caution": "주의할 점",
+    "reflection": "성찰 질문"
+  },
   "generatedPromptLabel": "생성된 프롬프트",
   "interpretationLensLabel": "해석 관점",
-  "copyPrompt": "프롬프트 복사",
+  "copyPrompt": "선택한 프롬프트 복사",
   "copied": "복사됨",
   "copyUrl": "URL 복사",
   "copiedUrl": "URL 복사됨",

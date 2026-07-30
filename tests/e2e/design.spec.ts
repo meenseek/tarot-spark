@@ -162,7 +162,9 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
   await assertFocusOutline(drawButton, page);
 
   await drawButton.click();
-  const copyPromptButton = page.getByRole("button", { name: "Copy prompt" });
+  const copyPromptButton = page.getByRole("button", {
+    name: "Copy selected prompt",
+  });
   await tabTo(page, copyPromptButton);
   await assertFocusOutline(copyPromptButton, page);
 });
@@ -176,12 +178,56 @@ test("removes decorative motion when reduced motion is requested", async ({
   const duration = await page
     .getByRole("button", { name: "Reunion 3 cards" })
     .evaluate((element) => getComputedStyle(element).transitionDuration);
-  const durationSeconds = duration
-    .split(",")
-    .map((value) => Number.parseFloat(value))
-    .reduce((maximum, value) => Math.max(maximum, value), 0);
 
-  expect(durationSeconds).toBeLessThanOrEqual(0.001);
+  expect(maximumCssSeconds(duration)).toBeLessThanOrEqual(0.001);
+
+  await page.getByRole("button", { name: "Draw cards" }).click();
+
+  const card = page.getByTestId("reading-card-0");
+  const artFrame = card.locator("[data-card-art-frame]");
+  const cardAnimation = await getAnimationTiming(card);
+  const artAnimation = await getAnimationTiming(artFrame);
+
+  expect(maximumCssSeconds(cardAnimation.duration)).toBeLessThanOrEqual(0.001);
+  expect(maximumCssSeconds(artAnimation.duration)).toBeLessThanOrEqual(0.001);
+  expect(maximumCssSeconds(cardAnimation.delay)).toBe(0);
+  expect(maximumCssSeconds(artAnimation.delay)).toBe(0);
+});
+
+test("stages only a user-initiated card reveal with locked timing", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Draw cards" }).click();
+
+  const firstCard = page.getByTestId("reading-card-0");
+  const secondCard = page.getByTestId("reading-card-1");
+  const firstArt = firstCard.locator("[data-card-art-frame]");
+  const secondArt = secondCard.locator("[data-card-art-frame]");
+
+  await expect(firstCard).toHaveAttribute("data-reveal-sequence", "1");
+  await expect(firstCard).toHaveCSS("animation-duration", "0.52s");
+  await expect(firstCard).toHaveCSS("animation-delay", "0s");
+  await expect(secondCard).toHaveCSS("animation-delay", "0.08s");
+  await expect(firstArt).toHaveCSS("animation-duration", "0.36s");
+  await expect(firstArt).toHaveCSS("animation-delay", "0.12s");
+  await expect(secondArt).toHaveCSS("animation-delay", "0.2s");
+
+  await page.getByRole("button", { name: "Draw cards" }).click();
+  await expect(page.getByTestId("reading-card-0")).toHaveAttribute(
+    "data-reveal-sequence",
+    "2",
+  );
+
+  await page.goto(
+    "/?topic=relationship-flow&style=relational&cards=the-fool,the-lovers,the-star",
+  );
+  await expect(page.getByTestId("reading-card-0")).not.toHaveClass(
+    /ts-card-arrive/,
+  );
+  await expect(page.getByTestId("reading-card-0")).not.toHaveAttribute(
+    "data-reveal-sequence",
+  );
 });
 
 for (const width of [320, 360, 390] as const) {
@@ -293,21 +339,29 @@ test("reserves the hydrated Daily panel height at mobile widths", async ({
   }
 });
 
-test("maps restored cards to distinct typed glyphs", async ({ page }) => {
+test("maps restored cards to pilot art or typed glyph fallback", async ({
+  page,
+}) => {
   await page.goto(
     "/?topic=love&cards=the-fool,the-magician,the-high-priestess",
   );
 
   const expectedCards = [
-    ["the-fool", "The Fool"],
-    ["the-magician", "The Magician"],
-    ["the-high-priestess", "The High Priestess"],
+    ["the-fool", "The Fool", "art"],
+    ["the-magician", "The Magician", "glyph"],
+    ["the-high-priestess", "The High Priestess", "glyph"],
   ] as const;
 
-  for (const [cardId, cardName] of expectedCards) {
+  for (const [cardId, cardName, visualKind] of expectedCards) {
     const card = page.locator(`[data-card-id="${cardId}"]`);
     await expect(card.getByRole("heading", { name: cardName })).toBeVisible();
-    await expect(card.locator(`[data-glyph-id="${cardId}"]`)).toBeVisible();
+    await expect(
+      card.locator(
+        visualKind === "art"
+          ? `[data-art-id="${cardId}"]`
+          : `[data-glyph-id="${cardId}"]`,
+      ),
+    ).toBeVisible();
   }
 });
 
@@ -349,6 +403,31 @@ async function computedStyle(
       getComputedStyle(element)[styleProperty] as unknown as string,
     property,
   );
+}
+
+async function getAnimationTiming(locator: Locator) {
+  return locator.evaluate((element) => {
+    const style = getComputedStyle(element);
+
+    return {
+      delay: style.animationDelay,
+      duration: style.animationDuration,
+    };
+  });
+}
+
+function maximumCssSeconds(value: string) {
+  return value
+    .split(",")
+    .map((part) => {
+      const normalizedPart = part.trim();
+      const numericValue = Number.parseFloat(normalizedPart);
+
+      return normalizedPart.endsWith("ms")
+        ? numericValue / 1_000
+        : numericValue;
+    })
+    .reduce((maximum, current) => Math.max(maximum, current), 0);
 }
 
 async function assertFocusOutline(locator: Locator, page: Page) {

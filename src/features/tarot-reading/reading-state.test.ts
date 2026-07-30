@@ -3,9 +3,12 @@ import { getSpreadPositions } from "@/domain/tarot";
 import { getTarotData } from "@/i18n/tarot-data";
 import {
   buildReadingUrl,
+  clearPrivateContextHandoff,
   consumePrivateContextHandoff,
   getLocalizedReadingHref,
+  getReadingAttributionFromUrl,
   getReadingStateFromUrl,
+  readPrivateContextHandoff,
   storePrivateContextHandoff,
   type ReadingUrlState,
 } from "./reading-state";
@@ -33,6 +36,46 @@ describe("reading URL state", () => {
     expect(url.searchParams.has("style")).toBe(false);
     expect(url.searchParams.has("utm_source")).toBe(false);
     expect(url.hash).toBe("");
+  });
+
+  it("adds only allowlisted share attribution when explicitly requested", () => {
+    const url = new URL(
+      buildReadingUrl(
+        "https://example.com/?source=private-notes",
+        createState("quick", "balanced"),
+        {
+          campaignId: "vertical-slice",
+          sourceId: "instagram",
+        },
+      ),
+    );
+
+    expect(url.searchParams.get("source")).toBe("instagram");
+    expect(url.searchParams.get("campaign")).toBe("vertical-slice");
+    expect(url.toString()).not.toContain("private-notes");
+  });
+
+  it("parses only a complete allowlisted attribution pair", () => {
+    expect(
+      getReadingAttributionFromUrl(
+        "https://example.com/share?source=instagram&campaign=vertical-slice",
+      ),
+    ).toEqual({
+      campaignId: "vertical-slice",
+      sourceId: "instagram",
+    });
+    expect(
+      getReadingAttributionFromUrl("https://example.com/share"),
+    ).toBeUndefined();
+
+    for (const href of [
+      "https://example.com/share?source=instagram",
+      "https://example.com/share?campaign=vertical-slice",
+      "https://example.com/share?source=private&campaign=vertical-slice",
+      "https://example.com/share?source=instagram&source=copy&campaign=vertical-slice",
+    ]) {
+      expect(getReadingAttributionFromUrl(href)).toBeNull();
+    }
   });
 
   it("restores legacy three-card URLs as the quick balanced reading", () => {
@@ -74,6 +117,21 @@ describe("reading URL state", () => {
     expect(getLocalizedReadingHref("ko", createState("deep", "direct"))).toBe(
       "/ko?topic=love&spread=deep&style=direct&cards=the-fool%2Cthe-magician%2Cthe-high-priestess%2Cthe-empress%2Cthe-emperor%2Cthe-lovers",
     );
+  });
+
+  it("preserves typed attribution in a locale link", () => {
+    const href = getLocalizedReadingHref(
+      "ko",
+      createState("quick", "balanced"),
+      {
+        campaignId: "prompt-education",
+        sourceId: "threads",
+      },
+    );
+    const url = new URL(href, "https://example.com");
+
+    expect(url.searchParams.get("source")).toBe("threads");
+    expect(url.searchParams.get("campaign")).toBe("prompt-education");
   });
 
   function createState(
@@ -125,6 +183,30 @@ describe("one-time locale context transfer", () => {
     expect(consumePrivateContextHandoff(window.sessionStorage, 2_000)).toBe(
       undefined,
     );
+  });
+
+  it("keeps a valid handoff until restoration explicitly commits", () => {
+    storePrivateContextHandoff(
+      window.sessionStorage,
+      "  Private context survives Strict Effects.  ",
+      1_000,
+    );
+
+    expect(readPrivateContextHandoff(window.sessionStorage, 2_000)).toBe(
+      "Private context survives Strict Effects.",
+    );
+    expect(readPrivateContextHandoff(window.sessionStorage, 2_000)).toBe(
+      "Private context survives Strict Effects.",
+    );
+    expect(
+      window.sessionStorage.getItem(privateContextHandoffStorageKey),
+    ).not.toBeNull();
+
+    clearPrivateContextHandoff(window.sessionStorage);
+
+    expect(
+      window.sessionStorage.getItem(privateContextHandoffStorageKey),
+    ).toBeNull();
   });
 
   it("rejects expired and invalid records after deleting them", () => {

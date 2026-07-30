@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "title": "Relationship Flow Tarot Prompt | tarot-spark",
+    "description": "Draw a reflective relationship-flow tarot spread and copy four detailed AI prompts for patterns, perspectives, actions, and emotions."
+  },
+  "eyebrow": "Relationship reflection guide",
+  "heading": "See the relationship pattern without pretending to know the other person’s mind.",
+  "intro": "Use a six-card spread to separate what you observe, what you infer, and what you can influence. Then choose one of four detailed prompts for the kind of reflection you need next.",
+  "benefitsHeading": "Built for a more useful AI conversation",
+  "benefits": [
+    {
+      "title": "One connected pattern",
+      "body": "The prompt asks the AI to connect all six positions instead of repeating isolated card definitions."
+    },
+    {
+      "title": "Four complete lenses",
+      "body": "Explore the main reading, a challenging alternative, a practical action plan, or an emotion check-in."
+    },
+    {
+      "title": "Agency before prediction",
+      "body": "The reading separates your choices from uncertain outcomes and another person’s private thoughts."
+    }
+  ],
+  "stepsHeading": "How the relationship-flow reading works",
+  "steps": [
+    {
+      "title": "1. Add only the context you need",
+      "body": "Describe the dynamic without names, contact details, birth dates, or workplace secrets. You can also leave the field empty."
+    },
+    {
+      "title": "2. Draw the deep six-card spread",
+      "body": "The positions cover the current situation, your perspective, external dynamics, hidden tension, agency, and a grounded next step."
+    },
+    {
+      "title": "3. Copy the prompt that fits",
+      "body": "Paste the selected prompt into your preferred AI writing tool, then keep what is useful and question what is not."
+    }
+  ],
+  "exampleEyebrow": "Example, not a prediction",
+  "exampleHeading": "The Lovers + The Star can hold connection and recovery at the same time.",
+  "exampleBody": "A grounded interpretation might ask whether mutual choice is visible in behavior, where hope needs patience, and which boundary would protect both honesty and self-respect. It would not claim proof of hidden feelings or guarantee an outcome.",
+  "faqHeading": "Relationship tarot prompt FAQ",
+  "faqs": [
+    {
+      "question": "Can this tell me exactly what another person feels?",
+      "answer": "No. Tarot symbols can support reflection, but they cannot verify another person’s hidden feelings, motives, or future actions."
+    },
+    {
+      "question": "Where does my situation text go?",
+      "answer": "Optional context stays in your browser. It is excluded from reading URLs and analytics, and leaves the site only if you choose to copy or share it elsewhere."
+    },
+    {
+      "question": "Which prompt should I start with?",
+      "answer": "Start with Main reading for the full pattern. Use Other perspective when you want to challenge assumptions, Action plan for practical options, or Emotion check-in to separate feelings, evidence, needs, and boundaries."
+    }
+  ],
+  "ctaHeading": "Ready to map the relationship flow?",
+  "ctaBody": "The generator will open with the relationship-centered six-card setup. You can change every choice before drawing.",
+  "ctaButton": "Start the relationship-flow spread",
+  "privacyNote": "No account required. Keep names and identifying details out of optional context.",
+  "disclaimer": "For entertainment and self-reflection only. Not medical, legal, financial, investment, or mental-health advice."
+}

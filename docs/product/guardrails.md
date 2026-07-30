@@ -34,6 +34,7 @@
   - `result_view`
   - `prompt_copy`
   - `share_click`
+  - `share_result`
 - Analytics events should help answer what users click, where they drop off, and
   which topics lead to result views or prompt copies.
 - Add new event names only when an existing core event cannot describe the

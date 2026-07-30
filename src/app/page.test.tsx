@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom/vitest";
+import { StrictMode } from "react";
 import {
   act,
   cleanup,
@@ -6,8 +7,13 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  announceAnalyticsReady,
+  clearAnalyticsReady,
+} from "@/features/tarot-reading/analytics";
 import { TarotExperience } from "@/features/tarot-reading";
 import Home from "./(root)/page";
 
@@ -41,6 +47,7 @@ describe("Home", () => {
     document.getElementById(kakaoSdkScriptId)?.remove();
     window.history.replaceState(null, "", originalUrl);
     window.sessionStorage.clear();
+    clearAnalyticsReady();
 
     if (originalExecCommand) {
       document.execCommand = originalExecCommand;
@@ -154,7 +161,7 @@ describe("Home", () => {
 
     expect(prompt.value).toContain("해석 관점: 선택과 주도성");
     expect(prompt.value).toContain("카드별 해석 각도:");
-    expect(prompt.value).toContain("하나의 연결된 패턴");
+    expect(prompt.value).toContain("3. 연결된 흐름:");
   });
 
   it("draws cards and generates a copyable prompt", () => {
@@ -168,10 +175,16 @@ describe("Home", () => {
       }),
     );
 
-    expect(screen.getByText("Spark: The Fool")).toBeInTheDocument();
-    expect(screen.getByText("Shadow: The Magician")).toBeInTheDocument();
     expect(
-      screen.getByText("Next step: The High Priestess"),
+      within(screen.getByTestId("reading-card-0")).getByText("The Fool"),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("reading-card-1")).getByText("The Magician"),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("reading-card-2")).getByText(
+        "The High Priestess",
+      ),
     ).toBeInTheDocument();
 
     const prompt = screen.getByLabelText(
@@ -182,7 +195,7 @@ describe("Home", () => {
     expect(prompt.value).toContain("Act as a reflective tarot writing partner");
     expect(prompt.value).toContain("Card-specific angle:");
     expect(prompt.value).toContain("Interpretation lens:");
-    expect(prompt.value).toContain("one connected pattern");
+    expect(prompt.value).toContain("3. Connected spread:");
     expect(
       screen.getByText("Interpretation lens: Choice and agency", {
         selector: "p",
@@ -190,7 +203,7 @@ describe("Home", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", {
-        name: "Copy prompt",
+        name: "Copy selected prompt",
       }),
     ).toBeInTheDocument();
     expect(
@@ -219,6 +232,32 @@ describe("Home", () => {
     );
   });
 
+  it("restarts the visual reveal only for each user-initiated draw", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+
+    render(<Home />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+
+    const firstDrawCard = screen.getByTestId("reading-card-0");
+    expect(firstDrawCard).toHaveAttribute("data-reveal-order", "1");
+    expect(firstDrawCard).toHaveAttribute("data-reveal-sequence", "1");
+    expect(firstDrawCard).toHaveClass("ts-card-arrive");
+
+    fireEvent.click(
+      screen.getByRole("radio", { name: /Direct, not deterministic/ }),
+    );
+
+    expect(screen.getByTestId("reading-card-0")).toBe(firstDrawCard);
+    expect(firstDrawCard).toHaveAttribute("data-reveal-sequence", "1");
+
+    fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+
+    const secondDrawCard = screen.getByTestId("reading-card-0");
+    expect(secondDrawCard).not.toBe(firstDrawCard);
+    expect(secondDrawCard).toHaveAttribute("data-reveal-sequence", "2");
+  });
+
   it("restores a shared reading from URL parameters", async () => {
     window.history.replaceState(
       null,
@@ -229,7 +268,9 @@ describe("Home", () => {
     render(<Home />);
 
     await waitFor(() => {
-      expect(screen.getByText("Spark: The Fool")).toBeInTheDocument();
+      expect(
+        within(screen.getByTestId("reading-card-0")).getByText("The Fool"),
+      ).toBeInTheDocument();
     });
     expect(
       screen.getByRole("button", { name: "Reunion 3 cards" }),
@@ -247,6 +288,79 @@ describe("Home", () => {
     expect(
       screen.getByText(`Interpretation lens: ${interpretationLens}`),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("reading-card-0")).not.toHaveClass(
+      "ts-card-arrive",
+    );
+    expect(screen.getByTestId("reading-card-0")).not.toHaveAttribute(
+      "data-reveal-order",
+    );
+    expect(screen.getByTestId("reading-card-0")).not.toHaveAttribute(
+      "data-reveal-sequence",
+    );
+  });
+
+  it("preserves share attribution and emits one restored result after analytics is ready", async () => {
+    const events: {
+      readonly name: string;
+      readonly payload: Record<string, unknown>;
+    }[] = [];
+    const listener = (event: Event) => {
+      events.push((event as CustomEvent).detail);
+    };
+    const writeText = vi.fn(() => Promise.resolve());
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+    window.history.replaceState(
+      null,
+      "",
+      "/share?topic=relationship-flow&style=relational&cards=the-fool,the-lovers,the-star&source=instagram&campaign=vertical-slice",
+    );
+    window.addEventListener("tarot_spark_event", listener);
+
+    try {
+      render(<Home />);
+      announceAnalyticsReady();
+
+      await waitFor(() => {
+        expect(screen.getByLabelText("Generated prompt")).toBeVisible();
+      });
+      expect(events.filter(({ name }) => name === "result_view")).toEqual([
+        {
+          name: "result_view",
+          payload: {
+            locale: "en",
+            topic_id: "relationship-flow",
+            card_count: 3,
+            spread_id: "quick",
+            style_id: "relational",
+            source: "instagram",
+            campaign: "vertical-slice",
+          },
+        },
+      ]);
+
+      fireEvent.click(
+        screen.getByRole("button", { name: "Copy selected prompt" }),
+      );
+      await waitFor(() => {
+        expect(writeText).toHaveBeenCalled();
+      });
+      expect(events).toContainEqual({
+        name: "prompt_copy",
+        payload: expect.objectContaining({
+          source: "instagram",
+          campaign: "vertical-slice",
+        }),
+      });
+      expect(screen.getByRole("link", { name: "한국어" })).toHaveAttribute(
+        "href",
+        expect.stringContaining("source=instagram"),
+      );
+    } finally {
+      window.removeEventListener("tarot_spark_event", listener);
+    }
   });
 
   it("builds a contextual direct six-card prompt without exposing context", () => {
@@ -317,7 +431,11 @@ describe("Home", () => {
     expect(window.sessionStorage.length).toBe(1);
     cleanup();
     window.history.replaceState(null, "", koreanHref ?? "/ko");
-    render(<TarotExperience locale="ko" />);
+    render(
+      <StrictMode>
+        <TarotExperience locale="ko" />
+      </StrictMode>,
+    );
 
     await waitFor(() => {
       expect(
@@ -404,6 +522,59 @@ describe("Home", () => {
     }
   });
 
+  it("copies an independently useful Prompt Pack slot as activation", async () => {
+    const events: {
+      readonly name: string;
+      readonly payload: Record<string, unknown>;
+    }[] = [];
+    const listener = (event: Event) => {
+      events.push((event as CustomEvent).detail);
+    };
+    const writeText = vi.fn(() => Promise.resolve());
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    window.addEventListener("tarot_spark_event", listener);
+
+    try {
+      render(<Home />);
+      fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+      fireEvent.click(screen.getByRole("button", { name: /^Action plan/ }));
+
+      const prompt = screen.getByLabelText(
+        "Generated prompt",
+      ) as HTMLTextAreaElement;
+      expect(prompt.value).toContain(
+        "three options with benefits, costs, and warning signs",
+      );
+
+      fireEvent.click(
+        screen.getByRole("button", { name: "Copy selected prompt" }),
+      );
+
+      await waitFor(() => {
+        expect(writeText).toHaveBeenCalledWith(prompt.value);
+      });
+      expect(events).toContainEqual({
+        name: "prompt_copy",
+        payload: {
+          locale: "en",
+          topic_id: "love",
+          card_count: 3,
+          spread_id: "quick",
+          style_id: "balanced",
+          prompt_slot: "action",
+          prompt_version: "prompt-pack-v2",
+          surface: "reading_result",
+        },
+      });
+    } finally {
+      window.removeEventListener("tarot_spark_event", listener);
+    }
+  });
+
   it("shows a cause-neutral failure message when prompt copy is blocked", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     Reflect.deleteProperty(navigator, "clipboard");
@@ -412,7 +583,9 @@ describe("Home", () => {
     render(<Home />);
 
     fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
-    fireEvent.click(screen.getByRole("button", { name: "Copy prompt" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Copy selected prompt" }),
+    );
 
     await waitFor(() => {
       const failureMessage = screen.getByText(
@@ -422,11 +595,18 @@ describe("Home", () => {
       expect(failureMessage).not.toHaveTextContent(/permission/i);
     });
     expect(
-      screen.getByRole("button", { name: "Copy prompt" }),
+      screen.getByRole("button", { name: "Copy selected prompt" }),
     ).toBeInTheDocument();
   });
 
   it("keeps share idle when native share is cancelled", async () => {
+    const events: {
+      readonly name: string;
+      readonly payload: Record<string, unknown>;
+    }[] = [];
+    const listener = (event: Event) => {
+      events.push((event as CustomEvent).detail);
+    };
     const share = vi.fn(() =>
       Promise.reject(new DOMException("Share cancelled", "AbortError")),
     );
@@ -436,18 +616,40 @@ describe("Home", () => {
     });
 
     renderDrawnReading();
+    window.addEventListener("tarot_spark_event", listener);
 
-    fireEvent.click(screen.getByRole("button", { name: "Share" }));
+    try {
+      fireEvent.click(screen.getByRole("button", { name: "Share" }));
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+      await act(async () => {
+        await Promise.resolve();
+      });
 
-    expect(share).toHaveBeenCalledTimes(1);
-    expect(
-      screen.queryByText(/that action could not be completed/i),
-    ).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Share" })).toBeInTheDocument();
+      expect(share).toHaveBeenCalledTimes(1);
+      expect(
+        screen.queryByText(/that action could not be completed/i),
+      ).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Share" })).toBeInTheDocument();
+      expect(events.filter(({ name }) => name === "share_click")).toHaveLength(
+        1,
+      );
+      expect(events.filter(({ name }) => name === "share_result")).toEqual([
+        {
+          name: "share_result",
+          payload: {
+            locale: "en",
+            topic_id: "love",
+            card_count: 3,
+            method: "native",
+            outcome: "cancelled",
+            spread_id: "quick",
+            style_id: "balanced",
+          },
+        },
+      ]);
+    } finally {
+      window.removeEventListener("tarot_spark_event", listener);
+    }
   });
 
   it("shows a cause-neutral failure message when native share fails", async () => {
@@ -479,7 +681,9 @@ describe("Home", () => {
     render(<TarotExperience locale="ko" />);
 
     fireEvent.click(screen.getByRole("button", { name: "카드 뽑기" }));
-    fireEvent.click(screen.getByRole("button", { name: "프롬프트 복사" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "선택한 프롬프트 복사" }),
+    );
 
     await waitFor(() => {
       const failureMessage = screen.getByText(/작업을 완료하지 못했습니다/);
@@ -521,7 +725,7 @@ describe("Home", () => {
     };
 
     renderDrawnReading();
-    const shareUrl = getExpectedShareUrl();
+    const shareUrl = getExpectedShareUrl("kakao");
 
     fireEvent.click(await screen.findByRole("button", { name: "KakaoTalk" }));
 
@@ -627,6 +831,9 @@ describe("Home", () => {
     expect(url.searchParams.get("cards")).toBe(
       "the-fool,the-magician,the-high-priestess",
     );
+    expect(url.pathname).toBe("/share");
+    expect(url.searchParams.get("source")).toBe("copy");
+    expect(url.searchParams.get("campaign")).toBe("vertical-slice");
     expect(url.origin).toBe("https://tarot-spark.example");
   });
 
@@ -653,7 +860,7 @@ describe("Home", () => {
         screen.getByRole("button", { name: "Instagram link copied" }),
       ).toBeInTheDocument();
     });
-    expect(writeText).toHaveBeenCalledWith(getExpectedShareUrl());
+    expect(writeText).toHaveBeenCalledWith(getExpectedShareUrl("instagram"));
   });
 
   it("loads the Kakao SDK script and allows retry after load failure", async () => {
@@ -729,6 +936,9 @@ function restoreEnv(key: string, value: string | undefined) {
   process.env[key] = value;
 }
 
-function getExpectedShareUrl(origin = "https://tarot-spark.example") {
-  return `${origin}/?topic=love&cards=the-fool%2Cthe-magician%2Cthe-high-priestess`;
+function getExpectedShareUrl(
+  source: "instagram" | "kakao",
+  origin = "https://tarot-spark.example",
+) {
+  return `${origin}/share?topic=love&cards=the-fool%2Cthe-magician%2Cthe-high-priestess&source=${source}&campaign=vertical-slice`;
 }

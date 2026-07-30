@@ -1,4 +1,5 @@
 import { getLocalePath, type Locale } from "@/i18n/config";
+import { shareReadingPathSegment } from "@/i18n/routing";
 import {
   getSpreadPositions,
   normalizeUserContext,
@@ -13,6 +14,8 @@ const readingTopicParam = "topic";
 const readingCardsParam = "cards";
 const readingSpreadParam = "spread";
 const readingStyleParam = "style";
+const shareSourceParam = "source";
+const shareCampaignParam = "campaign";
 const privateContextHandoffStorageKey =
   "tarot-spark.private-context-handoff.v1";
 const privateContextHandoffVersion = 1;
@@ -25,7 +28,37 @@ export type ReadingUrlState = {
   readonly topicId: TopicId;
 };
 
-export function buildReadingUrl(href: string, state: ReadingUrlState) {
+export const shareSourceIds = [
+  "instagram",
+  "naver",
+  "threads",
+  "kakao",
+  "native",
+  "copy",
+  "pinterest",
+  "reddit",
+] as const;
+export type ShareSourceId = (typeof shareSourceIds)[number];
+
+export const shareCampaignIds = [
+  "vertical-slice",
+  "pick-a-card",
+  "prompt-education",
+  "deck-progress",
+  "topic-guide",
+] as const;
+export type ShareCampaignId = (typeof shareCampaignIds)[number];
+
+export type ReadingUrlAttribution = {
+  readonly campaignId: ShareCampaignId;
+  readonly sourceId: ShareSourceId;
+};
+
+export function buildReadingUrl(
+  href: string,
+  state: ReadingUrlState,
+  attribution?: ReadingUrlAttribution,
+) {
   const url = new URL(href);
   url.search = "";
   url.hash = "";
@@ -46,27 +79,75 @@ export function buildReadingUrl(href: string, state: ReadingUrlState) {
     );
   }
 
+  if (attribution) {
+    url.searchParams.set(shareSourceParam, attribution.sourceId);
+    url.searchParams.set(shareCampaignParam, attribution.campaignId);
+  }
+
   return url.toString();
 }
 
 export function getLocalizedReadingHref(
   locale: Locale,
   state: ReadingUrlState,
+  attribution?: ReadingUrlAttribution,
 ) {
   const absoluteUrl = buildReadingUrl(
     new URL(getLocalePath(locale), "https://tarot-spark.local").toString(),
     state,
+    attribution,
   );
   const url = new URL(absoluteUrl);
 
   return `${url.pathname}${url.search}`;
 }
 
-export function getShareBaseUrl(shareSiteUrl: string, currentHref: string) {
-  const currentUrl = new URL(currentHref);
-  const shareBaseUrl = new URL(shareSiteUrl);
+export function getReadingAttributionFromUrl(
+  href: string,
+): ReadingUrlAttribution | null | undefined {
+  const url = new URL(href);
+  const sourceValues = url.searchParams.getAll(shareSourceParam);
+  const campaignValues = url.searchParams.getAll(shareCampaignParam);
 
-  return new URL(currentUrl.pathname, shareBaseUrl).toString();
+  if (sourceValues.length === 0 && campaignValues.length === 0) {
+    return undefined;
+  }
+
+  if (sourceValues.length !== 1 || campaignValues.length !== 1) {
+    return null;
+  }
+
+  const [sourceId] = sourceValues;
+  const [campaignId] = campaignValues;
+
+  if (
+    !sourceId ||
+    !campaignId ||
+    !isShareSourceId(sourceId) ||
+    !isShareCampaignId(campaignId)
+  ) {
+    return null;
+  }
+
+  return { campaignId, sourceId };
+}
+
+function isShareSourceId(value: string): value is ShareSourceId {
+  return shareSourceIds.some((candidate) => candidate === value);
+}
+
+function isShareCampaignId(value: string): value is ShareCampaignId {
+  return shareCampaignIds.some((candidate) => candidate === value);
+}
+
+export function getShareBaseUrl(shareSiteUrl: string, locale: Locale) {
+  const shareBaseUrl = new URL(shareSiteUrl);
+  const pathname =
+    locale === "en"
+      ? `/${shareReadingPathSegment}`
+      : `/${locale}/${shareReadingPathSegment}`;
+
+  return new URL(pathname, shareBaseUrl).toString();
 }
 
 export function getReadingStateFromUrl(
@@ -173,11 +254,17 @@ export function consumePrivateContextHandoff(
   storage: Storage,
   now = Date.now(),
 ) {
+  const context = readPrivateContextHandoff(storage, now);
+  clearPrivateContextHandoff(storage);
+
+  return context;
+}
+
+export function readPrivateContextHandoff(storage: Storage, now = Date.now()) {
   let storedValue: string | null;
 
   try {
     storedValue = storage.getItem(privateContextHandoffStorageKey);
-    storage.removeItem(privateContextHandoffStorageKey);
   } catch {
     return undefined;
   }
@@ -200,13 +287,26 @@ export function consumePrivateContextHandoff(
       !("context" in parsedValue) ||
       typeof parsedValue.context !== "string"
     ) {
+      clearPrivateContextHandoff(storage);
       return undefined;
     }
 
-    return normalizeUserContext(parsedValue.context);
+    const context = normalizeUserContext(parsedValue.context);
+
+    if (!context) {
+      clearPrivateContextHandoff(storage);
+      return undefined;
+    }
+
+    return context;
   } catch {
+    clearPrivateContextHandoff(storage);
     return undefined;
   }
+}
+
+export function clearPrivateContextHandoff(storage: Storage) {
+  tryRemovePrivateContextHandoff(storage);
 }
 
 function tryRemovePrivateContextHandoff(storage: Storage) {

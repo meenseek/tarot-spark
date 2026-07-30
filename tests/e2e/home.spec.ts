@@ -132,10 +132,14 @@ test("serves localized SEO metadata and discovery files", async ({
   expect(robotsText).toContain("/sitemap.xml");
 
   const sitemapResponse = await request.get("/sitemap.xml");
+  const localizedRelationshipFlowResponse = await request.get(
+    "/ko/relationship-flow",
+  );
   const sitemapXml = await sitemapResponse.text();
   const sitemapPathnames = getSitemapLocPathnames(sitemapXml);
 
   expect(sitemapResponse.ok()).toBe(true);
+  expect(localizedRelationshipFlowResponse.ok()).toBe(true);
   expect(sitemapPathnames).toEqual(
     expect.arrayContaining([
       "/",
@@ -148,6 +152,8 @@ test("serves localized SEO metadata and discovery files", async ({
       "/ko/contact",
       "/disclaimer",
       "/ko/disclaimer",
+      "/relationship-flow",
+      "/ko/relationship-flow",
     ]),
   );
   expect(sitemapXml).toContain('hreflang="en"');
@@ -252,14 +258,14 @@ test("draws tarot cards and copies the generated prompt", async ({ page }) => {
     "Card-specific angle:",
   );
   await expect(page.getByLabel("Generated prompt")).toContainText(
-    "one connected pattern",
+    "3. Connected spread:",
   );
   await expect(page.getByText(/^Interpretation lens: /)).toBeVisible();
   await expect(
     page.getByText("Tarot content is for entertainment"),
   ).toBeVisible();
 
-  await page.getByRole("button", { name: "Copy prompt" }).click();
+  await page.getByRole("button", { name: "Copy selected prompt" }).click();
 
   await expect(page.getByRole("button", { name: "Copied" })).toBeVisible();
 
@@ -280,6 +286,62 @@ test("draws tarot cards and copies the generated prompt", async ({ page }) => {
   await expect(
     page.getByRole("button", { exact: true, name: "URL copied" }),
   ).toBeVisible();
+});
+
+test("serves the relationship guide and a noindex privacy-safe share preview", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/relationship-flow");
+
+  await expect(
+    page.getByRole("heading", {
+      name: /see the relationship pattern without pretending/i,
+    }),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("link", { name: "Start the relationship-flow spread" })
+      .first(),
+  ).toHaveAttribute(
+    "href",
+    "/?topic=relationship-flow&spread=deep&style=relational",
+  );
+
+  await page.goto(
+    "/share?topic=relationship-flow&style=relational&cards=the-fool,the-lovers,the-star&source=copy&campaign=vertical-slice",
+  );
+
+  await expect(page.getByLabel("Generated prompt")).toContainText(
+    "Topic: Relationship flow",
+  );
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    "content",
+    /noindex/,
+  );
+  expectPathname(
+    await page.locator('link[rel="canonical"]').getAttribute("href"),
+    "/relationship-flow",
+  );
+  const imageUrl = await page
+    .locator('meta[property="og:image"]')
+    .getAttribute("content");
+  expect(imageUrl).not.toBeNull();
+  expect(new URL(imageUrl ?? "http://localhost").pathname).toBe(
+    "/api/share-image",
+  );
+  const localImageUrl = new URL(imageUrl ?? "http://localhost/api/share-image");
+  const imageResponse = await request.get(
+    `${localImageUrl.pathname}${localImageUrl.search}`,
+  );
+  expect(imageResponse.ok()).toBe(true);
+  expect(imageResponse.headers()["content-type"]).toContain("image/png");
+
+  await page.goto(
+    "/share?topic=relationship-flow&cards=the-fool,the-lovers,the-star&context=private",
+  );
+  await expect(page).toHaveURL(/\/relationship-flow$/);
+  await expect(page).not.toHaveURL(/private|context/);
 });
 
 function expectPathname(href: string | null, pathname: string) {

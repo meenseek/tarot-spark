@@ -53,6 +53,15 @@ export const readingLensIds = [
 
 export type ReadingLensId = (typeof readingLensIds)[number];
 
+export const promptSlotIds = [
+  "main",
+  "other-view",
+  "action",
+  "emotion",
+] as const;
+
+export type PromptSlotId = (typeof promptSlotIds)[number];
+
 export const tarotCardIds = [
   "the-fool",
   "the-magician",

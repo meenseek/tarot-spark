@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getPublicPagePath, publicPageIds } from "@/features/public-pages";
+import { getRelationshipFlowPath } from "@/features/relationship-flow";
 import { defaultLocale, supportedLocales } from "@/i18n/config";
 import {
   getAbsoluteAlternateLanguageUrls,
@@ -33,5 +34,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: locale === defaultLocale ? 0.7 : 0.65,
       }));
     }),
+    ...supportedLocales.map((locale) => ({
+      url: getAbsoluteSiteUrl(getRelationshipFlowPath(locale)),
+      alternates: {
+        languages: getAbsoluteAlternateLanguageUrls(getRelationshipFlowPath),
+      },
+      changeFrequency: "weekly" as const,
+      priority: locale === defaultLocale ? 0.85 : 0.8,
+    })),
   ];
 }
