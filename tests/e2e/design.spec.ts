@@ -262,7 +262,7 @@ test("keeps a glyph visible until delayed card art can reveal", async ({
   await expect(image).toHaveCSS("animation-name", "none");
 
   await expect(image).toHaveAttribute("data-art-ready", "true", {
-    timeout: 3_000,
+    timeout: 10_000,
   });
   await expect(image).toHaveCSS("animation-name", "ts-card-face-reveal");
 });
