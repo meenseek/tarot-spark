@@ -1,11 +1,13 @@
 import "@testing-library/jest-dom/vitest";
 import {
+  act,
   cleanup,
   fireEvent,
   render,
   screen,
   waitFor,
 } from "@testing-library/react";
+import { StrictMode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PrivacyConsent } from "./PrivacyConsent";
 
@@ -94,8 +96,88 @@ describe("PrivacyConsent", () => {
     );
   });
 
-  it("never loads AdSense on a reading route even after advertising consent", async () => {
-    navigationState.pathname = "/";
+  it("hydrates stored choices under React strict effects", async () => {
+    window.localStorage.setItem(
+      getConsentStorageKey(),
+      JSON.stringify({
+        version: 1,
+        analytics: false,
+        advertising: false,
+      }),
+    );
+
+    render(<StrictMode>{getConsentElement()}</StrictMode>);
+
+    expect(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    ).toBeVisible();
+  });
+
+  it.each(["/", "/ko", "/share", "/ko/share"])(
+    "never loads AdSense on interactive reading route %s",
+    async (pathname) => {
+      navigationState.pathname = pathname;
+      window.localStorage.setItem(
+        getConsentStorageKey(),
+        JSON.stringify({
+          version: 1,
+          analytics: false,
+          advertising: true,
+        }),
+      );
+
+      renderConsent();
+
+      expect(
+        await screen.findByRole("button", { name: "Privacy choices" }),
+      ).toBeVisible();
+      expect(
+        document.querySelector('script[src*="googlesyndication.com"]'),
+      ).toBeNull();
+      expect(screen.getByRole("main")).toHaveTextContent("Product content");
+    },
+  );
+
+  it.each(["/", "/ko", "/share", "/ko/share"])(
+    "withholds %s until an advertising document is reloaded",
+    async (pathname) => {
+      const reloadDocument = vi.fn();
+      const advertisingClientId = "ca-pub-1234567890123457";
+      const { rerender } = renderConsent(
+        reloadDocument,
+        "Public content",
+        advertisingClientId,
+      );
+
+      fireEvent.click(
+        await screen.findByRole("checkbox", { name: /Advertising/ }),
+      );
+      fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
+      await act(async () => {
+        await Promise.resolve();
+      });
+      expect(window.localStorage.getItem(getConsentStorageKey())).toContain(
+        '"advertising":true',
+      );
+
+      navigationState.pathname = pathname;
+      rerender(
+        getConsentElement(
+          reloadDocument,
+          "Sensitive reading content",
+          advertisingClientId,
+        ),
+      );
+
+      expect(screen.queryByText("Sensitive reading content")).toBeNull();
+      expect(reloadDocument).toHaveBeenCalledOnce();
+    },
+  );
+
+  it("tracks advertising execution across reading-public-reading navigation", async () => {
+    const reloadDocument = vi.fn();
+    const advertisingClientId = "ca-pub-1234567890123457";
+    navigationState.pathname = "/share";
     window.localStorage.setItem(
       getConsentStorageKey(),
       JSON.stringify({
@@ -105,7 +187,11 @@ describe("PrivacyConsent", () => {
       }),
     );
 
-    renderConsent();
+    const { rerender } = renderConsent(
+      reloadDocument,
+      "First reading",
+      advertisingClientId,
+    );
 
     expect(
       await screen.findByRole("button", { name: "Privacy choices" }),
@@ -113,38 +199,22 @@ describe("PrivacyConsent", () => {
     expect(
       document.querySelector('script[src*="googlesyndication.com"]'),
     ).toBeNull();
-    expect(screen.getByRole("main")).toHaveTextContent("Product content");
-  });
+    expect(screen.getByRole("main")).toHaveTextContent("First reading");
 
-  it("withholds reading content until an advertising page is reloaded", async () => {
-    const reloadDocument = vi.fn();
-    const advertisingClientId = "ca-pub-1234567890123457";
-    const { rerender } = renderConsent(
-      reloadDocument,
-      "Public content",
-      advertisingClientId,
+    navigationState.pathname = "/about";
+    rerender(
+      getConsentElement(reloadDocument, "Public content", advertisingClientId),
     );
-
-    fireEvent.click(
-      await screen.findByRole("checkbox", { name: /Advertising/ }),
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
-    await waitFor(() => {
-      expect(
-        document.querySelector('script[src*="googlesyndication.com"]'),
-      ).not.toBeNull();
+    await act(async () => {
+      await Promise.resolve();
     });
 
-    navigationState.pathname = "/";
+    navigationState.pathname = "/ko/share";
     rerender(
-      getConsentElement(
-        reloadDocument,
-        "Sensitive reading content",
-        advertisingClientId,
-      ),
+      getConsentElement(reloadDocument, "Second reading", advertisingClientId),
     );
 
-    expect(screen.queryByText("Sensitive reading content")).toBeNull();
+    expect(screen.queryByText("Second reading")).toBeNull();
     expect(reloadDocument).toHaveBeenCalledOnce();
   });
 
