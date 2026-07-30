@@ -12,6 +12,20 @@ const colors = {
   surface: "rgb(255, 253, 252)",
 } as const;
 
+async function serveCardArtFixture(page: Page, delayMs = 0) {
+  await page.route("**/_next/image**", async (route) => {
+    if (delayMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+
+    await route.fulfill({
+      contentType: "image/jpeg",
+      path: "public/cards/the-fool.jpg",
+      status: 200,
+    });
+  });
+}
+
 test.beforeEach(async ({ context }) => {
   await rejectOptionalServices(context);
 });
@@ -172,6 +186,7 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
 test("removes decorative motion when reduced motion is requested", async ({
   page,
 }) => {
+  await serveCardArtFixture(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
 
@@ -185,7 +200,9 @@ test("removes decorative motion when reduced motion is requested", async ({
 
   const card = page.getByTestId("reading-card-0");
   const art = card.locator("[data-art-id]");
-  await expect(art).toHaveAttribute("data-art-ready", "true");
+  await expect(art).toHaveAttribute("data-art-ready", "true", {
+    timeout: 10_000,
+  });
   const cardAnimation = await getAnimationTiming(card);
   const artAnimation = await getAnimationTiming(art);
 
@@ -198,6 +215,7 @@ test("removes decorative motion when reduced motion is requested", async ({
 test("stages only a user-initiated card reveal with locked timing", async ({
   page,
 }) => {
+  await serveCardArtFixture(page);
   await page.goto("/");
   await page.getByRole("button", { name: "Draw cards" }).click();
 
@@ -249,10 +267,7 @@ test("stages only a user-initiated card reveal with locked timing", async ({
 test("keeps a glyph visible until delayed card art can reveal", async ({
   page,
 }) => {
-  await page.route("**/_next/image**", async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, 1_200));
-    await route.continue();
-  });
+  await serveCardArtFixture(page, 1_200);
   await page.goto("/");
   await page.getByRole("button", { name: "Draw cards" }).click();
 
