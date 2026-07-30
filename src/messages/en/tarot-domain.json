@@ -115,26 +115,31 @@
   "topics": {
     "love": {
       "label": "Love",
+      "contextPlaceholder": "Example: I want to move a new romantic connection forward, but I am unsure whether expressing my feelings first would be healthy.",
       "promptLead": "Explore the emotional pattern around love with grounded, reflective language.",
       "resultFrame": "Look for what feels mutual, what needs patience, and what deserves clearer expression."
     },
     "reunion": {
       "label": "Reunion",
+      "contextPlaceholder": "Example: I am considering contacting an ex again and want to reflect on what must change before the same problems repeat.",
       "promptLead": "Reflect on whether reconnection is healthy, timely, and emotionally honest.",
       "resultFrame": "Focus on what changed, what stayed unresolved, and what a careful next step could be."
     },
     "feelings": {
       "label": "Feelings",
+      "contextPlaceholder": "Example: Their messages have become less frequent. I want to separate observable behavior from my assumptions and understand my own feelings.",
       "promptLead": "Read the emotional signal without treating the cards as proof of another person's mind.",
       "resultFrame": "Separate intuition from assumption, then name the feeling that needs attention."
     },
     "relationship-flow": {
       "label": "Relationship flow",
+      "contextPlaceholder": "Example: Conversations with someone close keep going wrong. I want to notice the repeating pattern and what I can change on my side.",
       "promptLead": "Map the current relationship flow as a self-reflection exercise.",
       "resultFrame": "Notice where the connection is moving, where it is stuck, and what can be simplified."
     },
     "career-direction": {
       "label": "Career direction",
+      "contextPlaceholder": "Example: I am torn between staying at my current company and preparing for a new opportunity, and I want to clarify my next controllable step.",
       "promptLead": "Use the spread to reflect on energy, focus, and next actions around work.",
       "resultFrame": "Keep the reading practical and avoid treating it as financial or professional advice."
     }

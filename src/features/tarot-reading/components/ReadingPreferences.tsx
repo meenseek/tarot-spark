@@ -9,6 +9,7 @@ import type { TarotReadingCopy } from "../i18n";
 
 type ReadingPreferencesProps = {
   readonly contextCountLabel: string;
+  readonly contextPlaceholder: string;
   readonly copy: TarotReadingCopy;
   readonly onContextChange: (value: string) => void;
   readonly onSpreadChange: (spreadId: SpreadId) => void;
@@ -22,6 +23,7 @@ type ReadingPreferencesProps = {
 
 export function ReadingPreferences({
   contextCountLabel,
+  contextPlaceholder,
   copy,
   onContextChange,
   onSpreadChange,
@@ -135,7 +137,7 @@ export function ReadingPreferences({
           id="tarot-user-context"
           maxLength={maxUserContextLength}
           onChange={(event) => onContextChange(event.currentTarget.value)}
-          placeholder={copy.contextPlaceholder}
+          placeholder={contextPlaceholder}
           value={userContext}
         />
         <div className="flex flex-col justify-between gap-1 text-xs leading-5 text-ts-muted sm:flex-row">

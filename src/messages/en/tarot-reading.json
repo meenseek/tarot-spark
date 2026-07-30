@@ -13,7 +13,6 @@
   "readingStyleSelectorLabel": "Choose reading style",
   "contextLabel": "Situation or relationship context",
   "contextOptional": "Optional",
-  "contextPlaceholder": "Example: My relationship with my manager has become exhausting, and I am unsure whether staying at this company is still right for me.",
   "contextHelp": "Keep out names, contact details, birth dates, and workplace secrets. This text stays out of reading links and analytics.",
   "contextCountLabel": "{count}/{max} characters",
   "topicSelectorLabel": "Choose a tarot topic",

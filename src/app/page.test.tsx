@@ -128,6 +128,39 @@ describe("Home", () => {
     );
   });
 
+  it("matches the context example to every selected topic", () => {
+    render(<Home />);
+
+    const context = screen.getByLabelText(/Situation or relationship context/);
+    const topicExamples = [
+      [
+        "Love 3 cards",
+        "Example: I want to move a new romantic connection forward, but I am unsure whether expressing my feelings first would be healthy.",
+      ],
+      [
+        "Reunion 3 cards",
+        "Example: I am considering contacting an ex again and want to reflect on what must change before the same problems repeat.",
+      ],
+      [
+        "Feelings 3 cards",
+        "Example: Their messages have become less frequent. I want to separate observable behavior from my assumptions and understand my own feelings.",
+      ],
+      [
+        "Relationship flow 3 cards",
+        "Example: Conversations with someone close keep going wrong. I want to notice the repeating pattern and what I can change on my side.",
+      ],
+      [
+        "Career direction 3 cards",
+        "Example: I am torn between staying at my current company and preparing for a new opportunity, and I want to clarify my next controllable step.",
+      ],
+    ] as const;
+
+    for (const [topicButtonName, placeholder] of topicExamples) {
+      fireEvent.click(screen.getByRole("button", { name: topicButtonName }));
+      expect(context).toHaveAttribute("placeholder", placeholder);
+    }
+  });
+
   it("labels the Korean Instagram action as a link copy", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     Reflect.deleteProperty(navigator, "clipboard");

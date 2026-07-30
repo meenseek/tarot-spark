@@ -753,6 +753,7 @@ export function TarotExperienceClient({
 
           <ReadingPreferences
             contextCountLabel={contextCountLabel}
+            contextPlaceholder={selectedTopic.contextPlaceholder}
             copy={copy}
             onContextChange={changeUserContext}
             onSpreadChange={chooseSpread}

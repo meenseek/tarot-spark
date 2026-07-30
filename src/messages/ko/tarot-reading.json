@@ -13,7 +13,6 @@
   "readingStyleSelectorLabel": "리딩 스타일 선택",
   "contextLabel": "상황 또는 관계 맥락",
   "contextOptional": "선택",
-  "contextPlaceholder": "예: 직장 상사와의 관계가 너무 힘든데 이 회사에 계속 남는 것이 맞을지 고민이에요.",
   "contextHelp": "이름, 연락처, 생년월일과 직장 기밀은 입력하지 마세요. 이 내용은 리딩 링크와 분석 데이터에 포함되지 않습니다.",
   "contextCountLabel": "{count}/{max}자",
   "topicSelectorLabel": "타로 주제 선택",

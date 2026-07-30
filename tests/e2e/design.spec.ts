@@ -209,9 +209,13 @@ test("stages only a user-initiated card reveal with locked timing", async ({
   await expect(firstCard).toHaveCSS("animation-duration", "0.52s");
   await expect(firstCard).toHaveCSS("animation-delay", "0s");
   await expect(secondCard).toHaveCSS("animation-delay", "0.08s");
+  await expect(firstCard).toHaveCSS("--ts-card-tilt", "-1.15deg");
+  await expect(secondCard).toHaveCSS("--ts-card-tilt", "1.15deg");
   await expect(firstArt).toHaveCSS("animation-duration", "0.36s");
   await expect(firstArt).toHaveCSS("animation-delay", "0.12s");
   await expect(secondArt).toHaveCSS("animation-delay", "0.2s");
+  await expect(firstArt).toHaveCSS("animation-name", "ts-card-face-reveal");
+  await expect(firstArt).toHaveCSS("backface-visibility", "hidden");
 
   await page.getByRole("button", { name: "Draw cards" }).click();
   await expect(page.getByTestId("reading-card-0")).toHaveAttribute(

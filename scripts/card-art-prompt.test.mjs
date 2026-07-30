@@ -64,7 +64,7 @@ describe("card art prompt system", () => {
     ]);
   });
 
-  it("locks every composed prompt and runtime pilot source to the manifest", () => {
+  it("locks every composed prompt and approved runtime source to the manifest", () => {
     const locks = getCardArtLocks(manifest, repositoryRoot);
     const manifestSources = Object.fromEntries(
       manifest.cards
