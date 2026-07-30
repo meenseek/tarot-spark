@@ -1,5 +1,7 @@
 import type {
   ReadingLensId,
+  ReadingStyleId,
+  SpreadId,
   SpreadPositionId,
   TarotCardId,
   TopicId,
@@ -7,6 +9,8 @@ import type {
 
 export type {
   ReadingLensId,
+  ReadingStyleId,
+  SpreadId,
   SpreadPositionId,
   TarotCardId,
   TopicId,
@@ -24,9 +28,24 @@ export type SpreadPosition = {
   readonly label: string;
 };
 
+export type Spread = {
+  readonly id: SpreadId;
+  readonly label: string;
+  readonly description: string;
+  readonly promptLabel: string;
+  readonly positionIds: readonly SpreadPositionId[];
+};
+
 export type ReadingLens = {
   readonly id: ReadingLensId;
   readonly label: string;
+  readonly instruction: string;
+};
+
+export type ReadingStyle = {
+  readonly id: ReadingStyleId;
+  readonly label: string;
+  readonly description: string;
   readonly instruction: string;
 };
 
@@ -41,6 +60,8 @@ export type TarotCard = {
 
 export type PromptTemplate = {
   readonly spreadLine: string;
+  readonly userContextBlock: string;
+  readonly emptyUserContext: string;
   readonly lines: readonly string[];
 };
 
@@ -51,8 +72,10 @@ export type DrawnCard = {
 
 export type LocaleTarotData = {
   readonly topics: readonly Topic[];
+  readonly spreads: readonly Spread[];
   readonly spreadPositions: readonly SpreadPosition[];
   readonly readingLenses: readonly ReadingLens[];
+  readonly readingStyles: readonly ReadingStyle[];
   readonly promptTemplate: PromptTemplate;
   readonly cards: readonly TarotCard[];
 };

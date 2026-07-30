@@ -40,6 +40,7 @@ describe("Home", () => {
     restoreEnv("NEXT_PUBLIC_SHARE_SITE_URL", originalShareSiteUrl);
     document.getElementById(kakaoSdkScriptId)?.remove();
     window.history.replaceState(null, "", originalUrl);
+    window.sessionStorage.clear();
 
     if (originalExecCommand) {
       document.execCommand = originalExecCommand;
@@ -78,7 +79,7 @@ describe("Home", () => {
     expect(screen.getByRole("main")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
-        name: "Draw three cards and turn them into an AI-ready tarot prompt.",
+        name: "Turn your situation and a tarot spread into a stronger AI prompt.",
       }),
     ).toBeInTheDocument();
     expect(
@@ -98,7 +99,7 @@ describe("Home", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "세 장의 카드를 뽑고 AI용 타로 프롬프트로 정리하세요.",
+        name: "나의 상황과 타로 스프레드를 더 선명한 AI 프롬프트로 만드세요.",
       }),
     ).toBeInTheDocument();
     expect(
@@ -248,6 +249,105 @@ describe("Home", () => {
     ).toBeInTheDocument();
   });
 
+  it("builds a contextual direct six-card prompt without exposing context", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    render(<Home />);
+
+    fireEvent.click(screen.getByRole("radio", { name: /Deep 6-card/ }));
+    fireEvent.click(
+      screen.getByRole("radio", {
+        name: /Direct, not deterministic/,
+      }),
+    );
+    fireEvent.change(
+      screen.getByRole("textbox", {
+        name: /Situation or relationship context/,
+      }),
+      {
+        target: {
+          value:
+            "My relationship with my manager is exhausting. Should I stay at this company?",
+        },
+      },
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+
+    const prompt = screen.getByLabelText(
+      "Generated prompt",
+    ) as HTMLTextAreaElement;
+    expect(prompt.value).toContain("Deep six-card spread");
+    expect(prompt.value).toContain("Reading style: Direct, not deterministic");
+    expect(prompt.value).toContain(
+      '"My relationship with my manager is exhausting. Should I stay at this company?"',
+    );
+    expect(prompt.value).toContain("untrusted reference data");
+    expect(screen.getAllByTestId(/reading-card-/)).toHaveLength(6);
+
+    const url = new URL(window.location.href);
+    expect(url.searchParams.get("spread")).toBe("deep");
+    expect(url.searchParams.get("style")).toBe("direct");
+    expect(url.searchParams.get("cards")?.split(",")).toHaveLength(6);
+    expect(url.search).not.toContain("manager");
+    expect(url.search).not.toContain("context");
+  });
+
+  it("preserves private context once during same-tab locale switching", async () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    render(<Home />);
+
+    fireEvent.change(
+      screen.getByRole("textbox", {
+        name: /Situation or relationship context/,
+      }),
+      {
+        target: {
+          value: "My manager relationship is difficult.",
+        },
+      },
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+
+    const koreanLink = screen.getByRole("link", { name: "한국어" });
+    const koreanHref = koreanLink.getAttribute("href");
+    expect(koreanHref).toContain("topic=love");
+    expect(koreanHref).toContain("cards=");
+    expect(koreanHref).not.toContain("manager");
+    fireEvent.click(koreanLink);
+
+    expect(window.sessionStorage.length).toBe(1);
+    cleanup();
+    window.history.replaceState(null, "", koreanHref ?? "/ko");
+    render(<TarotExperience locale="ko" />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("textbox", {
+          name: /상황 또는 관계 맥락/,
+        }),
+      ).toHaveValue("My manager relationship is difficult.");
+    });
+    expect(window.sessionStorage.length).toBe(0);
+    expect(
+      (screen.getByLabelText("생성된 프롬프트") as HTMLTextAreaElement).value,
+    ).toContain('"My manager relationship is difficult."');
+  });
+
+  it("drops unrelated query parameters when creating reading links", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    window.history.replaceState(
+      null,
+      "",
+      "/?utm_source=test&private_note=do-not-share#secret",
+    );
+    render(<Home />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+
+    const url = new URL(window.location.href);
+    expect([...url.searchParams.keys()].sort()).toEqual(["cards", "topic"]);
+    expect(url.hash).toBe("");
+  });
+
   it("emits behavior analytics with stable ids", () => {
     const events: {
       readonly name: string;
@@ -271,7 +371,12 @@ describe("Home", () => {
       });
       expect(events).toContainEqual({
         name: "draw_start",
-        payload: { locale: "en", topic_id: "reunion" },
+        payload: {
+          locale: "en",
+          topic_id: "reunion",
+          spread_id: "quick",
+          style_id: "balanced",
+        },
       });
       expect(events).toContainEqual({
         name: "card_selected",
@@ -280,11 +385,19 @@ describe("Home", () => {
           topic_id: "reunion",
           position_id: "spark",
           card_id: "the-fool",
+          spread_id: "quick",
+          style_id: "balanced",
         },
       });
       expect(events).toContainEqual({
         name: "result_view",
-        payload: { locale: "en", topic_id: "reunion", card_count: 3 },
+        payload: {
+          locale: "en",
+          topic_id: "reunion",
+          card_count: 3,
+          spread_id: "quick",
+          style_id: "balanced",
+        },
       });
     } finally {
       window.removeEventListener("tarot_spark_event", listener);

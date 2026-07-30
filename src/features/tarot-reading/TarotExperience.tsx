@@ -5,6 +5,7 @@ import {
   getPublicPageLinks,
   getPublicPageShellCopy,
 } from "@/features/public-pages";
+import { getDailyQuestionPath } from "@/features/daily-question";
 import { TarotExperienceClient } from "./TarotExperienceClient";
 import { getTarotReadingCopy } from "./i18n";
 
@@ -20,6 +21,7 @@ export function TarotExperience({
   return (
     <TarotExperienceClient
       copy={getTarotReadingCopy(locale)}
+      dailyQuestionPath={getDailyQuestionPath(locale)}
       kakaoAllowedOrigins={getKakaoAllowedOrigins()}
       kakaoJavaScriptKey={getKakaoJavaScriptKey()}
       locale={locale}

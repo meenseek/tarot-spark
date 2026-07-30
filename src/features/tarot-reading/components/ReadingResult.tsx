@@ -48,7 +48,7 @@ export function ReadingResult({
     "grid gap-2 sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]";
 
   return (
-    <div aria-live="polite" className="grid gap-4">
+    <div className="grid gap-4">
       {cards.length > 0 ? (
         <>
           <div className="grid gap-3">
@@ -167,7 +167,11 @@ export function ReadingResult({
             kakaoShareState === "failed" ||
             shareState === "failed" ||
             urlCopyState === "failed") && (
-            <p className="text-sm font-medium text-ts-danger">
+            <p
+              aria-live="polite"
+              className="text-sm font-medium text-ts-danger"
+              role="status"
+            >
               {copy.blockedAction}
             </p>
           )}

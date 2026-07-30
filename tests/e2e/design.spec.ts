@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { rejectOptionalServices } from "./privacy-helpers";
 
 const colors = {
   action: "rgb(112, 65, 88)",
@@ -10,6 +11,10 @@ const colors = {
   ink: "rgb(58, 38, 51)",
   surface: "rgb(255, 253, 252)",
 } as const;
+
+test.beforeEach(async ({ context }) => {
+  await rejectOptionalServices(context);
+});
 
 test("locks the semantic token values and primary visual roles", async ({
   page,
@@ -153,20 +158,13 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await assertFocusOutline(loveTopic, page);
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
+  await tabTo(page, drawButton);
   await assertFocusOutline(drawButton, page);
 
   await drawButton.click();
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
-  await assertFocusOutline(
-    page.getByRole("button", { name: "Copy prompt" }),
-    page,
-  );
+  const copyPromptButton = page.getByRole("button", { name: "Copy prompt" });
+  await tabTo(page, copyPromptButton);
+  await assertFocusOutline(copyPromptButton, page);
 });
 
 test("removes decorative motion when reduced motion is requested", async ({
@@ -380,4 +378,18 @@ async function assertFocusOutline(locator: Locator, page: Page) {
   expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(
     (viewport?.width ?? 0) - 2,
   );
+}
+
+async function tabTo(page: Page, target: Locator) {
+  for (let index = 0; index < 20; index += 1) {
+    await page.keyboard.press("Tab");
+
+    if (
+      await target.evaluate((element) => element === document.activeElement)
+    ) {
+      return;
+    }
+  }
+
+  throw new Error("Keyboard focus did not reach the target within 20 tabs.");
 }
