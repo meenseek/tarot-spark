@@ -103,11 +103,23 @@ test("keeps every localized context example visible at 320px", async ({
     for (const [topicButtonName, placeholder] of topicExamples) {
       await page.getByRole("button", { name: topicButtonName }).click();
       await expect(context).toHaveAttribute("placeholder", placeholder);
-      expect(
-        await context.evaluate(
-          (element) => element.scrollHeight <= element.clientHeight,
-        ),
-      ).toBe(true);
+      const dimensions = await context.evaluate((element, example) => {
+        const textarea = element as HTMLTextAreaElement;
+        const originalValue = textarea.value;
+
+        textarea.value = example;
+        const measuredDimensions = {
+          clientHeight: textarea.clientHeight,
+          scrollHeight: textarea.scrollHeight,
+        };
+        textarea.value = originalValue;
+
+        return measuredDimensions;
+      }, placeholder);
+
+      expect(dimensions.scrollHeight).toBeLessThanOrEqual(
+        dimensions.clientHeight,
+      );
     }
   }
 });
