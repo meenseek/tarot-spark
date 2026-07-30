@@ -447,9 +447,10 @@ test("maps every restored preview card to approved art", async ({ page }) => {
       const card = page.locator(`[data-card-id="${cardId}"]`);
       const art = card.locator(`[data-art-id="${cardId}"]`);
 
+      await card.scrollIntoViewIfNeeded();
       await expect(card.getByRole("heading", { name: cardName })).toBeVisible();
       await expect(art).toHaveAttribute("data-art-ready", "true", {
-        timeout: 20_000,
+        timeout: 10_000,
       });
 
       const decodedImage = await art.evaluate((element) => {
