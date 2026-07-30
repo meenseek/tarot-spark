@@ -8,6 +8,8 @@ documentation standards.
 ## Default Path
 
 - Do not create a GitHub Issue or PR by default.
+- For code, product, or visual changes, follow
+  `docs/workflow/delivery-phases.md`.
 - For small, clear, single-owner work, keep the scope in the current task, make
   the change, run the relevant verification gates, and summarize the result.
 - Keep commits focused even when there is no issue or PR.
