@@ -64,6 +64,7 @@ the expected keys.
 - [Card art bible](docs/product/card-art-bible.md)
 - [Phase-gated delivery](docs/workflow/delivery-phases.md)
 - [Growth playbook](docs/product/growth-playbook.md)
+- [Revenue validation plan](docs/product/revenue-validation-plan.md)
 
 Generate future card art from the committed prompt system instead of copying or
 rewriting prompt text:
