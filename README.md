@@ -61,6 +61,18 @@ the expected keys.
 - [Docs map](docs/README.md)
 - [Frontend structure](docs/architecture/frontend-structure.md)
 - [Visual design system](docs/product/design-system.md)
+- [Card art bible](docs/product/card-art-bible.md)
+- [Phase-gated delivery](docs/workflow/delivery-phases.md)
+- [Growth playbook](docs/product/growth-playbook.md)
+
+Generate future card art from the committed prompt system instead of copying or
+rewriting prompt text:
+
+```sh
+pnpm run art:prompt -- --card the-lovers
+pnpm run art:prompt -- --card the-lovers --json
+pnpm run art:check
+```
 
 Run the required verification gates before opening or updating a PR.
 
