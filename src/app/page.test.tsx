@@ -90,7 +90,9 @@ describe("Home", () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/current deck: 12-card Major Arcana preview/i),
+      screen.getByText(
+        /current deck: 12-card illustrated Major Arcana preview/i,
+      ),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/entertainment and self-reflection only/i),
@@ -115,7 +117,9 @@ describe("Home", () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/현재 덱: 메이저 아르카나 미리보기 12장/),
+      screen.getByText(
+        /현재 덱: 그림으로 완성된 메이저 아르카나 미리보기 12장/,
+      ),
     ).toBeInTheDocument();
     expect(screen.getByText(/의료, 법률, 재정/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "개인정보" })).toHaveAttribute(

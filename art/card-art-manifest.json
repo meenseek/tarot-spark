@@ -1,6 +1,6 @@
 {
   "systemId": "quiet-celestial-storybook",
-  "version": "v1",
+  "version": "v2",
   "generator": {
     "tool": "OpenAI ImageGen",
     "mode": "default",
@@ -103,6 +103,147 @@
       "emotionalMovement": "Quiet renewal growing from modest, observable signs after a difficult passage.",
       "referenceCardIds": ["the-star"],
       "promptSha256": "9ae15a99320b9466f6230bfa09d8e3db32cbda7f02fac37e3c99f09dc33bb326"
+    },
+    {
+      "id": "the-magician",
+      "name": "The Magician",
+      "status": "approved-pilot",
+      "assetPath": "public/cards/the-magician.jpg",
+      "castIds": ["copper-haired-maker"],
+      "locationId": "workshop-and-civic-rooms",
+      "gesture": "The maker stands at a warm wooden workbench, lifting one simple brass wand with one hand while the other open hand points toward four neatly arranged practical tools.",
+      "dominantSymbol": "a raised brass wand",
+      "supportingSymbols": [
+        "four ordered workshop tools",
+        "a looping linen cord resting on the table"
+      ],
+      "emotionalMovement": "Focused intention becoming skilled, observable action through prepared tools and deliberate choice.",
+      "referenceCardIds": ["the-lovers"],
+      "promptSha256": "7d6f3fe8034033eebe80f9d53c61dab9745bf4b75143db502f6e937e15c7633a"
+    },
+    {
+      "id": "the-high-priestess",
+      "name": "The High Priestess",
+      "status": "approved-pilot",
+      "assetPath": "public/cards/the-high-priestess.jpg",
+      "castIds": ["elder-astronomer"],
+      "locationId": "stone-observatory",
+      "gesture": "The astronomer sits between two pale stone columns in a moonlit library, calmly opening a star chart across her lap while listening beside a narrow water channel.",
+      "dominantSymbol": "a crescent moon carved into the stone arch",
+      "supportingSymbols": ["an open star chart", "a quiet water channel"],
+      "emotionalMovement": "Still observation deepening into trustworthy intuition without forcing an immediate answer.",
+      "referenceCardIds": ["the-star"],
+      "promptSha256": "1f139dc9e04b9b25b5447d9b592341b1a5119390620f81de739eeff2c1364f2a"
+    },
+    {
+      "id": "the-empress",
+      "name": "The Empress",
+      "status": "approved-pilot",
+      "assetPath": "public/cards/the-empress.jpg",
+      "castIds": ["braided-gardener"],
+      "locationId": "open-paths-and-gardens",
+      "gesture": "The gardener stands in a cultivated orchard, holding a woven seed basket at waist height while inspecting healthy new growth with a grounded, attentive expression.",
+      "dominantSymbol": "a flowering pomegranate tree",
+      "supportingSymbols": ["a ripe wheat field", "a clear irrigation stream"],
+      "emotionalMovement": "Patient care becoming visible abundance while remaining connected to labor, seasons, and limits.",
+      "referenceCardIds": ["the-lovers"],
+      "promptSha256": "821fa0b81a82341e5b0a6333b5e6836c271bd1473978a61f21aa9c8ee53da60e"
+    },
+    {
+      "id": "the-emperor",
+      "name": "The Emperor",
+      "status": "approved-pilot",
+      "assetPath": "public/cards/the-emperor.jpg",
+      "castIds": ["copper-haired-maker"],
+      "locationId": "workshop-and-civic-rooms",
+      "gesture": "The maker stands at a civic terrace worktable, setting a square stone model onto a measured plan with both hands in a careful act of responsible construction.",
+      "dominantSymbol": "a squared pale-stone arch",
+      "supportingSymbols": ["a brass compass", "a distant mountain ridge"],
+      "emotionalMovement": "Clear boundaries and measured responsibility creating structure that others can trust.",
+      "referenceCardIds": ["the-lovers"],
+      "promptSha256": "efce6391c85946237c5c0665feec23b7dd71bfa1a1b6ac6f98a7727cedae8cb4"
+    },
+    {
+      "id": "the-chariot",
+      "name": "The Chariot",
+      "status": "approved-pilot",
+      "assetPath": "public/cards/the-chariot.jpg",
+      "castIds": ["young-traveler"],
+      "locationId": "open-paths-and-gardens",
+      "gesture": "The traveler stands securely in a small practical wooden chariot, holding two reins with calm control as a dark horse and a pale horse move together along the same road.",
+      "dominantSymbol": "the moving wooden chariot",
+      "supportingSymbols": [
+        "paired dark and pale horses",
+        "a straight mountain road"
+      ],
+      "emotionalMovement": "Competing forces becoming coordinated direction through steadiness rather than speed or domination.",
+      "referenceCardIds": ["the-fool"],
+      "promptSha256": "716b3560aa1758813e499e5c70da8b719bbd90817e8039b182f799583ab3c478"
+    },
+    {
+      "id": "strength",
+      "name": "Strength",
+      "status": "approved-pilot",
+      "assetPath": "public/cards/strength.jpg",
+      "castIds": ["braided-gardener"],
+      "locationId": "open-paths-and-gardens",
+      "gesture": "The gardener kneels beside a calm natural lion and gently wraps its injured front paw, keeping her hands visible and relaxed while the animal chooses to remain near.",
+      "dominantSymbol": "a calm lion",
+      "supportingSymbols": [
+        "a flowering vine forming one loose loop",
+        "an open garden gate"
+      ],
+      "emotionalMovement": "Fear and intensity settling into gentle courage, patience, and a boundary that protects both beings.",
+      "referenceCardIds": ["the-lovers"],
+      "promptSha256": "44540afacebcc56e4e3776ee26a913d037199006adaf79c276a77ad1cb6fe1e9"
+    },
+    {
+      "id": "the-hermit",
+      "name": "The Hermit",
+      "status": "approved-pilot",
+      "assetPath": "public/cards/the-hermit.jpg",
+      "castIds": ["elder-astronomer"],
+      "locationId": "stone-observatory",
+      "gesture": "The astronomer walks alone along a high stone path at blue hour, holding a warm hooded lantern ahead with one hand and a plain walking staff with the other.",
+      "dominantSymbol": "a warm hooded lantern",
+      "supportingSymbols": [
+        "a winding mountain path",
+        "the distant observatory"
+      ],
+      "emotionalMovement": "Solitude becoming practical inner guidance, with enough light for the next step rather than the entire road.",
+      "referenceCardIds": ["the-star"],
+      "promptSha256": "14aae2c2ba980af36501ee4984a981c58c4b12014a012817eb4fa91d6988414c"
+    },
+    {
+      "id": "wheel-of-fortune",
+      "name": "Wheel of Fortune",
+      "status": "approved-pilot",
+      "assetPath": "public/cards/wheel-of-fortune.jpg",
+      "castIds": ["young-traveler"],
+      "locationId": "workshop-and-civic-rooms",
+      "gesture": "The traveler pauses beside a large working waterwheel at a four-way civic crossing, one hand resting on a wooden rail while water turns the wheel through a changing sky.",
+      "dominantSymbol": "a large turning waterwheel",
+      "supportingSymbols": ["four branching roads", "moving weather clouds"],
+      "emotionalMovement": "An uncontrollable cycle becoming readable enough for flexible timing and a different response.",
+      "referenceCardIds": ["the-fool"],
+      "promptSha256": "9a1ef9bb17489fb9137c1dc856ed4f0f644687cde9e528ffdd3a91dd176c44f1"
+    },
+    {
+      "id": "temperance",
+      "name": "Temperance",
+      "status": "approved-pilot",
+      "assetPath": "public/cards/temperance.jpg",
+      "castIds": ["young-traveler"],
+      "locationId": "stone-observatory",
+      "gesture": "The traveler stands with one boot on a pale stone bank and one in a shallow water channel, slowly pouring a continuous stream between two simple vessels without spilling.",
+      "dominantSymbol": "water flowing between two vessels",
+      "supportingSymbols": [
+        "one foot in water",
+        "a path toward the observatory"
+      ],
+      "emotionalMovement": "Separate needs becoming a workable, patient balance through repeated small adjustments.",
+      "referenceCardIds": ["the-fool", "the-star"],
+      "promptSha256": "da273988670e7310adbb9838b5c286b3eb3e0d5ee61efded324b481214297865"
     }
   ]
 }

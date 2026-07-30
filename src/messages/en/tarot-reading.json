@@ -6,7 +6,7 @@
   "brand": "tarot-spark",
   "heading": "Turn your situation and a tarot spread into a stronger AI prompt.",
   "intro": "Choose a topic, depth, and reading style. Add optional context for a prompt that reflects the situation you actually want to explore.",
-  "deckPreviewNote": "Current deck: {count}-card Major Arcana preview.",
+  "deckPreviewNote": "Current deck: {count}-card illustrated Major Arcana preview.",
   "personalizationHeading": "Shape the reading",
   "personalizationIntro": "These choices change the generated prompt without claiming certainty about another person or the future.",
   "spreadSelectorLabel": "Choose reading depth",
