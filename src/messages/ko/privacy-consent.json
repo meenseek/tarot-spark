@@ -4,7 +4,7 @@
   "analyticsLabel": "이용 분석",
   "analyticsDescription": "제품 개선을 위해 제한된 페이지 및 기능 이용 측정을 허용합니다.",
   "advertisingLabel": "광고",
-  "advertisingDescription": "광고 및 사이트 운영을 위해 리딩 외 페이지에서 Google AdSense가 로드되는 것을 허용합니다.",
+  "advertisingDescription": "광고 및 사이트 운영을 위해 허용된 비리딩 콘텐츠 페이지에서 Google AdSense가 로드되는 것을 허용합니다.",
   "saveChoices": "선택 저장",
   "rejectOptional": "선택 서비스 모두 거부",
   "settingsButton": "개인정보 설정"

@@ -12,6 +12,7 @@ export default defineConfig({
     command: "pnpm exec next dev --hostname 127.0.0.1",
     env: {
       NEXT_PUBLIC_ADSENSE_CLIENT_ID: "ca-pub-1234567890123456",
+      NEXT_PUBLIC_ADSENSE_SCRIPT_ENABLED: "true",
       NEXT_PUBLIC_GA_ID: "G-TEST1234",
     },
     url: "http://127.0.0.1:3000",

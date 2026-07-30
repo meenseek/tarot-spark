@@ -10,7 +10,7 @@ import { GoogleAnalytics } from "@/components/layout/GoogleAnalytics";
 import { GoogleAdSenseScript } from "@/integrations/google-adsense/GoogleAdSenseScript";
 import { optionalServicesDocumentReloadEvent } from "./events";
 import type { PrivacyConsentCopy } from "./i18n";
-import { isInteractiveReadingPathname } from "./route-policy";
+import { isAdvertisingEligiblePathname } from "./route-policy";
 
 const consentStorageKey = "tarot-spark.optional-services-consent.v1";
 const consentVersion = 1;
@@ -46,11 +46,14 @@ export function PrivacyConsent({
   const [hasLoadedAdvertising, setHasLoadedAdvertising] = useState(false);
   const hasAnalytics = Boolean(analyticsMeasurementId);
   const hasAdvertising = Boolean(advertisingClientId);
-  const isReadingRoute = isInteractiveReadingPathname(pathname);
+  const isAdvertisingEligibleRoute = isAdvertisingEligiblePathname(pathname);
   const shouldLoadAdvertising = Boolean(
-    preferences?.advertising && advertisingClientId && !isReadingRoute,
+    preferences?.advertising &&
+    advertisingClientId &&
+    isAdvertisingEligibleRoute,
   );
-  const mustReloadBeforeReading = isReadingRoute && hasLoadedAdvertising;
+  const mustReloadBeforeAdvertisingExcludedRoute =
+    !isAdvertisingEligibleRoute && hasLoadedAdvertising;
   const markAdvertisingLoaded = useCallback(() => {
     setHasLoadedAdvertising(true);
   }, []);
@@ -75,17 +78,17 @@ export function PrivacyConsent({
   }, []);
 
   useEffect(() => {
-    if (mustReloadBeforeReading) {
+    if (mustReloadBeforeAdvertisingExcludedRoute) {
       dispatchBeforeDocumentReload();
       reloadDocument();
     }
-  }, [mustReloadBeforeReading, reloadDocument]);
+  }, [mustReloadBeforeAdvertisingExcludedRoute, reloadDocument]);
 
   if (!hasAnalytics && !hasAdvertising) {
     return children;
   }
 
-  if (mustReloadBeforeReading) {
+  if (mustReloadBeforeAdvertisingExcludedRoute) {
     return null;
   }
 

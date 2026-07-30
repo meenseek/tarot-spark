@@ -38,12 +38,20 @@ When configured, Analytics remains off until the user permits it in the
 localized privacy choices.
 
 Set `NEXT_PUBLIC_ADSENSE_CLIENT_ID` to the Google AdSense client id, such as
-`ca-pub-0000000000000000`, to add the account metadata, make the AdSense script
-available, and serve the matching authorized seller record from `/ads.txt`.
-Leave it unset for local development and preview deployments.
-The account metadata and `/ads.txt` do not depend on the privacy choice, but the
-AdSense script remains off until the user permits advertising and never loads
-on the interactive reading routes.
+`ca-pub-0000000000000000`, to add the account metadata, provide the client id
+required for any later script delivery, and serve the matching authorized
+seller record from `/ads.txt`. Leave it unset for local development and preview
+deployments. The account metadata and `/ads.txt` do not depend on the privacy
+choice or enable advertising delivery by themselves.
+
+Set `NEXT_PUBLIC_ADSENSE_SCRIPT_ENABLED=true` only after the production
+integrity, consent, route-isolation, AdSense approval, and applicable regional
+CMP checks in the
+[revenue validation plan](docs/product/revenue-validation-plan.md) pass. Leave
+it unset or set it to `false` to keep advertising delivery off while preserving
+the account metadata and authorized seller record. When enabled, the AdSense
+script remains off until the user permits advertising and loads only on the
+allowlisted content routes.
 
 Set `NEXT_PUBLIC_KAKAO_JS_KEY` to enable KakaoTalk sharing. Kakao domains:
 `App > JavaScript SDK domain` must include the app origin, and
