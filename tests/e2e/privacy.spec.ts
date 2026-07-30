@@ -94,3 +94,69 @@ test("clears an active advertising document before showing a reading", async ({
     page.locator('script[src*="googlesyndication.com"]'),
   ).toHaveCount(0);
 });
+
+for (const { locale, path } of [
+  {
+    locale: "en",
+    path: "/share?topic=relationship-flow&style=relational&cards=the-fool,the-lovers,the-star&source=instagram&campaign=vertical-slice",
+  },
+  {
+    locale: "ko",
+    path: "/ko/share?topic=relationship-flow&style=relational&cards=the-fool,the-lovers,the-star&source=instagram&campaign=vertical-slice",
+  },
+] as const) {
+  test(`captures one attributed ${locale} share result without AdSense`, async ({
+    context,
+    page,
+  }) => {
+    await context.addInitScript(
+      ({ key, value }) => {
+        window.localStorage.setItem(key, value);
+      },
+      {
+        key: consentStorageKey,
+        value: JSON.stringify({
+          version: 1,
+          analytics: true,
+          advertising: true,
+        }),
+      },
+    );
+
+    const response = await page.goto(path);
+
+    expect(response?.status()).toBe(200);
+    expect(new URL(page.url()).pathname).toBe(
+      locale === "en" ? "/share" : "/ko/share",
+    );
+    await expect(page.locator('[data-testid^="reading-card-"]')).toHaveCount(3);
+    await expect(
+      page.locator('script[src*="googlesyndication.com"]'),
+    ).toHaveCount(0);
+
+    await expect
+      .poll(() => getResultViewEvents(page))
+      .toEqual([
+        expect.objectContaining({
+          locale,
+          topic_id: "relationship-flow",
+          source: "instagram",
+          campaign: "vertical-slice",
+        }),
+      ]);
+  });
+}
+
+async function getResultViewEvents(page: import("@playwright/test").Page) {
+  return page.evaluate(() =>
+    (window.dataLayer ?? [])
+      .map((entry) =>
+        Array.isArray(entry) ? entry : Array.from(entry as ArrayLike<unknown>),
+      )
+      .filter(
+        ([command, eventName]) =>
+          command === "event" && eventName === "result_view",
+      )
+      .map(([, , payload]) => payload),
+  );
+}

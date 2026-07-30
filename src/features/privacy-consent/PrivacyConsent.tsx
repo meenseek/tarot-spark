@@ -1,16 +1,16 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   interactiveFocusClassName,
   secondaryButtonClassName,
 } from "@/components/visual/class-names";
 import { GoogleAnalytics } from "@/components/layout/GoogleAnalytics";
-import { getLocalePath, supportedLocales } from "@/i18n/config";
 import { GoogleAdSenseScript } from "@/integrations/google-adsense/GoogleAdSenseScript";
 import { optionalServicesDocumentReloadEvent } from "./events";
 import type { PrivacyConsentCopy } from "./i18n";
+import { isInteractiveReadingPathname } from "./route-policy";
 
 const consentStorageKey = "tarot-spark.optional-services-consent.v1";
 const consentVersion = 1;
@@ -43,24 +43,19 @@ export function PrivacyConsent({
   const [analyticsSelected, setAnalyticsSelected] = useState(false);
   const [advertisingSelected, setAdvertisingSelected] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [advertisingDocumentPath, setAdvertisingDocumentPath] = useState<
-    string | undefined
-  >();
-  const hasHydratedPreferences = useRef(false);
+  const [hasLoadedAdvertising, setHasLoadedAdvertising] = useState(false);
   const hasAnalytics = Boolean(analyticsMeasurementId);
   const hasAdvertising = Boolean(advertisingClientId);
-  const isReadingRoute = supportedLocales.some(
-    (locale) => getLocalePath(locale) === pathname,
+  const isReadingRoute = isInteractiveReadingPathname(pathname);
+  const shouldLoadAdvertising = Boolean(
+    preferences?.advertising && advertisingClientId && !isReadingRoute,
   );
-  const mustReloadBeforeReading =
-    isReadingRoute && advertisingDocumentPath !== undefined;
+  const mustReloadBeforeReading = isReadingRoute && hasLoadedAdvertising;
+  const markAdvertisingLoaded = useCallback(() => {
+    setHasLoadedAdvertising(true);
+  }, []);
 
   useEffect(() => {
-    if (hasHydratedPreferences.current) {
-      return;
-    }
-
-    hasHydratedPreferences.current = true;
     const storedPreferences = readConsentPreferences();
     let shouldHydrate = true;
 
@@ -72,17 +67,12 @@ export function PrivacyConsent({
       setPreferences(storedPreferences);
       setAnalyticsSelected(storedPreferences?.analytics ?? false);
       setAdvertisingSelected(storedPreferences?.advertising ?? false);
-      setAdvertisingDocumentPath(
-        storedPreferences?.advertising && hasAdvertising && !isReadingRoute
-          ? pathname
-          : undefined,
-      );
     });
 
     return () => {
       shouldHydrate = false;
     };
-  }, [hasAdvertising, isReadingRoute, pathname]);
+  }, []);
 
   useEffect(() => {
     if (mustReloadBeforeReading) {
@@ -104,17 +94,12 @@ export function PrivacyConsent({
       (preferences?.analytics === true && !nextPreferences.analytics) ||
       (preferences?.advertising === true &&
         !nextPreferences.advertising &&
-        !isReadingRoute);
+        hasLoadedAdvertising);
 
     writeConsentPreferences(nextPreferences);
     setPreferences(nextPreferences);
     setAnalyticsSelected(nextPreferences.analytics);
     setAdvertisingSelected(nextPreferences.advertising);
-    setAdvertisingDocumentPath(
-      nextPreferences.advertising && hasAdvertising && !isReadingRoute
-        ? pathname
-        : undefined,
-    );
     setIsEditing(false);
 
     if (shouldReload) {
@@ -131,8 +116,11 @@ export function PrivacyConsent({
       {preferences?.analytics && analyticsMeasurementId && (
         <GoogleAnalytics measurementId={analyticsMeasurementId} />
       )}
-      {preferences?.advertising && advertisingClientId && !isReadingRoute && (
-        <GoogleAdSenseScript clientId={advertisingClientId} />
+      {shouldLoadAdvertising && advertisingClientId && (
+        <GoogleAdSenseScript
+          clientId={advertisingClientId}
+          onScriptMount={markAdvertisingLoaded}
+        />
       )}
 
       {preferences !== undefined &&

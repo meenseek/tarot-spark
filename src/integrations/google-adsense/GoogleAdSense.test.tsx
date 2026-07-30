@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, render } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GoogleAdSenseAccountMetadata } from "./GoogleAdSense";
 import { GoogleAdSenseScript } from "./GoogleAdSenseScript";
 import {
@@ -40,7 +40,14 @@ describe("GoogleAdSense", () => {
   });
 
   it("renders the advertising script only when its gated component mounts", () => {
-    render(<GoogleAdSenseScript clientId="ca-pub-1234567890123456" />);
+    const onScriptMount = vi.fn();
+
+    render(
+      <GoogleAdSenseScript
+        clientId="ca-pub-1234567890123456"
+        onScriptMount={onScriptMount}
+      />,
+    );
 
     const script = document.querySelector(
       'script[src^="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]',
@@ -51,6 +58,7 @@ describe("GoogleAdSense", () => {
     );
     expect(script).toHaveAttribute("crossorigin", "anonymous");
     expect(script).toHaveAttribute("async");
+    expect(onScriptMount).toHaveBeenCalledOnce();
   });
 
   it("fails closed when the client id is missing or malformed", () => {
