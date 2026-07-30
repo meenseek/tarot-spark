@@ -443,8 +443,24 @@ test("maps every restored preview card to approved art", async ({ page }) => {
 
     for (const [cardId, cardName] of batch) {
       const card = page.locator(`[data-card-id="${cardId}"]`);
+      const art = card.locator(`[data-art-id="${cardId}"]`);
+
       await expect(card.getByRole("heading", { name: cardName })).toBeVisible();
-      await expect(card.locator(`[data-art-id="${cardId}"]`)).toBeVisible();
+      await expect(art).toHaveAttribute("data-art-ready", "true", {
+        timeout: 10_000,
+      });
+
+      const decodedImage = await art.evaluate((element) => {
+        const image = element as HTMLImageElement;
+
+        return {
+          complete: image.complete,
+          naturalWidth: image.naturalWidth,
+        };
+      });
+
+      expect(decodedImage.complete).toBe(true);
+      expect(decodedImage.naturalWidth).toBeGreaterThan(0);
     }
   }
 });
