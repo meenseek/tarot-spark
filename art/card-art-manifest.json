@@ -1,0 +1,108 @@
+{
+  "systemId": "quiet-celestial-storybook",
+  "version": "v1",
+  "generator": {
+    "tool": "OpenAI ImageGen",
+    "mode": "default",
+    "referenceInput": "referenced_image_paths"
+  },
+  "frame": {
+    "aspectRatio": "5:7",
+    "width": 700,
+    "height": 980,
+    "topSafeAreaPercent": 18,
+    "centralCharacterSafeAreaPercent": 60,
+    "groundingAreaPercent": 22
+  },
+  "prompt": {
+    "shared": "Quiet Celestial Storybook tarot illustration, warm hand-painted gouache and delicate ink texture on aged paper, the established recurring cast, gentle four-and-a-half-head human proportions, expressive faces and correct natural hands, one coherent physical scene, restrained dusty blue, indigo, plum, cream, ochre and small antique-gold accents, soft atmospheric light, portrait composition designed for a 5:7 crop, no border and no text.",
+    "negative": "No title, numeral, caption, lettering, watermark, logo, signature, ornate card frame, photorealism, glossy 3D, chibi anatomy, oversized head, extra fingers, fused hands, duplicate person, floating symbol collage, neon glow, glitter, heart motif, or candy-color gradient."
+  },
+  "cast": [
+    {
+      "id": "young-traveler",
+      "description": "Medium-brown skin, short dark curls, open expression, and plum-and-cream clothing; keep the same facial structure and age as The Fool."
+    },
+    {
+      "id": "braided-gardener",
+      "description": "Deep-brown skin, long braids with small gold details, and blue-and-ochre clothing; keep the same facial structure and age as The Lovers."
+    },
+    {
+      "id": "copper-haired-maker",
+      "description": "Olive skin, short copper curls, and green-and-cream clothing; keep the same facial structure and age as The Lovers."
+    },
+    {
+      "id": "elder-astronomer",
+      "description": "Older East Asian woman with a silver bob and indigo-and-ochre clothing; keep the same facial structure and age as The Star."
+    }
+  ],
+  "locations": [
+    {
+      "id": "open-paths-and-gardens",
+      "description": "A connected family of mountain paths, orchards, flowering thresholds, and cultivated fields built from pale stone, white flowers, and winding paths."
+    },
+    {
+      "id": "stone-observatory",
+      "description": "A connected hilltop observatory, moonlit library, water channel, and quiet courtyard using pale stone, indigo night, and restrained gold stars."
+    },
+    {
+      "id": "workshop-and-civic-rooms",
+      "description": "A connected warm workshop, council terrace, and sheltered interior using wood, pale stone, dusty blue cloth, ochre leather, and practical tools."
+    }
+  ],
+  "symbolGrammar": [
+    "Symbols must be physical parts of the scene rather than floating icon collages.",
+    "Use paths for choice and progression, water for emotional movement, and tools or architecture for agency.",
+    "Use paired trees, birds, gates, or hands for reciprocity and decision.",
+    "Use one dominant tarot symbol and no more than two supporting symbols."
+  ],
+  "referencePolicy": {
+    "requiredForNewCards": true,
+    "maximumImages": 2,
+    "instruction": "Supply the approved reference files through referenced_image_paths. Use them only to preserve recurring character identity, body proportion, palette, material, line quality, and world continuity. Do not copy the reference card composition into the new card."
+  },
+  "cards": [
+    {
+      "id": "the-fool",
+      "name": "The Fool",
+      "status": "approved-pilot",
+      "assetPath": "public/cards/the-fool.jpg",
+      "castIds": ["young-traveler"],
+      "locationId": "open-paths-and-gardens",
+      "gesture": "The traveler takes one confident step toward the open path while looking ahead; a small natural dog stays close without becoming a mascot.",
+      "dominantSymbol": "an open mountain path",
+      "supportingSymbols": ["a small dog", "a distant dawn star"],
+      "emotionalMovement": "Curious trust opening into movement while retaining awareness of the terrain.",
+      "referenceCardIds": ["the-fool"],
+      "promptSha256": "a2f5584a338f775a588525e86586ee4447aba5f213b4e6deeccecc7371dd10f4"
+    },
+    {
+      "id": "the-lovers",
+      "name": "The Lovers",
+      "status": "approved-pilot",
+      "assetPath": "public/cards/the-lovers.jpg",
+      "castIds": ["braided-gardener", "copper-haired-maker"],
+      "locationId": "open-paths-and-gardens",
+      "gesture": "The pair face each other at a garden threshold with mutually offered open hands and clear personal space.",
+      "dominantSymbol": "two paths joining at a garden threshold",
+      "supportingSymbols": ["paired trees", "two birds"],
+      "emotionalMovement": "Deliberate reciprocity, visible choice, and connection without loss of individual agency.",
+      "referenceCardIds": ["the-lovers"],
+      "promptSha256": "d1e63d2113f3930379dc573de1ef15a885e97179dd8aa9abc7b8e92ee389a520"
+    },
+    {
+      "id": "the-star",
+      "name": "The Star",
+      "status": "approved-pilot",
+      "assetPath": "public/cards/the-star.jpg",
+      "castIds": ["elder-astronomer"],
+      "locationId": "stone-observatory",
+      "gesture": "The astronomer kneels beside the returning water channel and pours water from a simple vessel while watching the reflected light.",
+      "dominantSymbol": "one large eight-point star",
+      "supportingSymbols": ["returning water", "the hilltop observatory"],
+      "emotionalMovement": "Quiet renewal growing from modest, observable signs after a difficult passage.",
+      "referenceCardIds": ["the-star"],
+      "promptSha256": "9ae15a99320b9466f6230bfa09d8e3db32cbda7f02fac37e3c99f09dc33bb326"
+    }
+  ]
+}
