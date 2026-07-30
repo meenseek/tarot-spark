@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">tarot-spark social preview</title>
+  <desc id="description">A quiet editorial tarot workspace with three celestial cards.</desc>
+  <rect width="1200" height="630" fill="#fbf7f2"/>
+  <rect x="48" y="48" width="1104" height="534" rx="28" fill="#fffdfc" stroke="#d9ccd2" stroke-width="2"/>
+  <path d="M90 112h140" stroke="#b7863e" stroke-width="2"/>
+  <path d="M970 518h140" stroke="#b7863e" stroke-width="2"/>
+  <g fill="none" stroke="#b7863e" stroke-linecap="round" stroke-width="3">
+    <path d="M108 86v52M82 112h52M90 94l36 36M126 94l-36 36"/>
+    <path d="M1090 492v52M1064 518h52M1072 500l36 36M1108 500l-36 36"/>
+  </g>
+  <text x="104" y="228" fill="#704158" font-family="Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="3">TAROT-SPARK</text>
+  <text x="104" y="306" fill="#3a2633" font-family="Georgia, serif" font-size="62" font-weight="700">A clearer prompt</text>
+  <text x="104" y="376" fill="#3a2633" font-family="Georgia, serif" font-size="62" font-weight="700">for your situation.</text>
+  <text x="108" y="438" fill="#66515d" font-family="Arial, sans-serif" font-size="24">Context, spread, and style for reflective tarot writing.</text>
+  <g transform="translate(700 117)">
+    <g transform="rotate(-8 92 182)">
+      <rect width="184" height="364" rx="22" fill="#fbf7f2" stroke="#8b737f" stroke-width="3"/>
+      <circle cx="92" cy="166" r="48" fill="none" stroke="#704158" stroke-width="3"/>
+      <path d="M92 88v156M38 166h108M54 128l76 76M130 128l-76 76" fill="none" stroke="#704158" stroke-linecap="round" stroke-width="3"/>
+      <text x="92" y="318" text-anchor="middle" fill="#66515d" font-family="Arial, sans-serif" font-size="18">SPARK</text>
+    </g>
+    <g transform="translate(124 -15)">
+      <rect width="184" height="364" rx="22" fill="#fffdfc" stroke="#704158" stroke-width="4"/>
+      <path d="M48 169c16-54 72-83 110-36M45 220h94M92 83a32 32 0 1 0 0 64M92 147v73" fill="none" stroke="#704158" stroke-linecap="round" stroke-width="4"/>
+      <text x="92" y="318" text-anchor="middle" fill="#704158" font-family="Arial, sans-serif" font-size="18" font-weight="700">SHADOW</text>
+    </g>
+    <g transform="translate(252 7) rotate(8 92 182)">
+      <rect width="184" height="364" rx="22" fill="#fbf7f2" stroke="#8b737f" stroke-width="3"/>
+      <path d="M92 82l10 44 37-26-26 37 44 10-44 10 26 37-37-26-10 44-10-44-37 26 26-37-44-10 44-10-26-37 37 26 10-44Z" fill="none" stroke="#704158" stroke-linejoin="round" stroke-width="3"/>
+      <text x="92" y="318" text-anchor="middle" fill="#66515d" font-family="Arial, sans-serif" font-size="18">NEXT STEP</text>
+    </g>
+  </g>
+</svg>

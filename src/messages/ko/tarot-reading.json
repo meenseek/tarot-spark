@@ -1,12 +1,21 @@
 {
   "metadata": {
     "title": "타로 스파크",
-    "description": "현재 메이저 아르카나 미리보기에서 세 장을 뽑고 AI에 바로 쓸 수 있는 성찰 프롬프트를 만드세요."
+    "description": "선택한 상황 맥락, 타로 스프레드와 리딩 스타일을 AI에 바로 쓸 수 있는 성찰 프롬프트로 만드세요."
   },
   "brand": "tarot-spark",
-  "heading": "세 장의 카드를 뽑고 AI용 타로 프롬프트로 정리하세요.",
-  "intro": "주제를 고르고 짧은 스프레드를 뽑은 뒤, 성찰형 타로 글쓰기에 맞춘 프롬프트를 복사하세요.",
+  "heading": "나의 상황과 타로 스프레드를 더 선명한 AI 프롬프트로 만드세요.",
+  "intro": "주제, 리딩 깊이와 스타일을 고르세요. 선택 입력한 맥락을 더하면 실제로 살펴보고 싶은 상황에 맞는 프롬프트가 만들어집니다.",
   "deckPreviewNote": "현재 덱: 메이저 아르카나 미리보기 {count}장.",
+  "personalizationHeading": "리딩 설정",
+  "personalizationIntro": "이 선택은 생성되는 프롬프트를 바꾸지만 타인의 마음이나 미래를 확정적으로 단정하지 않습니다.",
+  "spreadSelectorLabel": "리딩 깊이 선택",
+  "readingStyleSelectorLabel": "리딩 스타일 선택",
+  "contextLabel": "상황 또는 관계 맥락",
+  "contextOptional": "선택",
+  "contextPlaceholder": "예: 직장 상사와의 관계가 너무 힘든데 이 회사에 계속 남는 것이 맞을지 고민이에요.",
+  "contextHelp": "이름, 연락처, 생년월일과 직장 기밀은 입력하지 마세요. 이 내용은 리딩 링크와 분석 데이터에 포함되지 않습니다.",
+  "contextCountLabel": "{count}/{max}자",
   "topicSelectorLabel": "타로 주제 선택",
   "cardCountLabel": "{count}장",
   "drawButton": "카드 뽑기",
@@ -27,26 +36,13 @@
   "copiedShareText": "공유 문구 복사됨",
   "blockedAction": "작업을 완료하지 못했습니다. 프롬프트나 URL을 직접 선택해 복사할 수 있습니다.",
   "emptyHeading": "시작할 주제를 선택하세요.",
-  "emptyBody": "첫 카드 뽑기는 세 장 스프레드와 AI 글쓰기 도구에 사용할 수 있는 프롬프트를 만듭니다.",
+  "emptyBody": "첫 카드 뽑기는 선택한 스프레드와 AI 글쓰기 도구에 사용할 수 있는 프롬프트를 만듭니다.",
   "disclaimer": "타로 콘텐츠는 오락과 자기 성찰을 위한 것입니다. 의료, 법률, 재정, 투자, 정신건강 조언이 아닙니다.",
   "languageSwitchLabel": "언어 선택",
+  "dailyQuestionLink": "오늘의 한 장 질문 보기",
+  "socialImageAlt": "세 장의 천체 타로 카드가 놓인 tarot-spark 에디토리얼 미리보기",
   "shareTitle": "tarot-spark 리딩",
   "shareText": "{topicLabel} 타로 프롬프트: {cardNames}",
-  "placeholders": [
-    {
-      "positionLabel": "불씨",
-      "cardName": "준비",
-      "cardTone": "주제 선택"
-    },
-    {
-      "positionLabel": "그림자",
-      "cardName": "설정",
-      "cardTone": "카드 뽑기"
-    },
-    {
-      "positionLabel": "다음 걸음",
-      "cardName": "프롬프트",
-      "cardTone": "결과 복사"
-    }
-  ]
+  "placeholderCardName": "준비",
+  "placeholderCardTone": "뽑아서 확인하기"
 }

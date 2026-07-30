@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { Locale } from "@/i18n/config";
 import {
@@ -15,12 +17,14 @@ type LocaleSwitchProps = {
   readonly activeLocale: Locale;
   readonly ariaLabel: string;
   readonly links: readonly LocaleSwitchLink[];
+  readonly onLocaleChange?: ((locale: Locale) => void) | undefined;
 };
 
 export function LocaleSwitch({
   activeLocale,
   ariaLabel,
   links,
+  onLocaleChange,
 }: LocaleSwitchProps) {
   return (
     <nav
@@ -40,6 +44,22 @@ export function LocaleSwitch({
             }`}
             href={link.href}
             key={link.locale}
+            onClick={(event) => {
+              if (isActive) {
+                event.preventDefault();
+                return;
+              }
+
+              if (
+                event.button === 0 &&
+                !event.altKey &&
+                !event.ctrlKey &&
+                !event.metaKey &&
+                !event.shiftKey
+              ) {
+                onLocaleChange?.(link.locale);
+              }
+            }}
           >
             {link.label}
           </Link>

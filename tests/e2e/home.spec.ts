@@ -1,4 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { rejectOptionalServices } from "./privacy-helpers";
+
+test.beforeEach(async ({ context }) => {
+  await rejectOptionalServices(context);
+});
 
 test("loads the app shell", async ({ page }) => {
   await page.goto("/");
@@ -7,7 +12,7 @@ test("loads the app shell", async ({ page }) => {
   await expect(page.getByRole("main")).toBeVisible();
   await expect(
     page.getByRole("heading", {
-      name: "Draw three cards and turn them into an AI-ready tarot prompt.",
+      name: "Turn your situation and a tarot spread into a stronger AI prompt.",
     }),
   ).toBeVisible();
   await expect(
@@ -22,7 +27,7 @@ test("loads Korean localized content", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "ko");
   await expect(
     page.getByRole("heading", {
-      name: "세 장의 카드를 뽑고 AI용 타로 프롬프트로 정리하세요.",
+      name: "나의 상황과 타로 스프레드를 더 선명한 AI 프롬프트로 만드세요.",
     }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "카드 뽑기" })).toBeVisible();
@@ -95,6 +100,18 @@ test("serves localized SEO metadata and discovery files", async ({
     await page.locator('link[rel="canonical"]').getAttribute("href"),
     "/ko",
   );
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    "content",
+    /\/brand\/tarot-spark-social-card\.png$/,
+  );
+  await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
+    "content",
+    /세 장의 천체 타로 카드/,
+  );
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+    "content",
+    "summary_large_image",
+  );
   expectPathname(
     await page
       .locator('link[rel="alternate"][hreflang="en"]')
@@ -150,21 +167,76 @@ test("returns 404 for unsupported or duplicate locale paths", async ({
   expect(unsupportedPublicPageResponse.status()).toBe(404);
 });
 
-test("resets reading state when switching languages", async ({ page }) => {
+test("preserves reading and private context when switching languages", async ({
+  page,
+}) => {
   await page.goto("/");
 
+  await page
+    .getByRole("textbox", { name: /Situation or relationship context/ })
+    .fill("My manager relationship is difficult.");
+  const activeLocaleUrl = page.url();
+  await page.getByRole("link", { name: "English" }).click();
+  await expect(page).toHaveURL(activeLocaleUrl);
+  await expect(
+    page.getByRole("textbox", { name: /Situation or relationship context/ }),
+  ).toHaveValue("My manager relationship is difficult.");
   await page.getByRole("button", { name: "Draw cards" }).click();
   await expect(page.getByLabel("Generated prompt")).toBeVisible();
+  const englishCardIds = await page
+    .locator("[data-card-id]")
+    .evaluateAll((elements) =>
+      elements.map((element) => element.getAttribute("data-card-id")),
+    );
 
   await page.getByRole("link", { name: "한국어" }).click();
 
   await expect(
     page.getByRole("heading", {
-      name: "세 장의 카드를 뽑고 AI용 타로 프롬프트로 정리하세요.",
+      name: "나의 상황과 타로 스프레드를 더 선명한 AI 프롬프트로 만드세요.",
     }),
   ).toBeVisible();
-  await expect(page.getByLabel("Generated prompt")).toBeHidden();
-  await expect(page.getByText("시작할 주제를 선택하세요.")).toBeVisible();
+  await expect(page.getByLabel("생성된 프롬프트")).toBeVisible();
+  await expect(
+    page.getByRole("textbox", { name: /상황 또는 관계 맥락/ }),
+  ).toHaveValue("My manager relationship is difficult.");
+  expect(
+    await page
+      .locator("[data-card-id]")
+      .evaluateAll((elements) =>
+        elements.map((element) => element.getAttribute("data-card-id")),
+      ),
+  ).toEqual(englishCardIds);
+  await expect(page).not.toHaveURL(/manager|context/i);
+});
+
+test("creates a direct six-card prompt while keeping context private", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  await page.getByRole("radio", { name: /Deep 6-card/ }).check();
+  await page.getByRole("radio", { name: /Direct, not deterministic/ }).check();
+  await page
+    .getByRole("textbox", { name: /Situation or relationship context/ })
+    .fill(
+      "My manager relationship is exhausting. Should I stay at this company?",
+    );
+  await page.getByRole("button", { name: "Draw cards" }).click();
+
+  await expect(page.locator('[data-testid^="reading-card-"]')).toHaveCount(6);
+  await expect(page.getByLabel("Generated prompt")).toContainText(
+    "Deep six-card spread",
+  );
+  await expect(page.getByLabel("Generated prompt")).toContainText(
+    "Reading style: Direct, not deterministic",
+  );
+  await expect(page.getByLabel("Generated prompt")).toContainText(
+    "Should I stay at this company?",
+  );
+  await expect(page).toHaveURL(/spread=deep/);
+  await expect(page).toHaveURL(/style=direct/);
+  await expect(page).not.toHaveURL(/manager|company|context/i);
 });
 
 test("draws tarot cards and copies the generated prompt", async ({ page }) => {

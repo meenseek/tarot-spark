@@ -3,6 +3,8 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   readingLensIds,
+  readingStyleIds,
+  spreadIds,
   spreadPositionIds,
   tarotCardIds,
   topicIds,
@@ -10,10 +12,12 @@ import {
 import { publicPageIds } from "@/features/public-pages";
 import enDailyQuestion from "@/messages/en/daily-question.json";
 import enPublicPages from "@/messages/en/public-pages.json";
+import enPrivacyConsent from "@/messages/en/privacy-consent.json";
 import enTarotMessages from "@/messages/en/tarot-domain.json";
 import enCopy from "@/messages/en/tarot-reading.json";
 import koDailyQuestion from "@/messages/ko/daily-question.json";
 import koPublicPages from "@/messages/ko/public-pages.json";
+import koPrivacyConsent from "@/messages/ko/privacy-consent.json";
 import koTarotMessages from "@/messages/ko/tarot-domain.json";
 import koCopy from "@/messages/ko/tarot-reading.json";
 import {
@@ -43,6 +47,11 @@ const publicPageMessagesByLocale = {
 const dailyQuestionMessagesByLocale = {
   en: enDailyQuestion,
   ko: koDailyQuestion,
+} satisfies Record<Locale, unknown>;
+
+const privacyConsentMessagesByLocale = {
+  en: enPrivacyConsent,
+  ko: koPrivacyConsent,
 } satisfies Record<Locale, unknown>;
 
 const jsonFiles = [
@@ -78,6 +87,14 @@ const jsonFiles = [
     label: "messages/ko/daily-question.json",
     path: "src/messages/ko/daily-question.json",
   },
+  {
+    label: "messages/en/privacy-consent.json",
+    path: "src/messages/en/privacy-consent.json",
+  },
+  {
+    label: "messages/ko/privacy-consent.json",
+    path: "src/messages/ko/privacy-consent.json",
+  },
 ] as const;
 
 type JsonSchema =
@@ -99,6 +116,15 @@ const uiCopySchema = {
   heading: "string",
   intro: "string",
   deckPreviewNote: "string",
+  personalizationHeading: "string",
+  personalizationIntro: "string",
+  spreadSelectorLabel: "string",
+  readingStyleSelectorLabel: "string",
+  contextLabel: "string",
+  contextOptional: "string",
+  contextPlaceholder: "string",
+  contextHelp: "string",
+  contextCountLabel: "string",
   topicSelectorLabel: "string",
   cardCountLabel: "string",
   drawButton: "string",
@@ -122,24 +148,33 @@ const uiCopySchema = {
   emptyBody: "string",
   disclaimer: "string",
   languageSwitchLabel: "string",
+  dailyQuestionLink: "string",
+  socialImageAlt: "string",
   shareTitle: "string",
   shareText: "string",
-  placeholders: [
-    {
-      positionLabel: "string",
-      cardName: "string",
-      cardTone: "string",
-    },
-  ],
+  placeholderCardName: "string",
+  placeholderCardTone: "string",
 } as const satisfies JsonSchema;
 
 const tarotMessagesSchema = {
   promptTemplate: {
     spreadLine: "string",
+    userContextBlock: "string",
+    emptyUserContext: "string",
     lines: ["string"],
   },
+  spreads: exactRecordSchema(spreadIds, {
+    label: "string",
+    description: "string",
+    promptLabel: "string",
+  }),
   readingLenses: exactRecordSchema(readingLensIds, {
     label: "string",
+    instruction: "string",
+  }),
+  readingStyles: exactRecordSchema(readingStyleIds, {
+    label: "string",
+    description: "string",
     instruction: "string",
   }),
   topics: exactRecordSchema(topicIds, {
@@ -200,6 +235,18 @@ const dailyQuestionMessagesSchema = {
   disclaimer: "string",
 } satisfies JsonSchema;
 
+const privacyConsentMessagesSchema = {
+  heading: "string",
+  body: "string",
+  analyticsLabel: "string",
+  analyticsDescription: "string",
+  advertisingLabel: "string",
+  advertisingDescription: "string",
+  saveChoices: "string",
+  rejectOptional: "string",
+  settingsButton: "string",
+} satisfies JsonSchema;
+
 describe("i18n integrity", () => {
   it("keeps locale files aligned with supported locales", () => {
     expect(Object.keys(uiCopyByLocale).sort()).toEqual(
@@ -212,6 +259,9 @@ describe("i18n integrity", () => {
       [...supportedLocales].sort(),
     );
     expect(Object.keys(dailyQuestionMessagesByLocale).sort()).toEqual(
+      [...supportedLocales].sort(),
+    );
+    expect(Object.keys(privacyConsentMessagesByLocale).sort()).toEqual(
       [...supportedLocales].sort(),
     );
   });
@@ -245,6 +295,12 @@ describe("i18n integrity", () => {
     );
   });
 
+  it("keeps privacy consent message keys identical across locales", () => {
+    expect(collectShapePaths(koPrivacyConsent)).toEqual(
+      collectShapePaths(enPrivacyConsent),
+    );
+  });
+
   it("matches supported locale JSON schemas exactly", () => {
     const schemaErrors = [
       ...collectLocaleSchemaErrors(uiCopyByLocale, uiCopySchema, "$.uiCopy"),
@@ -262,6 +318,11 @@ describe("i18n integrity", () => {
         dailyQuestionMessagesByLocale,
         dailyQuestionMessagesSchema,
         "$.dailyQuestionMessages",
+      ),
+      ...collectLocaleSchemaErrors(
+        privacyConsentMessagesByLocale,
+        privacyConsentMessagesSchema,
+        "$.privacyConsentMessages",
       ),
     ];
 
@@ -281,9 +342,17 @@ describe("i18n integrity", () => {
         `spread position order for ${locale}`,
       ).toEqual(spreadPositionIds);
       expect(
+        data.spreads.map((spread) => spread.id),
+        `spread order for ${locale}`,
+      ).toEqual(spreadIds);
+      expect(
         data.readingLenses.map((lens) => lens.id),
         `reading lens order for ${locale}`,
       ).toEqual(readingLensIds);
+      expect(
+        data.readingStyles.map((style) => style.id),
+        `reading style order for ${locale}`,
+      ).toEqual(readingStyleIds);
       expect(
         data.cards.map((card) => card.id),
         `card order for ${locale}`,
@@ -308,6 +377,11 @@ describe("i18n integrity", () => {
           ["count"],
         ),
         ...collectTemplatePlaceholderErrors(
+          `${locale} tarot-reading.contextCountLabel`,
+          copy.contextCountLabel,
+          ["count", "max"],
+        ),
+        ...collectTemplatePlaceholderErrors(
           `${locale} tarot-reading.shareText`,
           copy.shareText,
           ["cardNames", "topicLabel"],
@@ -325,14 +399,23 @@ describe("i18n integrity", () => {
           ],
         ),
         ...collectTemplatePlaceholderErrors(
+          `${locale} tarot promptTemplate.userContextBlock`,
+          tarotMessages.promptTemplate.userContextBlock,
+          ["userContext"],
+        ),
+        ...collectTemplatePlaceholderErrors(
           `${locale} tarot promptTemplate.lines`,
           tarotMessages.promptTemplate.lines.join("\n"),
           [
             "lensInstruction",
             "lensLabel",
             "promptLead",
+            "readingStyleInstruction",
+            "readingStyleLabel",
             "spread",
+            "spreadLabel",
             "topicLabel",
+            "userContextBlock",
           ],
         ),
       ];
@@ -364,6 +447,10 @@ describe("i18n integrity", () => {
       ...collectBlankStringPaths(
         dailyQuestionMessagesByLocale,
         "$.dailyQuestionMessages",
+      ),
+      ...collectBlankStringPaths(
+        privacyConsentMessagesByLocale,
+        "$.privacyConsentMessages",
       ),
     ];
 

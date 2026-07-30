@@ -1,6 +1,5 @@
 import { TarotCardGlyph } from "@/components/visual/TarotCardGlyph";
-import type { DrawnCard, TarotCardId } from "@/domain/tarot";
-import type { TarotReadingCopy } from "../i18n";
+import type { DrawnCard, SpreadPosition, TarotCardId } from "@/domain/tarot";
 
 type DisplayCard = {
   readonly positionLabel: string;
@@ -11,14 +10,18 @@ type DisplayCard = {
 
 type CardSpreadProps = {
   readonly cards: readonly DrawnCard[];
-  readonly placeholders: TarotReadingCopy["placeholders"];
   readonly cardMarkLabel: string;
+  readonly placeholderCardName: string;
+  readonly placeholderCardTone: string;
+  readonly positions: readonly SpreadPosition[];
 };
 
 export function CardSpread({
   cards,
-  placeholders,
   cardMarkLabel,
+  placeholderCardName,
+  placeholderCardTone,
+  positions,
 }: CardSpreadProps) {
   const displayCards: readonly DisplayCard[] =
     cards.length > 0
@@ -28,7 +31,11 @@ export function CardSpread({
           cardTone: card.tone,
           cardId: card.id,
         }))
-      : placeholders;
+      : positions.map((position) => ({
+          positionLabel: position.label,
+          cardName: placeholderCardName,
+          cardTone: placeholderCardTone,
+        }));
 
   return (
     <div className="grid gap-3 sm:grid-cols-3">
@@ -36,6 +43,7 @@ export function CardSpread({
         <article
           className="grid min-h-56 grid-rows-[auto_1fr_auto] rounded-ts-control border border-ts-divider bg-ts-surface p-4 text-ts-ink shadow-ts-card"
           data-card-id={displayCard.cardId}
+          data-testid={`reading-card-${index}`}
           key={displayCard.positionLabel}
         >
           <div className="flex items-start justify-between gap-3 text-xs font-semibold text-ts-muted">

@@ -1,12 +1,21 @@
 {
   "metadata": {
     "title": "tarot-spark",
-    "description": "Draw three cards from the current Major Arcana preview and create an AI-ready reflection prompt."
+    "description": "Add optional context, choose a tarot spread and reading style, and create an AI-ready reflection prompt."
   },
   "brand": "tarot-spark",
-  "heading": "Draw three cards and turn them into an AI-ready tarot prompt.",
-  "intro": "Pick a topic, draw a compact spread, then copy a prompt designed for reflective tarot writing.",
+  "heading": "Turn your situation and a tarot spread into a stronger AI prompt.",
+  "intro": "Choose a topic, depth, and reading style. Add optional context for a prompt that reflects the situation you actually want to explore.",
   "deckPreviewNote": "Current deck: {count}-card Major Arcana preview.",
+  "personalizationHeading": "Shape the reading",
+  "personalizationIntro": "These choices change the generated prompt without claiming certainty about another person or the future.",
+  "spreadSelectorLabel": "Choose reading depth",
+  "readingStyleSelectorLabel": "Choose reading style",
+  "contextLabel": "Situation or relationship context",
+  "contextOptional": "Optional",
+  "contextPlaceholder": "Example: My relationship with my manager has become exhausting, and I am unsure whether staying at this company is still right for me.",
+  "contextHelp": "Keep out names, contact details, birth dates, and workplace secrets. This text stays out of reading links and analytics.",
+  "contextCountLabel": "{count}/{max} characters",
   "topicSelectorLabel": "Choose a tarot topic",
   "cardCountLabel": "{count} cards",
   "drawButton": "Draw cards",
@@ -27,26 +36,13 @@
   "copiedShareText": "Copied share text",
   "blockedAction": "That action could not be completed. You can still select and copy the prompt or URL manually.",
   "emptyHeading": "Choose a topic to begin.",
-  "emptyBody": "The first draw creates a three-card spread and a prompt you can use with an AI writing tool.",
+  "emptyBody": "Your first draw creates the selected spread and a prompt you can use with an AI writing tool.",
   "disclaimer": "Tarot content is for entertainment and self-reflection only. It is not medical, legal, financial, investment, or mental-health advice.",
   "languageSwitchLabel": "Choose language",
+  "dailyQuestionLink": "Try today's one-card question",
+  "socialImageAlt": "tarot-spark editorial preview with three celestial tarot cards",
   "shareTitle": "tarot-spark reading",
   "shareText": "{topicLabel} tarot prompt: {cardNames}",
-  "placeholders": [
-    {
-      "positionLabel": "Spark",
-      "cardName": "Ready",
-      "cardTone": "Pick a topic"
-    },
-    {
-      "positionLabel": "Shadow",
-      "cardName": "Set",
-      "cardTone": "Draw cards"
-    },
-    {
-      "positionLabel": "Next step",
-      "cardName": "Prompt",
-      "cardTone": "Copy result"
-    }
-  ]
+  "placeholderCardName": "Ready",
+  "placeholderCardTone": "Draw to reveal"
 }

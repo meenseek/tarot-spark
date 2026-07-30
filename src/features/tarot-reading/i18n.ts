@@ -2,16 +2,28 @@ import "server-only";
 
 import type { Metadata } from "next";
 import type { Locale } from "@/i18n/config";
-import { withLocalizedAlternates } from "@/i18n/seo";
+import { getAbsoluteSiteUrl, withLocalizedAlternates } from "@/i18n/seo";
 import enCopy from "@/messages/en/tarot-reading.json";
 import koCopy from "@/messages/ko/tarot-reading.json";
 
 export type TarotReadingMessages = {
-  readonly metadata: Metadata;
+  readonly metadata: {
+    readonly title: string;
+    readonly description: string;
+  };
   readonly brand: string;
   readonly heading: string;
   readonly intro: string;
   readonly deckPreviewNote: string;
+  readonly personalizationHeading: string;
+  readonly personalizationIntro: string;
+  readonly spreadSelectorLabel: string;
+  readonly readingStyleSelectorLabel: string;
+  readonly contextLabel: string;
+  readonly contextOptional: string;
+  readonly contextPlaceholder: string;
+  readonly contextHelp: string;
+  readonly contextCountLabel: string;
   readonly topicSelectorLabel: string;
   readonly cardCountLabel: string;
   readonly drawButton: string;
@@ -35,13 +47,12 @@ export type TarotReadingMessages = {
   readonly emptyBody: string;
   readonly disclaimer: string;
   readonly languageSwitchLabel: string;
+  readonly dailyQuestionLink: string;
+  readonly socialImageAlt: string;
   readonly shareTitle: string;
   readonly shareText: string;
-  readonly placeholders: readonly {
-    readonly positionLabel: string;
-    readonly cardName: string;
-    readonly cardTone: string;
-  }[];
+  readonly placeholderCardName: string;
+  readonly placeholderCardTone: string;
 };
 
 export type TarotReadingCopy = Omit<TarotReadingMessages, "metadata">;
@@ -64,6 +75,12 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     copyUrl: copy.copyUrl,
     copiedShareText: copy.copiedShareText,
     copyPrompt: copy.copyPrompt,
+    contextCountLabel: copy.contextCountLabel,
+    contextHelp: copy.contextHelp,
+    contextLabel: copy.contextLabel,
+    contextOptional: copy.contextOptional,
+    contextPlaceholder: copy.contextPlaceholder,
+    dailyQuestionLink: copy.dailyQuestionLink,
     deckPreviewNote: copy.deckPreviewNote,
     disclaimer: copy.disclaimer,
     drawButton: copy.drawButton,
@@ -78,16 +95,50 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     kakaoShare: copy.kakaoShare,
     kakaoShared: copy.kakaoShared,
     languageSwitchLabel: copy.languageSwitchLabel,
-    placeholders: copy.placeholders,
+    personalizationHeading: copy.personalizationHeading,
+    personalizationIntro: copy.personalizationIntro,
+    placeholderCardName: copy.placeholderCardName,
+    placeholderCardTone: copy.placeholderCardTone,
+    readingStyleSelectorLabel: copy.readingStyleSelectorLabel,
     share: copy.share,
     shared: copy.shared,
     shareText: copy.shareText,
     shareTitle: copy.shareTitle,
+    socialImageAlt: copy.socialImageAlt,
+    spreadSelectorLabel: copy.spreadSelectorLabel,
     topicSelectorLabel: copy.topicSelectorLabel,
     workspaceLabel: copy.workspaceLabel,
   };
 }
 
 export function getTarotReadingMetadata(locale: Locale): Metadata {
-  return withLocalizedAlternates(copyJsonByLocale[locale].metadata, locale);
+  const copy = copyJsonByLocale[locale];
+  const { description, title } = copy.metadata;
+  const image = {
+    alt: copy.socialImageAlt,
+    height: 630,
+    url: getAbsoluteSiteUrl("/brand/tarot-spark-social-card.png"),
+    width: 1200,
+  };
+
+  return withLocalizedAlternates(
+    {
+      ...copy.metadata,
+      openGraph: {
+        description,
+        images: [image],
+        locale: locale === "ko" ? "ko_KR" : "en_US",
+        siteName: "tarot-spark",
+        title,
+        type: "website",
+      },
+      twitter: {
+        card: "summary_large_image",
+        description,
+        images: [image],
+        title,
+      },
+    },
+    locale,
+  );
 }
