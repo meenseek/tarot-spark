@@ -16,7 +16,7 @@
         {
           "heading": "What this site does",
           "paragraphs": [
-            "You can choose a topic, draw a compact three-card spread, and copy a prompt that helps you write about the result in an AI tool.",
+            "You can choose a topic, reading depth, and style, add optional situation context, and copy a prompt that helps you write about the result in an AI tool.",
             "The experience is built for entertainment, journaling, and self-reflection rather than prediction or professional advice."
           ]
         },
@@ -48,7 +48,8 @@
         {
           "heading": "Information you provide",
           "paragraphs": [
-            "tarot-spark does not require an account and does not ask for names, birth dates, contact details, or free-form personal questions to generate a prompt.",
+            "tarot-spark does not require an account. If you add optional situation or relationship context, do not include names, birth dates, contact details, workplace secrets, or other information that identifies a person.",
+            "Optional context stays in your browser and is omitted from reading URLs and analytics. A one-time same-tab browser handoff preserves it when you switch languages or when changing a privacy choice requires the page to reload. It leaves the site only when you choose to copy the generated prompt and paste or share it elsewhere.",
             "If you email tarotspark.app@gmail.com, the email address and message content you send are used to read and respond to your message."
           ]
         },
@@ -69,16 +70,16 @@
         {
           "heading": "Third-party services",
           "paragraphs": [
-            "The site may be hosted on Vercel and may use Google Analytics or Google AdSense when the corresponding identifiers are configured.",
+            "The site may be hosted on Vercel. When the corresponding identifiers are configured, Google Analytics and Google AdSense remain off until you allow those optional services in the privacy choices. AdSense does not load on the interactive reading pages.",
             "Google AdSense and its partners may use cookies or other local storage and process device, page, and ad interaction data to serve, measure, and, where permitted, personalize ads.",
-            "Those providers process technical, analytics, and advertising data according to their own terms and privacy policies. Where required, ad personalization depends on consent choices and available privacy controls."
+            "Your optional-service choices are stored in this browser and can be revised through the Privacy choices control. Those providers process technical, analytics, and advertising data according to their own terms and privacy policies."
           ]
         },
         {
           "heading": "Contact",
           "paragraphs": [
             "For privacy questions or deletion requests related to emails you sent, contact tarotspark.app@gmail.com.",
-            "Last updated: July 29, 2026."
+            "Last updated: July 30, 2026."
           ]
         }
       ]

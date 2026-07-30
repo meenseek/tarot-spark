@@ -1,0 +1,11 @@
+{
+  "heading": "Optional privacy choices",
+  "body": "Choose whether tarot-spark may load optional Google services. The reading works without them.",
+  "analyticsLabel": "Analytics",
+  "analyticsDescription": "Allow limited page and feature-use measurement so the product can improve.",
+  "advertisingLabel": "Advertising",
+  "advertisingDescription": "Allow Google AdSense to load on non-reading pages for advertising and site monetization.",
+  "saveChoices": "Save choices",
+  "rejectOptional": "Reject optional services",
+  "settingsButton": "Privacy choices"
+}

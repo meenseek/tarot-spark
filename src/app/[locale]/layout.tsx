@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { GoogleAnalytics } from "@/components/layout/GoogleAnalytics";
+import { OptionalGoogleServices } from "@/features/privacy-consent";
 import { isPrefixedLocale } from "@/i18n/config";
-import { GoogleAdSense } from "@/integrations/google-adsense";
+import { GoogleAdSenseAccountMetadata } from "@/integrations/google-adsense";
 import "../globals.css";
 
 type LocaleRootLayoutProps = {
@@ -24,11 +24,12 @@ export default async function LocaleRootLayout({
   return (
     <html lang={rawLocale}>
       <head>
-        <GoogleAdSense />
+        <GoogleAdSenseAccountMetadata />
       </head>
       <body>
-        {children}
-        <GoogleAnalytics />
+        <OptionalGoogleServices locale={rawLocale}>
+          {children}
+        </OptionalGoogleServices>
       </body>
     </html>
   );

@@ -1,17 +1,15 @@
 import Script from "next/script";
 import { GoogleAnalyticsEvents } from "./GoogleAnalyticsEvents";
 
-const gaMeasurementId = process.env["NEXT_PUBLIC_GA_ID"];
+type GoogleAnalyticsProps = {
+  readonly measurementId: string;
+};
 
-export function GoogleAnalytics() {
-  if (!gaMeasurementId) {
-    return null;
-  }
-
+export function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
   return (
     <>
       <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
+        src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
         strategy="afterInteractive"
       />
       <Script id="google-analytics-init" strategy="afterInteractive">
@@ -20,10 +18,10 @@ export function GoogleAnalytics() {
           function gtag(){window.dataLayer.push(arguments);}
           window.gtag = window.gtag || gtag;
           gtag('js', new Date());
-          gtag('config', '${gaMeasurementId}', { send_page_view: false });
+          gtag('config', '${measurementId}', { send_page_view: false });
         `}
       </Script>
-      <GoogleAnalyticsEvents measurementId={gaMeasurementId} />
+      <GoogleAnalyticsEvents measurementId={measurementId} />
     </>
   );
 }
