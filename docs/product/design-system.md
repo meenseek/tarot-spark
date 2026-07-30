@@ -49,6 +49,25 @@ instead of palette utilities or color literals.
 - Keep gold to one-pixel decorative strokes.
 - Do not use hearts, glitter, candy gradients, or multiple pastel accent colors.
 
+## Tarot Illustration System
+
+- Present tarot illustrations in one consistent `5:7` portrait frame.
+- Use a warm hand-painted storybook finish with soft gouache texture, restrained
+  celestial symbols, and a recurring human cast. Keep characters at roughly a
+  four-and-a-half-head proportion so the deck feels gentle without becoming
+  chibi or toy-like.
+- Let the scene, gesture, landscape, and one or two card symbols carry the
+  meaning. Do not place card names, numerals, captions, logos, or UI text inside
+  the illustration.
+- Reuse the existing SVG card glyph for cards without approved illustration art,
+  placeholders, small icons, and degraded-image fallback states.
+- Illustration-only colors may extend beyond the interface tokens. Their frame,
+  surrounding paper, borders, controls, focus states, and text must still use
+  semantic `ts-*` tokens.
+- A generated image is a source asset, not a finished deck card. Crop it into the
+  common frame, inspect faces and hands, remove accidental text or artifacts, and
+  verify visual continuity before shipping it.
+
 ## Interaction States
 
 - Draw interactive boundaries with the border token; do not rely on shadow or

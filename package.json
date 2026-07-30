@@ -11,6 +11,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "art:prompt": "node scripts/card-art-prompt.mjs",
+    "art:check": "node scripts/card-art-prompt.mjs --check",
     "lint": "eslint . --max-warnings=0",
     "docs:lint": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#.corepack\" \"#.pnpm-store\" \"#test-results\"",
     "typecheck": "tsc --noEmit",

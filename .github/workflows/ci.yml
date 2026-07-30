@@ -17,6 +17,8 @@ jobs:
   quality:
     name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    env:
+      ART_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before || '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -40,6 +42,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6

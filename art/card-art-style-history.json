@@ -1,0 +1,18 @@
+[
+  {
+    "version": "v1",
+    "styleFingerprintSha256": "5e1f7da91431dc8c1aa90f69dc7d4bba3ded89c3f7c51772efabe2e91a74ab1f",
+    "assetSha256": {
+      "public/cards/the-fool.jpg": "98c44ed92620968fef950f40b3b33c634f6dac5762de02c267eccf6edbdd78f8",
+      "public/cards/the-lovers.jpg": "a7d13cc70299827e4972d67aeb57d768d441a709e468ff5f0a2703a57618e488",
+      "public/cards/the-star.jpg": "73dd3e92c2603f6a151ed67ef7944de42e411559ce9b4b626f4a2ea6874f3a1c"
+    },
+    "reviewedPilotIds": ["the-fool", "the-lovers", "the-star"],
+    "review": {
+      "date": "2026-07-30",
+      "fullSizeApproved": true,
+      "smallPreviewApproved": true,
+      "status": "approved"
+    }
+  }
+]
