@@ -90,6 +90,10 @@ body {
   will-change: opacity, transform;
 }
 
+.ts-card-art-pending {
+  opacity: 0;
+}
+
 .ts-card-face-reveal {
   animation-name: ts-card-face-reveal;
   animation-delay: calc(

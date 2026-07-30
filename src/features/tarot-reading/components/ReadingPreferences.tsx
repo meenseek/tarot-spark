@@ -133,7 +133,7 @@ export function ReadingPreferences({
         </label>
         <textarea
           aria-describedby="tarot-context-help tarot-context-count"
-          className="min-h-28 resize-y rounded-ts-control border-2 border-ts-border bg-ts-canvas p-3 text-sm leading-6 text-ts-ink outline-none transition-colors duration-[var(--ts-motion-fast)] placeholder:text-ts-muted focus:border-ts-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
+          className="min-h-40 resize-y rounded-ts-control border-2 border-ts-border bg-ts-canvas p-3 text-sm leading-6 text-ts-ink outline-none transition-colors duration-[var(--ts-motion-fast)] placeholder:text-ts-muted focus:border-ts-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action sm:min-h-28"
           id="tarot-user-context"
           maxLength={maxUserContextLength}
           onChange={(event) => onContextChange(event.currentTarget.value)}

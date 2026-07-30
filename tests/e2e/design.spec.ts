@@ -12,6 +12,20 @@ const colors = {
   surface: "rgb(255, 253, 252)",
 } as const;
 
+async function serveCardArtFixture(page: Page, delayMs = 0) {
+  await page.route("**/_next/image**", async (route) => {
+    if (delayMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+
+    await route.fulfill({
+      contentType: "image/jpeg",
+      path: "public/cards/the-fool.jpg",
+      status: 200,
+    });
+  });
+}
+
 test.beforeEach(async ({ context }) => {
   await rejectOptionalServices(context);
 });
@@ -172,6 +186,7 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
 test("removes decorative motion when reduced motion is requested", async ({
   page,
 }) => {
+  await serveCardArtFixture(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
 
@@ -184,9 +199,12 @@ test("removes decorative motion when reduced motion is requested", async ({
   await page.getByRole("button", { name: "Draw cards" }).click();
 
   const card = page.getByTestId("reading-card-0");
-  const artFrame = card.locator("[data-card-art-frame]");
+  const art = card.locator("[data-art-id]");
+  await expect(art).toHaveAttribute("data-art-ready", "true", {
+    timeout: 10_000,
+  });
   const cardAnimation = await getAnimationTiming(card);
-  const artAnimation = await getAnimationTiming(artFrame);
+  const artAnimation = await getAnimationTiming(art);
 
   expect(maximumCssSeconds(cardAnimation.duration)).toBeLessThanOrEqual(0.001);
   expect(maximumCssSeconds(artAnimation.duration)).toBeLessThanOrEqual(0.001);
@@ -197,13 +215,14 @@ test("removes decorative motion when reduced motion is requested", async ({
 test("stages only a user-initiated card reveal with locked timing", async ({
   page,
 }) => {
+  await serveCardArtFixture(page);
   await page.goto("/");
   await page.getByRole("button", { name: "Draw cards" }).click();
 
   const firstCard = page.getByTestId("reading-card-0");
   const secondCard = page.getByTestId("reading-card-1");
-  const firstArt = firstCard.locator("[data-card-art-frame]");
-  const secondArt = secondCard.locator("[data-card-art-frame]");
+  const firstArt = firstCard.locator("[data-art-id]");
+  const secondArt = secondCard.locator("[data-art-id]");
 
   await expect(firstCard).toHaveAttribute("data-reveal-sequence", "1");
   await expect(firstCard).toHaveCSS("animation-duration", "0.52s");
@@ -211,6 +230,12 @@ test("stages only a user-initiated card reveal with locked timing", async ({
   await expect(secondCard).toHaveCSS("animation-delay", "0.08s");
   await expect(firstCard).toHaveCSS("--ts-card-tilt", "-1.15deg");
   await expect(secondCard).toHaveCSS("--ts-card-tilt", "1.15deg");
+  await expect(firstArt).toHaveAttribute("data-art-ready", "true", {
+    timeout: 10_000,
+  });
+  await expect(secondArt).toHaveAttribute("data-art-ready", "true", {
+    timeout: 10_000,
+  });
   await expect(firstArt).toHaveCSS("animation-duration", "0.36s");
   await expect(firstArt).toHaveCSS("animation-delay", "0.12s");
   await expect(secondArt).toHaveCSS("animation-delay", "0.2s");
@@ -232,6 +257,52 @@ test("stages only a user-initiated card reveal with locked timing", async ({
   await expect(page.getByTestId("reading-card-0")).not.toHaveAttribute(
     "data-reveal-sequence",
   );
+  const restoredArt = page
+    .getByTestId("reading-card-0")
+    .locator("[data-art-id]");
+  await expect(restoredArt).toHaveAttribute("data-art-ready", "true");
+  await expect(restoredArt).toHaveCSS("animation-name", "none");
+});
+
+test("keeps a glyph visible until delayed card art can reveal", async ({
+  page,
+}) => {
+  await serveCardArtFixture(page, 1_200);
+  await page.goto("/");
+  await page.getByRole("button", { name: "Draw cards" }).click();
+
+  const firstCard = page.getByTestId("reading-card-0");
+  const image = firstCard.locator("[data-art-id]");
+
+  await firstCard.evaluate(async (element) => {
+    const arrivalAnimations = element.getAnimations().filter((animation) => {
+      const effect = animation.effect as KeyframeEffect | null;
+
+      return (
+        animation instanceof CSSAnimation &&
+        animation.animationName === "ts-card-arrive" &&
+        effect?.target === element
+      );
+    });
+    const [arrivalAnimation] = arrivalAnimations;
+
+    if (!arrivalAnimation || arrivalAnimations.length !== 1) {
+      throw new Error(
+        `Expected exactly one card arrival animation, found ${arrivalAnimations.length}`,
+      );
+    }
+
+    await arrivalAnimation.finished;
+  });
+  await expect(firstCard.locator("[data-glyph-id]")).toBeVisible();
+  await expect(image).toHaveAttribute("data-art-ready", "false");
+  await expect(image).toHaveCSS("opacity", "0");
+  await expect(image).toHaveCSS("animation-name", "none");
+
+  await expect(image).toHaveAttribute("data-art-ready", "true", {
+    timeout: 10_000,
+  });
+  await expect(image).toHaveCSS("animation-name", "ts-card-face-reveal");
 });
 
 for (const width of [320, 360, 390] as const) {
@@ -344,6 +415,8 @@ test("reserves the hydrated Daily panel height at mobile widths", async ({
 });
 
 test("maps every restored preview card to approved art", async ({ page }) => {
+  test.setTimeout(60_000);
+
   const cardBatches = [
     [
       ["the-fool", "The Fool"],
@@ -372,8 +445,25 @@ test("maps every restored preview card to approved art", async ({ page }) => {
 
     for (const [cardId, cardName] of batch) {
       const card = page.locator(`[data-card-id="${cardId}"]`);
+      const art = card.locator(`[data-art-id="${cardId}"]`);
+
+      await card.scrollIntoViewIfNeeded();
       await expect(card.getByRole("heading", { name: cardName })).toBeVisible();
-      await expect(card.locator(`[data-art-id="${cardId}"]`)).toBeVisible();
+      await expect(art).toHaveAttribute("data-art-ready", "true", {
+        timeout: 10_000,
+      });
+
+      const decodedImage = await art.evaluate((element) => {
+        const image = element as HTMLImageElement;
+
+        return {
+          complete: image.complete,
+          naturalWidth: image.naturalWidth,
+        };
+      });
+
+      expect(decodedImage.complete).toBe(true);
+      expect(decodedImage.naturalWidth).toBeGreaterThan(0);
     }
   }
 });
