@@ -208,6 +208,12 @@ src/domain/tarot -> src/i18n
   source of truth; materialize localized arrays from those ids.
 - Keep browser storage, analytics, and clipboard helpers behind small wrapper
   functions in the feature or `src/lib`.
+- Keep free-form tarot context in client state. A locale switch may use a
+  versioned, one-time `sessionStorage` handoff; the same handoff may preserve
+  context across a document reload required to stop an already running optional
+  service. Reading URLs and analytics payloads must omit the context.
+- Keep spread, spread-position, and reading-style ids in TypeScript. Localize
+  their labels and prompt instructions through the tarot message data.
 - Do not add global state until at least two independent routes need the same
   mutable client state.
 

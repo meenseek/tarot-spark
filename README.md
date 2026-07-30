@@ -1,6 +1,8 @@
 # tarot-spark
 
-Free tarot card drawing and AI prompt generator built with Next.js.
+Free tarot card drawing and AI prompt generator built with Next.js. Users can
+choose a quick or deep spread, select a reading style, and optionally add
+browser-only situation context before copying the generated prompt.
 
 ## Development
 
@@ -32,11 +34,16 @@ leave it unset so share links use the production origin.
 Set `NEXT_PUBLIC_GA_ID` to the Google Analytics measurement ID, such as
 `G-XXXXXXXXXX`, to enable page view tracking and tarot behavior events. Leave it
 unset for local development or preview deployments that should not send GA data.
+When configured, Analytics remains off until the user permits it in the
+localized privacy choices.
 
 Set `NEXT_PUBLIC_ADSENSE_CLIENT_ID` to the Google AdSense client id, such as
-`ca-pub-0000000000000000`, to add the account metadata, load the AdSense script,
-and serve the matching authorized seller record from `/ads.txt`. Leave it unset
-for local development and preview deployments.
+`ca-pub-0000000000000000`, to add the account metadata, make the AdSense script
+available, and serve the matching authorized seller record from `/ads.txt`.
+Leave it unset for local development and preview deployments.
+The account metadata and `/ads.txt` do not depend on the privacy choice, but the
+AdSense script remains off until the user permits advertising and never loads
+on the interactive reading routes.
 
 Set `NEXT_PUBLIC_KAKAO_JS_KEY` to enable KakaoTalk sharing. Kakao domains:
 `App > JavaScript SDK domain` must include the app origin, and
