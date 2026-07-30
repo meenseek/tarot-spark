@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { CelestialMark } from "@/components/visual/CelestialMark";
 import {
   footerLinkClassName,
@@ -9,7 +15,7 @@ import {
   secondaryButtonClassName,
 } from "@/components/visual/class-names";
 import {
-  buildPrompt,
+  buildPromptPack,
   drawCards,
   getDefaultReadingStyle,
   getDefaultSpread,
@@ -20,8 +26,10 @@ import {
   getSpreadPositions,
   getTopic,
   maxUserContextLength,
+  promptVersion,
   type DrawnCard,
   type LocaleTarotData,
+  type PromptSlotId,
   type ReadingStyleId,
   type SpreadId,
   type TopicId,
@@ -29,7 +37,13 @@ import {
 import { optionalServicesDocumentReloadEvent } from "@/features/privacy-consent/events";
 import { localeNames, supportedLocales, type Locale } from "@/i18n/config";
 import { formatTemplateStrict } from "@/i18n/template";
-import { trackEvent } from "./analytics";
+import {
+  getAnalyticsAttributionPayload,
+  runWhenAnalyticsReady,
+  trackEvent,
+  type ShareMethod,
+  type ShareOutcome,
+} from "./analytics";
 import { CardSpread } from "./components/CardSpread";
 import { LanguageSwitch } from "./components/LanguageSwitch";
 import { ReadingPreferences } from "./components/ReadingPreferences";
@@ -38,10 +52,15 @@ import { TopicSelector } from "./components/TopicSelector";
 import type { TarotReadingCopy } from "./i18n";
 import {
   buildReadingUrl,
-  consumePrivateContextHandoff,
+  clearPrivateContextHandoff,
   getLocalizedReadingHref,
+  getReadingAttributionFromUrl,
   getReadingStateFromUrl,
   getShareBaseUrl,
+  readPrivateContextHandoff,
+  type ReadingUrlAttribution,
+  type ReadingUrlState,
+  type ShareSourceId,
   storePrivateContextHandoff,
 } from "./reading-state";
 import type { CopyState, KakaoShareState, ShareState } from "./types";
@@ -94,8 +113,13 @@ export function TarotExperienceClient({
   const [selectedStyleId, setSelectedStyleId] = useState<ReadingStyleId>(
     defaultReadingStyle.id,
   );
+  const [selectedPromptSlotId, setSelectedPromptSlotId] =
+    useState<PromptSlotId>("main");
   const [userContext, setUserContext] = useState("");
   const [cards, setCards] = useState<DrawnCard[]>([]);
+  const [readingAttribution, setReadingAttribution] =
+    useState<ReadingUrlAttribution>();
+  const [drawSequenceId, setDrawSequenceId] = useState(0);
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const [kakaoShareState, setKakaoShareState] =
     useState<KakaoShareState>("idle");
@@ -103,6 +127,8 @@ export function TarotExperienceClient({
     useState<CopyState>("idle");
   const [urlCopyState, setUrlCopyState] = useState<CopyState>("idle");
   const [shareState, setShareState] = useState<ShareState>("idle");
+  const restoredResultViewKey = useRef<string | undefined>(undefined);
+  const pendingPrivateContextHandoff = useRef<string | undefined>(undefined);
   const currentOrigin = useSyncExternalStore(
     subscribeToCurrentOrigin,
     getCurrentOriginSnapshot,
@@ -132,21 +158,26 @@ export function TarotExperienceClient({
         : undefined,
     [cards, selectedTopic.id, tarotData.readingLenses],
   );
+  const analyticsAttribution =
+    getAnalyticsAttributionPayload(readingAttribution);
 
   useEffect(() => {
     const restoredReading = getReadingStateFromUrl(
       tarotData,
       window.location.href,
     );
-    const transferredContext = consumePrivateContextHandoff(
-      window.sessionStorage,
+    const parsedAttribution = getReadingAttributionFromUrl(
+      window.location.href,
     );
+    const restoredAttribution = parsedAttribution ?? undefined;
+    const transferredContext = readPrivateContextHandoff(window.sessionStorage);
 
     if (!restoredReading && transferredContext === undefined) {
       return;
     }
 
     let shouldRestore = true;
+    let cancelPendingResultView: () => void = () => undefined;
 
     queueMicrotask(() => {
       if (!shouldRestore) {
@@ -158,9 +189,35 @@ export function TarotExperienceClient({
         setSelectedSpreadId(restoredReading.spreadId);
         setSelectedStyleId(restoredReading.styleId);
         setCards([...restoredReading.cards]);
+        setReadingAttribution(restoredAttribution);
+
+        if (restoredReading.cards.length > 0) {
+          const resultViewKey = getRestoredResultViewKey(
+            locale,
+            restoredReading,
+            restoredAttribution,
+          );
+
+          cancelPendingResultView = runWhenAnalyticsReady(() => {
+            if (restoredResultViewKey.current === resultViewKey) {
+              return;
+            }
+
+            restoredResultViewKey.current = resultViewKey;
+            trackEvent("result_view", {
+              ...getAnalyticsAttributionPayload(restoredAttribution),
+              locale,
+              topic_id: restoredReading.topicId,
+              card_count: restoredReading.cards.length,
+              spread_id: restoredReading.spreadId,
+              style_id: restoredReading.styleId,
+            });
+          });
+        }
       }
 
       if (transferredContext !== undefined) {
+        pendingPrivateContextHandoff.current = transferredContext;
         setUserContext(transferredContext);
       }
       setCopyState("idle");
@@ -172,8 +229,20 @@ export function TarotExperienceClient({
 
     return () => {
       shouldRestore = false;
+      cancelPendingResultView();
     };
-  }, [tarotData]);
+  }, [locale, tarotData]);
+
+  useEffect(() => {
+    const pendingContext = pendingPrivateContextHandoff.current;
+
+    if (pendingContext === undefined || pendingContext !== userContext) {
+      return;
+    }
+
+    clearPrivateContextHandoff(window.sessionStorage);
+    pendingPrivateContextHandoff.current = undefined;
+  }, [userContext]);
 
   useEffect(() => {
     const preserveContextBeforeReload = () => {
@@ -193,10 +262,10 @@ export function TarotExperienceClient({
     };
   }, [userContext]);
 
-  const prompt = useMemo(
+  const promptPack = useMemo(
     () =>
       cards.length > 0 && readingLens
-        ? buildPrompt(
+        ? buildPromptPack(
             {
               cards,
               lens: readingLens,
@@ -208,7 +277,7 @@ export function TarotExperienceClient({
             },
             `${locale} tarot promptTemplate`,
           )
-        : "",
+        : undefined,
     [
       cards,
       locale,
@@ -220,6 +289,7 @@ export function TarotExperienceClient({
       userContext,
     ],
   );
+  const prompt = promptPack?.[selectedPromptSlotId] ?? "";
   const cardCountLabel = useMemo(
     () =>
       formatTemplateStrict(
@@ -246,16 +316,26 @@ export function TarotExperienceClient({
   const languageLinks = useMemo(
     () =>
       supportedLocales.map((targetLocale) => ({
-        href: getLocalizedReadingHref(targetLocale, {
-          cards,
-          spreadId: selectedSpread.id,
-          styleId: selectedReadingStyle.id,
-          topicId: selectedTopic.id,
-        }),
+        href: getLocalizedReadingHref(
+          targetLocale,
+          {
+            cards,
+            spreadId: selectedSpread.id,
+            styleId: selectedReadingStyle.id,
+            topicId: selectedTopic.id,
+          },
+          readingAttribution,
+        ),
         label: localeNames[targetLocale],
         locale: targetLocale,
       })),
-    [cards, selectedReadingStyle.id, selectedSpread.id, selectedTopic.id],
+    [
+      cards,
+      readingAttribution,
+      selectedReadingStyle.id,
+      selectedSpread.id,
+      selectedTopic.id,
+    ],
   );
   const deckPreviewNote = useMemo(
     () =>
@@ -277,15 +357,21 @@ export function TarotExperienceClient({
     setInstagramCopyState("idle");
     setUrlCopyState("idle");
     setShareState("idle");
+    setSelectedPromptSlotId("main");
     replaceBrowserUrl(
       getBrowserReadingUrl(
         topicId,
         selectedSpread.id,
         selectedReadingStyle.id,
         [],
+        readingAttribution,
       ),
     );
-    trackEvent("topic_click", { locale, topic_id: topicId });
+    trackEvent("topic_click", {
+      ...analyticsAttribution,
+      locale,
+      topic_id: topicId,
+    });
   }
 
   function chooseSpread(spreadId: SpreadId) {
@@ -296,12 +382,14 @@ export function TarotExperienceClient({
     setInstagramCopyState("idle");
     setUrlCopyState("idle");
     setShareState("idle");
+    setSelectedPromptSlotId("main");
     replaceBrowserUrl(
       getBrowserReadingUrl(
         selectedTopic.id,
         spreadId,
         selectedReadingStyle.id,
         [],
+        readingAttribution,
       ),
     );
   }
@@ -310,7 +398,13 @@ export function TarotExperienceClient({
     setSelectedStyleId(styleId);
     setCopyState("idle");
     replaceBrowserUrl(
-      getBrowserReadingUrl(selectedTopic.id, selectedSpread.id, styleId, cards),
+      getBrowserReadingUrl(
+        selectedTopic.id,
+        selectedSpread.id,
+        styleId,
+        cards,
+        readingAttribution,
+      ),
     );
   }
 
@@ -327,6 +421,7 @@ export function TarotExperienceClient({
 
   function startDraw() {
     trackEvent("draw_start", {
+      ...analyticsAttribution,
       locale,
       topic_id: selectedTopic.id,
       spread_id: selectedSpread.id,
@@ -334,23 +429,27 @@ export function TarotExperienceClient({
     });
 
     const drawnCards = drawCards(tarotData.cards, selectedPositions);
+    setDrawSequenceId((currentSequenceId) => currentSequenceId + 1);
     setCards(drawnCards);
     setCopyState("idle");
     setKakaoShareState("idle");
     setInstagramCopyState("idle");
     setUrlCopyState("idle");
     setShareState("idle");
+    setSelectedPromptSlotId("main");
     replaceBrowserUrl(
       getBrowserReadingUrl(
         selectedTopic.id,
         selectedSpread.id,
         selectedReadingStyle.id,
         drawnCards,
+        readingAttribution,
       ),
     );
 
     drawnCards.forEach(({ position, card }) => {
       trackEvent("card_selected", {
+        ...analyticsAttribution,
         locale,
         topic_id: selectedTopic.id,
         position_id: position.id,
@@ -360,6 +459,7 @@ export function TarotExperienceClient({
       });
     });
     trackEvent("result_view", {
+      ...analyticsAttribution,
       locale,
       topic_id: selectedTopic.id,
       card_count: drawnCards.length,
@@ -377,15 +477,24 @@ export function TarotExperienceClient({
       await writeClipboard(prompt);
       setCopyState("copied");
       trackEvent("prompt_copy", {
+        ...analyticsAttribution,
         locale,
         topic_id: selectedTopic.id,
         card_count: cards.length,
         spread_id: selectedSpread.id,
         style_id: selectedReadingStyle.id,
+        prompt_slot: selectedPromptSlotId,
+        prompt_version: promptVersion,
+        surface: "reading_result",
       });
     } catch {
       setCopyState("failed");
     }
+  }
+
+  function choosePromptSlot(promptSlotId: PromptSlotId) {
+    setSelectedPromptSlotId(promptSlotId);
+    setCopyState("idle");
   }
 
   async function shareToKakaoTalk() {
@@ -413,14 +522,17 @@ export function TarotExperienceClient({
     );
     const shareUrl = getShareUrl(
       shareSiteUrl,
+      locale,
       selectedTopic.id,
       selectedSpread.id,
       selectedReadingStyle.id,
       cards,
+      "kakao",
     );
 
     setKakaoShareState("idle");
     trackEvent("share_click", {
+      ...analyticsAttribution,
       locale,
       topic_id: selectedTopic.id,
       card_count: cards.length,
@@ -443,8 +555,10 @@ export function TarotExperienceClient({
         }),
       );
       setKakaoShareState("opened");
+      trackShareResult("kakaotalk", "opened");
     } catch {
       setKakaoShareState("failed");
+      trackShareResult("kakaotalk", "failed");
     }
   }
 
@@ -461,10 +575,12 @@ export function TarotExperienceClient({
     );
     const shareUrl = getShareUrl(
       shareSiteUrl,
+      locale,
       selectedTopic.id,
       selectedSpread.id,
       selectedReadingStyle.id,
       cards,
+      "native",
     );
     const shareData = {
       title: copy.shareTitle,
@@ -475,6 +591,7 @@ export function TarotExperienceClient({
 
     setShareState("idle");
     trackEvent("share_click", {
+      ...analyticsAttribution,
       locale,
       topic_id: selectedTopic.id,
       card_count: cards.length,
@@ -487,17 +604,21 @@ export function TarotExperienceClient({
       if (canShare && navigator.share) {
         await navigator.share(shareData);
         setShareState("shared");
+        trackShareResult("native", "shared");
       } else {
         await writeClipboard(`${shareText}\n${shareUrl}`);
         setShareState("copied");
+        trackShareResult("clipboard", "copied");
       }
     } catch (error) {
       if (isShareCancel(error)) {
         setShareState("idle");
+        trackShareResult("native", "cancelled");
         return;
       }
 
       setShareState("failed");
+      trackShareResult(canShare ? "native" : "clipboard", "failed");
     }
   }
 
@@ -508,6 +629,7 @@ export function TarotExperienceClient({
 
     setUrlCopyState("idle");
     trackEvent("share_click", {
+      ...analyticsAttribution,
       locale,
       topic_id: selectedTopic.id,
       card_count: cards.length,
@@ -520,15 +642,19 @@ export function TarotExperienceClient({
       await writeClipboard(
         getShareUrl(
           shareSiteUrl,
+          locale,
           selectedTopic.id,
           selectedSpread.id,
           selectedReadingStyle.id,
           cards,
+          "copy",
         ),
       );
       setUrlCopyState("copied");
+      trackShareResult("copy_url", "copied");
     } catch {
       setUrlCopyState("failed");
+      trackShareResult("copy_url", "failed");
     }
   }
 
@@ -539,6 +665,7 @@ export function TarotExperienceClient({
 
     setInstagramCopyState("idle");
     trackEvent("share_click", {
+      ...analyticsAttribution,
       locale,
       topic_id: selectedTopic.id,
       card_count: cards.length,
@@ -551,16 +678,33 @@ export function TarotExperienceClient({
       await writeClipboard(
         getShareUrl(
           shareSiteUrl,
+          locale,
           selectedTopic.id,
           selectedSpread.id,
           selectedReadingStyle.id,
           cards,
+          "instagram",
         ),
       );
       setInstagramCopyState("copied");
+      trackShareResult("instagram_copy_url", "copied");
     } catch {
       setInstagramCopyState("failed");
+      trackShareResult("instagram_copy_url", "failed");
     }
+  }
+
+  function trackShareResult(method: ShareMethod, outcome: ShareOutcome) {
+    trackEvent("share_result", {
+      ...analyticsAttribution,
+      locale,
+      topic_id: selectedTopic.id,
+      card_count: cards.length,
+      method,
+      outcome,
+      spread_id: selectedSpread.id,
+      style_id: selectedReadingStyle.id,
+    });
   }
 
   return (
@@ -646,6 +790,7 @@ export function TarotExperienceClient({
             placeholderCardName={copy.placeholderCardName}
             placeholderCardTone={copy.placeholderCardTone}
             positions={selectedPositions}
+            revealSequence={drawSequenceId}
           />
 
           <ReadingResult
@@ -658,10 +803,12 @@ export function TarotExperienceClient({
             onInstagramShare={copyInstagramShareUrl}
             onKakaoShare={shareToKakaoTalk}
             onCopyPrompt={copyPrompt}
+            onPromptSlotChange={choosePromptSlot}
             onCopyUrl={copyShareUrl}
             onShareReading={shareReading}
             prompt={prompt}
             readingLens={readingLens}
+            selectedPromptSlotId={selectedPromptSlotId}
             selectedTopic={selectedTopic}
             shareState={shareState}
             urlCopyState={urlCopyState}
@@ -757,28 +904,58 @@ function getBrowserReadingUrl(
   spreadId: SpreadId,
   styleId: ReadingStyleId,
   cards: readonly DrawnCard[],
+  attribution?: ReadingUrlAttribution,
 ) {
-  return buildReadingUrl(window.location.href, {
-    cards,
-    spreadId,
-    styleId,
-    topicId,
-  });
+  return buildReadingUrl(
+    window.location.href,
+    {
+      cards,
+      spreadId,
+      styleId,
+      topicId,
+    },
+    attribution,
+  );
+}
+
+function getRestoredResultViewKey(
+  locale: Locale,
+  reading: ReadingUrlState,
+  attribution: ReadingUrlAttribution | undefined,
+) {
+  return JSON.stringify([
+    locale,
+    reading.topicId,
+    reading.spreadId,
+    reading.styleId,
+    reading.cards.map(({ card }) => card.id),
+    attribution?.sourceId,
+    attribution?.campaignId,
+  ]);
 }
 
 function getShareUrl(
   shareSiteUrl: string,
+  locale: Locale,
   topicId: TopicId,
   spreadId: SpreadId,
   styleId: ReadingStyleId,
   cards: readonly DrawnCard[],
+  sourceId: ShareSourceId = "copy",
 ) {
-  return buildReadingUrl(getShareBaseUrl(shareSiteUrl, window.location.href), {
-    cards,
-    spreadId,
-    styleId,
-    topicId,
-  });
+  return buildReadingUrl(
+    getShareBaseUrl(shareSiteUrl, locale),
+    {
+      cards,
+      spreadId,
+      styleId,
+      topicId,
+    },
+    {
+      campaignId: "vertical-slice",
+      sourceId,
+    },
+  );
 }
 
 function canUseKakaoShare(

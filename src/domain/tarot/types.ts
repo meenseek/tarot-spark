@@ -1,4 +1,5 @@
 import type {
+  PromptSlotId,
   ReadingLensId,
   ReadingStyleId,
   SpreadId,
@@ -8,6 +9,7 @@ import type {
 } from "./ids";
 
 export type {
+  PromptSlotId,
   ReadingLensId,
   ReadingStyleId,
   SpreadId,
@@ -33,6 +35,7 @@ export type Spread = {
   readonly label: string;
   readonly description: string;
   readonly promptLabel: string;
+  readonly outputLengthInstruction: string;
   readonly positionIds: readonly SpreadPositionId[];
 };
 
@@ -53,7 +56,14 @@ export type TarotCard = {
   readonly id: TarotCardId;
   readonly name: string;
   readonly tone: string;
+  readonly archetype: string;
+  readonly keywords: readonly string[];
+  readonly symbols: readonly string[];
   readonly upright: string;
+  readonly light: string;
+  readonly shadow: string;
+  readonly agency: string;
+  readonly caution: string;
   readonly reflection: string;
   readonly promptAngle: string;
 };
@@ -63,7 +73,10 @@ export type PromptTemplate = {
   readonly userContextBlock: string;
   readonly emptyUserContext: string;
   readonly lines: readonly string[];
+  readonly slotInstructions: Readonly<Record<PromptSlotId, readonly string[]>>;
 };
+
+export type PromptPack = Readonly<Record<PromptSlotId, string>>;
 
 export type DrawnCard = {
   readonly position: SpreadPosition;

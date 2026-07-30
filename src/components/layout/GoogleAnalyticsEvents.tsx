@@ -3,12 +3,21 @@
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import {
+  promptSlotIds,
   readingStyleIds,
   spreadIds,
   spreadPositionIdsBySpread,
   tarotCardIds,
   topicIds,
 } from "@/domain/tarot";
+import {
+  announceAnalyticsReady,
+  clearAnalyticsReady,
+} from "@/features/tarot-reading/analytics";
+import {
+  shareCampaignIds,
+  shareSourceIds,
+} from "@/features/tarot-reading/reading-state";
 import { isLocale } from "@/i18n/config";
 
 type AnalyticsPayload = Record<string, string | number | boolean>;
@@ -24,7 +33,16 @@ const analyticsEventPayloadKeys = {
     "card_id",
   ],
   result_view: ["locale", "topic_id", "spread_id", "style_id", "card_count"],
-  prompt_copy: ["locale", "topic_id", "spread_id", "style_id", "card_count"],
+  prompt_copy: [
+    "locale",
+    "topic_id",
+    "spread_id",
+    "style_id",
+    "card_count",
+    "prompt_slot",
+    "prompt_version",
+    "surface",
+  ],
   share_click: [
     "locale",
     "topic_id",
@@ -33,7 +51,17 @@ const analyticsEventPayloadKeys = {
     "card_count",
     "method",
   ],
+  share_result: [
+    "locale",
+    "topic_id",
+    "spread_id",
+    "style_id",
+    "card_count",
+    "method",
+    "outcome",
+  ],
 } as const;
+const analyticsAttributionPayloadKeys = ["source", "campaign"] as const;
 
 type AnalyticsEventName = keyof typeof analyticsEventPayloadKeys;
 const shareMethods = [
@@ -42,6 +70,13 @@ const shareMethods = [
   "clipboard",
   "copy_url",
   "instagram_copy_url",
+] as const;
+const shareOutcomes = [
+  "shared",
+  "opened",
+  "copied",
+  "cancelled",
+  "failed",
 ] as const;
 
 type GtagArguments =
@@ -89,8 +124,10 @@ export function GoogleAnalyticsEvents({
     };
 
     window.addEventListener("tarot_spark_event", listener);
+    announceAnalyticsReady();
 
     return () => {
+      clearAnalyticsReady();
       window.removeEventListener("tarot_spark_event", listener);
     };
   }, []);
@@ -140,14 +177,33 @@ function isAnalyticsPayload(
   name: AnalyticsEventName,
   value: unknown,
 ): value is AnalyticsPayload {
+  if (!isRecord(value)) {
+    return false;
+  }
+
   const allowedKeys: readonly string[] = analyticsEventPayloadKeys[name];
+  const receivedKeys = Object.keys(value);
+  const hasSource = Object.hasOwn(value, "source");
+  const hasCampaign = Object.hasOwn(value, "campaign");
+  const expectedKeys =
+    hasSource && hasCampaign
+      ? [...allowedKeys, ...analyticsAttributionPayloadKeys]
+      : allowedKeys;
 
   if (
-    !isRecord(value) ||
-    Object.keys(value).length !== allowedKeys.length ||
-    !Object.keys(value).every((key) => allowedKeys.includes(key)) ||
+    hasSource !== hasCampaign ||
+    receivedKeys.length !== expectedKeys.length ||
+    !receivedKeys.every((key) => expectedKeys.includes(key)) ||
     !isLocaleValue(value["locale"]) ||
     !isAllowedValue(value["topic_id"], topicIds)
+  ) {
+    return false;
+  }
+
+  if (
+    hasSource &&
+    (!isAllowedValue(value["source"], shareSourceIds) ||
+      !isAllowedValue(value["campaign"], shareCampaignIds))
   ) {
     return false;
   }
@@ -180,8 +236,26 @@ function isAnalyticsPayload(
     return false;
   }
 
+  if (name === "result_view") {
+    return true;
+  }
+
+  if (name === "prompt_copy") {
+    return (
+      isAllowedValue(value["prompt_slot"], promptSlotIds) &&
+      value["prompt_version"] === "prompt-pack-v2" &&
+      value["surface"] === "reading_result"
+    );
+  }
+
+  if (name === "share_click") {
+    return isAllowedValue(value["method"], shareMethods);
+  }
+
   return (
-    name !== "share_click" || isAllowedValue(value["method"], shareMethods)
+    name === "share_result" &&
+    isAllowedValue(value["method"], shareMethods) &&
+    isAllowedValue(value["outcome"], shareOutcomes)
   );
 }
 

@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { isDailyQuestionPathSegment } from "@/features/daily-question/paths";
-import { isPublicPageId } from "@/features/public-pages/ids";
 import { defaultLocale, isLocale, isPrefixedLocale } from "@/i18n/config";
+import { isLocalizedSecondLevelPathSegment } from "@/i18n/routing";
 
 export function proxy(request: NextRequest) {
   const pathSegments = request.nextUrl.pathname.split("/").filter(Boolean);
@@ -27,11 +26,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (
-    (!isPublicPageId(secondSegment) &&
-      !isDailyQuestionPathSegment(secondSegment)) ||
-    thirdSegment
-  ) {
+  if (!isLocalizedSecondLevelPathSegment(secondSegment) || thirdSegment) {
     return notFoundResponse();
   }
 

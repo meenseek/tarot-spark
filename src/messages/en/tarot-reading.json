@@ -21,9 +21,42 @@
   "drawButton": "Draw cards",
   "workspaceLabel": "Tarot reading workspace",
   "cardMarkLabel": "Decorative tarot card mark",
+  "promptPack": {
+    "heading": "Choose the prompt you need next",
+    "intro": "Each prompt uses the full spread. Start with the main reading, then copy a different lens when you want another kind of help.",
+    "selectorLabel": "Prompt Pack",
+    "slots": {
+      "main": {
+        "label": "Main reading",
+        "description": "A detailed connected interpretation with alternatives and next steps."
+      },
+      "other-view": {
+        "label": "Other perspective",
+        "description": "Challenges the first interpretation and tests overlooked assumptions."
+      },
+      "action": {
+        "label": "Action plan",
+        "description": "Turns the spread into options, tradeoffs, and small reversible steps."
+      },
+      "emotion": {
+        "label": "Emotion check-in",
+        "description": "Separates feelings, evidence, needs, and boundaries without diagnosing."
+      }
+    }
+  },
+  "cardDetails": {
+    "archetype": "Archetype",
+    "keywords": "Keywords",
+    "symbols": "Symbols to notice",
+    "light": "Light expression",
+    "shadow": "Shadow expression",
+    "agency": "What you can influence",
+    "caution": "Keep in mind",
+    "reflection": "Reflection question"
+  },
   "generatedPromptLabel": "Generated prompt",
   "interpretationLensLabel": "Interpretation lens",
-  "copyPrompt": "Copy prompt",
+  "copyPrompt": "Copy selected prompt",
   "copied": "Copied",
   "copyUrl": "Copy URL",
   "copiedUrl": "URL copied",

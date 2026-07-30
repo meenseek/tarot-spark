@@ -1,6 +1,8 @@
 import { formatTemplateStrict } from "@/i18n/template";
 import type {
   DrawnCard,
+  PromptPack,
+  PromptSlotId,
   PromptTemplate,
   ReadingLens,
   ReadingStyle,
@@ -9,6 +11,7 @@ import type {
 } from "./types";
 
 export const maxUserContextLength = 500;
+export const promptVersion = "prompt-pack-v2";
 
 type BuildPromptInput = {
   readonly cards: readonly DrawnCard[];
@@ -18,6 +21,7 @@ type BuildPromptInput = {
   readonly template: PromptTemplate;
   readonly topic: Topic;
   readonly userContext?: string;
+  readonly promptSlotId?: PromptSlotId;
 };
 
 export function buildPrompt(
@@ -29,6 +33,7 @@ export function buildPrompt(
     template,
     topic,
     userContext = "",
+    promptSlotId = "main",
   }: BuildPromptInput,
   context = "tarot promptTemplate",
 ): string {
@@ -40,6 +45,13 @@ export function buildPrompt(
         {
           cardName: card.name,
           cardTone: card.tone,
+          archetype: card.archetype,
+          keywords: card.keywords.join(", "),
+          symbols: card.symbols.join(", "),
+          light: card.light,
+          shadow: card.shadow,
+          agency: card.agency,
+          caution: card.caution,
           positionLabel: position.label,
           promptAngle: card.promptAngle,
           reflection: card.reflection,
@@ -60,7 +72,7 @@ export function buildPrompt(
   );
 
   return formatTemplateStrict(
-    template.lines.join("\n"),
+    [...template.lines, ...template.slotInstructions[promptSlotId]].join("\n"),
     {
       lensInstruction: lens.instruction,
       lensLabel: lens.label,
@@ -69,11 +81,36 @@ export function buildPrompt(
       readingStyleLabel: readingStyle.label,
       spread: spreadLines,
       spreadLabel: spread.promptLabel,
+      outputLengthInstruction: spread.outputLengthInstruction,
       topicLabel: topic.label,
       userContextBlock,
     },
     `${context}.lines`,
   );
+}
+
+export function buildPromptPack(
+  input: Omit<BuildPromptInput, "promptSlotId">,
+  context = "tarot promptTemplate",
+): PromptPack {
+  return {
+    main: buildPrompt(
+      { ...input, promptSlotId: "main" },
+      `${context}.slotInstructions.main`,
+    ),
+    "other-view": buildPrompt(
+      { ...input, promptSlotId: "other-view" },
+      `${context}.slotInstructions.other-view`,
+    ),
+    action: buildPrompt(
+      { ...input, promptSlotId: "action" },
+      `${context}.slotInstructions.action`,
+    ),
+    emotion: buildPrompt(
+      { ...input, promptSlotId: "emotion" },
+      `${context}.slotInstructions.emotion`,
+    ),
+  };
 }
 
 export function normalizeUserContext(value: string) {

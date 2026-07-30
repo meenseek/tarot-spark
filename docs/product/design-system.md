@@ -79,6 +79,19 @@ instead of palette utilities or color literals.
 - Keep hover and pressed states within the action and blush token families.
 - Reduce animation and transition durations when reduced motion is requested.
 
+## Card Draw Motion
+
+- Render drawn cards, the prompt, and analytics state immediately without a
+  loading timer.
+- Animate only user-initiated draws. Do not replay the reveal for restored or
+  shared URLs.
+- Use a 520ms card arrival, a 360ms art reveal, an 80ms per-card stagger, and a
+  120ms art offset.
+- Restart the sequence when the user draws again. Do not restart it for reading
+  style changes.
+- Set both animation duration and delay to effectively zero when reduced motion
+  is requested.
+
 ## Exceptions
 
 Keep third-party brand artwork in its official colors. Surrounding button

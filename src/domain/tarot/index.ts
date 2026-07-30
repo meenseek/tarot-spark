@@ -1,7 +1,9 @@
 export {
   buildPrompt,
+  buildPromptPack,
   maxUserContextLength,
   normalizeUserContext,
+  promptVersion,
 } from "./prompts";
 export { getReadingLens, readingLensAlgorithmVersion } from "./reading-lenses";
 export { getDefaultReadingStyle, getReadingStyle } from "./reading-styles";
@@ -20,6 +22,7 @@ export {
 } from "./spreads";
 export { getDefaultTopic, getTopic } from "./topics";
 export {
+  promptSlotIds,
   readingLensIds,
   readingStyleIds,
   spreadIds,
@@ -31,6 +34,8 @@ export type {
   DrawnCard,
   LocaleTarotData,
   PromptTemplate,
+  PromptPack,
+  PromptSlotId,
   ReadingLens,
   ReadingLensId,
   ReadingStyle,

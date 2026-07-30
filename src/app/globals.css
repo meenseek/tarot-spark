@@ -30,6 +30,10 @@
   --ts-shadow-card: 0 0.625rem 1.75rem rgb(58 38 51 / 8%);
   --ts-motion-fast: 160ms;
   --ts-motion-base: 200ms;
+  --ts-motion-card-arrive: 520ms;
+  --ts-motion-card-art: 360ms;
+  --ts-motion-card-stagger: 80ms;
+  --ts-motion-card-art-offset: 120ms;
   --ts-motion-ease: cubic-bezier(0.2, 0.75, 0.25, 1);
 }
 
@@ -75,6 +79,53 @@ body {
   color: var(--ts-color-ink);
 }
 
+.ts-card-arrive {
+  animation-name: ts-card-arrive;
+  animation-delay: calc(
+    var(--ts-card-index, 0) * var(--ts-motion-card-stagger)
+  );
+  animation-duration: var(--ts-motion-card-arrive);
+  animation-fill-mode: both;
+  animation-timing-function: var(--ts-motion-ease);
+}
+
+.ts-card-face-reveal {
+  animation-name: ts-card-face-reveal;
+  animation-delay: calc(
+    var(--ts-motion-card-art-offset) +
+      (var(--ts-card-index, 0) * var(--ts-motion-card-stagger))
+  );
+  animation-duration: var(--ts-motion-card-art);
+  animation-fill-mode: both;
+  animation-timing-function: var(--ts-motion-ease);
+}
+
+@keyframes ts-card-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem) rotate(-0.75deg) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0) scale(1);
+  }
+}
+
+@keyframes ts-card-face-reveal {
+  from {
+    filter: saturate(0.72) brightness(1.04);
+    opacity: 0.24;
+    transform: translateY(0.35rem) scale(0.92);
+  }
+
+  to {
+    filter: saturate(1) brightness(1);
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -83,5 +134,10 @@ body {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+
+  .ts-card-arrive,
+  .ts-card-face-reveal {
+    animation-delay: 0ms !important;
   }
 }

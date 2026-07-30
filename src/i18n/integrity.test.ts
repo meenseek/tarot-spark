@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  promptSlotIds,
   readingLensIds,
   readingStyleIds,
   spreadIds,
@@ -13,11 +14,13 @@ import { publicPageIds } from "@/features/public-pages";
 import enDailyQuestion from "@/messages/en/daily-question.json";
 import enPublicPages from "@/messages/en/public-pages.json";
 import enPrivacyConsent from "@/messages/en/privacy-consent.json";
+import enRelationshipFlow from "@/messages/en/relationship-flow.json";
 import enTarotMessages from "@/messages/en/tarot-domain.json";
 import enCopy from "@/messages/en/tarot-reading.json";
 import koDailyQuestion from "@/messages/ko/daily-question.json";
 import koPublicPages from "@/messages/ko/public-pages.json";
 import koPrivacyConsent from "@/messages/ko/privacy-consent.json";
+import koRelationshipFlow from "@/messages/ko/relationship-flow.json";
 import koTarotMessages from "@/messages/ko/tarot-domain.json";
 import koCopy from "@/messages/ko/tarot-reading.json";
 import {
@@ -52,6 +55,11 @@ const dailyQuestionMessagesByLocale = {
 const privacyConsentMessagesByLocale = {
   en: enPrivacyConsent,
   ko: koPrivacyConsent,
+} satisfies Record<Locale, unknown>;
+
+const relationshipFlowMessagesByLocale = {
+  en: enRelationshipFlow,
+  ko: koRelationshipFlow,
 } satisfies Record<Locale, unknown>;
 
 const jsonFiles = [
@@ -95,6 +103,14 @@ const jsonFiles = [
     label: "messages/ko/privacy-consent.json",
     path: "src/messages/ko/privacy-consent.json",
   },
+  {
+    label: "messages/en/relationship-flow.json",
+    path: "src/messages/en/relationship-flow.json",
+  },
+  {
+    label: "messages/ko/relationship-flow.json",
+    path: "src/messages/ko/relationship-flow.json",
+  },
 ] as const;
 
 type JsonSchema =
@@ -130,6 +146,25 @@ const uiCopySchema = {
   drawButton: "string",
   workspaceLabel: "string",
   cardMarkLabel: "string",
+  promptPack: {
+    heading: "string",
+    intro: "string",
+    selectorLabel: "string",
+    slots: exactRecordSchema(promptSlotIds, {
+      label: "string",
+      description: "string",
+    }),
+  },
+  cardDetails: {
+    archetype: "string",
+    keywords: "string",
+    symbols: "string",
+    light: "string",
+    shadow: "string",
+    agency: "string",
+    caution: "string",
+    reflection: "string",
+  },
   generatedPromptLabel: "string",
   interpretationLensLabel: "string",
   copyPrompt: "string",
@@ -162,11 +197,13 @@ const tarotMessagesSchema = {
     userContextBlock: "string",
     emptyUserContext: "string",
     lines: ["string"],
+    slotInstructions: exactRecordSchema(promptSlotIds, ["string"]),
   },
   spreads: exactRecordSchema(spreadIds, {
     label: "string",
     description: "string",
     promptLabel: "string",
+    outputLengthInstruction: "string",
   }),
   readingLenses: exactRecordSchema(readingLensIds, {
     label: "string",
@@ -188,7 +225,14 @@ const tarotMessagesSchema = {
   cards: exactRecordSchema(tarotCardIds, {
     name: "string",
     tone: "string",
+    archetype: "string",
+    keywords: ["string"],
+    symbols: ["string"],
     upright: "string",
+    light: "string",
+    shadow: "string",
+    agency: "string",
+    caution: "string",
     reflection: "string",
     promptAngle: "string",
   }),
@@ -247,6 +291,45 @@ const privacyConsentMessagesSchema = {
   settingsButton: "string",
 } satisfies JsonSchema;
 
+const relationshipFlowMessagesSchema = {
+  metadata: {
+    title: "string",
+    description: "string",
+  },
+  eyebrow: "string",
+  heading: "string",
+  intro: "string",
+  benefitsHeading: "string",
+  benefits: [
+    {
+      title: "string",
+      body: "string",
+    },
+  ],
+  stepsHeading: "string",
+  steps: [
+    {
+      title: "string",
+      body: "string",
+    },
+  ],
+  exampleEyebrow: "string",
+  exampleHeading: "string",
+  exampleBody: "string",
+  faqHeading: "string",
+  faqs: [
+    {
+      question: "string",
+      answer: "string",
+    },
+  ],
+  ctaHeading: "string",
+  ctaBody: "string",
+  ctaButton: "string",
+  privacyNote: "string",
+  disclaimer: "string",
+} satisfies JsonSchema;
+
 describe("i18n integrity", () => {
   it("keeps locale files aligned with supported locales", () => {
     expect(Object.keys(uiCopyByLocale).sort()).toEqual(
@@ -262,6 +345,9 @@ describe("i18n integrity", () => {
       [...supportedLocales].sort(),
     );
     expect(Object.keys(privacyConsentMessagesByLocale).sort()).toEqual(
+      [...supportedLocales].sort(),
+    );
+    expect(Object.keys(relationshipFlowMessagesByLocale).sort()).toEqual(
       [...supportedLocales].sort(),
     );
   });
@@ -301,6 +387,12 @@ describe("i18n integrity", () => {
     );
   });
 
+  it("keeps relationship flow message keys identical across locales", () => {
+    expect(collectShapePaths(koRelationshipFlow)).toEqual(
+      collectShapePaths(enRelationshipFlow),
+    );
+  });
+
   it("matches supported locale JSON schemas exactly", () => {
     const schemaErrors = [
       ...collectLocaleSchemaErrors(uiCopyByLocale, uiCopySchema, "$.uiCopy"),
@@ -323,6 +415,11 @@ describe("i18n integrity", () => {
         privacyConsentMessagesByLocale,
         privacyConsentMessagesSchema,
         "$.privacyConsentMessages",
+      ),
+      ...collectLocaleSchemaErrors(
+        relationshipFlowMessagesByLocale,
+        relationshipFlowMessagesSchema,
+        "$.relationshipFlowMessages",
       ),
     ];
 
@@ -390,11 +487,18 @@ describe("i18n integrity", () => {
           `${locale} tarot promptTemplate.spreadLine`,
           tarotMessages.promptTemplate.spreadLine,
           [
+            "agency",
+            "archetype",
             "cardName",
             "cardTone",
+            "caution",
+            "keywords",
+            "light",
             "positionLabel",
             "promptAngle",
             "reflection",
+            "shadow",
+            "symbols",
             "upright",
           ],
         ),
@@ -409,6 +513,7 @@ describe("i18n integrity", () => {
           [
             "lensInstruction",
             "lensLabel",
+            "outputLengthInstruction",
             "promptLead",
             "readingStyleInstruction",
             "readingStyleLabel",
@@ -417,6 +522,13 @@ describe("i18n integrity", () => {
             "topicLabel",
             "userContextBlock",
           ],
+        ),
+        ...promptSlotIds.flatMap((slotId) =>
+          collectTemplatePlaceholderErrors(
+            `${locale} tarot promptTemplate.slotInstructions.${slotId}`,
+            tarotMessages.promptTemplate.slotInstructions[slotId].join("\n"),
+            [],
+          ),
         ),
       ];
     });
@@ -452,6 +564,10 @@ describe("i18n integrity", () => {
         privacyConsentMessagesByLocale,
         "$.privacyConsentMessages",
       ),
+      ...collectBlankStringPaths(
+        relationshipFlowMessagesByLocale,
+        "$.relationshipFlowMessages",
+      ),
     ];
 
     expect(blankStrings).toEqual([]);
@@ -460,7 +576,7 @@ describe("i18n integrity", () => {
 
 function exactRecordSchema(
   keys: readonly string[],
-  itemSchema: JsonObjectSchema,
+  itemSchema: JsonSchema,
 ): JsonObjectSchema {
   return Object.fromEntries(keys.map((key) => [key, itemSchema]));
 }

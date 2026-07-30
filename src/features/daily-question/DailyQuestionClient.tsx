@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LocaleSwitch } from "@/components/layout/LocaleSwitch";
 import { CelestialMark } from "@/components/visual/CelestialMark";
-import { TarotCardGlyph } from "@/components/visual/TarotCardGlyph";
+import { TarotCardArt } from "@/components/visual/TarotCardArt";
 import {
   brandLinkClassName,
   footerLinkClassName,
@@ -107,8 +107,13 @@ export function DailyQuestionClient({
                     </h2>
                     <p className="text-sm text-ts-action">{card.tone}</p>
                   </div>
-                  <div className="grid h-24 w-16 place-items-center rounded-ts-control border border-ts-divider bg-ts-canvas text-ts-action">
-                    <TarotCardGlyph cardId={card.id} className="h-12 w-12" />
+                  <div className="relative grid h-28 w-20 place-items-center overflow-hidden rounded-ts-control border border-ts-divider bg-ts-canvas text-ts-action">
+                    <TarotCardArt
+                      cardId={card.id}
+                      className="object-cover"
+                      glyphClassName="h-12 w-12"
+                      sizes="5rem"
+                    />
                   </div>
                 </div>
 
