@@ -26,6 +26,7 @@ export function TarotCardArt({
   const artSource = cardId ? cardArtSources[cardId] : undefined;
   const [failedArtSource, setFailedArtSource] = useState<string>();
   const [readyArtSource, setReadyArtSource] = useState<string>();
+  const centeredGlyphClassName = `absolute inset-0 m-auto ${glyphClassName}`;
 
   if (artSource && failedArtSource !== artSource) {
     const isArtReady = readyArtSource === artSource;
@@ -39,7 +40,7 @@ export function TarotCardArt({
       <>
         <TarotCardGlyph
           cardId={cardId}
-          className={glyphClassName}
+          className={centeredGlyphClassName}
           placeholderIndex={placeholderIndex}
         />
         <Image
@@ -61,7 +62,7 @@ export function TarotCardArt({
   return (
     <TarotCardGlyph
       cardId={cardId}
-      className={glyphClassName}
+      className={centeredGlyphClassName}
       placeholderIndex={placeholderIndex}
     />
   );

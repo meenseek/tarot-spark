@@ -255,7 +255,19 @@ test("keeps a glyph visible until delayed card art can reveal", async ({
   const firstCard = page.getByTestId("reading-card-0");
   const image = firstCard.locator("[data-art-id]");
 
-  await page.waitForTimeout(650);
+  await firstCard.evaluate(async (element) => {
+    const ownAnimations = element.getAnimations().filter((animation) => {
+      const effect = animation.effect as KeyframeEffect | null;
+
+      return effect?.target === element;
+    });
+
+    if (ownAnimations.length === 0) {
+      throw new Error("Expected the drawn card to have an arrival animation");
+    }
+
+    await Promise.all(ownAnimations.map((animation) => animation.finished));
+  });
   await expect(firstCard.locator("[data-glyph-id]")).toBeVisible();
   await expect(image).toHaveAttribute("data-art-ready", "false");
   await expect(image).toHaveCSS("opacity", "0");

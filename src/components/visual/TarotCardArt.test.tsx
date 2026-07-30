@@ -35,8 +35,10 @@ describe("TarotCardArt", () => {
       </div>,
     );
     const image = container.querySelector("img") as HTMLImageElement;
+    const glyph = container.querySelector('[data-glyph-id="the-fool"]');
 
-    expect(container.querySelector('[data-glyph-id="the-fool"]')).toBeVisible();
+    expect(glyph).toBeVisible();
+    expect(glyph).toHaveClass("absolute", "inset-0", "m-auto");
     expect(image).toHaveAttribute("data-art-ready", "false");
     expect(image).toHaveClass("ts-card-art-pending");
     expect(image).not.toHaveClass("ts-card-face-reveal");
