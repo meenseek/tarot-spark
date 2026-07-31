@@ -330,6 +330,45 @@ test("creates a direct six-card prompt while keeping context private", async ({
   await expect(page).not.toHaveURL(/manager|company|context/i);
 });
 
+test("shows an instant Korean reading without sending private context", async ({
+  page,
+}) => {
+  let providerRequest: Record<string, unknown> | undefined;
+  await page.route("**/api/reading", async (route) => {
+    providerRequest = route.request().postDataJSON() as Record<string, unknown>;
+    const cards = providerRequest["cards"] as {
+      cardId: string;
+      positionId: string;
+    }[];
+
+    await route.fulfill({
+      body: JSON.stringify({
+        reading: createValidInstantReading(cards),
+      }),
+      contentType: "application/json",
+      status: 200,
+    });
+  });
+  await page.goto("/ko");
+
+  await page
+    .getByRole("textbox", { name: /지금 고민하는 상황/ })
+    .fill("서버로 보내면 안 되는 민감한 개인 상황");
+  await page.getByRole("button", { name: "카드 뽑기" }).click();
+  await page.getByRole("button", { name: "지금 바로 해석하기" }).click();
+
+  await expect(page.getByTestId("instant-reading-result")).toBeVisible();
+  await expect(
+    page.getByText("생성형 AI를 활용해 작성한 해석입니다."),
+  ).toBeVisible();
+  await expect(page.getByLabel("AI에 붙여 넣을 질문")).toBeVisible();
+  expect(Object.keys(providerRequest ?? {}).sort()).toEqual(
+    ["cards", "lensId", "spreadId", "styleId", "topicId"].sort(),
+  );
+  expect(JSON.stringify(providerRequest)).not.toContain("민감한 개인 상황");
+  expect(JSON.stringify(providerRequest)).not.toContain("userContext");
+});
+
 test("draws tarot cards and copies the generated prompt", async ({ page }) => {
   await page.goto("/");
 
@@ -446,4 +485,29 @@ function getSitemapLocPathnames(sitemapXml: string) {
       return new URL(loc).pathname;
     },
   );
+}
+
+function createValidInstantReading(
+  cards: readonly { cardId: string; positionId: string }[],
+) {
+  const sentence =
+    "서두르기보다 지금 확인할 수 있는 선택과 경계를 차분히 살펴보는 흐름입니다. ";
+
+  return {
+    headline: "멈춤과 움직임 사이의 선택",
+    synthesis: sentence.repeat(3),
+    positionReadings: cards.map(({ cardId, positionId }) => ({
+      cardId,
+      interpretation: sentence.repeat(2),
+      positionId,
+    })),
+    strongestConnection: {
+      cardIds: [cards[0]?.cardId, cards[1]?.cardId],
+      explanation: sentence.repeat(2),
+      relationType: "progression",
+    },
+    uncertainty: sentence.repeat(2),
+    nextStep: sentence,
+    reflection: "지금 가장 부담 없이 확인할 수 있는 선택은 무엇인가요?",
+  };
 }

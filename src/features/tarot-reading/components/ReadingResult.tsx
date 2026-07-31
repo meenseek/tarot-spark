@@ -6,12 +6,17 @@ import {
 import {
   promptSlotIds,
   type DrawnCard,
+  type InstantReadingV1,
   type PromptSlotId,
   type ReadingLens,
   type Topic,
 } from "@/domain/tarot";
 import type { TarotReadingCopy } from "../i18n";
 import type { CopyState, KakaoShareState, ShareState } from "../types";
+import {
+  InstantReadingPanel,
+  type InstantReadingStatus,
+} from "./InstantReadingPanel";
 
 type ReadingResultProps = {
   readonly cards: readonly DrawnCard[];
@@ -19,6 +24,9 @@ type ReadingResultProps = {
   readonly copyState: CopyState;
   readonly hasKakaoShare: boolean;
   readonly instagramCopyState: CopyState;
+  readonly instantReading: InstantReadingV1 | undefined;
+  readonly instantReadingEnabled: boolean;
+  readonly instantReadingStatus: InstantReadingStatus;
   readonly kakaoShareState: KakaoShareState;
   readonly prompt: string;
   readonly readingLens: ReadingLens | undefined;
@@ -27,6 +35,7 @@ type ReadingResultProps = {
   readonly shareState: ShareState;
   readonly urlCopyState: CopyState;
   readonly onInstagramShare: () => void;
+  readonly onGenerateInstantReading: () => void;
   readonly onKakaoShare: () => void;
   readonly onCopyPrompt: () => void;
   readonly onPromptSlotChange: (promptSlotId: PromptSlotId) => void;
@@ -40,6 +49,9 @@ export function ReadingResult({
   copyState,
   hasKakaoShare,
   instagramCopyState,
+  instantReading,
+  instantReadingEnabled,
+  instantReadingStatus,
   kakaoShareState,
   prompt,
   readingLens,
@@ -48,6 +60,7 @@ export function ReadingResult({
   shareState,
   urlCopyState,
   onInstagramShare,
+  onGenerateInstantReading,
   onKakaoShare,
   onCopyPrompt,
   onPromptSlotChange,
@@ -69,6 +82,16 @@ export function ReadingResult({
               {selectedTopic.resultFrame}
             </p>
           </div>
+
+          {instantReadingEnabled && (
+            <InstantReadingPanel
+              cards={cards}
+              copy={copy.instantReading}
+              onGenerate={onGenerateInstantReading}
+              reading={instantReading}
+              status={instantReadingStatus}
+            />
+          )}
 
           <div className="grid gap-3">
             {cards.map(({ position, card }) => (

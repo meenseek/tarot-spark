@@ -17,6 +17,10 @@
   "relationship flow" over explicit adult framing.
 - Include clear disclaimer copy where tarot interpretations may be mistaken for
   professional advice.
+- Keep server-generated reading code behind a server-side disabled feature flag
+  until it passes `docs/product/instant-reading-evaluation.md`.
+- Do not enable or deploy server-generated readings publicly until the
+  evaluation and launch-readiness checks pass.
 
 ## Analytics
 

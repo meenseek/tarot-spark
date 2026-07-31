@@ -21,6 +21,26 @@
   "drawStatus": "카드 {count}장을 뽑았습니다.",
   "workspaceLabel": "뽑은 카드와 AI 질문",
   "cardMarkLabel": "타로 카드 그림",
+  "instantReading": {
+    "heading": "카드의 흐름 바로 읽기",
+    "intro": "뽑은 카드와 선택한 방식만으로 하나의 흐름을 정리해 드려요. 따로 적은 상황은 보내거나 해석에 사용하지 않습니다.",
+    "eligibility": "만 18세 이상 이용할 수 있는 시험 기능입니다.",
+    "generate": "지금 바로 해석하기",
+    "loading": "카드의 흐름을 정리하고 있어요…",
+    "retry": "다시 시도하기",
+    "unavailable": "지금은 바로 해석을 불러오지 못했어요. 아래 질문을 복사해 다른 도구에서 계속 볼 수 있어요.",
+    "disclosure": "생성형 AI를 활용해 작성한 해석입니다.",
+    "strongestConnection": "가장 강한 연결",
+    "uncertainty": "직접 확인할 점",
+    "nextStep": "작은 다음 걸음",
+    "reflection": "나에게 묻기",
+    "relationLabels": {
+      "reinforcement": "서로 힘을 보태는 흐름",
+      "tension": "서로 부딪히는 흐름",
+      "progression": "차례로 이어지는 흐름",
+      "integration": "하나로 모이는 흐름"
+    }
+  },
   "promptPack": {
     "heading": "AI에게 무엇을 물어볼까요?",
     "intro": "뽑은 카드는 그대로 두고, 지금 필요한 방식에 맞춰 질문을 골라 복사할 수 있어요.",

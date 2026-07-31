@@ -25,6 +25,8 @@ const originalKakaoAllowedOrigins =
 const originalKakaoJavaScriptKey = process.env["NEXT_PUBLIC_KAKAO_JS_KEY"];
 const originalSiteUrl = process.env["NEXT_PUBLIC_SITE_URL"];
 const originalShareSiteUrl = process.env["NEXT_PUBLIC_SHARE_SITE_URL"];
+const originalInstantReadingEnabled =
+  process.env["TAROT_INSTANT_READING_ENABLED"];
 const originalUrl = window.location.href;
 const originalShare = navigator.share;
 const kakaoSdkScriptId = "kakao-javascript-sdk";
@@ -45,6 +47,7 @@ describe("Home", () => {
     restoreEnv("NEXT_PUBLIC_KAKAO_JS_KEY", originalKakaoJavaScriptKey);
     restoreEnv("NEXT_PUBLIC_SITE_URL", originalSiteUrl);
     restoreEnv("NEXT_PUBLIC_SHARE_SITE_URL", originalShareSiteUrl);
+    restoreEnv("TAROT_INSTANT_READING_ENABLED", originalInstantReadingEnabled);
     document.getElementById(kakaoSdkScriptId)?.remove();
     window.history.replaceState(null, "", originalUrl);
     window.sessionStorage.clear();
@@ -130,6 +133,105 @@ describe("Home", () => {
       "href",
       "/ko/privacy",
     );
+    expect(
+      screen.queryByRole("button", { name: "지금 바로 해석하기" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("creates an instant Korean reading without sending free-form context", async () => {
+    process.env["TAROT_INSTANT_READING_ENABLED"] = "true";
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    const reading = createValidInstantReading();
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(Response.json({ reading }));
+
+    render(<TarotExperience locale="ko" />);
+
+    fireEvent.change(
+      screen.getByRole("textbox", { name: /지금 고민하는 상황/ }),
+      {
+        target: {
+          value: "서버로 보내면 안 되는 민감한 개인 상황",
+        },
+      },
+    );
+    fireEvent.click(screen.getByRole("button", { name: "카드 뽑기" }));
+    fireEvent.click(screen.getByRole("button", { name: "지금 바로 해석하기" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("instant-reading-result")).toBeInTheDocument();
+    });
+    expect(
+      within(screen.getByTestId("instant-reading-result")).getByRole(
+        "heading",
+        { name: reading.headline },
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("생성형 AI를 활용해 작성한 해석입니다."),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("AI에 붙여 넣을 질문")).toBeInTheDocument();
+
+    const [, request] = fetchMock.mock.calls[0] ?? [];
+    const body = JSON.parse(String(request?.body)) as Record<string, unknown>;
+    expect(Object.keys(body).sort()).toEqual(
+      ["cards", "lensId", "spreadId", "styleId", "topicId"].sort(),
+    );
+    expect(JSON.stringify(body)).not.toContain("민감한 개인 상황");
+    expect(JSON.stringify(body)).not.toContain("userContext");
+  });
+
+  it("keeps the prompt fallback when an instant reading is unavailable", async () => {
+    process.env["TAROT_INSTANT_READING_ENABLED"] = "true";
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({ code: "instant-reading-unavailable" }, { status: 503 }),
+    );
+
+    render(<TarotExperience locale="ko" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "카드 뽑기" }));
+    fireEvent.click(screen.getByRole("button", { name: "지금 바로 해석하기" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/지금은 바로 해석을 불러오지 못했어요/, {
+          selector: "p.text-ts-danger",
+        }),
+      ).toBeInTheDocument();
+    });
+    expect(
+      screen.getByRole("button", { name: "다시 시도하기" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("AI에 붙여 넣을 질문")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "이 질문 복사하기" }),
+    ).toBeInTheDocument();
+  });
+
+  it("cancels an unfinished instant reading when the cards change", () => {
+    process.env["TAROT_INSTANT_READING_ENABLED"] = "true";
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementation(() => new Promise<Response>(() => undefined));
+
+    render(<TarotExperience locale="ko" />);
+
+    const drawButton = screen.getByRole("button", { name: "카드 뽑기" });
+    fireEvent.click(drawButton);
+    fireEvent.click(screen.getByRole("button", { name: "지금 바로 해석하기" }));
+
+    const signal = fetchMock.mock.calls[0]?.[1]?.signal;
+    expect(signal?.aborted).toBe(false);
+
+    fireEvent.click(drawButton);
+
+    expect(signal?.aborted).toBe(true);
+    expect(
+      screen.getByRole("button", { name: "지금 바로 해석하기" }),
+    ).toBeInTheDocument();
   });
 
   it("matches the context example to every selected topic", () => {
@@ -1034,4 +1136,39 @@ function getExpectedShareUrl(
   origin = "https://tarot-spark.example",
 ) {
   return `${origin}/share?topic=love&cards=the-fool%2Cthe-magician%2Cthe-high-priestess&source=${source}&campaign=vertical-slice`;
+}
+
+function createValidInstantReading() {
+  const sentence =
+    "서두르기보다 지금 확인할 수 있는 선택과 경계를 차분히 살펴보는 흐름입니다. ";
+
+  return {
+    headline: "멈춤과 움직임 사이의 선택",
+    synthesis: sentence.repeat(3),
+    positionReadings: [
+      {
+        cardId: "the-fool",
+        interpretation: sentence.repeat(2),
+        positionId: "spark",
+      },
+      {
+        cardId: "the-magician",
+        interpretation: sentence.repeat(2),
+        positionId: "shadow",
+      },
+      {
+        cardId: "the-high-priestess",
+        interpretation: sentence.repeat(2),
+        positionId: "next-step",
+      },
+    ],
+    strongestConnection: {
+      cardIds: ["the-fool", "the-magician"],
+      explanation: sentence.repeat(2),
+      relationType: "progression",
+    },
+    uncertainty: sentence.repeat(2),
+    nextStep: sentence,
+    reflection: "지금 가장 부담 없이 확인할 수 있는 선택은 무엇인가요?",
+  };
 }

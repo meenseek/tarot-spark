@@ -64,7 +64,7 @@
           "heading": "Browser features",
           "paragraphs": [
             "Prompt copy and share actions use browser clipboard or share features. The prompt text stays in your browser unless you choose to copy, share, or paste it elsewhere.",
-            "tarot-spark does not run server-generated AI readings for the MVP."
+            "Instant readings are available only when a separate server setting is enabled. When this feature is off, card data is not sent to an external generative AI service."
           ]
         },
         {
@@ -72,6 +72,7 @@
           "paragraphs": [
             "The site may be hosted on Vercel. When the corresponding services and identifiers are enabled, Google Analytics and Google AdSense remain off until you allow those optional services in the privacy choices. Advertising delivery may also be disabled site-wide. When enabled, AdSense loads only on allowlisted non-reading content pages.",
             "Google AdSense and its partners may use cookies or other local storage and process device, page, and ad interaction data to serve, measure, and, where permitted, personalize ads.",
+            "When instant readings are available, the selected topic, spread, reading style, interpretation lens, card and position data, and the matching fixed tarot descriptions are sent to the Google Gemini API to create the interpretation. Optional situation text, names, birth dates, contact details, and personal questions are not sent. Requests are configured not to be stored, but Google may process requests and results under the applicable terms and project settings.",
             "Your optional-service choices are stored in this browser and can be revised through the Privacy choices control. Those providers process technical, analytics, and advertising data according to their own terms and privacy policies."
           ]
         },
@@ -79,7 +80,7 @@
           "heading": "Contact",
           "paragraphs": [
             "For privacy questions or deletion requests related to emails you sent, contact tarotspark.app@gmail.com.",
-            "Last updated: July 30, 2026."
+            "Last updated: July 31, 2026."
           ]
         }
       ]
