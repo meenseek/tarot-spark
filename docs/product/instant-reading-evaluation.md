@@ -62,8 +62,12 @@ Choose a free candidate and a reference model from the confirmed free-tier
 model list before seeing results. Generate them with separate, neutral run ids:
 
 ```text
-pnpm run reading:eval --model <candidate-model> --suite full --run-id candidate-v1
-pnpm run reading:eval --model <reference-model> --suite full --run-id reference-v1
+pnpm run reading:eval \
+  --model <candidate-model> --suite full --run-id candidate-v1 \
+  --request-budget <safe-attempt-count>
+pnpm run reading:eval \
+  --model <reference-model> --suite full --run-id reference-v1 \
+  --request-budget <safe-attempt-count>
 ```
 
 The full suite contains:
@@ -74,21 +78,34 @@ The full suite contains:
 
 The output manifest fingerprints the model id, API version, shared generation
 settings, every rendered prompt, schema, fixed cases, and localized tarot data.
-Reusing the exact command and run id resumes only missing case and run indexes.
+Reusing the same model, suite, and run id resumes only missing case and run
+indexes. `--request-budget` is an invocation-only safety limit and may be
+lowered to match the remaining quota without changing the run contract.
 The append-only attempt journal keeps attempt numbers across process restarts.
 The first provider model version is fixed for the run; a changed fingerprint or
 provider model version must use a new run id.
 
+Immediately before every invocation, check the active project usage in AI
+Studio. Set `--request-budget` below the displayed remaining daily requests;
+the budget counts every provider attempt, including retries. Keep at least two
+requests unused for unexpected retries. For a verified `20 RPD` project, run at
+most `--request-budget 18` only when the dashboard shows `0 / 20`; subtract any
+requests already used that day. Never start when the remaining quota is zero.
+Reaching the local budget stops before opening another provider attempt, so the
+same run can resume after the verified quota reset without manufacturing a
+first-request failure. Do not use an automation to resume it.
+
 Full runs wait 65 seconds between planned requests. Retries for `429` and
 invalid structured output also use a 65-second project-limit floor. Other
 server failures use exponential backoff from 2 seconds up to a 65-second local
-cap. A longer provider `Retry-After` is never shortened. At the planned-request
-spacing, 220 requests take about four hours per model before inference time and
-retries; two sequential model runs take about eight hours. If retries are
-exhausted, the tool records the bounded attempt outcome and pauses without
-storing raw provider text or errors. Run the same command later to retry that
-exact case. A later success remains available for blind quality review but
-never changes an earlier first-request failure into a success.
+cap. A longer provider `Retry-After` is never shortened. The daily quota, not
+the 65-second spacing, determines total calendar time. At 18 provider attempts
+per quota day, 440 required generations need at least 25 quota days before
+retries. If retries are exhausted, the tool records the bounded attempt outcome
+and pauses without storing raw provider text or errors. Run the same command
+later to retry that exact case. A later success remains available for blind
+quality review but never changes an earlier first-request failure into a
+success.
 
 Create the blinded review packet:
 

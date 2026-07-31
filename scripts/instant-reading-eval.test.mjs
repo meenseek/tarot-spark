@@ -19,6 +19,7 @@ import {
   buildGeminiRequest,
   buildRunManifest,
   detectHardFailureFlags,
+  EvaluationRequestBudgetExhaustedError,
   executionPolicy,
   extractInteractionText,
   getProductReadingLensId,
@@ -308,7 +309,7 @@ describe("instant reading evaluation", () => {
     expect(manifest.recordType).toBe("manifest");
     expect(manifest.modelId).toBe("gemini-test");
     expect(manifest.apiVersion).toBe("v1");
-    expect(manifest.runnerVersion).toBe("instant-reading-runner-v4");
+    expect(manifest.runnerVersion).toBe("instant-reading-runner-v5");
     expect(executionPolicy.firstAttemptTimeoutMs).toBe(
       instantReadingRequestTimeoutMs,
     );
@@ -423,6 +424,69 @@ describe("instant reading evaluation", () => {
       /private-test-key|headline|error|provider body/iu,
     );
     expect(() => inspectProviderAttemptJournal(records)).not.toThrow();
+  });
+
+  it("stops before a provider request when the invocation budget is empty", async () => {
+    const evaluationCase = cases.normalCases[0];
+    const fetchImpl = vi.fn();
+    const journal = [];
+
+    await expect(
+      requestGeminiReadingWithRetry({
+        apiKey: "private-test-key",
+        evaluationCase,
+        fetchImpl,
+        messages,
+        model: "gemini-test",
+        ...makeAttemptCallbacks(journal, evaluationCase),
+        requestBudget: { remaining: 0 },
+      }),
+    ).rejects.toBeInstanceOf(EvaluationRequestBudgetExhaustedError);
+    expect(fetchImpl).not.toHaveBeenCalled();
+    expect(journal).toEqual([]);
+  });
+
+  it("counts retries in the invocation budget without opening an unresolved attempt", async () => {
+    const evaluationCase = cases.normalCases[0];
+    const fetchImpl = vi.fn(async () => ({ ok: false, status: 429 }));
+    const journal = [];
+    const requestBudget = { remaining: 1 };
+
+    await expect(
+      requestGeminiReadingWithRetry({
+        apiKey: "private-test-key",
+        evaluationCase,
+        fetchImpl,
+        maxRetries: 4,
+        messages,
+        model: "gemini-test",
+        ...makeAttemptCallbacks(journal, evaluationCase),
+        requestBudget,
+        sleepImpl: vi.fn(async () => {}),
+      }),
+    ).rejects.toBeInstanceOf(EvaluationRequestBudgetExhaustedError);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(requestBudget.remaining).toBe(0);
+    expect(journal).toEqual([
+      {
+        attemptNumber: 1,
+        caseId: evaluationCase.caseId,
+        recordType: "provider-attempt-start",
+        runIndex: 0,
+      },
+      {
+        attemptNumber: 1,
+        caseId: evaluationCase.caseId,
+        outcome: "rate-limited",
+        recordType: "provider-attempt-outcome",
+        runIndex: 0,
+      },
+    ]);
+    expect(
+      inspectProviderAttemptJournal(journal).runStates.get(
+        `${evaluationCase.caseId}:0`,
+      ).hasUnresolvedAttempt,
+    ).toBe(false);
   });
 
   it("returns a cause-neutral provider error", async () => {
