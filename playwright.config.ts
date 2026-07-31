@@ -14,6 +14,7 @@ export default defineConfig({
       NEXT_PUBLIC_ADSENSE_CLIENT_ID: "ca-pub-1234567890123456",
       NEXT_PUBLIC_ADSENSE_SCRIPT_ENABLED: "true",
       NEXT_PUBLIC_GA_ID: "G-TEST1234",
+      TAROT_INSTANT_READING_ENABLED: "true",
     },
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env["CI"],

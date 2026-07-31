@@ -20,6 +20,14 @@ export {
   getSpreadPositions,
   spreadPositionIdsBySpread,
 } from "./spreads";
+export {
+  getInstantReadingSafetyViolation,
+  getInstantReadingVisibleText,
+  instantReadingRelationTypes,
+  instantReadingSafetyViolationIds,
+  parseInstantReading,
+  parseInstantReadingRequest,
+} from "./instant-reading";
 export { getDefaultTopic, getTopic } from "./topics";
 export {
   promptSlotIds,
@@ -49,3 +57,10 @@ export type {
   Topic,
   TopicId,
 } from "./types";
+export type {
+  InstantReadingCardInput,
+  InstantReadingRelationType,
+  InstantReadingRequest,
+  InstantReadingSafetyViolationId,
+  InstantReadingV1,
+} from "./instant-reading";

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  instantReadingRelationTypes,
   promptSlotIds,
   readingLensIds,
   readingStyleIds,
@@ -146,6 +147,21 @@ const uiCopySchema = {
   drawStatus: "string",
   workspaceLabel: "string",
   cardMarkLabel: "string",
+  instantReading: {
+    heading: "string",
+    intro: "string",
+    eligibility: "string",
+    generate: "string",
+    loading: "string",
+    retry: "string",
+    unavailable: "string",
+    disclosure: "string",
+    strongestConnection: "string",
+    uncertainty: "string",
+    nextStep: "string",
+    reflection: "string",
+    relationLabels: exactRecordSchema(instantReadingRelationTypes, "string"),
+  },
   promptPack: {
     heading: "string",
     intro: "string",

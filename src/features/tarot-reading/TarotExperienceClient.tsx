@@ -26,8 +26,11 @@ import {
   getSpreadPositions,
   getTopic,
   maxUserContextLength,
+  parseInstantReading,
   promptVersion,
   type DrawnCard,
+  type InstantReadingRequest,
+  type InstantReadingV1,
   type LocaleTarotData,
   type PromptSlotId,
   type ReadingStyleId,
@@ -45,6 +48,7 @@ import {
   type ShareOutcome,
 } from "./analytics";
 import { CardSpread } from "./components/CardSpread";
+import type { InstantReadingStatus } from "./components/InstantReadingPanel";
 import { LanguageSwitch } from "./components/LanguageSwitch";
 import { ReadingPreferences } from "./components/ReadingPreferences";
 import { ReadingResult } from "./components/ReadingResult";
@@ -82,6 +86,7 @@ type TarotExperienceClientProps = {
   readonly locale: Locale;
   readonly copy: TarotReadingCopy;
   readonly dailyQuestionPath: string;
+  readonly instantReadingEnabled: boolean;
   readonly kakaoAllowedOrigins: readonly string[];
   readonly kakaoJavaScriptKey: string | undefined;
   readonly publicPageLinks: readonly PublicPageLink[];
@@ -99,6 +104,7 @@ export function TarotExperienceClient({
   locale,
   copy,
   dailyQuestionPath,
+  instantReadingEnabled,
   kakaoAllowedOrigins,
   kakaoJavaScriptKey,
   publicPageLinks,
@@ -135,7 +141,13 @@ export function TarotExperienceClient({
     useState<CopyState>("idle");
   const [urlCopyState, setUrlCopyState] = useState<CopyState>("idle");
   const [shareState, setShareState] = useState<ShareState>("idle");
+  const [instantReading, setInstantReading] = useState<InstantReadingV1>();
+  const [instantReadingStatus, setInstantReadingStatus] =
+    useState<InstantReadingStatus>("idle");
   const drawSequenceIdRef = useRef(0);
+  const instantReadingRequestRef = useRef<AbortController | undefined>(
+    undefined,
+  );
   const restoredResultViewKey = useRef<string | undefined>(undefined);
   const pendingPrivateContextHandoff = useRef<string | undefined>(undefined);
   const currentOrigin = useSyncExternalStore(
@@ -293,6 +305,13 @@ export function TarotExperienceClient({
     };
   }, [userContext]);
 
+  useEffect(
+    () => () => {
+      instantReadingRequestRef.current?.abort();
+    },
+    [],
+  );
+
   const promptPack = useMemo(
     () =>
       cards.length > 0 && readingLens
@@ -381,6 +400,7 @@ export function TarotExperienceClient({
   );
 
   function chooseTopic(topicId: TopicId) {
+    resetInstantReading();
     setSelectedTopicId(topicId);
     setCards([]);
     setCopyState("idle");
@@ -406,6 +426,7 @@ export function TarotExperienceClient({
   }
 
   function chooseSpread(spreadId: SpreadId) {
+    resetInstantReading();
     setSelectedSpreadId(spreadId);
     setCards([]);
     setCopyState("idle");
@@ -426,6 +447,7 @@ export function TarotExperienceClient({
   }
 
   function chooseReadingStyle(styleId: ReadingStyleId) {
+    resetInstantReading();
     setSelectedStyleId(styleId);
     setCopyState("idle");
     replaceBrowserUrl(
@@ -451,6 +473,7 @@ export function TarotExperienceClient({
   }
 
   function startDraw() {
+    resetInstantReading();
     trackEvent("draw_start", {
       ...analyticsAttribution,
       locale,
@@ -504,6 +527,88 @@ export function TarotExperienceClient({
       spread_id: selectedSpread.id,
       style_id: selectedReadingStyle.id,
     });
+  }
+
+  async function generateInstantReading() {
+    if (
+      !instantReadingEnabled ||
+      locale !== "ko" ||
+      cards.length === 0 ||
+      !readingLens
+    ) {
+      return;
+    }
+
+    instantReadingRequestRef.current?.abort();
+    const controller = new AbortController();
+    instantReadingRequestRef.current = controller;
+    const readingRequest = {
+      cards: cards.map(({ card, position }) => ({
+        cardId: card.id,
+        positionId: position.id,
+      })),
+      lensId: readingLens.id,
+      spreadId: selectedSpread.id,
+      styleId: selectedReadingStyle.id,
+      topicId: selectedTopic.id,
+    } satisfies InstantReadingRequest;
+
+    setInstantReading(undefined);
+    setInstantReadingStatus("loading");
+
+    try {
+      const response = await fetch("/api/reading", {
+        body: JSON.stringify(readingRequest),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error("Instant reading is unavailable.");
+      }
+
+      const payload: unknown = await response.json();
+      const nextReading =
+        isRecord(payload) &&
+        Object.keys(payload).length === 1 &&
+        "reading" in payload
+          ? parseInstantReading(payload["reading"], readingRequest)
+          : undefined;
+
+      if (!nextReading) {
+        throw new Error("Instant reading response is invalid.");
+      }
+
+      if (instantReadingRequestRef.current === controller) {
+        setInstantReading(nextReading);
+        setInstantReadingStatus("success");
+      }
+    } catch (error) {
+      if (
+        controller.signal.aborted ||
+        getErrorName(error) === "AbortError" ||
+        instantReadingRequestRef.current !== controller
+      ) {
+        return;
+      }
+
+      setInstantReading(undefined);
+      setInstantReadingStatus("unavailable");
+    } finally {
+      if (instantReadingRequestRef.current === controller) {
+        instantReadingRequestRef.current = undefined;
+      }
+    }
+  }
+
+  function resetInstantReading() {
+    instantReadingRequestRef.current?.abort();
+    instantReadingRequestRef.current = undefined;
+    setInstantReading(undefined);
+    setInstantReadingStatus("idle");
   }
 
   async function copyPrompt() {
@@ -848,7 +953,11 @@ export function TarotExperienceClient({
             copyState={copyState}
             hasKakaoShare={hasKakaoShare}
             instagramCopyState={instagramCopyState}
+            instantReading={instantReading}
+            instantReadingEnabled={instantReadingEnabled}
+            instantReadingStatus={instantReadingStatus}
             kakaoShareState={kakaoShareState}
+            onGenerateInstantReading={generateInstantReading}
             onInstagramShare={copyInstagramShareUrl}
             onKakaoShare={shareToKakaoTalk}
             onCopyPrompt={copyPrompt}
@@ -930,6 +1039,10 @@ function getErrorName(error: unknown) {
 
   const { name } = error;
   return typeof name === "string" ? name : "";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function getShareText(

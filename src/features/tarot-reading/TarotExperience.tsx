@@ -6,6 +6,7 @@ import {
   getPublicPageShellCopy,
 } from "@/features/public-pages";
 import { getDailyQuestionPath } from "@/features/daily-question";
+import { isInstantReadingEnabled } from "@/server/instant-reading-config";
 import { TarotExperienceClient } from "./TarotExperienceClient";
 import { getTarotReadingCopy } from "./i18n";
 
@@ -22,6 +23,7 @@ export function TarotExperience({
     <TarotExperienceClient
       copy={getTarotReadingCopy(locale)}
       dailyQuestionPath={getDailyQuestionPath(locale)}
+      instantReadingEnabled={locale === "ko" && isInstantReadingEnabled()}
       kakaoAllowedOrigins={getKakaoAllowedOrigins()}
       kakaoJavaScriptKey={getKakaoJavaScriptKey()}
       locale={locale}

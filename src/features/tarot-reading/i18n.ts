@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { Metadata } from "next";
-import type { PromptSlotId } from "@/domain/tarot";
+import type { InstantReadingRelationType, PromptSlotId } from "@/domain/tarot";
 import type { Locale } from "@/i18n/config";
 import { getAbsoluteSiteUrl, withLocalizedAlternates } from "@/i18n/seo";
 import enCopy from "@/messages/en/tarot-reading.json";
@@ -30,6 +30,23 @@ export type TarotReadingMessages = {
   readonly drawStatus: string;
   readonly workspaceLabel: string;
   readonly cardMarkLabel: string;
+  readonly instantReading: {
+    readonly heading: string;
+    readonly intro: string;
+    readonly eligibility: string;
+    readonly generate: string;
+    readonly loading: string;
+    readonly retry: string;
+    readonly unavailable: string;
+    readonly disclosure: string;
+    readonly strongestConnection: string;
+    readonly uncertainty: string;
+    readonly nextStep: string;
+    readonly reflection: string;
+    readonly relationLabels: Readonly<
+      Record<InstantReadingRelationType, string>
+    >;
+  };
   readonly promptPack: {
     readonly heading: string;
     readonly intro: string;
@@ -117,6 +134,7 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     interpretationLensLabel: copy.interpretationLensLabel,
     instagramCopied: copy.instagramCopied,
     instagramShare: copy.instagramShare,
+    instantReading: copy.instantReading,
     intro: copy.intro,
     kakaoShare: copy.kakaoShare,
     kakaoShared: copy.kakaoShared,

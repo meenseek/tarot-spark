@@ -12,6 +12,7 @@ const themedSourceFiles = [
   "src/features/public-pages/PublicPage.tsx",
   "src/features/tarot-reading/TarotExperienceClient.tsx",
   "src/features/tarot-reading/components/CardSpread.tsx",
+  "src/features/tarot-reading/components/InstantReadingPanel.tsx",
   "src/features/tarot-reading/components/LanguageSwitch.tsx",
   "src/features/tarot-reading/components/ReadingResult.tsx",
   "src/features/tarot-reading/components/TopicSelector.tsx",

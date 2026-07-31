@@ -21,6 +21,26 @@
   "drawStatus": "{count} cards drawn.",
   "workspaceLabel": "Tarot reading workspace",
   "cardMarkLabel": "Decorative tarot card mark",
+  "instantReading": {
+    "heading": "Read the card flow",
+    "intro": "Create one connected interpretation from the drawn cards and selected reading options. Optional situation text is not sent or used.",
+    "eligibility": "This test feature is available to people aged 18 and over.",
+    "generate": "Read these cards now",
+    "loading": "Reading the flow of the cards…",
+    "retry": "Try again",
+    "unavailable": "The instant reading is unavailable right now. You can still copy the prompt below and continue in another tool.",
+    "disclosure": "This interpretation was created with generative AI.",
+    "strongestConnection": "Strongest connection",
+    "uncertainty": "What to verify",
+    "nextStep": "Small next step",
+    "reflection": "Question to consider",
+    "relationLabels": {
+      "reinforcement": "Reinforcing",
+      "tension": "In tension",
+      "progression": "Progressing",
+      "integration": "Integrating"
+    }
+  },
   "promptPack": {
     "heading": "Choose the prompt you need next",
     "intro": "Each prompt uses the full spread. Start with the main reading, then copy a different lens when you want another kind of help.",
