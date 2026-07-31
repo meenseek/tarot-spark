@@ -90,9 +90,10 @@ The current 12-card Major Arcana preview is fully illustrated:
 All approved files live under `public/cards/` as `700 x 980` JPEGs. The original
 pilot files for The Fool, The Lovers, and The Star establish the production crop
 and palette; the remaining cards extend the same recurring cast, locations, and
-symbol grammar. Existing SVG glyphs remain the fail-safe for placeholders and
-when an approved image cannot load. Keep draft future cards outside the stable
-runtime deck until their illustration is approved and mapped.
+symbol grammar. The shared card back covers undrawn and loading states. Existing
+SVG glyphs remain the fail-safe when approved art cannot load. Keep draft future
+cards outside the stable runtime deck until their illustration is approved and
+mapped.
 
 ## Canonical Prompt System
 
@@ -160,5 +161,6 @@ Inspect each image at full size and at the small in-app preview.
   frame the card clearly.
 - Confirm the `700 x 980` file dimensions and compressed file size before
   committing.
-- Confirm the SVG glyph still renders for placeholders and simulated approved
-  image load failures.
+- Confirm the shared card back renders for undrawn and loading states.
+- Confirm the matching SVG glyph renders for simulated approved image load
+  failures.
