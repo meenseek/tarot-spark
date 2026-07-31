@@ -52,7 +52,7 @@ test("keeps today's card stable across reload and locale", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "ko");
   await expect(
     page.getByRole("heading", {
-      name: "한 장의 카드, 오늘을 위한 하나의 질문.",
+      name: "오늘의 카드 한 장, 마음에 담아둘 질문 하나.",
     }),
   ).toBeVisible();
   await expect(page.getByTestId("daily-card")).toHaveAttribute(

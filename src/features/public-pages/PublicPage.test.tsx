@@ -42,11 +42,37 @@ describe("PublicPage", () => {
         name: "면책 고지",
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/자격을 갖춘 전문가/i)).toBeInTheDocument();
+    expect(screen.getByText(/전문가의 판단이 필요한 일/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "English" })).toHaveAttribute(
       "href",
       "/disclaimer",
     );
+  });
+
+  it("states the Korean privacy boundaries without overstating optional services", () => {
+    render(<PublicPage locale="ko" pageId="privacy" />);
+
+    expect(screen.getByText(/계정을 만들 필요가 없습니다/i)).toBeVisible();
+    expect(screen.getByText(/같은 탭에서 최대 60초 동안/i)).toBeVisible();
+    expect(
+      screen.getByText(/클립보드에 복사하는 것만으로는 외부 서비스/i),
+    ).toBeVisible();
+    expect(
+      screen.getByText(/유효한 측정 ID가 설정되어 있고.*허용한 경우에만/i),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        /기능 사용 이벤트와 함께 보내는 값은.*직접 적은 상황 설명이나.*포함하지 않습니다/i,
+      ),
+    ).toBeVisible();
+    expect(screen.getByText(/Vercel에서 호스팅될 수 있습니다/i)).toBeVisible();
+    expect(screen.getByText(/별도의 광고 스크립트 설정/i)).toBeVisible();
+    expect(
+      screen.getByText(/\/relationship-flow, \/ko\/relationship-flow/i),
+    ).toBeVisible();
+    expect(
+      screen.getByText(/브라우저가 로컬 저장소를 지원하면/i),
+    ).toBeVisible();
   });
 
   it("keeps metadata and paths localized", () => {

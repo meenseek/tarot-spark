@@ -17,10 +17,10 @@ describe("tarot reading metadata", () => {
 
     expect(getTarotReadingMetadata("ko")).toMatchObject({
       openGraph: {
-        description: expect.stringContaining("상황 맥락"),
+        description: expect.stringContaining("카드를 뽑아"),
         images: [
           {
-            alt: expect.stringContaining("세 장의 천체 타로 카드"),
+            alt: expect.stringContaining("타로 카드 세 장"),
             height: 630,
             url: "https://tarot-spark.example/brand/tarot-spark-social-card.png",
             width: 1200,

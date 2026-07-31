@@ -27,12 +27,12 @@ test("loads Korean localized content", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "ko");
   await expect(
     page.getByRole("heading", {
-      name: "나의 상황과 타로 스프레드를 더 선명한 AI 프롬프트로 만드세요.",
+      name: "지금 고민을 카드로 펼쳐보고, AI에 물어볼 질문까지 만들어보세요.",
     }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "카드 뽑기" })).toBeVisible();
   await expect(
-    page.getByText(/현재 덱: 그림으로 완성된 메이저 아르카나 미리보기 12장/),
+    page.getByText(/지금은 그림이 완성된 메이저 아르카나 12장/),
   ).toBeVisible();
 });
 
@@ -69,28 +69,28 @@ test("keeps every localized context example visible at 320px", async ({
       ],
     },
     {
-      contextLabel: /상황 또는 관계 맥락/,
+      contextLabel: /지금 고민하는 상황/,
       path: "/ko",
       topicExamples: [
         [
           "연애 3장",
-          "예: 썸을 타는 사람과 관계를 진전시키고 싶은데, 제가 먼저 마음을 표현해도 건강한 선택일지 고민이에요.",
+          "예: 서로 호감은 있는 것 같은데 관계가 좀처럼 앞으로 가지 않아요. 제가 먼저 마음을 표현해도 괜찮을지 고민돼요.",
         ],
         [
           "재회 3장",
-          "예: 헤어진 사람에게 다시 연락할지 고민 중이에요. 같은 문제가 반복되지 않으려면 무엇이 달라져야 할지 살펴보고 싶어요.",
+          "예: 헤어진 사람에게 다시 연락해볼까 고민돼요. 예전과 같은 문제가 반복되지 않으려면 무엇이 달라져야 할지 알고 싶어요.",
         ],
         [
           "상대의 마음 3장",
-          "예: 최근 상대의 연락이 줄어 혼란스러워요. 실제로 보인 행동과 제 추측을 구분하고 제 감정도 함께 살펴보고 싶어요.",
+          "예: 요즘 상대의 연락이 줄어서 혼란스러워요. 실제로 달라진 행동과 제 불안에서 나온 추측을 나눠보고 싶어요.",
         ],
         [
           "관계 흐름 3장",
-          "예: 가까운 사람과 대화가 자꾸 어긋나요. 반복되는 관계 패턴과 제가 바꿀 수 있는 부분을 살펴보고 싶어요.",
+          "예: 가까운 사람과 대화가 자꾸 어긋나요. 늘 비슷하게 꼬이는 이유와 제가 다르게 해볼 수 있는 일을 알고 싶어요.",
         ],
         [
           "커리어 방향 3장",
-          "예: 지금 회사에 계속 남을지 새로운 기회를 준비할지 고민이에요. 제가 통제할 수 있는 다음 행동을 정리하고 싶어요.",
+          "예: 지금 회사에 남을지 새로운 일을 준비할지 고민돼요. 당장 제가 해볼 수 있는 일부터 정리하고 싶어요.",
         ],
       ],
     },
@@ -191,7 +191,7 @@ test("serves localized SEO metadata and discovery files", async ({
   );
   await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
     "content",
-    /세 장의 천체 타로 카드/,
+    /별빛 무늬 타로 카드 세 장/,
   );
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
     "content",
@@ -284,12 +284,12 @@ test("preserves reading and private context when switching languages", async ({
 
   await expect(
     page.getByRole("heading", {
-      name: "나의 상황과 타로 스프레드를 더 선명한 AI 프롬프트로 만드세요.",
+      name: "지금 고민을 카드로 펼쳐보고, AI에 물어볼 질문까지 만들어보세요.",
     }),
   ).toBeVisible();
-  await expect(page.getByLabel("생성된 프롬프트")).toBeVisible();
+  await expect(page.getByLabel("AI에 붙여 넣을 질문")).toBeVisible();
   await expect(
-    page.getByRole("textbox", { name: /상황 또는 관계 맥락/ }),
+    page.getByRole("textbox", { name: /지금 고민하는 상황/ }),
   ).toHaveValue("My manager relationship is difficult.");
   expect(
     await page

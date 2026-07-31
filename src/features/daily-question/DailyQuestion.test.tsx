@@ -78,8 +78,9 @@ describe("DailyQuestion", () => {
     );
     expect(screen.getByRole("heading", { name: "절제" })).toBeInTheDocument();
     expect(
-      screen.getByText("더 느린 리듬을 준다면 무엇이 쉬워질까요?"),
+      screen.getByText("조금 더 천천히 해도 된다면 무엇이 수월해질까요?"),
     ).toBeInTheDocument();
+    expect(screen.getByText(/재정·투자·정신 건강/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "English" })).toHaveAttribute(
       "href",
       "/daily",

@@ -1,81 +1,81 @@
 {
   "metadata": {
     "title": "타로 스파크",
-    "description": "선택한 상황 맥락, 타로 스프레드와 리딩 스타일을 AI에 바로 쓸 수 있는 성찰 프롬프트로 만드세요."
+    "description": "마음에 걸리는 일을 떠올리고 카드를 뽑아, AI 도구에 바로 붙여 넣을 타로 질문을 만들어보세요."
   },
   "brand": "tarot-spark",
-  "heading": "나의 상황과 타로 스프레드를 더 선명한 AI 프롬프트로 만드세요.",
-  "intro": "주제, 리딩 깊이와 스타일을 고르세요. 선택 입력한 맥락을 더하면 실제로 살펴보고 싶은 상황에 맞는 프롬프트가 만들어집니다.",
-  "deckPreviewNote": "현재 덱: 그림으로 완성된 메이저 아르카나 미리보기 {count}장.",
-  "personalizationHeading": "리딩 설정",
-  "personalizationIntro": "이 선택은 생성되는 프롬프트를 바꾸지만 타인의 마음이나 미래를 확정적으로 단정하지 않습니다.",
-  "spreadSelectorLabel": "리딩 깊이 선택",
-  "readingStyleSelectorLabel": "리딩 스타일 선택",
-  "contextLabel": "상황 또는 관계 맥락",
+  "heading": "지금 고민을 카드로 펼쳐보고, AI에 물어볼 질문까지 만들어보세요.",
+  "intro": "주제와 카드 수를 고른 뒤, 필요하면 상황을 짧게 적어 주세요. 뽑은 카드에 맞춰 AI 도구에 바로 붙여 넣을 질문을 만들어 드립니다.",
+  "deckPreviewNote": "지금은 그림이 완성된 메이저 아르카나 {count}장으로 카드를 뽑습니다.",
+  "personalizationHeading": "어떻게 볼까요?",
+  "personalizationIntro": "카드 수와 답변 분위기를 고를 수 있어요. 결과는 미래나 상대의 마음을 맞히는 답이 아니라, 지금 상황을 돌아보게 하는 질문이에요.",
+  "spreadSelectorLabel": "카드 수",
+  "readingStyleSelectorLabel": "답변 분위기",
+  "contextLabel": "지금 고민하는 상황",
   "contextOptional": "선택",
-  "contextHelp": "이름, 연락처, 생년월일과 직장 기밀은 입력하지 마세요. 이 내용은 리딩 링크와 분석 데이터에 포함되지 않습니다.",
+  "contextHelp": "이름, 연락처, 생년월일처럼 누군가를 알아볼 수 있는 정보나 회사 기밀은 적지 마세요. 이 내용은 공유 링크나 이용 분석에 들어가지 않습니다.",
   "contextCountLabel": "{count}/{max}자",
-  "topicSelectorLabel": "타로 주제 선택",
+  "topicSelectorLabel": "어떤 고민인가요?",
   "cardCountLabel": "{count}장",
   "drawButton": "카드 뽑기",
   "drawStatus": "카드 {count}장을 뽑았습니다.",
-  "workspaceLabel": "타로 리딩 작업 영역",
-  "cardMarkLabel": "장식용 타로 카드 문양",
+  "workspaceLabel": "뽑은 카드와 AI 질문",
+  "cardMarkLabel": "타로 카드 그림",
   "promptPack": {
-    "heading": "지금 필요한 프롬프트를 고르세요",
-    "intro": "모든 프롬프트가 전체 스프레드를 사용합니다. 메인 리딩으로 시작하고 다른 도움이 필요할 때 관점을 바꿔 복사하세요.",
-    "selectorLabel": "프롬프트 팩",
+    "heading": "AI에게 무엇을 물어볼까요?",
+    "intro": "뽑은 카드는 그대로 두고, 지금 필요한 방식에 맞춰 질문을 골라 복사할 수 있어요.",
+    "selectorLabel": "질문 종류",
     "slots": {
       "main": {
-        "label": "메인 리딩",
-        "description": "대안과 다음 행동까지 포함한 상세한 연결 해석입니다."
+        "label": "전체 리딩",
+        "description": "카드가 어떻게 이어지는지, 어떤 해석이 가능한지, 다음에는 무엇을 할 수 있는지 차근차근 짚습니다."
       },
       "other-view": {
-        "label": "다른 관점",
-        "description": "첫 해석에 질문을 던지고 놓친 가정을 점검합니다."
+        "label": "다르게 보기",
+        "description": "처음 떠오른 해석에서 놓친 점과 다른 가능성을 확인합니다."
       },
       "action": {
-        "label": "행동 계획",
-        "description": "스프레드를 선택지, 장단점, 작고 되돌릴 수 있는 행동으로 바꿉니다."
+        "label": "다음 행동",
+        "description": "지금 할 수 있는 선택과 장단점, 부담이 적은 첫걸음을 정리합니다."
       },
       "emotion": {
-        "label": "감정 정리",
-        "description": "진단하지 않고 감정, 근거, 욕구, 경계를 구분합니다."
+        "label": "마음 정리",
+        "description": "느낌과 확인된 사실을 구분하고, 내가 바라는 것과 지켜야 할 선을 돌아봅니다."
       }
     }
   },
   "cardDetails": {
-    "archetype": "원형",
-    "keywords": "핵심어",
-    "symbols": "살펴볼 상징",
-    "light": "빛의 표현",
-    "shadow": "그림자의 표현",
-    "agency": "내가 바꿀 수 있는 것",
-    "caution": "주의할 점",
-    "reflection": "성찰 질문"
+    "archetype": "이 카드의 모습",
+    "keywords": "핵심 단어",
+    "symbols": "눈여겨볼 상징",
+    "light": "힘이 되는 면",
+    "shadow": "조심할 면",
+    "agency": "지금 내가 할 수 있는 것",
+    "caution": "섣불리 단정하지 말 것",
+    "reflection": "나에게 묻기"
   },
-  "generatedPromptLabel": "생성된 프롬프트",
-  "interpretationLensLabel": "해석 관점",
-  "copyPrompt": "선택한 프롬프트 복사",
-  "copied": "복사됨",
+  "generatedPromptLabel": "AI에 붙여 넣을 질문",
+  "interpretationLensLabel": "이번에 눈여겨볼 점",
+  "copyPrompt": "이 질문 복사하기",
+  "copied": "복사했어요",
   "copyUrl": "URL 복사",
-  "copiedUrl": "URL 복사됨",
+  "copiedUrl": "URL을 복사했어요",
   "instagramShare": "Instagram용 링크 복사",
-  "instagramCopied": "Instagram용 링크 복사됨",
+  "instagramCopied": "Instagram용 링크를 복사했어요",
   "kakaoShare": "카카오톡 공유",
-  "kakaoShared": "카카오톡 열림",
+  "kakaoShared": "카카오톡을 열었어요",
   "share": "공유",
-  "shared": "공유됨",
-  "copiedShareText": "공유 문구 복사됨",
-  "blockedAction": "작업을 완료하지 못했습니다. 프롬프트나 URL을 직접 선택해 복사할 수 있습니다.",
-  "emptyHeading": "시작할 주제를 선택하세요.",
-  "emptyBody": "첫 카드 뽑기는 선택한 스프레드와 AI 글쓰기 도구에 사용할 수 있는 프롬프트를 만듭니다.",
-  "disclaimer": "타로 콘텐츠는 오락과 자기 성찰을 위한 것입니다. 의료, 법률, 재정, 투자, 정신건강 조언이 아닙니다.",
-  "languageSwitchLabel": "언어 선택",
-  "dailyQuestionLink": "오늘의 한 장 질문 보기",
-  "socialImageAlt": "세 장의 천체 타로 카드가 놓인 tarot-spark 에디토리얼 미리보기",
+  "shared": "공유했어요",
+  "copiedShareText": "공유할 내용을 복사했어요",
+  "blockedAction": "복사하거나 공유하지 못했어요. 아래 질문이나 URL을 직접 선택해 복사해 주세요.",
+  "emptyHeading": "카드를 뽑을 준비가 됐어요.",
+  "emptyBody": "주제와 카드 수를 고른 뒤 카드 뽑기를 눌러 주세요. 뽑은 카드와 함께 AI 도구에 붙여 넣을 질문을 만들어 드립니다.",
+  "disclaimer": "타로는 재미와 자기 성찰을 위한 도구입니다. 의료·법률·재정·투자·정신 건강에 관한 전문 조언을 대신하지 않습니다.",
+  "languageSwitchLabel": "언어 바꾸기",
+  "dailyQuestionLink": "오늘의 카드 한 장 뽑기",
+  "socialImageAlt": "별빛 무늬 타로 카드 세 장이 놓인 tarot-spark 이미지",
   "shareTitle": "tarot-spark 리딩",
-  "shareText": "{topicLabel} 타로 프롬프트: {cardNames}",
-  "placeholderCardName": "준비",
-  "placeholderCardTone": "카드 뽑기를 눌러 공개"
+  "shareText": "{topicLabel} 타로 질문: {cardNames}",
+  "placeholderCardName": "카드를 기다리는 중",
+  "placeholderCardTone": "뽑으면 카드가 열려요"
 }
