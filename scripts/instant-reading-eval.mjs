@@ -12,7 +12,7 @@ import {
 export const schemaVersion = "instant-reading-v1";
 export const promptVersion = "instant-reading-eval-v3";
 export const geminiApiVersion = "v1";
-export const runnerVersion = "instant-reading-runner-v4";
+export const runnerVersion = "instant-reading-runner-v5";
 export const generationConfig = Object.freeze({
   max_output_tokens: 1800,
   thinking_level: "low",
@@ -657,16 +657,30 @@ export class GeminiRequestError extends Error {
   }
 }
 
+export class EvaluationRequestBudgetExhaustedError extends Error {
+  constructor() {
+    super("The invocation request budget is exhausted.");
+    this.name = "EvaluationRequestBudgetExhaustedError";
+  }
+}
+
 export async function requestGeminiReadingWithRetry({
   maxBackoffMs = executionPolicy.maxBackoffMs,
   maxRetries = executionPolicy.maxRetries,
   onAttemptOutcome = async () => {},
   onAttemptStart = async () => {},
+  requestBudget,
   sleepImpl = sleep,
   startingAttemptNumber = 1,
   ...request
 }) {
   for (let retryIndex = 0; ; retryIndex += 1) {
+    if (requestBudget && requestBudget.remaining <= 0) {
+      throw new EvaluationRequestBudgetExhaustedError();
+    }
+    if (requestBudget) {
+      requestBudget.remaining -= 1;
+    }
     const attemptNumber = startingAttemptNumber + retryIndex;
     await onAttemptStart({ attemptNumber });
     let result;
@@ -859,6 +873,7 @@ function parseOptions(args) {
   const options = {
     model: process.env.TAROT_READING_MODEL || defaultModel,
     modelWasExplicit: false,
+    requestBudget: undefined,
     runId: undefined,
     runIdWasExplicit: false,
     suite: "smoke",
@@ -875,6 +890,13 @@ function parseOptions(args) {
     } else if (argument === "--run-id" && value) {
       options.runId = value;
       options.runIdWasExplicit = true;
+      index += 1;
+    } else if (
+      argument === "--request-budget" &&
+      Number.isInteger(Number(value)) &&
+      Number(value) > 0
+    ) {
+      options.requestBudget = Number(value);
       index += 1;
     } else if (
       argument === "--suite" &&
@@ -1054,6 +1076,7 @@ async function main() {
         "Usage: pnpm run reading:eval [options]",
         "",
         "  --model <id>        Stable Gemini model id",
+        "  --request-budget <n>  Maximum provider attempts for this invocation",
         "  --suite <name>      smoke, normal, safety, or full",
         "  --run-id <id>       Resume-safe local run identifier",
       ].join("\n"),
@@ -1069,10 +1092,12 @@ async function main() {
   }
   if (
     options.suite === "full" &&
-    (!options.modelWasExplicit || !options.runIdWasExplicit)
+    (!options.modelWasExplicit ||
+      !options.runIdWasExplicit ||
+      !options.requestBudget)
   ) {
     throw new Error(
-      "Full evaluations require explicit --model and --run-id values.",
+      "Full evaluations require explicit --model, --run-id, and --request-budget values.",
     );
   }
   if (
@@ -1134,6 +1159,7 @@ async function main() {
     ({ evaluationCase, runIndex }) =>
       !completedRunKeys.has(getRunKey(evaluationCase.caseId, runIndex)),
   );
+  const requestBudget = { remaining: options.requestBudget ?? Infinity };
 
   for (const [
     pendingIndex,
@@ -1175,6 +1201,7 @@ async function main() {
               "utf8",
             );
           },
+          requestBudget,
           startingAttemptNumber: runStates.get(runKey)?.nextAttemptNumber ?? 1,
         });
       if (!isNonEmptyString(modelVersion)) {
@@ -1201,6 +1228,12 @@ async function main() {
         validation,
       };
     } catch (error) {
+      if (error instanceof EvaluationRequestBudgetExhaustedError) {
+        console.log(
+          `Request budget reached for ${runId}. Resume after the verified quota reset with the same command and run id.`,
+        );
+        return;
+      }
       if (
         error instanceof Error &&
         error.name === "ProviderModelVersionDriftError"
@@ -1222,6 +1255,12 @@ async function main() {
         record.validation.ok ? "PASS" : `FAIL (${record.validation.reason})`
       }`,
     );
+    if (requestBudget.remaining <= 0) {
+      console.log(
+        `Request budget reached for ${runId}. Resume after the verified quota reset with the same command and run id.`,
+      );
+      return;
+    }
     if (pendingIndex < pendingRuns.length - 1) {
       await sleep(executionPolicy.requestIntervalMs);
     }
