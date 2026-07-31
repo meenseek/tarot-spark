@@ -109,7 +109,7 @@ describe("Home", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "나의 상황과 타로 스프레드를 더 선명한 AI 프롬프트로 만드세요.",
+        name: "지금 고민을 카드로 펼쳐보고, AI에 물어볼 질문까지 만들어보세요.",
       }),
     ).toBeInTheDocument();
     expect(
@@ -118,11 +118,14 @@ describe("Home", () => {
       }),
     ).toBeInTheDocument();
     expect(
+      screen.getByText(/지금은 그림이 완성된 메이저 아르카나 12장/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/의료·법률·재정/i)).toBeInTheDocument();
+    expect(
       screen.getByText(
-        /현재 덱: 그림으로 완성된 메이저 아르카나 미리보기 12장/,
+        /누군가를 알아볼 수 있는 정보나 회사 기밀은 적지 마세요/,
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText(/의료, 법률, 재정/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "개인정보" })).toHaveAttribute(
       "href",
       "/ko/privacy",
@@ -176,7 +179,9 @@ describe("Home", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: "Instagram용 링크 복사됨" }),
+        screen.getByRole("button", {
+          name: "Instagram용 링크를 복사했어요",
+        }),
       ).toBeInTheDocument();
     });
     expect(document.execCommand).toHaveBeenCalledWith("copy");
@@ -190,16 +195,20 @@ describe("Home", () => {
     fireEvent.click(screen.getByRole("button", { name: "카드 뽑기" }));
 
     expect(
-      screen.getByText("해석 관점: 선택과 주도성", { selector: "p" }),
+      screen.getByText("이번에 눈여겨볼 점: 내가 선택할 수 있는 것", {
+        selector: "p",
+      }),
     ).toBeInTheDocument();
 
     const prompt = screen.getByLabelText(
-      "생성된 프롬프트",
+      "AI에 붙여 넣을 질문",
     ) as HTMLTextAreaElement;
 
-    expect(prompt.value).toContain("해석 관점: 선택과 주도성");
-    expect(prompt.value).toContain("카드별 해석 각도:");
-    expect(prompt.value).toContain("3. 연결된 흐름:");
+    expect(prompt.value).toContain(
+      "이번에 눈여겨볼 점: 내가 선택할 수 있는 것",
+    );
+    expect(prompt.value).toContain("이 자리에서 읽을 방향:");
+    expect(prompt.value).toContain("3. 카드가 이어지는 방식:");
   });
 
   it("draws cards and generates a copyable prompt", () => {
@@ -525,13 +534,14 @@ describe("Home", () => {
     await waitFor(() => {
       expect(
         screen.getByRole("textbox", {
-          name: /상황 또는 관계 맥락/,
+          name: /지금 고민하는 상황/,
         }),
       ).toHaveValue("My manager relationship is difficult.");
     });
     expect(window.sessionStorage.length).toBe(0);
     expect(
-      (screen.getByLabelText("생성된 프롬프트") as HTMLTextAreaElement).value,
+      (screen.getByLabelText("AI에 붙여 넣을 질문") as HTMLTextAreaElement)
+        .value,
     ).toContain('"My manager relationship is difficult."');
   });
 
@@ -766,12 +776,10 @@ describe("Home", () => {
     render(<TarotExperience locale="ko" />);
 
     fireEvent.click(screen.getByRole("button", { name: "카드 뽑기" }));
-    fireEvent.click(
-      screen.getByRole("button", { name: "선택한 프롬프트 복사" }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "이 질문 복사하기" }));
 
     await waitFor(() => {
-      const failureMessage = screen.getByText(/작업을 완료하지 못했습니다/);
+      const failureMessage = screen.getByText(/복사하거나 공유하지 못했어요/);
       expect(failureMessage).toBeInTheDocument();
       expect(failureMessage).not.toHaveTextContent(/권한/);
     });

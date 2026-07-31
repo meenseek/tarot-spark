@@ -1,18 +1,18 @@
 {
   "metadata": {
     "title": "오늘의 타로 질문 | tarot-spark",
-    "description": "tarot-spark의 메이저 아르카나 미리보기 12장 중 한 장을 만나고 오늘을 위한 질문 하나를 돌아보세요."
+    "description": "메이저 아르카나 12장 중 오늘의 카드 한 장을 뽑고, 하루 동안 마음에 담아둘 질문을 만나보세요."
   },
   "brand": "tarot-spark",
   "eyebrow": "오늘의 질문",
-  "heading": "한 장의 카드, 오늘을 위한 하나의 질문.",
-  "intro": "오늘의 카드를 잠시 멈춰 자신을 돌아보는 계기로 사용해 보세요. 브라우저의 현지 날짜가 같은 동안에는 같은 카드가 나옵니다.",
-  "loadingLabel": "오늘의 질문을 고르는 중...",
+  "heading": "오늘의 카드 한 장, 마음에 담아둘 질문 하나.",
+  "intro": "잠깐 멈춰 오늘의 카드를 바라보세요. 날짜가 바뀌기 전까지는 같은 카드와 질문을 볼 수 있어요.",
+  "loadingLabel": "오늘의 카드를 고르고 있어요...",
   "todayCardLabel": "오늘의 카드",
-  "meaningLabel": "살펴볼 관점",
-  "questionLabel": "오늘의 질문",
-  "deckNote": "이 실험은 tarot-spark의 현재 메이저 아르카나 미리보기 12장에서 카드를 고릅니다.",
-  "homeLink": "3장 리딩 해보기",
-  "languageSwitchLabel": "언어 선택",
-  "disclaimer": "타로 콘텐츠는 오락과 자기 성찰을 위한 것이며 의료, 법률, 재정 또는 정신건강 조언이 아닙니다."
+  "meaningLabel": "이 카드가 건네는 말",
+  "questionLabel": "오늘 나에게 묻기",
+  "deckNote": "오늘의 카드는 현재 준비된 메이저 아르카나 12장 중에서 나옵니다.",
+  "homeLink": "카드 세 장 더 뽑기",
+  "languageSwitchLabel": "언어 바꾸기",
+  "disclaimer": "타로는 재미와 자기 성찰을 위한 도구입니다. 의료·법률·재정·투자·정신 건강에 관한 전문 조언을 대신하지 않습니다."
 }

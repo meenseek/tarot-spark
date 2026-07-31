@@ -32,7 +32,7 @@ describe("RelationshipFlowLanding", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: /상대의 속마음을 단정하지 않고/i,
+        name: /상대의 속마음을 맞히려 하지 않고/i,
       }),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "English" })).toHaveAttribute(
@@ -41,7 +41,7 @@ describe("RelationshipFlowLanding", () => {
     );
     expect(
       screen.getAllByRole("link", {
-        name: "관계 흐름 스프레드 시작하기",
+        name: "관계 흐름 카드 뽑으러 가기",
       })[0],
     ).toHaveAttribute(
       "href",
