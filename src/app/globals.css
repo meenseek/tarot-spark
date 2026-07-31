@@ -31,9 +31,9 @@
   --ts-motion-fast: 160ms;
   --ts-motion-base: 200ms;
   --ts-motion-card-arrive: 520ms;
-  --ts-motion-card-art: 360ms;
+  --ts-motion-card-flip: 480ms;
   --ts-motion-card-stagger: 80ms;
-  --ts-motion-card-art-offset: 120ms;
+  --ts-motion-card-flip-offset: 120ms;
   --ts-motion-ease: cubic-bezier(0.2, 0.75, 0.25, 1);
 }
 
@@ -94,19 +94,48 @@ body {
   opacity: 0;
 }
 
-.ts-card-face-reveal {
-  animation-name: ts-card-face-reveal;
+.ts-card-visual {
+  perspective: 28rem;
+}
+
+.ts-card-plane {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(0);
+  transform-style: preserve-3d;
+}
+
+.ts-card-plane-complete {
+  transform: rotateY(180deg);
+}
+
+.ts-card-plane-flip {
+  animation-name: ts-card-plane-flip;
   animation-delay: calc(
-    var(--ts-motion-card-art-offset) +
+    var(--ts-motion-card-flip-offset) +
       (var(--ts-card-index, 0) * var(--ts-motion-card-stagger))
   );
-  animation-duration: var(--ts-motion-card-art);
+  animation-duration: var(--ts-motion-card-flip);
   animation-fill-mode: both;
   animation-timing-function: var(--ts-motion-ease);
+  will-change: transform;
+}
+
+.ts-card-face {
+  position: absolute;
+  inset: 0;
   backface-visibility: hidden;
-  transform-origin: left center;
-  transform-style: preserve-3d;
-  will-change: filter, opacity, transform;
+  overflow: hidden;
+  border-radius: inherit;
+  -webkit-backface-visibility: hidden;
+}
+
+.ts-card-face-back {
+  transform: rotateY(0) translateZ(0.01px);
+}
+
+.ts-card-face-front {
+  transform: rotateY(180deg) translateZ(0.01px);
 }
 
 @keyframes ts-card-arrive {
@@ -122,23 +151,13 @@ body {
   }
 }
 
-@keyframes ts-card-face-reveal {
+@keyframes ts-card-plane-flip {
   from {
-    filter: saturate(0.7) brightness(1.06);
-    opacity: 0.18;
-    transform: perspective(28rem) rotateY(-76deg) scale(0.96);
-  }
-
-  72% {
-    filter: saturate(0.94) brightness(1.02);
-    opacity: 1;
-    transform: perspective(28rem) rotateY(3deg) scale(1.01);
+    transform: rotateY(0);
   }
 
   to {
-    filter: saturate(1) brightness(1);
-    opacity: 1;
-    transform: perspective(28rem) rotateY(0) scale(1);
+    transform: rotateY(180deg);
   }
 }
 
@@ -153,7 +172,7 @@ body {
   }
 
   .ts-card-arrive,
-  .ts-card-face-reveal {
+  .ts-card-plane-flip {
     animation-delay: 0ms !important;
   }
 }

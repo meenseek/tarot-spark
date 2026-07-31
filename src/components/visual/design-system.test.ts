@@ -51,9 +51,9 @@ const rootTokens = {
   "--ts-motion-fast": "160ms",
   "--ts-motion-base": "200ms",
   "--ts-motion-card-arrive": "520ms",
-  "--ts-motion-card-art": "360ms",
+  "--ts-motion-card-flip": "480ms",
   "--ts-motion-card-stagger": "80ms",
-  "--ts-motion-card-art-offset": "120ms",
+  "--ts-motion-card-flip-offset": "120ms",
   "--ts-motion-ease": "cubic-bezier(0.2, 0.75, 0.25, 1)",
 } as const;
 

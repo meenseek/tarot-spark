@@ -266,16 +266,21 @@ test("removes decorative motion when reduced motion is requested", async ({
 
   const card = page.getByTestId("reading-card-0");
   const art = card.locator("[data-art-id]");
+  const plane = card.locator("[data-card-plane]");
   await expect(art).toHaveAttribute("data-art-ready", "true", {
     timeout: 10_000,
   });
   const cardAnimation = await getAnimationTiming(card);
-  const artAnimation = await getAnimationTiming(art);
+  const planeAnimation = await getAnimationTiming(plane);
 
   expect(maximumCssSeconds(cardAnimation.duration)).toBeLessThanOrEqual(0.001);
-  expect(maximumCssSeconds(artAnimation.duration)).toBeLessThanOrEqual(0.001);
+  expect(maximumCssSeconds(planeAnimation.duration)).toBeLessThanOrEqual(0.001);
   expect(maximumCssSeconds(cardAnimation.delay)).toBe(0);
-  expect(maximumCssSeconds(artAnimation.delay)).toBe(0);
+  expect(maximumCssSeconds(planeAnimation.delay)).toBe(0);
+  await expect(card.locator("[data-card-visual-state]")).toHaveAttribute(
+    "data-card-visual-state",
+    "front",
+  );
 });
 
 test("stages only a user-initiated card reveal with locked timing", async ({
@@ -289,6 +294,8 @@ test("stages only a user-initiated card reveal with locked timing", async ({
   const secondCard = page.getByTestId("reading-card-1");
   const firstArt = firstCard.locator("[data-art-id]");
   const secondArt = secondCard.locator("[data-art-id]");
+  const firstPlane = firstCard.locator("[data-card-plane]");
+  const secondPlane = secondCard.locator("[data-card-plane]");
 
   await expect(firstCard).toHaveAttribute("data-reveal-sequence", "1");
   await expect(firstCard).toHaveCSS("animation-duration", "0.52s");
@@ -302,11 +309,32 @@ test("stages only a user-initiated card reveal with locked timing", async ({
   await expect(secondArt).toHaveAttribute("data-art-ready", "true", {
     timeout: 10_000,
   });
-  await expect(firstArt).toHaveCSS("animation-duration", "0.36s");
-  await expect(firstArt).toHaveCSS("animation-delay", "0.12s");
-  await expect(secondArt).toHaveCSS("animation-delay", "0.2s");
-  await expect(firstArt).toHaveCSS("animation-name", "ts-card-face-reveal");
-  await expect(firstArt).toHaveCSS("backface-visibility", "hidden");
+  await expect(firstPlane).toHaveClass(/ts-card-plane-flip/);
+  await firstPlane.evaluate((element) => {
+    element.getAnimations().forEach((animation) => animation.pause());
+  });
+  await secondPlane.evaluate((element) => {
+    element.getAnimations().forEach((animation) => animation.pause());
+  });
+  await expect(firstPlane).toHaveCSS("animation-duration", "0.48s");
+  await expect(firstPlane).toHaveCSS("animation-delay", "0.12s");
+  await expect(secondPlane).toHaveCSS("animation-delay", "0.2s");
+  await expect(firstPlane).toHaveCSS("animation-name", "ts-card-plane-flip");
+  await expect(firstCard.locator('[data-card-face="back"]')).toHaveCSS(
+    "backface-visibility",
+    "hidden",
+  );
+  await expect(firstCard.locator('[data-card-face="front"]')).toHaveCSS(
+    "backface-visibility",
+    "hidden",
+  );
+  const flipKeyframes = await firstPlane.evaluate((element) => {
+    const [animation] = element.getAnimations();
+    const effect = animation?.effect as KeyframeEffect | null;
+
+    return effect?.getKeyframes().map(({ transform }) => transform) ?? [];
+  });
+  expect(flipKeyframes).toEqual(["rotateY(0deg)", "rotateY(180deg)"]);
 
   await page.getByRole("button", { name: "Draw cards" }).click();
   await expect(page.getByTestId("reading-card-0")).toHaveAttribute(
@@ -327,7 +355,14 @@ test("stages only a user-initiated card reveal with locked timing", async ({
     .getByTestId("reading-card-0")
     .locator("[data-art-id]");
   await expect(restoredArt).toHaveAttribute("data-art-ready", "true");
-  await expect(restoredArt).toHaveCSS("animation-name", "none");
+  const restoredPlane = page
+    .getByTestId("reading-card-0")
+    .locator("[data-card-plane]");
+  await expect(restoredPlane).toHaveCSS("animation-name", "none");
+  await expect(restoredPlane).toHaveCSS(
+    "transform",
+    "matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)",
+  );
 });
 
 test("keeps the card back visible until delayed card art can reveal", async ({
@@ -339,6 +374,7 @@ test("keeps the card back visible until delayed card art can reveal", async ({
 
   const firstCard = page.getByTestId("reading-card-0");
   const image = firstCard.locator("[data-art-id]");
+  const plane = firstCard.locator("[data-card-plane]");
 
   await firstCard.evaluate(async (element) => {
     const arrivalAnimations = element.getAnimations().filter((animation) => {
@@ -362,14 +398,19 @@ test("keeps the card back visible until delayed card art can reveal", async ({
   });
   await expect(firstCard.locator("[data-card-back]")).toBeVisible();
   await expect(firstCard.locator("[data-glyph-id]")).toHaveCount(0);
+  await expect(firstCard.locator("[data-card-visual-state]")).toHaveAttribute(
+    "data-card-visual-state",
+    "pending",
+  );
   await expect(image).toHaveAttribute("data-art-ready", "false");
   await expect(image).toHaveCSS("opacity", "0");
-  await expect(image).toHaveCSS("animation-name", "none");
+  await expect(plane).toHaveCSS("animation-name", "none");
 
   await expect(image).toHaveAttribute("data-art-ready", "true", {
     timeout: 10_000,
   });
-  await expect(image).toHaveCSS("animation-name", "ts-card-face-reveal");
+  await expect(plane).toHaveClass(/ts-card-plane-flip/);
+  await expect(plane).toHaveCSS("animation-name", "ts-card-plane-flip");
   await expectCardArtFrameBorders(
     page.locator('[data-testid^="reading-card-"]'),
   );

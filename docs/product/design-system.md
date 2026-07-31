@@ -90,13 +90,16 @@ instead of palette utilities or color literals.
   loading timer.
 - Animate only user-initiated draws. Do not replay the reveal for restored or
   shared URLs.
-- Use a 520ms alternating paper-card deal, a 360ms illustrated-face turn, an
-  80ms per-card stagger, and a 120ms face-turn offset.
+- Use a 520ms alternating paper-card deal and one 480ms card-back-to-face flip,
+  with an 80ms per-card stagger and a 120ms flip offset.
 - Keep the shared card back visible while approved art loads. Start the
-  illustrated-face turn only after the image is ready, and show the matching SVG
-  glyph only when the image fails.
-- Keep the face turn shallow and tactile. Do not add a shuffle delay, glossy
-  light sweep, particle effect, or full-card spin.
+  two-sided flip only after the image is ready, and use the matching SVG glyph as
+  the front face when the image fails. Do not block ready cards behind a slower
+  position.
+- Rotate only the `5:7` art plane from zero to 180 degrees so the physical back
+  turns away as the front turns in. Do not rotate the article, exceed one
+  180-degree flip, or add a shuffle delay, glossy light sweep, or particle
+  effect.
 - Restart the sequence when the user draws again. Do not restart it for reading
   style changes.
 - Set both animation duration and delay to effectively zero when reduced motion
