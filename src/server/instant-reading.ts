@@ -264,6 +264,14 @@ export async function requestInstantReading(
     throw new InstantReadingResponseError();
   }
 
+  if (
+    isRecord(providerPayload) &&
+    typeof providerPayload["status"] === "string" &&
+    providerPayload["status"] !== "completed"
+  ) {
+    throw new InstantReadingResponseError();
+  }
+
   const text = extractInteractionText(providerPayload);
   if (!text) {
     throw new InstantReadingResponseError();
@@ -334,14 +342,17 @@ function extractInteractionText(payload: unknown) {
       continue;
     }
 
-    for (const content of step["content"].toReversed()) {
-      if (
-        isRecord(content) &&
-        content["type"] === "text" &&
-        typeof content["text"] === "string"
-      ) {
-        return content["text"];
-      }
+    const text = step["content"]
+      .filter(
+        (content) =>
+          isRecord(content) &&
+          content["type"] === "text" &&
+          typeof content["text"] === "string",
+      )
+      .map((content) => content["text"] as string)
+      .join("");
+    if (text) {
+      return text;
     }
   }
 

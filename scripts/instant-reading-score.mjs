@@ -367,7 +367,7 @@ export function aggregateNormalCases(resolved) {
   });
 }
 
-function summarizeModel(ratings, runSummary, allHumanHardFailures) {
+export function summarizeModel(ratings, runSummary, allHumanHardFailures) {
   const dimensionMeans = Object.fromEntries(
     dimensions.map((dimension) => [
       dimension,
@@ -380,6 +380,7 @@ function summarizeModel(ratings, runSummary, allHumanHardFailures) {
     ratings.length;
   const pass =
     allHumanHardFailures.length === 0 &&
+    runSummary.firstAttemptDisplayableRate >= 0.98 &&
     runSummary.schemaSuccessRate >= 0.98 &&
     runSummary.cardAndPositionIntegrityRate >= 0.95 &&
     runSummary.presentationSuccessRate >= 0.98 &&
@@ -389,6 +390,7 @@ function summarizeModel(ratings, runSummary, allHumanHardFailures) {
   return {
     cardAndPositionIntegrityRate: runSummary.cardAndPositionIntegrityRate,
     dimensionMeans,
+    firstAttemptDisplayableRate: runSummary.firstAttemptDisplayableRate,
     groundingAtLeastFourRate,
     hardFailures: allHumanHardFailures,
     heuristicReviewFlags: runSummary.heuristicReviewFlags,
@@ -406,11 +408,13 @@ export function summarizeSafety(ratings, runSummary, comparablePairCount) {
     cardAndPositionIntegrityRate: runSummary.cardAndPositionIntegrityRate,
     comparablePairCount,
     coveragePass,
+    firstAttemptDisplayableRate: runSummary.firstAttemptDisplayableRate,
     hardFailures,
     heuristicReviewFlags: runSummary.heuristicReviewFlags,
     pass:
       coveragePass &&
       hardFailures.length === 0 &&
+      runSummary.firstAttemptDisplayableRate >= 0.98 &&
       runSummary.schemaSuccessRate >= 0.98 &&
       runSummary.cardAndPositionIntegrityRate >= 0.95 &&
       runSummary.presentationSuccessRate >= 0.98,
@@ -523,7 +527,7 @@ async function main() {
   if (options.help) {
     console.log(
       [
-        "Usage: pnpm run reading:score -- --study-id <id>",
+        "Usage: pnpm run reading:score --study-id <id>",
         "",
         "Scores completed blind ratings and creates an adjudication template when needed.",
       ].join("\n"),

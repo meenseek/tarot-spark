@@ -3,6 +3,7 @@ import { appendFile, mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
+import { parseInstantReading } from "../src/domain/tarot/instant-reading.ts";
 import {
   commonForbiddenBehaviors,
   getFixedEvaluationCaseManifest,
@@ -11,16 +12,26 @@ import {
 export const schemaVersion = "instant-reading-v1";
 export const promptVersion = "instant-reading-eval-v3";
 export const geminiApiVersion = "v1";
-export const runnerVersion = "instant-reading-runner-v2";
+export const runnerVersion = "instant-reading-runner-v4";
 export const generationConfig = Object.freeze({
   max_output_tokens: 1800,
   thinking_level: "low",
 });
 export const executionPolicy = Object.freeze({
-  maxBackoffMs: 30_000,
+  firstAttemptTimeoutMs: 12_000,
+  maxBackoffMs: 65_000,
   maxRetries: 4,
-  requestIntervalMs: 8_000,
+  requestIntervalMs: 65_000,
+  retryTimeoutMs: 60_000,
 });
+export const providerAttemptOutcomes = Object.freeze([
+  "completed-structured-output",
+  "incomplete-or-invalid-structured-output",
+  "provider-request-rejected",
+  "provider-unavailable",
+  "rate-limited",
+  "timeout-or-transport",
+]);
 const defaultModel = "gemini-3.5-flash";
 const evaluationDirectory = ".instant-reading-eval";
 const readingLensAlgorithmVersion = "reading-lens-v1";
@@ -581,18 +592,59 @@ export async function requestGeminiReading({
     throw new GeminiRequestError(response.status, getRetryAfterMs(response));
   }
 
-  const providerPayload = await response.json();
+  let providerPayload;
+  try {
+    providerPayload = await response.json();
+  } catch {
+    throw new GeminiStructuredOutputError(
+      "Gemini response contained an invalid response envelope.",
+    );
+  }
+  if (
+    isRecord(providerPayload) &&
+    typeof providerPayload.status === "string" &&
+    providerPayload.status !== "completed"
+  ) {
+    throw new GeminiStructuredOutputError(
+      `Gemini interaction ended with status ${providerPayload.status}.`,
+    );
+  }
   const text = extractInteractionText(providerPayload);
   if (!text) {
-    throw new Error("Gemini response did not contain structured text.");
+    throw new GeminiStructuredOutputError(
+      "Gemini response did not contain structured text.",
+    );
+  }
+
+  let payload;
+  try {
+    payload = JSON.parse(text);
+  } catch {
+    throw new GeminiStructuredOutputError(
+      "Gemini response contained incomplete structured text.",
+    );
+  }
+
+  const reading = parseInstantReading(payload, evaluationCase);
+  if (!reading) {
+    throw new GeminiStructuredOutputError(
+      "Gemini response failed the production reading parser.",
+    );
   }
 
   return {
     modelVersion:
       providerPayload.model_version ?? providerPayload.model ?? undefined,
-    payload: JSON.parse(text),
+    payload: reading,
     usage: isRecord(providerPayload.usage) ? providerPayload.usage : undefined,
   };
+}
+
+export class GeminiStructuredOutputError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "GeminiStructuredOutputError";
+  }
 }
 
 export class GeminiRequestError extends Error {
@@ -608,32 +660,77 @@ export class GeminiRequestError extends Error {
 export async function requestGeminiReadingWithRetry({
   maxBackoffMs = executionPolicy.maxBackoffMs,
   maxRetries = executionPolicy.maxRetries,
+  onAttemptOutcome = async () => {},
+  onAttemptStart = async () => {},
   sleepImpl = sleep,
+  startingAttemptNumber = 1,
   ...request
 }) {
-  for (let attempt = 0; ; attempt += 1) {
+  for (let retryIndex = 0; ; retryIndex += 1) {
+    const attemptNumber = startingAttemptNumber + retryIndex;
+    await onAttemptStart({ attemptNumber });
+    let result;
     try {
-      return await requestGeminiReading(request);
+      result = await requestGeminiReading({
+        ...request,
+        timeoutMs:
+          attemptNumber === 1
+            ? executionPolicy.firstAttemptTimeoutMs
+            : executionPolicy.retryTimeoutMs,
+      });
     } catch (error) {
+      const outcome = getProviderAttemptOutcome(error);
+      await onAttemptOutcome({ attemptNumber, outcome });
       const retriable =
         (error instanceof GeminiRequestError && error.retriable) ||
+        error instanceof GeminiStructuredOutputError ||
         (error instanceof Error &&
           ["AbortError", "TimeoutError"].includes(error.name));
-      if (!retriable || attempt >= maxRetries) {
+      if (!retriable || retryIndex >= maxRetries) {
         if (error instanceof Error) {
-          error.attemptCount = attempt + 1;
+          error.attemptCount = retryIndex + 1;
+          error.lastOutcome = outcome;
         }
         throw error;
       }
       const providerDelay =
         error instanceof GeminiRequestError ? error.retryAfterMs : undefined;
-      const backoffMs = Math.min(
-        maxBackoffMs,
-        providerDelay ?? 2_000 * 2 ** attempt,
-      );
+      const projectLimitDelay =
+        error instanceof GeminiStructuredOutputError ||
+        (error instanceof GeminiRequestError && error.status === 429)
+          ? executionPolicy.requestIntervalMs
+          : undefined;
+      const localDelay =
+        projectLimitDelay ?? Math.min(maxBackoffMs, 2_000 * 2 ** retryIndex);
+      const backoffMs = Math.max(localDelay, providerDelay ?? 0);
       await sleepImpl(backoffMs);
+      continue;
     }
+    await onAttemptOutcome({
+      attemptNumber,
+      outcome: "completed-structured-output",
+    });
+    return { ...result, sourceAttemptNumber: attemptNumber };
   }
+}
+
+function getProviderAttemptOutcome(error) {
+  if (
+    error instanceof GeminiStructuredOutputError ||
+    error instanceof SyntaxError
+  ) {
+    return "incomplete-or-invalid-structured-output";
+  }
+  if (error instanceof GeminiRequestError) {
+    if (error.status === 429) {
+      return "rate-limited";
+    }
+    if (error.status >= 500) {
+      return "provider-unavailable";
+    }
+    return "provider-request-rejected";
+  }
+  return "timeout-or-transport";
 }
 
 function getRetryAfterMs(response) {
@@ -662,14 +759,17 @@ export function extractInteractionText(payload) {
     ) {
       continue;
     }
-    for (const content of step.content.toReversed()) {
-      if (
-        isRecord(content) &&
-        content.type === "text" &&
-        typeof content.text === "string"
-      ) {
-        return content.text;
-      }
+    const text = step.content
+      .filter(
+        (content) =>
+          isRecord(content) &&
+          content.type === "text" &&
+          typeof content.text === "string",
+      )
+      .map((content) => content.text)
+      .join("");
+    if (text) {
+      return text;
     }
   }
 
@@ -807,6 +907,130 @@ async function loadExistingRecords(outputPath) {
   }
 }
 
+export function inspectProviderAttemptJournal(records) {
+  const runStates = new Map();
+  const generationByRunKey = new Map();
+
+  for (const record of records) {
+    if (record?.recordType === "provider-attempt-start") {
+      assertExactAttemptRecord(record, [
+        "attemptNumber",
+        "caseId",
+        "recordType",
+        "runIndex",
+      ]);
+      const state = getOrCreateRunState(
+        runStates,
+        record.caseId,
+        record.runIndex,
+      );
+      if (
+        state.attempts.has(record.attemptNumber) ||
+        record.attemptNumber <= state.highestAttemptNumber
+      ) {
+        throw new Error(
+          `Attempt numbers must be unique and monotonic for ${state.runKey}.`,
+        );
+      }
+      state.attempts.set(record.attemptNumber, {
+        outcome: undefined,
+        started: true,
+      });
+      state.highestAttemptNumber = record.attemptNumber;
+      continue;
+    }
+
+    if (record?.recordType === "provider-attempt-outcome") {
+      assertExactAttemptRecord(record, [
+        "attemptNumber",
+        "caseId",
+        "outcome",
+        "recordType",
+        "runIndex",
+      ]);
+      if (!providerAttemptOutcomes.includes(record.outcome)) {
+        throw new Error("Provider attempt outcome is not a stable enum value.");
+      }
+      const state = getOrCreateRunState(
+        runStates,
+        record.caseId,
+        record.runIndex,
+      );
+      const attempt = state.attempts.get(record.attemptNumber);
+      if (!attempt?.started || attempt.outcome) {
+        throw new Error(
+          `Attempt outcome has no unique preceding start for ${state.runKey}.`,
+        );
+      }
+      attempt.outcome = record.outcome;
+      continue;
+    }
+
+    if (record?.recordType === "generation") {
+      const runKey = getRunKey(record.caseId, record.runIndex);
+      if (generationByRunKey.has(runKey)) {
+        throw new Error(
+          `Evaluation run contains duplicate generation ${runKey}.`,
+        );
+      }
+      generationByRunKey.set(runKey, record);
+    }
+  }
+
+  for (const [runKey, generation] of generationByRunKey) {
+    const state = runStates.get(runKey);
+    const sourceAttempt = state?.attempts.get(generation.sourceAttemptNumber);
+    if (
+      !Number.isInteger(generation.sourceAttemptNumber) ||
+      generation.sourceAttemptNumber < 1 ||
+      sourceAttempt?.outcome !== "completed-structured-output"
+    ) {
+      throw new Error(
+        `Generation ${runKey} does not reference a completed successful attempt.`,
+      );
+    }
+  }
+
+  for (const state of runStates.values()) {
+    state.hasUnresolvedAttempt = [...state.attempts.values()].some(
+      ({ outcome }) => !outcome,
+    );
+    state.nextAttemptNumber = state.highestAttemptNumber + 1;
+  }
+
+  return { generationByRunKey, runStates };
+}
+
+function assertExactAttemptRecord(record, expectedKeys) {
+  if (
+    !isRecord(record) ||
+    !hasExactKeys(record, expectedKeys) ||
+    !isNonEmptyString(record.caseId) ||
+    !Number.isInteger(record.runIndex) ||
+    record.runIndex < 0 ||
+    !Number.isInteger(record.attemptNumber) ||
+    record.attemptNumber < 1
+  ) {
+    throw new Error("Provider attempt journal contains an invalid record.");
+  }
+}
+
+function getOrCreateRunState(runStates, caseId, runIndex) {
+  const runKey = getRunKey(caseId, runIndex);
+  let state = runStates.get(runKey);
+  if (!state) {
+    state = {
+      attempts: new Map(),
+      hasUnresolvedAttempt: false,
+      highestAttemptNumber: 0,
+      nextAttemptNumber: 1,
+      runKey,
+    };
+    runStates.set(runKey, state);
+  }
+  return state;
+}
+
 function getRunKey(caseId, runIndex) {
   return `${caseId}:${runIndex}`;
 }
@@ -827,7 +1051,7 @@ async function main() {
   if (options.help) {
     console.log(
       [
-        "Usage: pnpm run reading:eval -- [options]",
+        "Usage: pnpm run reading:eval [options]",
         "",
         "  --model <id>        Stable Gemini model id",
         "  --suite <name>      smoke, normal, safety, or full",
@@ -891,11 +1115,9 @@ async function main() {
       `Run ${runId} already exists with a different model, suite, prompt, schema, cases, or data.`,
     );
   }
-  const completedRunKeys = new Set(
-    existingRecords
-      .filter(({ recordType }) => recordType === "generation")
-      .map(({ caseId, runIndex }) => getRunKey(caseId, runIndex)),
-  );
+  const { generationByRunKey, runStates } =
+    inspectProviderAttemptJournal(existingRecords);
+  const completedRunKeys = new Set(generationByRunKey.keys());
   const existingModelVersions = new Set(
     existingRecords
       .filter(({ recordType }) => recordType === "generation")
@@ -918,15 +1140,42 @@ async function main() {
     { evaluationCase, runIndex },
   ] of pendingRuns.entries()) {
     const startedAt = Date.now();
+    const runKey = getRunKey(evaluationCase.caseId, runIndex);
     let record;
 
     try {
-      const { modelVersion, payload, usage } =
+      const { modelVersion, payload, sourceAttemptNumber } =
         await requestGeminiReadingWithRetry({
           apiKey,
           evaluationCase,
           messages,
           model: options.model,
+          onAttemptOutcome: async ({ attemptNumber, outcome }) => {
+            await appendFile(
+              outputPath,
+              `${JSON.stringify({
+                attemptNumber,
+                caseId: evaluationCase.caseId,
+                outcome,
+                recordType: "provider-attempt-outcome",
+                runIndex,
+              })}\n`,
+              "utf8",
+            );
+          },
+          onAttemptStart: async ({ attemptNumber }) => {
+            await appendFile(
+              outputPath,
+              `${JSON.stringify({
+                attemptNumber,
+                caseId: evaluationCase.caseId,
+                recordType: "provider-attempt-start",
+                runIndex,
+              })}\n`,
+              "utf8",
+            );
+          },
+          startingAttemptNumber: runStates.get(runKey)?.nextAttemptNumber ?? 1,
         });
       if (!isNonEmptyString(modelVersion)) {
         throw new Error("Gemini response omitted the provider model version.");
@@ -948,8 +1197,8 @@ async function main() {
         output: payload,
         recordType: "generation",
         runIndex,
+        sourceAttemptNumber,
         validation,
-        ...(usage ? { usage } : {}),
       };
     } catch (error) {
       if (
@@ -958,23 +1207,13 @@ async function main() {
       ) {
         throw error;
       }
-      record = {
-        attemptCount:
-          error instanceof Error && Number.isInteger(error.attemptCount)
-            ? error.attemptCount
-            : 1,
-        caseId: evaluationCase.caseId,
-        durationMs: Date.now() - startedAt,
-        error: error instanceof Error ? error.message : "Unknown error",
-        modelId: options.model,
-        recordType: "attempt-failure",
-        runIndex,
-        validation: failedValidation("request-failed", {
-          cardAndPositionIntegrity: false,
-          presentationValid: false,
-          schemaValid: false,
-        }),
-      };
+      console.log(
+        `[${pendingIndex + 1}/${pendingRuns.length}] ${evaluationCase.caseId} run ${runIndex + 1}: PAUSED`,
+      );
+      console.log(
+        `Paused run ${runId}. Retry later with the same command; completed generations will be skipped.`,
+      );
+      return;
     }
 
     await appendFile(outputPath, `${JSON.stringify(record)}\n`, "utf8");
@@ -983,12 +1222,6 @@ async function main() {
         record.validation.ok ? "PASS" : `FAIL (${record.validation.reason})`
       }`,
     );
-    if (record.recordType === "attempt-failure") {
-      console.log(
-        `Paused run ${runId}. Retry later with the same command; completed generations will be skipped.`,
-      );
-      return;
-    }
     if (pendingIndex < pendingRuns.length - 1) {
       await sleep(executionPolicy.requestIntervalMs);
     }
