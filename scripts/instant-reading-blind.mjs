@@ -3,9 +3,12 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
+import { parseInstantReading } from "../src/domain/tarot/instant-reading.ts";
 import {
   buildEvaluationCases,
   buildRunManifest,
+  getRuns,
+  inspectProviderAttemptJournal,
   loadKoreanTarotMessages,
 } from "./instant-reading-eval.mjs";
 
@@ -124,8 +127,8 @@ export async function buildBlindStudy({
     studyId,
   };
   const runSummary = {
-    baseline: summarizeRun(baseline.generations, caseById),
-    candidate: summarizeRun(candidate.generations, caseById),
+    baseline: summarizeRunRecords(baseline.records, cases),
+    candidate: summarizeRunRecords(candidate.records, cases),
     comparablePairs: packetItems.length,
     studyId,
   };
@@ -183,6 +186,7 @@ async function loadRun(repositoryRoot, runId) {
       ({ recordType }) => recordType === "generation",
     ),
     manifest,
+    records,
   };
 }
 
@@ -339,7 +343,16 @@ export function formatOutputForReview(messages, evaluationCase, output) {
   ].join("\n");
 }
 
-function summarizeRun(generations, caseById) {
+export function summarizeRunRecords(records, cases) {
+  const { generationByRunKey, runStates } =
+    inspectProviderAttemptJournal(records);
+  const caseById = new Map(
+    [...cases.normalCases, ...cases.safetyCases].map((evaluationCase) => [
+      evaluationCase.caseId,
+      evaluationCase,
+    ]),
+  );
+  const expectedRuns = getRuns(cases, "full");
   const summarize = (records) => {
     const schemaValid = records.filter(
       ({ validation }) => validation?.schemaValid,
@@ -353,12 +366,18 @@ function summarizeRun(generations, caseById) {
     const heuristicReviewFlags = records.flatMap(
       ({ validation }) => validation?.heuristicReviewFlags ?? [],
     );
+    const firstAttemptDisplayable = records.filter(
+      ({ firstAttemptDisplayable }) => firstAttemptDisplayable,
+    ).length;
 
     return {
       cardAndPositionIntegrity,
       cardAndPositionIntegrityRate:
         records.length === 0 ? 0 : cardAndPositionIntegrity / records.length,
       heuristicReviewFlags,
+      firstAttemptDisplayable,
+      firstAttemptDisplayableRate:
+        records.length === 0 ? 0 : firstAttemptDisplayable / records.length,
       presentationSuccessRate:
         records.length === 0 ? 0 : presentationValid / records.length,
       presentationValid,
@@ -368,19 +387,48 @@ function summarizeRun(generations, caseById) {
       total: records.length,
     };
   };
-  const normal = generations.filter(
+  const availabilityRecords = expectedRuns.map(
+    ({ evaluationCase, runIndex }) => {
+      const runKey = `${evaluationCase.caseId}:${runIndex}`;
+      const generation = generationByRunKey.get(runKey);
+      const state = runStates.get(runKey);
+      const firstAttempt = state?.attempts.get(1);
+      const productionReading = generation
+        ? parseInstantReading(generation.output, evaluationCase)
+        : undefined;
+      return {
+        ...(generation ?? {
+          caseId: evaluationCase.caseId,
+          validation: failedSummaryValidation,
+        }),
+        firstAttemptDisplayable:
+          firstAttempt?.outcome === "completed-structured-output" &&
+          state?.hasUnresolvedAttempt === false &&
+          generation?.sourceAttemptNumber === 1 &&
+          productionReading !== undefined,
+      };
+    },
+  );
+  const normal = availabilityRecords.filter(
     ({ caseId }) => caseById.get(caseId)?.kind === "normal",
   );
-  const safety = generations.filter(
+  const safety = availabilityRecords.filter(
     ({ caseId }) => caseById.get(caseId)?.kind === "safety",
   );
 
   return {
-    all: summarize(generations),
+    all: summarize(availabilityRecords),
     normal: summarize(normal),
     safety: summarize(safety),
   };
 }
+
+const failedSummaryValidation = Object.freeze({
+  cardAndPositionIntegrity: false,
+  heuristicReviewFlags: [],
+  presentationValid: false,
+  schemaValid: false,
+});
 
 function sanitizeFileSegment(value) {
   const sanitized = value
@@ -428,10 +476,10 @@ async function main() {
   if (options.help) {
     console.log(
       [
-        "Usage: pnpm run reading:blind -- [options]",
+        "Usage: pnpm run reading:blind [options]",
         "",
         "  --candidate <run-id>  Full candidate evaluation run",
-        "  --baseline <run-id>   Full paid-baseline evaluation run",
+        "  --baseline <run-id>   Full reference-model evaluation run",
         "  --study-id <id>        New blinded study id",
       ].join("\n"),
     );

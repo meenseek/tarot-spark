@@ -13,9 +13,9 @@
     "start": "next start",
     "art:prompt": "node scripts/card-art-prompt.mjs",
     "art:check": "node scripts/card-art-prompt.mjs --check",
-    "reading:eval": "node --env-file-if-exists=.env.local scripts/instant-reading-eval.mjs",
-    "reading:blind": "node scripts/instant-reading-blind.mjs",
-    "reading:score": "node scripts/instant-reading-score.mjs",
+    "reading:eval": "node --import=tsx --env-file-if-exists=.env.local scripts/instant-reading-eval.mjs",
+    "reading:blind": "node --import=tsx scripts/instant-reading-blind.mjs",
+    "reading:score": "node --import=tsx scripts/instant-reading-score.mjs",
     "lint": "eslint . --max-warnings=0",
     "docs:lint": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#.corepack\" \"#.pnpm-store\" \"#test-results\"",
     "typecheck": "tsc --noEmit",
@@ -45,6 +45,7 @@
     "markdownlint-cli2": "^0.22.1",
     "prettier": "^3",
     "tailwindcss": "^4",
+    "tsx": "^4.23.1",
     "typescript": "^5",
     "vitest": "^4"
   }

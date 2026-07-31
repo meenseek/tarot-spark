@@ -52,11 +52,17 @@ describe("instant reading route", () => {
     process.env["TAROT_READING_MODEL"] = "test-model";
     const readingRequest = createValidRequest();
     const reading = createValidReading(readingRequest);
+    const serializedReading = JSON.stringify(reading);
+    const splitAt = Math.floor(serializedReading.length / 2);
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       Response.json({
+        status: "completed",
         steps: [
           {
-            content: [{ text: JSON.stringify(reading), type: "text" }],
+            content: [
+              { text: serializedReading.slice(0, splitAt), type: "text" },
+              { text: serializedReading.slice(splitAt), type: "text" },
+            ],
             type: "model_output",
           },
         ],
@@ -119,6 +125,40 @@ describe("instant reading route", () => {
             type: "model_output",
           },
         ],
+      }),
+    );
+
+    const response = await POST(createRequest(createValidRequest()));
+
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual({
+      code: "instant-reading-invalid",
+    });
+  });
+
+  it("rejects an incomplete provider interaction", async () => {
+    enableRoute();
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({
+        status: "incomplete",
+        steps: [],
+      }),
+    );
+
+    const response = await POST(createRequest(createValidRequest()));
+
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual({
+      code: "instant-reading-invalid",
+    });
+  });
+
+  it("rejects a malformed provider response envelope", async () => {
+    enableRoute();
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("{broken", {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
       }),
     );
 

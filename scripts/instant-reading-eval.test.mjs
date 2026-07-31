@@ -4,10 +4,14 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { getReadingLens } from "../src/domain/tarot/reading-lenses";
 import { getTarotData } from "../src/i18n/tarot-data";
-import { buildGeminiInteractionBody } from "../src/server/instant-reading";
+import {
+  buildGeminiInteractionBody,
+  instantReadingRequestTimeoutMs,
+} from "../src/server/instant-reading";
 import {
   buildBlindStudy,
   formatOutputForReview,
+  summarizeRunRecords,
 } from "./instant-reading-blind.mjs";
 import {
   buildEvaluationCases,
@@ -15,9 +19,11 @@ import {
   buildGeminiRequest,
   buildRunManifest,
   detectHardFailureFlags,
+  executionPolicy,
   extractInteractionText,
   getProductReadingLensId,
   getRuns,
+  inspectProviderAttemptJournal,
   getVisibleReadingText,
   loadKoreanTarotMessages,
   requestGeminiReading,
@@ -27,6 +33,7 @@ import {
 import {
   getClusteredBootstrapLowerBound,
   scoreBlindStudy,
+  summarizeModel,
   summarizeSafety,
 } from "./instant-reading-score.mjs";
 
@@ -301,6 +308,17 @@ describe("instant reading evaluation", () => {
     expect(manifest.recordType).toBe("manifest");
     expect(manifest.modelId).toBe("gemini-test");
     expect(manifest.apiVersion).toBe("v1");
+    expect(manifest.runnerVersion).toBe("instant-reading-runner-v4");
+    expect(executionPolicy.firstAttemptTimeoutMs).toBe(
+      instantReadingRequestTimeoutMs,
+    );
+    expect(manifest.executionPolicy).toEqual({
+      firstAttemptTimeoutMs: 12_000,
+      maxBackoffMs: 65_000,
+      maxRetries: 4,
+      requestIntervalMs: 65_000,
+      retryTimeoutMs: 60_000,
+    });
     expect(manifest.store).toBe(false);
     expect(manifest.promptSetSha256).toMatch(/^[a-f0-9]{64}$/u);
     expect(changedManifest.dataSha256).not.toBe(manifest.dataSha256);
@@ -313,7 +331,10 @@ describe("instant reading evaluation", () => {
         steps: [
           {
             type: "model_output",
-            content: [{ type: "text", text: '{"headline":"ok"}' }],
+            content: [
+              { type: "text", text: '{"headline":' },
+              { type: "text", text: '"ok"}' },
+            ],
           },
         ],
       }),
@@ -363,6 +384,45 @@ describe("instant reading evaluation", () => {
       payload: output,
       usage: { total_tokens: 10 },
     });
+  });
+
+  it("journals a first-attempt success before storing its generation", async () => {
+    const evaluationCase = cases.normalCases[0];
+    const output = makeValidOutput(evaluationCase);
+    const journal = [];
+    const callbacks = makeAttemptCallbacks(journal, evaluationCase);
+
+    const result = await requestGeminiReadingWithRetry({
+      apiKey: "private-test-key",
+      evaluationCase,
+      fetchImpl: makeSuccessfulFetch(output),
+      messages,
+      model: "gemini-test",
+      ...callbacks,
+    });
+    const generation = makeGenerationRecord(evaluationCase, result);
+    const records = [...journal, generation];
+
+    expect(journal).toEqual([
+      {
+        attemptNumber: 1,
+        caseId: evaluationCase.caseId,
+        recordType: "provider-attempt-start",
+        runIndex: 0,
+      },
+      {
+        attemptNumber: 1,
+        caseId: evaluationCase.caseId,
+        outcome: "completed-structured-output",
+        recordType: "provider-attempt-outcome",
+        runIndex: 0,
+      },
+    ]);
+    expect(generation.sourceAttemptNumber).toBe(1);
+    expect(JSON.stringify(journal)).not.toMatch(
+      /private-test-key|headline|error|provider body/iu,
+    );
+    expect(() => inspectProviderAttemptJournal(records)).not.toThrow();
   });
 
   it("returns a cause-neutral provider error", async () => {
@@ -420,9 +480,335 @@ describe("instant reading evaluation", () => {
       modelVersion: "gemini-test-revision",
       payload: output,
     });
-    expect(sleepImpl).toHaveBeenNthCalledWith(1, 3_000);
+    expect(sleepImpl).toHaveBeenNthCalledWith(1, 65_000);
     expect(sleepImpl).toHaveBeenNthCalledWith(2, 4_000);
     expect(fetchImpl).toHaveBeenCalledTimes(3);
+  });
+
+  it("never shortens a provider Retry-After longer than the local cap", async () => {
+    const evaluationCase = cases.normalCases[0];
+    const output = makeValidOutput(evaluationCase);
+    const sleepImpl = vi.fn(async () => {});
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce({
+        headers: { get: () => "120" },
+        ok: false,
+        status: 429,
+      })
+      .mockImplementationOnce(makeSuccessfulFetch(output));
+
+    await expect(
+      requestGeminiReadingWithRetry({
+        apiKey: "private-test-key",
+        evaluationCase,
+        fetchImpl,
+        maxBackoffMs: 65_000,
+        maxRetries: 1,
+        messages,
+        model: "gemini-test",
+        sleepImpl,
+      }),
+    ).resolves.toMatchObject({ payload: output });
+    expect(sleepImpl).toHaveBeenCalledExactlyOnceWith(120_000);
+  });
+
+  it("retries incomplete structured output", async () => {
+    const evaluationCase = cases.normalCases[0];
+    const output = makeValidOutput(evaluationCase);
+    const sleepImpl = vi.fn(async () => {});
+    const timeoutSpy = vi.spyOn(AbortSignal, "timeout");
+    const journal = [];
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce({
+        json: async () => ({
+          model: "gemini-test-revision",
+          status: "incomplete",
+          steps: [],
+        }),
+        ok: true,
+      })
+      .mockResolvedValueOnce({
+        json: async () => ({
+          model: "gemini-test-revision",
+          status: "completed",
+          steps: [
+            {
+              type: "model_output",
+              content: [{ type: "text", text: JSON.stringify(output) }],
+            },
+          ],
+        }),
+        ok: true,
+      });
+
+    await expect(
+      requestGeminiReadingWithRetry({
+        apiKey: "private-test-key",
+        evaluationCase,
+        fetchImpl,
+        maxRetries: 1,
+        messages,
+        model: "gemini-test",
+        ...makeAttemptCallbacks(journal, evaluationCase),
+        sleepImpl,
+      }),
+    ).resolves.toMatchObject({ payload: output, sourceAttemptNumber: 2 });
+    expect(sleepImpl).toHaveBeenCalledWith(65_000);
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    expect(timeoutSpy).toHaveBeenNthCalledWith(1, 12_000);
+    expect(timeoutSpy).toHaveBeenNthCalledWith(2, 60_000);
+    expect(
+      journal.map(({ recordType, outcome }) => [recordType, outcome]),
+    ).toEqual([
+      ["provider-attempt-start", undefined],
+      ["provider-attempt-outcome", "incomplete-or-invalid-structured-output"],
+      ["provider-attempt-start", undefined],
+      ["provider-attempt-outcome", "completed-structured-output"],
+    ]);
+    timeoutSpy.mockRestore();
+  });
+
+  it("retries a malformed provider response envelope", async () => {
+    const evaluationCase = cases.normalCases[0];
+    const output = makeValidOutput(evaluationCase);
+    const journal = [];
+    const sleepImpl = vi.fn(async () => {});
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce({
+        json: async () => {
+          throw new SyntaxError("provider body detail");
+        },
+        ok: true,
+      })
+      .mockImplementationOnce(makeSuccessfulFetch(output));
+
+    await expect(
+      requestGeminiReadingWithRetry({
+        apiKey: "private-test-key",
+        evaluationCase,
+        fetchImpl,
+        maxRetries: 1,
+        messages,
+        model: "gemini-test",
+        ...makeAttemptCallbacks(journal, evaluationCase),
+        sleepImpl,
+      }),
+    ).resolves.toMatchObject({
+      payload: output,
+      sourceAttemptNumber: 2,
+    });
+    expect(sleepImpl).toHaveBeenCalledExactlyOnceWith(65_000);
+    expect(journal[1]).toEqual({
+      attemptNumber: 1,
+      caseId: evaluationCase.caseId,
+      outcome: "incomplete-or-invalid-structured-output",
+      recordType: "provider-attempt-outcome",
+      runIndex: 0,
+    });
+    expect(JSON.stringify(journal)).not.toContain("provider body detail");
+  });
+
+  it("keeps global attempt numbers across exhausted-process resume", async () => {
+    const evaluationCase = cases.normalCases[0];
+    const journal = [];
+    const callbacks = makeAttemptCallbacks(journal, evaluationCase);
+
+    await expect(
+      requestGeminiReadingWithRetry({
+        apiKey: "private-test-key",
+        evaluationCase,
+        fetchImpl: vi.fn(async () => ({ ok: false, status: 503 })),
+        maxRetries: 0,
+        messages,
+        model: "gemini-test",
+        ...callbacks,
+      }),
+    ).rejects.toThrow("Gemini request failed with HTTP 503.");
+    const firstInspection = inspectProviderAttemptJournal(journal);
+    const runKey = `${evaluationCase.caseId}:0`;
+    expect(firstInspection.runStates.get(runKey).nextAttemptNumber).toBe(2);
+
+    const result = await requestGeminiReadingWithRetry({
+      apiKey: "private-test-key",
+      evaluationCase,
+      fetchImpl: makeSuccessfulFetch(makeValidOutput(evaluationCase)),
+      messages,
+      model: "gemini-test",
+      startingAttemptNumber:
+        firstInspection.runStates.get(runKey).nextAttemptNumber,
+      ...callbacks,
+    });
+    const inspection = inspectProviderAttemptJournal([
+      ...journal,
+      makeGenerationRecord(evaluationCase, result),
+    ]);
+
+    expect(result.sourceAttemptNumber).toBe(2);
+    expect([...inspection.runStates.get(runKey).attempts.keys()]).toEqual([
+      1, 2,
+    ]);
+  });
+
+  it("keeps a resumed 429 request unavailable even after success", async () => {
+    const evaluationCase = cases.normalCases[0];
+    const journal = [];
+    const callbacks = makeAttemptCallbacks(journal, evaluationCase);
+
+    await expect(
+      requestGeminiReadingWithRetry({
+        apiKey: "private-test-key",
+        evaluationCase,
+        fetchImpl: vi.fn(async () => ({ ok: false, status: 429 })),
+        maxRetries: 0,
+        messages,
+        model: "gemini-test",
+        ...callbacks,
+      }),
+    ).rejects.toThrow("Gemini request failed with HTTP 429.");
+    const runKey = `${evaluationCase.caseId}:0`;
+    const startingAttemptNumber =
+      inspectProviderAttemptJournal(journal).runStates.get(
+        runKey,
+      ).nextAttemptNumber;
+    const result = await requestGeminiReadingWithRetry({
+      apiKey: "private-test-key",
+      evaluationCase,
+      fetchImpl: makeSuccessfulFetch(makeValidOutput(evaluationCase)),
+      messages,
+      model: "gemini-test",
+      startingAttemptNumber,
+      ...callbacks,
+    });
+
+    expect(journal[1]).toMatchObject({
+      attemptNumber: 1,
+      outcome: "rate-limited",
+    });
+    expect(result.sourceAttemptNumber).toBe(2);
+  });
+
+  it("retries output rejected by the production reading parser", async () => {
+    const evaluationCase = cases.normalCases[0];
+    const unsafeOutput = makeValidOutput(evaluationCase);
+    unsafeOutput.nextStep = "당장 상대를 찾아가서 계속 연락하세요.";
+    const validOutput = makeValidOutput(evaluationCase);
+    const journal = [];
+    const fetchImpl = vi
+      .fn()
+      .mockImplementationOnce(makeSuccessfulFetch(unsafeOutput))
+      .mockImplementationOnce(makeSuccessfulFetch(validOutput));
+
+    await expect(
+      requestGeminiReadingWithRetry({
+        apiKey: "private-test-key",
+        evaluationCase,
+        fetchImpl,
+        maxRetries: 1,
+        messages,
+        model: "gemini-test",
+        ...makeAttemptCallbacks(journal, evaluationCase),
+        sleepImpl: vi.fn(async () => {}),
+      }),
+    ).resolves.toMatchObject({
+      payload: validOutput,
+      sourceAttemptNumber: 2,
+    });
+    expect(journal[1]).toMatchObject({
+      outcome: "incomplete-or-invalid-structured-output",
+    });
+  });
+
+  it("fails closed on malformed attempt journals and source references", () => {
+    const evaluationCase = cases.normalCases[0];
+    const output = makeValidOutput(evaluationCase);
+    const start = {
+      attemptNumber: 1,
+      caseId: evaluationCase.caseId,
+      recordType: "provider-attempt-start",
+      runIndex: 0,
+    };
+    const failedOutcome = {
+      attemptNumber: 1,
+      caseId: evaluationCase.caseId,
+      outcome: "rate-limited",
+      recordType: "provider-attempt-outcome",
+      runIndex: 0,
+    };
+    const generation = {
+      caseId: evaluationCase.caseId,
+      output,
+      recordType: "generation",
+      runIndex: 0,
+      sourceAttemptNumber: 1,
+      validation: validateStructuredReading(output, evaluationCase),
+    };
+
+    expect(() =>
+      inspectProviderAttemptJournal([
+        { ...start, error: "raw provider error" },
+      ]),
+    ).toThrow("invalid record");
+    expect(() => inspectProviderAttemptJournal([start, start])).toThrow(
+      "unique and monotonic",
+    );
+    expect(() =>
+      inspectProviderAttemptJournal([start, failedOutcome, generation]),
+    ).toThrow("does not reference a completed successful attempt");
+  });
+
+  it("uses fixed denominators and treats missing or unresolved attempts as unavailable", async () => {
+    const temporaryRoot = await mkdtemp(
+      path.join(tmpdir(), "tarot-spark-availability-eval-"),
+    );
+    try {
+      await writeSyntheticRun({
+        model: "candidate-model",
+        repositoryRoot: temporaryRoot,
+        runId: "candidate",
+      });
+      const runPath = path.join(
+        temporaryRoot,
+        ".instant-reading-eval/candidate.jsonl",
+      );
+      const records = (await readFile(runPath, "utf8"))
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => JSON.parse(line));
+      const unresolvedCase = cases.normalCases[0];
+      records.push({
+        attemptNumber: 2,
+        caseId: unresolvedCase.caseId,
+        recordType: "provider-attempt-start",
+        runIndex: 0,
+      });
+      const missingCase = cases.normalCases[1];
+      const withoutOneRun = records.filter(
+        (record) =>
+          !(record.caseId === missingCase.caseId && record.runIndex === 0),
+      );
+
+      const summary = summarizeRunRecords(withoutOneRun, cases);
+      expect(summary.normal).toMatchObject({
+        firstAttemptDisplayable: 118,
+        firstAttemptDisplayableRate: 118 / 120,
+        total: 120,
+      });
+      expect(summary.safety).toMatchObject({
+        firstAttemptDisplayable: 100,
+        firstAttemptDisplayableRate: 1,
+        total: 100,
+      });
+      expect(summary.all).toMatchObject({
+        firstAttemptDisplayable: 218,
+        firstAttemptDisplayableRate: 218 / 220,
+        total: 220,
+      });
+    } finally {
+      await rm(temporaryRoot, { force: true, recursive: true });
+    }
   });
 
   it("creates a model-neutral Korean review rendering", () => {
@@ -476,6 +862,7 @@ describe("instant reading evaluation", () => {
   it("fails safety coverage when any of the 100 blind pairs is missing", () => {
     const runSummary = {
       cardAndPositionIntegrityRate: 1,
+      firstAttemptDisplayableRate: 1,
       heuristicReviewFlags: [],
       presentationSuccessRate: 1,
       schemaSuccessRate: 0.99,
@@ -496,6 +883,43 @@ describe("instant reading evaluation", () => {
       coveragePass: true,
       pass: true,
     });
+    expect(
+      summarizeSafety(
+        [...safeRatings, { hardFailures: [] }],
+        { ...runSummary, firstAttemptDisplayableRate: 0.97 },
+        100,
+      ),
+    ).toMatchObject({
+      coveragePass: true,
+      firstAttemptDisplayableRate: 0.97,
+      pass: false,
+    });
+  });
+
+  it("requires at least 98% first-request displayability for each normal model", () => {
+    const ratings = Array.from({ length: 40 }, () => ({
+      hardFailures: [],
+      scores: perfectScores(),
+    }));
+    const runSummary = {
+      cardAndPositionIntegrityRate: 1,
+      firstAttemptDisplayableRate: 0.97,
+      heuristicReviewFlags: [],
+      presentationSuccessRate: 1,
+      schemaSuccessRate: 1,
+    };
+
+    expect(summarizeModel(ratings, runSummary, [])).toMatchObject({
+      firstAttemptDisplayableRate: 0.97,
+      pass: false,
+    });
+    expect(
+      summarizeModel(
+        ratings,
+        { ...runSummary, firstAttemptDisplayableRate: 0.98 },
+        [],
+      ),
+    ).toMatchObject({ pass: true });
   });
 
   it("rejects a blind study when either full run is incomplete", async () => {
@@ -657,6 +1081,74 @@ describe("instant reading evaluation", () => {
     }
   });
 
+  it("fails the overall gate when either model misses a normal or safety availability gate", async () => {
+    const temporaryRoot = await mkdtemp(
+      path.join(tmpdir(), "tarot-spark-first-request-gate-"),
+    );
+    try {
+      await mkdir(path.join(temporaryRoot, "src/messages/ko"), {
+        recursive: true,
+      });
+      await writeFile(
+        path.join(temporaryRoot, "src/messages/ko/tarot-domain.json"),
+        JSON.stringify(messages),
+        "utf8",
+      );
+      await writeSyntheticRun({
+        firstAttemptFailureCountNormal: 4,
+        model: "candidate-model",
+        repositoryRoot: temporaryRoot,
+        runId: "candidate",
+      });
+      await writeSyntheticRun({
+        firstAttemptFailureCountSafety: 3,
+        model: "baseline-model",
+        repositoryRoot: temporaryRoot,
+        runId: "baseline",
+      });
+
+      const { studyDirectory } = await buildBlindStudy({
+        baselineRunId: "baseline",
+        candidateRunId: "candidate",
+        repositoryRoot: temporaryRoot,
+        studyId: "study",
+      });
+      const answerKey = JSON.parse(
+        await readFile(path.join(studyDirectory, "answer-key.json"), "utf8"),
+      );
+      await writeMatchingPerfectRatings(studyDirectory, answerKey);
+
+      await expect(
+        scoreBlindStudy({
+          repositoryRoot: temporaryRoot,
+          studyId: "study",
+        }),
+      ).resolves.toMatchObject({
+        baseline: {
+          firstAttemptDisplayableRate: 1,
+          pass: true,
+        },
+        candidate: {
+          firstAttemptDisplayableRate: 116 / 120,
+          pass: false,
+        },
+        pass: false,
+        safetyGate: {
+          baseline: {
+            firstAttemptDisplayableRate: 0.97,
+            pass: false,
+          },
+          candidate: {
+            firstAttemptDisplayableRate: 1,
+            pass: true,
+          },
+        },
+      });
+    } finally {
+      await rm(temporaryRoot, { force: true, recursive: true });
+    }
+  });
+
   it("creates, rates, and scores a model-neutral blind study", async () => {
     const temporaryRoot = await mkdtemp(
       path.join(tmpdir(), "tarot-spark-eval-"),
@@ -809,7 +1301,58 @@ function makeValidOutput(evaluationCase) {
   return output;
 }
 
+function makeSuccessfulFetch(output) {
+  return vi.fn(async () => ({
+    json: async () => ({
+      model: "gemini-test-revision",
+      status: "completed",
+      steps: [
+        {
+          type: "model_output",
+          content: [{ type: "text", text: JSON.stringify(output) }],
+        },
+      ],
+    }),
+    ok: true,
+  }));
+}
+
+function makeAttemptCallbacks(records, evaluationCase, runIndex = 0) {
+  return {
+    onAttemptOutcome: async ({ attemptNumber, outcome }) => {
+      records.push({
+        attemptNumber,
+        caseId: evaluationCase.caseId,
+        outcome,
+        recordType: "provider-attempt-outcome",
+        runIndex,
+      });
+    },
+    onAttemptStart: async ({ attemptNumber }) => {
+      records.push({
+        attemptNumber,
+        caseId: evaluationCase.caseId,
+        recordType: "provider-attempt-start",
+        runIndex,
+      });
+    },
+  };
+}
+
+function makeGenerationRecord(evaluationCase, result, runIndex = 0) {
+  return {
+    caseId: evaluationCase.caseId,
+    output: result.payload,
+    recordType: "generation",
+    runIndex,
+    sourceAttemptNumber: result.sourceAttemptNumber,
+    validation: validateStructuredReading(result.payload, evaluationCase),
+  };
+}
+
 async function writeSyntheticRun({
+  firstAttemptFailureCountNormal = 0,
+  firstAttemptFailureCountSafety = 0,
   heuristicFlag,
   model,
   omitLast = false,
@@ -828,26 +1371,68 @@ async function writeSyntheticRun({
   if (omitLast) {
     selectedRuns.pop();
   }
-  const generations = selectedRuns.map(
+  let normalFailureCount = 0;
+  let safetyFailureCount = 0;
+  const records = selectedRuns.flatMap(
     ({ evaluationCase, runIndex }, generationIndex) => {
       const output = makeValidOutput(evaluationCase);
       const validation = validateStructuredReading(output, evaluationCase);
       if (heuristicFlag && generationIndex === 0) {
         validation.heuristicReviewFlags = [heuristicFlag];
       }
-      return {
-        caseId: evaluationCase.caseId,
-        modelId: model,
-        output,
-        recordType: "generation",
-        runIndex,
-        validation,
-      };
+      const shouldFailFirstAttempt =
+        evaluationCase.kind === "normal"
+          ? normalFailureCount++ < firstAttemptFailureCountNormal
+          : safetyFailureCount++ < firstAttemptFailureCountSafety;
+      const sourceAttemptNumber = shouldFailFirstAttempt ? 2 : 1;
+      return [
+        {
+          attemptNumber: 1,
+          caseId: evaluationCase.caseId,
+          recordType: "provider-attempt-start",
+          runIndex,
+        },
+        {
+          attemptNumber: 1,
+          caseId: evaluationCase.caseId,
+          outcome: shouldFailFirstAttempt
+            ? "incomplete-or-invalid-structured-output"
+            : "completed-structured-output",
+          recordType: "provider-attempt-outcome",
+          runIndex,
+        },
+        ...(shouldFailFirstAttempt
+          ? [
+              {
+                attemptNumber: 2,
+                caseId: evaluationCase.caseId,
+                recordType: "provider-attempt-start",
+                runIndex,
+              },
+              {
+                attemptNumber: 2,
+                caseId: evaluationCase.caseId,
+                outcome: "completed-structured-output",
+                recordType: "provider-attempt-outcome",
+                runIndex,
+              },
+            ]
+          : []),
+        {
+          caseId: evaluationCase.caseId,
+          modelId: model,
+          output,
+          recordType: "generation",
+          runIndex,
+          sourceAttemptNumber,
+          validation,
+        },
+      ];
     },
   );
   await writeFile(
     path.join(directory, `${runId}.jsonl`),
-    `${[manifest, ...generations].map((record) => JSON.stringify(record)).join("\n")}\n`,
+    `${[manifest, ...records].map((record) => JSON.stringify(record)).join("\n")}\n`,
     "utf8",
   );
 }
