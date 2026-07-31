@@ -63,43 +63,22 @@ export const tarotCardGlyphDefinitions = {
   },
 } satisfies Record<TarotCardId, GlyphDefinition>;
 
-const placeholderGlyphDefinitions = [
-  {
-    paths: [
-      "M36 14v44M14 36h44M21 21l30 30M51 21 21 51M36 26a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z",
-    ],
-  },
-  {
-    paths: ["M19 43c8-20 26-29 38-15M18 50h39M28 19a8 8 0 1 0 16 0M36 27v23"],
-  },
-  {
-    paths: ["M18 48c6-19 30-26 39-8M22 53h29M27 29l9-16 9 16M36 13v40"],
-  },
-] as const satisfies readonly GlyphDefinition[];
-
 type TarotCardGlyphProps = {
-  readonly cardId?: TarotCardId | undefined;
+  readonly cardId: TarotCardId;
   readonly className?: string;
-  readonly placeholderIndex?: number;
 };
 
 export function TarotCardGlyph({
   cardId,
   className = "",
-  placeholderIndex = 0,
 }: TarotCardGlyphProps) {
-  const definition = cardId
-    ? tarotCardGlyphDefinitions[cardId]
-    : (placeholderGlyphDefinitions[
-        placeholderIndex % placeholderGlyphDefinitions.length
-      ] ?? placeholderGlyphDefinitions[0]);
-  const glyphId = cardId ?? `placeholder-${placeholderIndex + 1}`;
+  const definition = tarotCardGlyphDefinitions[cardId];
 
   return (
     <svg
       aria-hidden="true"
       className={className}
-      data-glyph-id={glyphId}
+      data-glyph-id={cardId}
       fill="none"
       viewBox="0 0 72 72"
     >

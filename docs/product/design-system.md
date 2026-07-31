@@ -59,9 +59,13 @@ instead of palette utilities or color literals.
 - Let the scene, gesture, landscape, and one or two card symbols carry the
   meaning. Do not place card names, numerals, captions, logos, or UI text inside
   the illustration.
-- Reuse the existing SVG card glyph for placeholders, small icons, and
-  degraded-image fallback states. Do not add a stable runtime card ID until its
-  approved illustration mapping exists.
+- Use the shared full-frame card back for undrawn cards and while approved art
+  loads. Reserve each card's SVG glyph for small icons and degraded-image
+  fallback states. Do not add a stable runtime card ID until its approved
+  illustration mapping exists.
+- Keep the card back identical across spread positions. Fill the `5:7` frame
+  with a bilaterally symmetric outer and inner border plus one central celestial
+  medallion that stays legible at the `80 x 112` preview size.
 - Illustration-only colors may extend beyond the interface tokens. Their frame,
   surrounding paper, borders, controls, focus states, and text must still use
   semantic `ts-*` tokens.
@@ -88,9 +92,9 @@ instead of palette utilities or color literals.
   shared URLs.
 - Use a 520ms alternating paper-card deal, a 360ms illustrated-face turn, an
   80ms per-card stagger, and a 120ms face-turn offset.
-- Keep the matching SVG glyph visible while approved art loads. Start the
-  illustrated-face turn only after the image is ready, and keep the glyph when
-  the image fails.
+- Keep the shared card back visible while approved art loads. Start the
+  illustrated-face turn only after the image is ready, and show the matching SVG
+  glyph only when the image fails.
 - Keep the face turn shallow and tactile. Do not add a shuffle delay, glossy
   light sweep, particle effect, or full-card spin.
 - Restart the sequence when the user draws again. Do not restart it for reading

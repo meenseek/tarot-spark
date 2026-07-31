@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import type { TarotCardId } from "@/domain/tarot";
+import { TarotCardBack } from "./TarotCardBack";
 import { TarotCardGlyph } from "./TarotCardGlyph";
 import { cardArtSources } from "./tarot-card-art-sources";
 
@@ -10,7 +11,6 @@ type TarotCardArtProps = {
   readonly cardId: TarotCardId | undefined;
   readonly className?: string;
   readonly glyphClassName?: string;
-  readonly placeholderIndex?: number;
   readonly shouldReveal?: boolean;
   readonly sizes?: string;
 };
@@ -19,7 +19,6 @@ export function TarotCardArt({
   cardId,
   className = "object-cover",
   glyphClassName = "h-16 w-16",
-  placeholderIndex = 0,
   shouldReveal = false,
   sizes = "5rem",
 }: TarotCardArtProps) {
@@ -27,22 +26,23 @@ export function TarotCardArt({
   const [failedArtSource, setFailedArtSource] = useState<string>();
   const [readyArtSource, setReadyArtSource] = useState<string>();
   const centeredGlyphClassName = `absolute inset-0 m-auto ${glyphClassName}`;
+  const cardBack = <TarotCardBack className="absolute inset-0 h-full w-full" />;
 
-  if (artSource && failedArtSource !== artSource) {
+  if (!cardId || !artSource) {
+    return cardBack;
+  }
+
+  if (failedArtSource !== artSource) {
     const isArtReady = readyArtSource === artSource;
-    const revealClassName = shouldReveal
-      ? isArtReady
+    const revealClassName = !isArtReady
+      ? "ts-card-art-pending"
+      : shouldReveal
         ? "ts-card-face-reveal"
-        : "ts-card-art-pending"
-      : "";
+        : "";
 
     return (
       <>
-        <TarotCardGlyph
-          cardId={cardId}
-          className={centeredGlyphClassName}
-          placeholderIndex={placeholderIndex}
-        />
+        {cardBack}
         <Image
           alt=""
           aria-hidden="true"
@@ -59,11 +59,5 @@ export function TarotCardArt({
     );
   }
 
-  return (
-    <TarotCardGlyph
-      cardId={cardId}
-      className={centeredGlyphClassName}
-      placeholderIndex={placeholderIndex}
-    />
-  );
+  return <TarotCardGlyph cardId={cardId} className={centeredGlyphClassName} />;
 }

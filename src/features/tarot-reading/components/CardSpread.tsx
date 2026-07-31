@@ -69,16 +69,20 @@ export function CardSpread({
             </div>
             <div className="flex items-center justify-center">
               <div
-                className="relative grid h-28 w-20 place-items-center overflow-hidden rounded-ts-control border border-ts-divider bg-ts-canvas text-ts-action"
+                className="relative grid h-28 w-20 place-items-center overflow-hidden rounded-ts-control bg-ts-canvas text-ts-action"
                 data-card-art-frame=""
               >
                 <TarotCardArt
                   cardId={displayCard.cardId}
                   className="object-cover"
                   glyphClassName="h-16 w-16"
-                  placeholderIndex={index}
                   shouldReveal={shouldReveal}
                   sizes="5rem"
+                />
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 z-10 rounded-ts-control ring-1 ring-inset ring-ts-divider"
+                  data-card-art-frame-border=""
                 />
                 <span className="sr-only">{cardMarkLabel}</span>
               </div>

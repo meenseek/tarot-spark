@@ -8,6 +8,7 @@ const colors = {
   blushStrong: "rgb(223, 194, 208)",
   border: "rgb(139, 115, 127)",
   canvas: "rgb(251, 247, 242)",
+  divider: "rgb(217, 204, 210)",
   ink: "rgb(58, 38, 51)",
   surface: "rgb(255, 253, 252)",
 } as const;
@@ -23,6 +24,71 @@ async function serveCardArtFixture(page: Page, delayMs = 0) {
       path: "public/cards/the-fool.jpg",
       status: 200,
     });
+  });
+}
+
+async function expectPreparedCardBacks(page: Page) {
+  const cards = page.locator('[data-testid^="reading-card-"]');
+  const cardBacks = cards.locator("[data-card-back]");
+
+  await expect(cards).toHaveCount(3);
+  await expect(cardBacks).toHaveCount(3);
+  await expect(cards.locator("[data-glyph-id]")).toHaveCount(0);
+  await expect(cards.locator("[data-art-id]")).toHaveCount(0);
+  await expect(cards.locator("img")).toHaveCount(0);
+
+  const cardBackGeometry = await cardBacks.evaluateAll((elements) =>
+    elements.map((element) => {
+      const box = element.getBoundingClientRect();
+
+      return {
+        height: box.height,
+        markup: element.innerHTML,
+        pattern: element.getAttribute("data-card-back-pattern"),
+        width: box.width,
+      };
+    }),
+  );
+
+  expect(new Set(cardBackGeometry.map(({ markup }) => markup)).size).toBe(1);
+  expect(new Set(cardBackGeometry.map(({ pattern }) => pattern))).toEqual(
+    new Set(["quiet-celestial-medallion"]),
+  );
+  cardBackGeometry.forEach(({ height, width }) => {
+    expect(width).toBeCloseTo(80, 1);
+    expect(height).toBeCloseTo(112, 1);
+    expect(width / height).toBeCloseTo(5 / 7, 2);
+  });
+
+  const dimensions = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+  await expectCardArtFrameBorders(cards);
+}
+
+async function expectCardArtFrameBorders(cards: Locator) {
+  const frameBorders = cards.locator("[data-card-art-frame-border]");
+
+  await expect(frameBorders).toHaveCount(3);
+  const borderStyles = await frameBorders.evaluateAll((elements) =>
+    elements.map((element) => {
+      const style = getComputedStyle(element);
+
+      return {
+        boxShadow: style.boxShadow,
+        pointerEvents: style.pointerEvents,
+        zIndex: style.zIndex,
+      };
+    }),
+  );
+
+  borderStyles.forEach(({ boxShadow, pointerEvents, zIndex }) => {
+    expect(boxShadow).toContain(colors.divider);
+    expect(boxShadow).toContain("inset");
+    expect(pointerEvents).toBe("none");
+    expect(zIndex).toBe("10");
   });
 }
 
@@ -264,7 +330,7 @@ test("stages only a user-initiated card reveal with locked timing", async ({
   await expect(restoredArt).toHaveCSS("animation-name", "none");
 });
 
-test("keeps a glyph visible until delayed card art can reveal", async ({
+test("keeps the card back visible until delayed card art can reveal", async ({
   page,
 }) => {
   await serveCardArtFixture(page, 1_200);
@@ -294,7 +360,8 @@ test("keeps a glyph visible until delayed card art can reveal", async ({
 
     await arrivalAnimation.finished;
   });
-  await expect(firstCard.locator("[data-glyph-id]")).toBeVisible();
+  await expect(firstCard.locator("[data-card-back]")).toBeVisible();
+  await expect(firstCard.locator("[data-glyph-id]")).toHaveCount(0);
   await expect(image).toHaveAttribute("data-art-ready", "false");
   await expect(image).toHaveCSS("opacity", "0");
   await expect(image).toHaveCSS("animation-name", "none");
@@ -303,6 +370,9 @@ test("keeps a glyph visible until delayed card art can reveal", async ({
     timeout: 10_000,
   });
   await expect(image).toHaveCSS("animation-name", "ts-card-face-reveal");
+  await expectCardArtFrameBorders(
+    page.locator('[data-testid^="reading-card-"]'),
+  );
 });
 
 for (const width of [320, 360, 390] as const) {
@@ -311,6 +381,7 @@ for (const width of [320, 360, 390] as const) {
   }) => {
     await page.setViewportSize({ height: 844, width });
     await page.goto("/ko");
+    await expectPreparedCardBacks(page);
     await page.getByRole("button", { name: "카드 뽑기" }).click();
 
     const dimensions = await page.evaluate(() => ({
