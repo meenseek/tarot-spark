@@ -36,6 +36,7 @@ const kakaoSdkIntegrity =
 describe("Home", () => {
   afterEach(() => {
     cleanup();
+    vi.useRealTimers();
     vi.restoreAllMocks();
     restoreEnv(
       "NEXT_PUBLIC_KAKAO_ALLOWED_ORIGINS",
@@ -269,10 +270,14 @@ describe("Home", () => {
     );
   });
 
-  it("restarts the visual reveal only for each user-initiated draw", () => {
+  it("restarts the visual reveal and one live status for each user draw", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
 
     render(<Home />);
+
+    const drawStatus = screen.getByRole("status");
+    expect(screen.getAllByRole("status")).toHaveLength(1);
+    expect(drawStatus).toBeEmptyDOMElement();
 
     fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
 
@@ -280,6 +285,10 @@ describe("Home", () => {
     expect(firstDrawCard).toHaveAttribute("data-reveal-order", "1");
     expect(firstDrawCard).toHaveAttribute("data-reveal-sequence", "1");
     expect(firstDrawCard).toHaveClass("ts-card-arrive");
+    expect(drawStatus).toHaveAttribute("data-draw-announcement-sequence", "1");
+    await waitFor(() => {
+      expect(drawStatus).toHaveTextContent("3 cards drawn.");
+    });
 
     fireEvent.click(
       screen.getByRole("radio", { name: /Direct, not deterministic/ }),
@@ -287,12 +296,47 @@ describe("Home", () => {
 
     expect(screen.getByTestId("reading-card-0")).toBe(firstDrawCard);
     expect(firstDrawCard).toHaveAttribute("data-reveal-sequence", "1");
+    expect(drawStatus).toHaveTextContent("3 cards drawn.");
+    expect(drawStatus).toHaveAttribute("data-draw-announcement-sequence", "1");
 
     fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
 
     const secondDrawCard = screen.getByTestId("reading-card-0");
     expect(secondDrawCard).not.toBe(firstDrawCard);
     expect(secondDrawCard).toHaveAttribute("data-reveal-sequence", "2");
+    expect(drawStatus).toBeEmptyDOMElement();
+    expect(drawStatus).toHaveAttribute("data-draw-announcement-sequence", "2");
+    await waitFor(() => {
+      expect(drawStatus).toHaveTextContent("3 cards drawn.");
+    });
+  });
+
+  it("cancels a stale draw announcement before announcing a rapid redraw", () => {
+    vi.useFakeTimers();
+    vi.spyOn(Math, "random").mockReturnValue(0);
+
+    render(<Home />);
+
+    const drawButton = screen.getByRole("button", { name: "Draw cards" });
+    const drawStatus = screen.getByRole("status");
+    const baselineTimerCount = vi.getTimerCount();
+
+    fireEvent.click(drawButton);
+    expect(drawStatus).toHaveAttribute("data-draw-announcement-sequence", "1");
+    expect(drawStatus).toBeEmptyDOMElement();
+    expect(vi.getTimerCount()).toBe(baselineTimerCount + 1);
+
+    fireEvent.click(drawButton);
+    expect(drawStatus).toHaveAttribute("data-draw-announcement-sequence", "2");
+    expect(drawStatus).toBeEmptyDOMElement();
+    expect(vi.getTimerCount()).toBe(baselineTimerCount + 1);
+
+    act(() => {
+      vi.runOnlyPendingTimers();
+    });
+
+    expect(drawStatus).toHaveTextContent("3 cards drawn.");
+    expect(vi.getTimerCount()).toBe(0);
   });
 
   it("restores a shared reading from URL parameters", async () => {
@@ -333,6 +377,10 @@ describe("Home", () => {
     );
     expect(screen.getByTestId("reading-card-0")).not.toHaveAttribute(
       "data-reveal-sequence",
+    );
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
+    expect(screen.getByRole("status")).not.toHaveAttribute(
+      "data-draw-announcement-sequence",
     );
   });
 

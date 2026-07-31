@@ -24,5 +24,10 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
+    {
+      name: "webkit-motion",
+      testMatch: /card-motion\.spec\.ts/,
+      use: { ...devices["Desktop Safari"] },
+    },
   ],
 });

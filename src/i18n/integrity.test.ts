@@ -143,6 +143,7 @@ const uiCopySchema = {
   topicSelectorLabel: "string",
   cardCountLabel: "string",
   drawButton: "string",
+  drawStatus: "string",
   workspaceLabel: "string",
   cardMarkLabel: "string",
   promptPack: {

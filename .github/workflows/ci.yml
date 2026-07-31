@@ -63,7 +63,7 @@ jobs:
 
       - name: Install Playwright browsers
         if: ${{ matrix.playwright == true }}
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium webkit
 
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}

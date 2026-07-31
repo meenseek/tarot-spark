@@ -16,7 +16,7 @@ nvm use
 corepack enable
 corepack prepare pnpm@11.1.1 --activate
 pnpm install
-pnpm exec playwright install chromium
+pnpm exec playwright install chromium webkit
 pnpm dev
 ```
 

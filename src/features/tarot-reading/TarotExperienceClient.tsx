@@ -90,6 +90,11 @@ type TarotExperienceClientProps = {
   readonly tarotData: LocaleTarotData;
 };
 
+type DrawAnnouncementRequest = {
+  readonly cardCount: number;
+  readonly sequence: number;
+};
+
 export function TarotExperienceClient({
   locale,
   copy,
@@ -120,6 +125,9 @@ export function TarotExperienceClient({
   const [readingAttribution, setReadingAttribution] =
     useState<ReadingUrlAttribution>();
   const [drawSequenceId, setDrawSequenceId] = useState(0);
+  const [drawAnnouncement, setDrawAnnouncement] = useState("");
+  const [drawAnnouncementRequest, setDrawAnnouncementRequest] =
+    useState<DrawAnnouncementRequest>();
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const [kakaoShareState, setKakaoShareState] =
     useState<KakaoShareState>("idle");
@@ -127,6 +135,7 @@ export function TarotExperienceClient({
     useState<CopyState>("idle");
   const [urlCopyState, setUrlCopyState] = useState<CopyState>("idle");
   const [shareState, setShareState] = useState<ShareState>("idle");
+  const drawSequenceIdRef = useRef(0);
   const restoredResultViewKey = useRef<string | undefined>(undefined);
   const pendingPrivateContextHandoff = useRef<string | undefined>(undefined);
   const currentOrigin = useSyncExternalStore(
@@ -243,6 +252,28 @@ export function TarotExperienceClient({
     clearPrivateContextHandoff(window.sessionStorage);
     pendingPrivateContextHandoff.current = undefined;
   }, [userContext]);
+
+  useEffect(() => {
+    if (!drawAnnouncementRequest) {
+      return;
+    }
+
+    const announcementTimer = window.setTimeout(() => {
+      setDrawAnnouncement(
+        formatTemplateStrict(
+          copy.drawStatus,
+          {
+            count: String(drawAnnouncementRequest.cardCount),
+          },
+          `${locale} tarot-reading.drawStatus`,
+        ),
+      );
+    }, 0);
+
+    return () => {
+      window.clearTimeout(announcementTimer);
+    };
+  }, [copy.drawStatus, drawAnnouncementRequest, locale]);
 
   useEffect(() => {
     const preserveContextBeforeReload = () => {
@@ -429,7 +460,14 @@ export function TarotExperienceClient({
     });
 
     const drawnCards = drawCards(tarotData.cards, selectedPositions);
-    setDrawSequenceId((currentSequenceId) => currentSequenceId + 1);
+    const nextDrawSequenceId = drawSequenceIdRef.current + 1;
+    drawSequenceIdRef.current = nextDrawSequenceId;
+    setDrawSequenceId(nextDrawSequenceId);
+    setDrawAnnouncement("");
+    setDrawAnnouncementRequest({
+      cardCount: drawnCards.length,
+      sequence: nextDrawSequenceId,
+    });
     setCards(drawnCards);
     setCopyState("idle");
     setKakaoShareState("idle");
@@ -772,6 +810,16 @@ export function TarotExperienceClient({
           >
             {copy.drawButton}
           </button>
+          <p
+            aria-atomic="true"
+            aria-live="polite"
+            className="sr-only"
+            data-draw-announcement-sequence={drawAnnouncementRequest?.sequence}
+            data-testid="draw-status"
+            role="status"
+          >
+            {drawAnnouncement}
+          </p>
           <Link
             className={`${secondaryButtonClassName} w-full`}
             href={dailyQuestionPath}

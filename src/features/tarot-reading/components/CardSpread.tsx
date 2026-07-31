@@ -76,6 +76,7 @@ export function CardSpread({
                   cardId={displayCard.cardId}
                   className="object-cover"
                   glyphClassName="h-16 w-16"
+                  revealSequence={revealSequence}
                   shouldReveal={shouldReveal}
                   sizes="5rem"
                 />

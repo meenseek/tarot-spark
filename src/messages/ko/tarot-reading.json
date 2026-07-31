@@ -18,6 +18,7 @@
   "topicSelectorLabel": "타로 주제 선택",
   "cardCountLabel": "{count}장",
   "drawButton": "카드 뽑기",
+  "drawStatus": "카드 {count}장을 뽑았습니다.",
   "workspaceLabel": "타로 리딩 작업 영역",
   "cardMarkLabel": "장식용 타로 카드 문양",
   "promptPack": {
@@ -76,5 +77,5 @@
   "shareTitle": "tarot-spark 리딩",
   "shareText": "{topicLabel} 타로 프롬프트: {cardNames}",
   "placeholderCardName": "준비",
-  "placeholderCardTone": "뽑아서 확인하기"
+  "placeholderCardTone": "카드 뽑기를 눌러 공개"
 }

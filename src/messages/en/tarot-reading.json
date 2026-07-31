@@ -18,6 +18,7 @@
   "topicSelectorLabel": "Choose a tarot topic",
   "cardCountLabel": "{count} cards",
   "drawButton": "Draw cards",
+  "drawStatus": "{count} cards drawn.",
   "workspaceLabel": "Tarot reading workspace",
   "cardMarkLabel": "Decorative tarot card mark",
   "promptPack": {
@@ -76,5 +77,5 @@
   "shareTitle": "tarot-spark reading",
   "shareText": "{topicLabel} tarot prompt: {cardNames}",
   "placeholderCardName": "Ready",
-  "placeholderCardTone": "Draw to reveal"
+  "placeholderCardTone": "Use Draw cards to reveal"
 }
