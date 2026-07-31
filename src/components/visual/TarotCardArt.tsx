@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type AnimationEvent } from "react";
+import { useEffect, useRef, useState, type AnimationEvent } from "react";
 import type { TarotCardId } from "@/domain/tarot";
 import { TarotCardBack } from "./TarotCardBack";
 import { TarotCardGlyph } from "./TarotCardGlyph";
@@ -28,8 +28,23 @@ export function TarotCardArt({
   const [failedArtSource, setFailedArtSource] = useState<string>();
   const [readyArtSource, setReadyArtSource] = useState<string>();
   const [completedRevealKey, setCompletedRevealKey] = useState<string>();
+  const artImageRef = useRef<HTMLImageElement>(null);
   const centeredGlyphClassName = `absolute inset-0 m-auto ${glyphClassName}`;
   const cardBack = <TarotCardBack className="absolute inset-0 h-full w-full" />;
+
+  useEffect(() => {
+    const image = artImageRef.current;
+
+    if (!artSource || !image?.complete) {
+      return;
+    }
+
+    if (image.naturalWidth > 0) {
+      setReadyArtSource(artSource);
+    } else {
+      setFailedArtSource(artSource);
+    }
+  }, [artSource]);
 
   if (!cardId || !artSource) {
     return (
@@ -105,6 +120,7 @@ export function TarotCardArt({
               loading="eager"
               onError={() => setFailedArtSource(artSource)}
               onLoad={() => setReadyArtSource(artSource)}
+              ref={artImageRef}
               sizes={sizes}
               src={artSource}
             />

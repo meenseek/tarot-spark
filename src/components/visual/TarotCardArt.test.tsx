@@ -3,8 +3,21 @@ import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { TarotCardArt } from "./TarotCardArt";
 
+const originalCompleteDescriptor = Object.getOwnPropertyDescriptor(
+  HTMLImageElement.prototype,
+  "complete",
+);
+const originalNaturalWidthDescriptor = Object.getOwnPropertyDescriptor(
+  HTMLImageElement.prototype,
+  "naturalWidth",
+);
+
 describe("TarotCardArt", () => {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    restoreImageProperty("complete", originalCompleteDescriptor);
+    restoreImageProperty("naturalWidth", originalNaturalWidthDescriptor);
+  });
 
   it("uses the shared card back before a card is drawn", () => {
     const { container } = render(<TarotCardArt cardId={undefined} />);
@@ -142,4 +155,38 @@ describe("TarotCardArt", () => {
       expect(plane).toHaveStyle({ animationName: "" });
     });
   });
+
+  it("recovers when approved art loaded before the onLoad handler attached", async () => {
+    Object.defineProperty(HTMLImageElement.prototype, "complete", {
+      configurable: true,
+      get: () => true,
+    });
+    Object.defineProperty(HTMLImageElement.prototype, "naturalWidth", {
+      configurable: true,
+      get: () => 80,
+    });
+
+    const { container } = render(<TarotCardArt cardId="the-hermit" />);
+
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-art-id="the-hermit"]'),
+      ).toHaveAttribute("data-art-ready", "true");
+      expect(
+        container.querySelector('[data-card-visual-state="front"]'),
+      ).toBeInTheDocument();
+    });
+  });
 });
+
+function restoreImageProperty(
+  property: "complete" | "naturalWidth",
+  descriptor: PropertyDescriptor | undefined,
+) {
+  if (descriptor) {
+    Object.defineProperty(HTMLImageElement.prototype, property, descriptor);
+    return;
+  }
+
+  Reflect.deleteProperty(HTMLImageElement.prototype, property);
+}
