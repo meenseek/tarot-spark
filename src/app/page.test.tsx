@@ -127,6 +127,13 @@ describe("Home", () => {
     expect(screen.getByTestId("reading-preferences")).not.toHaveAttribute(
       "open",
     );
+    expect(
+      screen
+        .getByTestId("reading-workspace")
+        .compareDocumentPosition(
+          screen.getByRole("link", { name: "Try today's one-card question" }),
+        ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   it("renders Korean localized content", () => {
@@ -412,6 +419,38 @@ describe("Home", () => {
     );
   });
 
+  it.each([
+    { behavior: "smooth", reducedMotion: false },
+    { behavior: "auto", reducedMotion: true },
+  ] as const)(
+    "scrolls pointer draws to the result with $behavior motion",
+    ({ behavior, reducedMotion }) => {
+      vi.spyOn(Math, "random").mockReturnValue(0);
+      vi.stubGlobal(
+        "matchMedia",
+        vi.fn(() => ({ matches: reducedMotion })),
+      );
+
+      render(<Home />);
+
+      const workspace = screen.getByTestId("reading-workspace");
+      const scrollIntoView = vi.fn();
+      Object.defineProperty(workspace, "scrollIntoView", {
+        configurable: true,
+        value: scrollIntoView,
+      });
+
+      fireEvent.click(screen.getByRole("button", { name: "Draw cards" }), {
+        detail: 1,
+      });
+
+      expect(scrollIntoView).toHaveBeenCalledWith({
+        behavior,
+        block: "start",
+      });
+    },
+  );
+
   it("restarts the visual reveal and one live status for each user draw", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
 
@@ -589,14 +628,8 @@ describe("Home", () => {
       "/?source=instagram&campaign=vertical-slice",
     );
     expect(
-      screen
-        .getByLabelText("Generated prompt")
-        .compareDocumentPosition(createOwnLink) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-    expect(
       createOwnLink.compareDocumentPosition(
-        screen.getByTestId("card-detail-list"),
+        screen.getByLabelText("Generated prompt"),
       ) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(screen.getByRole("link", { name: "한국어" })).toHaveAttribute(
@@ -1001,15 +1034,14 @@ describe("Home", () => {
     );
 
     await waitFor(() => {
-      const failureMessage = screen.getByText(
-        /that action could not be completed/i,
-      );
+      const failureMessage = screen.getByText(/copying did not work/i);
       expect(failureMessage).toBeInTheDocument();
       expect(failureMessage).not.toHaveTextContent(/permission/i);
     });
     expect(
       screen.getByRole("button", { name: "Copy selected prompt" }),
     ).toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "Share URL" })).toBeNull();
   });
 
   it("keeps share idle when native share is cancelled", async () => {
@@ -1079,11 +1111,14 @@ describe("Home", () => {
     fireEvent.click(screen.getByRole("button", { name: "Share" }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/that action could not be completed/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/sharing did not work/i)).toBeInTheDocument();
     });
     expect(share).toHaveBeenCalledTimes(1);
+    const manualUrl = screen.getByRole("textbox", { name: "Share URL" });
+    const parsedUrl = new URL((manualUrl as HTMLInputElement).value);
+    expect(parsedUrl.searchParams.get("source")).toBe("copy");
+    expect(parsedUrl.searchParams.get("campaign")).toBe("vertical-slice");
+    expect(parsedUrl.searchParams.has("context")).toBe(false);
   });
 
   it("uses cause-neutral Korean failure copy", async () => {
@@ -1097,10 +1132,11 @@ describe("Home", () => {
     fireEvent.click(screen.getByRole("button", { name: "이 질문 복사하기" }));
 
     await waitFor(() => {
-      const failureMessage = screen.getByText(/복사하거나 공유하지 못했어요/);
+      const failureMessage = screen.getByText(/질문을 복사하지 못했어요/);
       expect(failureMessage).toBeInTheDocument();
       expect(failureMessage).not.toHaveTextContent(/권한/);
     });
+    expect(screen.queryByRole("textbox", { name: "공유 URL" })).toBeNull();
   });
 
   it("labels fallback share as copied text", async () => {
@@ -1296,10 +1332,11 @@ describe("Home", () => {
     fireEvent.error(firstScript as HTMLScriptElement);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/that action could not be completed/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/sharing did not work/i)).toBeInTheDocument();
     });
+    expect(screen.getByRole("textbox", { name: "Share URL" })).toHaveValue(
+      getExpectedShareUrl("copy"),
+    );
     expect(document.getElementById(kakaoSdkScriptId)).toBeNull();
 
     const init = vi.fn();
@@ -1398,7 +1435,7 @@ function restoreEnv(key: string, value: string | undefined) {
 }
 
 function getExpectedShareUrl(
-  source: "instagram" | "kakao",
+  source: "copy" | "instagram" | "kakao",
   origin = "https://tarot-spark.example",
 ) {
   return `${origin}/share?topic=love&cards=the-fool%2Cthe-magician%2Cthe-high-priestess&source=${source}&campaign=vertical-slice`;
