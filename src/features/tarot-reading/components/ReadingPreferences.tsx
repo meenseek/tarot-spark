@@ -52,7 +52,7 @@ export function ReadingPreferences({
       </div>
 
       <fieldset className="grid gap-2">
-        <legend className="text-sm font-semibold text-ts-ink">
+        <legend className="mb-2 text-sm font-semibold text-ts-ink">
           {copy.spreadSelectorLabel}
         </legend>
         <div className="grid gap-2 sm:grid-cols-2">
@@ -87,7 +87,7 @@ export function ReadingPreferences({
       </fieldset>
 
       <fieldset className="grid gap-2">
-        <legend className="text-sm font-semibold text-ts-ink">
+        <legend className="mb-2 text-sm font-semibold text-ts-ink">
           {copy.readingStyleSelectorLabel}
         </legend>
         <div className="grid gap-2 sm:grid-cols-2">
