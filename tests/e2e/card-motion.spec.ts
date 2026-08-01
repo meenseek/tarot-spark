@@ -36,6 +36,7 @@ test("uses one true two-sided flip without making cards interactive", async ({
 
   const drawButton = page.getByRole("button", { name: "Draw cards" });
   await drawButton.focus();
+  const scrollBeforeDraw = await page.evaluate(() => scrollY);
   await drawButton.press("Enter");
 
   const firstCard = page.getByTestId("reading-card-0");
@@ -69,6 +70,8 @@ test("uses one true two-sided flip without making cards interactive", async ({
   });
   expect(keyframeTransforms).toEqual(["rotateY(0deg)", "rotateY(180deg)"]);
   await expect(drawButton).toBeFocused();
+  await expect(drawButton).toBeInViewport();
+  expect(await page.evaluate(() => scrollY)).toBe(scrollBeforeDraw);
 });
 
 test("keeps the back pending and independently reveals delayed art", async ({
@@ -194,6 +197,7 @@ test("keeps restored and reduced-motion faces static", async ({ page }) => {
   await useDeterministicDraw(page);
   const drawButton = page.getByRole("button", { name: "Draw cards" });
   await drawButton.focus();
+  const scrollBeforeDraw = await page.evaluate(() => scrollY);
   await drawButton.press("Enter");
 
   const reducedVisual = page
@@ -204,6 +208,8 @@ test("keeps restored and reduced-motion faces static", async ({ page }) => {
     "front",
   );
   await expect(drawButton).toBeFocused();
+  await expect(drawButton).toBeInViewport();
+  expect(await page.evaluate(() => scrollY)).toBe(scrollBeforeDraw);
 });
 
 test("drops stale motion and announcements on a rapid redraw", async ({

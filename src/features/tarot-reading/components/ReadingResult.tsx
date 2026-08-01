@@ -1,5 +1,4 @@
 import Image from "next/image";
-import type { ReactNode } from "react";
 import {
   primaryButtonClassName,
   secondaryButtonClassName,
@@ -33,9 +32,9 @@ type ReadingResultProps = {
   readonly readingLens: ReadingLens | undefined;
   readonly selectedPromptSlotId: PromptSlotId;
   readonly selectedTopic: Topic;
+  readonly shareUrl: string;
   readonly shareState: ShareState;
   readonly urlCopyState: CopyState;
-  readonly afterActions?: ReactNode;
   readonly onInstagramShare: () => void;
   readonly onGenerateInstantReading: () => void;
   readonly onKakaoShare: () => void;
@@ -46,7 +45,6 @@ type ReadingResultProps = {
 };
 
 export function ReadingResult({
-  afterActions,
   cards,
   copy,
   copyState,
@@ -60,6 +58,7 @@ export function ReadingResult({
   readingLens,
   selectedPromptSlotId,
   selectedTopic,
+  shareUrl,
   shareState,
   urlCopyState,
   onInstagramShare,
@@ -72,6 +71,11 @@ export function ReadingResult({
 }: ReadingResultProps) {
   const actionGridClassName =
     "grid gap-2 sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]";
+  const hasShareFailure =
+    instagramCopyState === "failed" ||
+    kakaoShareState === "failed" ||
+    shareState === "failed" ||
+    urlCopyState === "failed";
 
   return (
     <div className="grid gap-4">
@@ -229,21 +233,35 @@ export function ReadingResult({
               </span>
             </button>
           </div>
-          {(copyState === "failed" ||
-            instagramCopyState === "failed" ||
-            kakaoShareState === "failed" ||
-            shareState === "failed" ||
-            urlCopyState === "failed") && (
+          {copyState === "failed" && (
             <p
               aria-live="polite"
               className="text-sm font-medium text-ts-danger"
               role="status"
             >
-              {copy.blockedAction}
+              {copy.promptCopyBlockedAction}
             </p>
           )}
-
-          {afterActions}
+          {hasShareFailure && (
+            <div className="grid gap-2" data-testid="manual-share-fallback">
+              <p
+                aria-live="polite"
+                className="text-sm font-medium text-ts-danger"
+                role="status"
+              >
+                {copy.shareBlockedAction}
+              </p>
+              <label className="grid gap-2 text-sm font-semibold text-ts-ink">
+                {copy.manualShareUrlLabel}
+                <input
+                  aria-label={copy.manualShareUrlLabel}
+                  className="min-h-11 rounded-ts-control border-2 border-ts-border bg-ts-surface px-3 py-2 font-ts-sans text-sm font-normal text-ts-ink outline-none focus:border-ts-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
+                  readOnly
+                  value={shareUrl}
+                />
+              </label>
+            </div>
+          )}
 
           <div className="grid gap-3" data-testid="card-detail-list">
             {cards.map(({ position, card }) => (

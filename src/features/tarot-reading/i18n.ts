@@ -89,7 +89,9 @@ export type TarotReadingMessages = {
   readonly share: string;
   readonly shared: string;
   readonly copiedShareText: string;
-  readonly blockedAction: string;
+  readonly promptCopyBlockedAction: string;
+  readonly shareBlockedAction: string;
+  readonly manualShareUrlLabel: string;
   readonly emptyHeading: string;
   readonly emptyBody: string;
   readonly disclaimer: string;
@@ -113,7 +115,6 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
   const copy = copyJsonByLocale[locale];
 
   return {
-    blockedAction: copy.blockedAction,
     brand: copy.brand,
     cardCountLabel: copy.cardCountLabel,
     cardDetails: copy.cardDetails,
@@ -144,14 +145,17 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     kakaoShare: copy.kakaoShare,
     kakaoShared: copy.kakaoShared,
     languageSwitchLabel: copy.languageSwitchLabel,
+    manualShareUrlLabel: copy.manualShareUrlLabel,
     personalizationHeading: copy.personalizationHeading,
     personalizationIntro: copy.personalizationIntro,
     placeholderCardName: copy.placeholderCardName,
     placeholderCardTone: copy.placeholderCardTone,
     promptPack: copy.promptPack,
+    promptCopyBlockedAction: copy.promptCopyBlockedAction,
     readingStyleSelectorLabel: copy.readingStyleSelectorLabel,
     sharedReading: copy.sharedReading,
     share: copy.share,
+    shareBlockedAction: copy.shareBlockedAction,
     shared: copy.shared,
     shareText: copy.shareText,
     shareTitle: copy.shareTitle,

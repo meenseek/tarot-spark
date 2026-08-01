@@ -575,6 +575,10 @@ test("renders a shared reading first and keeps its localized share route", async
   await expect(
     page.getByRole("link", { name: "Create your own reading" }),
   ).toHaveAttribute("href", "/?source=instagram&campaign=vertical-slice");
+  const createOwnTop = await page
+    .getByTestId("shared-create-own")
+    .evaluate((element) => element.getBoundingClientRect().top + scrollY);
+  expect(createOwnTop).toBeLessThan(844);
   await expect(page.getByRole("link", { name: "한국어" })).toHaveAttribute(
     "href",
     "/ko/share?topic=relationship-flow&style=relational&cards=the-fool%2Cthe-lovers%2Cthe-star&source=instagram&campaign=vertical-slice",

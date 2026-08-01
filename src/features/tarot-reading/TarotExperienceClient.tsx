@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  type MouseEvent,
   useEffect,
   useMemo,
   useRef,
@@ -164,6 +165,8 @@ export function TarotExperienceClient({
   const emittedResultViewKeysRef = useRef(new Set<string>());
   const resultViewCurrentlyVisibleRef = useRef(false);
   const resultViewTargetRef = useRef<HTMLDivElement | null>(null);
+  const readingWorkspaceRef = useRef<HTMLElement | null>(null);
+  const shouldScrollToResultRef = useRef(false);
   const pendingPrivateContextHandoff = useRef<string | undefined>(undefined);
   const currentOrigin = useSyncExternalStore(
     subscribeToCurrentOrigin,
@@ -373,6 +376,27 @@ export function TarotExperienceClient({
   }, [copy.drawStatus, drawAnnouncementRequest, locale]);
 
   useEffect(() => {
+    if (!shouldScrollToResultRef.current || cards.length === 0) {
+      return;
+    }
+
+    shouldScrollToResultRef.current = false;
+    const workspace = readingWorkspaceRef.current;
+
+    if (!workspace || typeof workspace.scrollIntoView !== "function") {
+      return;
+    }
+
+    const prefersReducedMotion = window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    workspace.scrollIntoView({
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  }, [cards.length, drawSequenceId]);
+
+  useEffect(() => {
     const preserveContextBeforeReload = () => {
       storePrivateContextHandoff(window.sessionStorage, userContext);
     };
@@ -570,8 +594,9 @@ export function TarotExperienceClient({
     }
   }
 
-  function startDraw() {
+  function startDraw(event: MouseEvent<HTMLButtonElement>) {
     resetInstantReading();
+    shouldScrollToResultRef.current = event.detail > 0;
     trackEvent("draw_start", {
       ...analyticsAttribution,
       locale,
@@ -944,23 +969,20 @@ export function TarotExperienceClient({
     locale,
     readingAttribution,
   );
+  const manualShareUrl =
+    cards.length > 0
+      ? getShareUrl(
+          shareSiteUrl,
+          locale,
+          selectedTopic.id,
+          selectedSpread.id,
+          selectedReadingStyle.id,
+          cards,
+          "copy",
+        )
+      : "";
   const readingResult = (
     <ReadingResult
-      afterActions={
-        viewMode === "shared" ? (
-          <div
-            className="rounded-ts-control border-2 border-ts-action bg-ts-blush p-4"
-            data-testid="shared-create-own"
-          >
-            <Link
-              className={`${primaryButtonClassName} w-full sm:w-fit`}
-              href={createOwnReadingHref}
-            >
-              {copy.sharedReading.createOwn}
-            </Link>
-          </div>
-        ) : null
-      }
       cards={cards}
       copy={copy}
       copyState={copyState}
@@ -981,6 +1003,7 @@ export function TarotExperienceClient({
       readingLens={readingLens}
       selectedPromptSlotId={selectedPromptSlotId}
       selectedTopic={selectedTopic}
+      shareUrl={manualShareUrl}
       shareState={shareState}
       urlCopyState={urlCopyState}
     />
@@ -1019,6 +1042,13 @@ export function TarotExperienceClient({
               <p className="max-w-2xl text-base leading-7 text-ts-muted">
                 {copy.sharedReading.intro}
               </p>
+              <Link
+                className={`${primaryButtonClassName} w-full sm:w-fit`}
+                data-testid="shared-create-own"
+                href={createOwnReadingHref}
+              >
+                {copy.sharedReading.createOwn}
+              </Link>
             </div>
           </header>
 
@@ -1137,19 +1167,13 @@ export function TarotExperienceClient({
             spreads={tarotData.spreads}
             userContext={userContext}
           />
-
-          <Link
-            className={`${secondaryButtonClassName} w-full`}
-            href={dailyQuestionPath}
-          >
-            {copy.dailyQuestionLink}
-          </Link>
         </div>
 
         <section
           aria-label={copy.workspaceLabel}
           className="grid gap-5 rounded-ts-panel border border-ts-divider bg-ts-surface p-4 shadow-ts-paper sm:p-5"
           data-testid="reading-workspace"
+          ref={readingWorkspaceRef}
         >
           <CardSpread
             cardMarkLabel={copy.cardMarkLabel}
@@ -1166,6 +1190,13 @@ export function TarotExperienceClient({
 
           <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>
         </section>
+
+        <Link
+          className={`${secondaryButtonClassName} w-full`}
+          href={dailyQuestionPath}
+        >
+          {copy.dailyQuestionLink}
+        </Link>
       </section>
       <footer className="mx-auto w-full max-w-6xl px-5 pb-8 sm:px-8">
         <nav
