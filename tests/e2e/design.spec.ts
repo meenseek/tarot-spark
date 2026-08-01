@@ -561,9 +561,42 @@ test("maps every restored preview card to approved art", async ({ page }) => {
 
       await card.scrollIntoViewIfNeeded();
       await expect(card.getByRole("heading", { name: cardName })).toBeVisible();
-      await expect(art).toHaveAttribute("data-art-ready", "true", {
-        timeout: 10_000,
-      });
+      try {
+        await expect(art).toHaveAttribute("data-art-ready", "true", {
+          timeout: 10_000,
+        });
+      } catch (error) {
+        const imageState = await page
+          .evaluate((currentCardId) => {
+            const image = document.querySelector<HTMLImageElement>(
+              `[data-art-id="${currentCardId}"]`,
+            );
+
+            return {
+              collectionError: null,
+              complete: image?.complete ?? null,
+              currentSrc: image?.currentSrc ?? null,
+              dataArtReady: image?.getAttribute("data-art-ready") ?? null,
+              naturalWidth: image?.naturalWidth ?? null,
+            };
+          }, cardId)
+          .catch((collectionError: unknown) => ({
+            collectionError:
+              collectionError instanceof Error
+                ? collectionError.message
+                : String(collectionError),
+            complete: null,
+            currentSrc: null,
+            dataArtReady: null,
+            naturalWidth: null,
+          }));
+
+        if (error instanceof Error) {
+          error.message = `Card art state at readiness timeout: ${JSON.stringify(imageState)}\n\n${error.message}`;
+        }
+
+        throw error;
+      }
 
       const decodedImage = await art.evaluate((element) => {
         const image = element as HTMLImageElement;
