@@ -472,6 +472,9 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
     "href",
     "/ko/relationship-flow?source=naver&campaign=topic-guide",
   );
+  await expect(
+    page.getByRole("link", { name: "tarot-spark" }).first(),
+  ).toHaveAttribute("href", "/?source=naver&campaign=topic-guide");
 
   await page.goto(
     "/share?topic=relationship-flow&style=relational&cards=the-fool,the-lovers,the-star&source=copy&campaign=vertical-slice",
@@ -488,6 +491,17 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
     await page.locator('link[rel="canonical"]').getAttribute("href"),
     "/relationship-flow",
   );
+  const openGraphUrl = await page
+    .locator('meta[property="og:url"]')
+    .getAttribute("content");
+  expect(openGraphUrl).not.toBeNull();
+  expect(new URL(openGraphUrl ?? "http://localhost").pathname).toBe("/share");
+  expect(
+    new URL(openGraphUrl ?? "http://localhost").searchParams.has("source"),
+  ).toBe(false);
+  expect(
+    new URL(openGraphUrl ?? "http://localhost").searchParams.has("campaign"),
+  ).toBe(false);
   const imageUrl = await page
     .locator('meta[property="og:image"]')
     .getAttribute("content");
@@ -496,16 +510,39 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
     "/api/share-image",
   );
   const localImageUrl = new URL(imageUrl ?? "http://localhost/api/share-image");
+  expect(localImageUrl.searchParams.get("v")).toBe("1");
   const imageResponse = await request.get(
     `${localImageUrl.pathname}${localImageUrl.search}`,
   );
   expect(imageResponse.ok()).toBe(true);
   expect(imageResponse.headers()["content-type"]).toContain("image/png");
+  expect(imageResponse.headers()["cache-control"]).toContain(
+    "max-age=31536000",
+  );
+  expect(imageResponse.headers()["cache-control"]).toContain("immutable");
+
+  const deepImageResponse = await request.get(
+    "/api/share-image?v=1&locale=en&topic=relationship-flow&spread=deep&style=relational&cards=the-fool,the-magician,the-high-priestess,the-empress,the-emperor,the-lovers",
+  );
+  const deepImageBody = await deepImageResponse.body();
+  expect(deepImageResponse.ok()).toBe(true);
+  expect(Array.from(deepImageBody.subarray(0, 8))).toEqual([
+    137, 80, 78, 71, 13, 10, 26, 10,
+  ]);
+  expect(deepImageBody.readUInt32BE(16)).toBe(1200);
+  expect(deepImageBody.readUInt32BE(20)).toBe(630);
+
   const koreanImageResponse = await request.get(
     "/api/share-image?locale=ko&topic=relationship-flow&spread=quick&style=relational&cards=the-fool,the-lovers,the-star",
   );
   expect(koreanImageResponse.ok()).toBe(true);
   expect(koreanImageResponse.headers()["content-type"]).toContain("image/png");
+  expect(koreanImageResponse.headers()["cache-control"]).toContain(
+    "s-maxage=86400",
+  );
+  expect(koreanImageResponse.headers()["cache-control"]).not.toContain(
+    "immutable",
+  );
 
   await page.goto(
     "/share?topic=relationship-flow&cards=the-fool,the-lovers,the-star&context=private",

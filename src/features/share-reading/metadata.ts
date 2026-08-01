@@ -2,11 +2,18 @@ import "server-only";
 
 import type { Metadata } from "next";
 import { getRelationshipFlowPath } from "@/features/relationship-flow";
-import { getTarotReadingCopy } from "@/features/tarot-reading";
+import {
+  getLocalizedShareReadingHref,
+  getTarotReadingCopy,
+} from "@/features/tarot-reading";
 import type { Locale } from "@/i18n/config";
 import { shareReadingPathSegment } from "@/i18n/routing";
 import { getAbsoluteSiteUrl, getSiteUrl } from "@/i18n/seo";
 import { formatTemplateStrict } from "@/i18n/template";
+import {
+  shareImageVersion,
+  shareImageVersionParam,
+} from "./share-image-config";
 import { getShareReadingSnapshot, type ShareSearchParams } from "./state";
 
 export function getShareReadingPath(locale: Locale) {
@@ -49,6 +56,9 @@ export function getShareReadingMetadata(
   );
   const title = `${snapshot.topic.label}: ${cardNames} | ${copy.shareTitle}`;
   const imageUrl = getShareImageUrl(locale, snapshot);
+  const openGraphUrl = getAbsoluteSiteUrl(
+    getLocalizedShareReadingHref(locale, snapshot.state),
+  );
 
   return {
     alternates: {
@@ -70,7 +80,7 @@ export function getShareReadingMetadata(
       siteName: "tarot-spark",
       title,
       type: "website",
-      url: canonicalUrl,
+      url: openGraphUrl,
     },
     robots,
     title,
@@ -88,6 +98,7 @@ function getShareImageUrl(
   snapshot: NonNullable<ReturnType<typeof getShareReadingSnapshot>>,
 ) {
   const url = new URL("/api/share-image", getSiteUrl());
+  url.searchParams.set(shareImageVersionParam, shareImageVersion);
   url.searchParams.set("locale", locale);
   url.searchParams.set("topic", snapshot.topic.id);
   url.searchParams.set("spread", snapshot.spread.id);

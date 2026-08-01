@@ -15,6 +15,7 @@ import {
   clearAnalyticsReady,
 } from "@/features/tarot-reading/analytics";
 import {
+  getReadingAttributionFromUrl,
   shareCampaignIds,
   shareSourceIds,
 } from "@/features/tarot-reading/reading-state";
@@ -104,9 +105,11 @@ export function GoogleAnalyticsEvents({
   const pathname = usePathname();
 
   useEffect(() => {
+    const pageUrl = getAnalyticsPageUrl(pathname, window.location.href);
+
     sendGtag("config", measurementId, {
-      page_location: `${window.location.origin}${pathname}`,
-      page_path: pathname,
+      page_location: pageUrl.toString(),
+      page_path: `${pageUrl.pathname}${pageUrl.search}`,
       page_title: document.title,
       send_page_view: true,
     });
@@ -133,6 +136,19 @@ export function GoogleAnalyticsEvents({
   }, []);
 
   return null;
+}
+
+function getAnalyticsPageUrl(pathname: string, href: string) {
+  const currentUrl = new URL(href);
+  const pageUrl = new URL(pathname, currentUrl.origin);
+  const attribution = getReadingAttributionFromUrl(href);
+
+  if (attribution) {
+    pageUrl.searchParams.set("source", attribution.sourceId);
+    pageUrl.searchParams.set("campaign", attribution.campaignId);
+  }
+
+  return pageUrl;
 }
 
 function sendGtag(...args: GtagArguments) {

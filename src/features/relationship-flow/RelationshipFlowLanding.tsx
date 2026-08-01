@@ -11,13 +11,11 @@ import {
   getPublicPageLinks,
   getPublicPageShellCopy,
 } from "@/features/public-pages";
-import type { ReadingUrlAttribution } from "@/features/tarot-reading/reading-state";
 import {
-  getLocalePath,
-  localeNames,
-  supportedLocales,
-  type Locale,
-} from "@/i18n/config";
+  getLocalizedGeneratorHref,
+  type ReadingUrlAttribution,
+} from "@/features/tarot-reading";
+import { localeNames, supportedLocales, type Locale } from "@/i18n/config";
 import {
   getRelationshipFlowCopy,
   getRelationshipFlowPath,
@@ -40,7 +38,10 @@ export function RelationshipFlowLanding({
     <main className="min-h-screen bg-ts-canvas text-ts-ink">
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-5 py-6 sm:px-8 lg:py-10">
         <header className="flex flex-col gap-4 border-b border-ts-divider pb-6 sm:flex-row sm:items-center sm:justify-between">
-          <Link className={brandLinkClassName} href={getLocalePath(locale)}>
+          <Link
+            className={brandLinkClassName}
+            href={getLocalizedGeneratorHref(locale, attribution)}
+          >
             {shellCopy.brand}
           </Link>
           <LocaleSwitch
