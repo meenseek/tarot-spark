@@ -8,6 +8,8 @@ import {
 } from "@/features/tarot-reading/analytics";
 import { GoogleAnalyticsEvents } from "./GoogleAnalyticsEvents";
 
+const originalUrl = window.location.href;
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/ko",
 }));
@@ -18,6 +20,47 @@ describe("GoogleAnalyticsEvents", () => {
     vi.restoreAllMocks();
     Reflect.deleteProperty(window, "gtag");
     Reflect.deleteProperty(window, "dataLayer");
+    window.history.replaceState(null, "", originalUrl);
+  });
+
+  it("keeps only complete allowlisted attribution in acquisition page views", () => {
+    const calls = mockGtag();
+    window.history.replaceState(
+      null,
+      "",
+      "/ko?source=naver&campaign=topic-guide&context=private&topic=love&cards=the-fool",
+    );
+
+    render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
+
+    expect(calls).toContainEqual([
+      "config",
+      "G-TEST1234",
+      expect.objectContaining({
+        page_location: `${window.location.origin}/ko?source=naver&campaign=topic-guide`,
+        page_path: "/ko?source=naver&campaign=topic-guide",
+      }),
+    ]);
+  });
+
+  it("drops the whole attribution pair when it is incomplete or ambiguous", () => {
+    const calls = mockGtag();
+    window.history.replaceState(
+      null,
+      "",
+      "/ko?source=instagram&source=copy&campaign=vertical-slice&context=private",
+    );
+
+    render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
+
+    expect(calls).toContainEqual([
+      "config",
+      "G-TEST1234",
+      expect.objectContaining({
+        page_location: `${window.location.origin}/ko`,
+        page_path: "/ko",
+      }),
+    ]);
   });
 
   it("sends page views with the active route", () => {

@@ -4,6 +4,12 @@ import path from "node:path";
 import { cardArtSources } from "@/components/visual/tarot-card-art-sources";
 import type { TarotCardId } from "@/domain/tarot";
 import { getShareReadingSnapshot } from "@/features/share-reading";
+import {
+  legacyShareImageCacheControl,
+  shareImageVersion,
+  shareImageVersionParam,
+  versionedShareImageCacheControl,
+} from "@/features/share-reading/share-image-config";
 import { defaultLocale, isLocale } from "@/i18n/config";
 
 export type ShareImageModel = {
@@ -22,6 +28,9 @@ export function getShareImageResponse(request: Request) {
   const hasDeepSpread = model.cardArtUrls.length > 3;
   const cardWidth = hasDeepSpread ? 150 : 250;
   const cardHeight = hasDeepSpread ? 210 : 350;
+  const isVersioned =
+    new URL(request.url).searchParams.get(shareImageVersionParam) ===
+    shareImageVersion;
 
   return new ImageResponse(
     <div
@@ -105,6 +114,11 @@ export function getShareImageResponse(request: Request) {
     </div>,
     {
       height: 630,
+      headers: {
+        "Cache-Control": isVersioned
+          ? versionedShareImageCacheControl
+          : legacyShareImageCacheControl,
+      },
       width: 1200,
     },
   );
@@ -115,6 +129,14 @@ export function getShareImageModel(
 ): ShareImageModel | Response {
   const url = new URL(request.url);
   const localeParam = url.searchParams.get("locale");
+  const versionValues = url.searchParams.getAll(shareImageVersionParam);
+
+  if (
+    versionValues.length > 1 ||
+    (versionValues.length === 1 && versionValues[0] !== shareImageVersion)
+  ) {
+    return new Response("Invalid share image version", { status: 400 });
+  }
 
   if (
     url.searchParams.getAll("locale").length > 1 ||
@@ -127,7 +149,7 @@ export function getShareImageModel(
   const searchParams: Record<string, string | readonly string[]> = {};
 
   for (const key of new Set(url.searchParams.keys())) {
-    if (key === "locale") {
+    if (key === "locale" || key === shareImageVersionParam) {
       continue;
     }
 
