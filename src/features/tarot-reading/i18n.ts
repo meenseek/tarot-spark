@@ -30,6 +30,11 @@ export type TarotReadingMessages = {
   readonly drawStatus: string;
   readonly workspaceLabel: string;
   readonly cardMarkLabel: string;
+  readonly sharedReading: {
+    readonly heading: string;
+    readonly intro: string;
+    readonly createOwn: string;
+  };
   readonly instantReading: {
     readonly heading: string;
     readonly intro: string;
@@ -145,6 +150,7 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     placeholderCardTone: copy.placeholderCardTone,
     promptPack: copy.promptPack,
     readingStyleSelectorLabel: copy.readingStyleSelectorLabel,
+    sharedReading: copy.sharedReading,
     share: copy.share,
     shared: copy.shared,
     shareText: copy.shareText,

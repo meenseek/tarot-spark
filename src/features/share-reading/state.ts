@@ -80,6 +80,7 @@ export function getShareReadingSnapshot(
     cards: state.cards,
     readingStyle,
     spread,
+    state,
     topic,
   };
 }

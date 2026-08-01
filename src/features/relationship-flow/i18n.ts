@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getLocalePath, type Locale } from "@/i18n/config";
 import { relationshipFlowPathSegment } from "@/i18n/routing";
 import { getAbsoluteSiteUrl, withLocalizedAlternates } from "@/i18n/seo";
+import type { ReadingUrlAttribution } from "@/features/tarot-reading/reading-state";
 import enMessages from "@/messages/en/relationship-flow.json";
 import koMessages from "@/messages/ko/relationship-flow.json";
 
@@ -50,16 +51,42 @@ export function getRelationshipFlowCopy(locale: Locale) {
   return messagesByLocale[locale];
 }
 
-export function getRelationshipFlowPath(locale: Locale) {
+export function getRelationshipFlowPath(
+  locale: Locale,
+  attribution?: ReadingUrlAttribution,
+) {
   const localePath = getLocalePath(locale);
+  const pathname =
+    localePath === "/"
+      ? `/${relationshipFlowPathSegment}`
+      : `${localePath}/${relationshipFlowPathSegment}`;
 
-  return localePath === "/"
-    ? `/${relationshipFlowPathSegment}`
-    : `${localePath}/${relationshipFlowPathSegment}`;
+  return appendAttribution(pathname, attribution);
 }
 
-export function getRelationshipFlowReadingPath(locale: Locale) {
-  return `${getLocalePath(locale)}?topic=relationship-flow&spread=deep&style=relational`;
+export function getRelationshipFlowReadingPath(
+  locale: Locale,
+  attribution?: ReadingUrlAttribution,
+) {
+  return appendAttribution(
+    `${getLocalePath(locale)}?topic=relationship-flow&spread=deep&style=relational`,
+    attribution,
+  );
+}
+
+function appendAttribution(
+  href: string,
+  attribution: ReadingUrlAttribution | undefined,
+) {
+  if (!attribution) {
+    return href;
+  }
+
+  const url = new URL(href, "https://tarot-spark.local");
+  url.searchParams.set("source", attribution.sourceId);
+  url.searchParams.set("campaign", attribution.campaignId);
+
+  return `${url.pathname}${url.search}`;
 }
 
 export function getRelationshipFlowMetadata(locale: Locale): Metadata {

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 import {
   primaryButtonClassName,
   secondaryButtonClassName,
@@ -34,6 +35,7 @@ type ReadingResultProps = {
   readonly selectedTopic: Topic;
   readonly shareState: ShareState;
   readonly urlCopyState: CopyState;
+  readonly afterActions?: ReactNode;
   readonly onInstagramShare: () => void;
   readonly onGenerateInstantReading: () => void;
   readonly onKakaoShare: () => void;
@@ -44,6 +46,7 @@ type ReadingResultProps = {
 };
 
 export function ReadingResult({
+  afterActions,
   cards,
   copy,
   copyState,
@@ -92,61 +95,6 @@ export function ReadingResult({
               status={instantReadingStatus}
             />
           )}
-
-          <div className="grid gap-3">
-            {cards.map(({ position, card }) => (
-              <article
-                className="grid gap-4 rounded-ts-control border border-ts-divider bg-ts-canvas p-4"
-                key={`${position.id}-${card.id}`}
-              >
-                <div className="grid gap-1 border-b border-ts-divider pb-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ts-action">
-                    {position.label}
-                  </p>
-                  <h3 className="font-ts-display text-xl font-semibold text-ts-ink">
-                    {card.name}
-                  </h3>
-                  <p className="text-sm text-ts-muted">
-                    {copy.cardDetails.archetype}: {card.archetype}
-                  </p>
-                </div>
-
-                <div className="grid gap-4 text-sm sm:grid-cols-2">
-                  <CardDetail
-                    label={copy.cardDetails.keywords}
-                    value={card.keywords.join(" · ")}
-                  />
-                  <CardDetail
-                    label={copy.cardDetails.symbols}
-                    value={card.symbols.join(" · ")}
-                  />
-                  <CardDetail
-                    label={copy.cardDetails.light}
-                    value={card.light}
-                  />
-                  <CardDetail
-                    label={copy.cardDetails.shadow}
-                    value={card.shadow}
-                  />
-                </div>
-
-                <div className="grid gap-3 rounded-ts-inset border border-ts-divider bg-ts-surface p-4">
-                  <CardDetail
-                    label={copy.cardDetails.agency}
-                    value={card.agency}
-                  />
-                  <CardDetail
-                    label={copy.cardDetails.caution}
-                    value={card.caution}
-                  />
-                  <CardDetail
-                    label={copy.cardDetails.reflection}
-                    value={card.reflection}
-                  />
-                </div>
-              </article>
-            ))}
-          </div>
 
           {readingLens && (
             <p className="text-sm font-semibold text-ts-action">
@@ -294,6 +242,63 @@ export function ReadingResult({
               {copy.blockedAction}
             </p>
           )}
+
+          {afterActions}
+
+          <div className="grid gap-3" data-testid="card-detail-list">
+            {cards.map(({ position, card }) => (
+              <article
+                className="grid gap-4 rounded-ts-control border border-ts-divider bg-ts-canvas p-4"
+                key={`${position.id}-${card.id}`}
+              >
+                <div className="grid gap-1 border-b border-ts-divider pb-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ts-action">
+                    {position.label}
+                  </p>
+                  <h3 className="font-ts-display text-xl font-semibold text-ts-ink">
+                    {card.name}
+                  </h3>
+                  <p className="text-sm text-ts-muted">
+                    {copy.cardDetails.archetype}: {card.archetype}
+                  </p>
+                </div>
+
+                <div className="grid gap-4 text-sm sm:grid-cols-2">
+                  <CardDetail
+                    label={copy.cardDetails.keywords}
+                    value={card.keywords.join(" · ")}
+                  />
+                  <CardDetail
+                    label={copy.cardDetails.symbols}
+                    value={card.symbols.join(" · ")}
+                  />
+                  <CardDetail
+                    label={copy.cardDetails.light}
+                    value={card.light}
+                  />
+                  <CardDetail
+                    label={copy.cardDetails.shadow}
+                    value={card.shadow}
+                  />
+                </div>
+
+                <div className="grid gap-3 rounded-ts-inset border border-ts-divider bg-ts-surface p-4">
+                  <CardDetail
+                    label={copy.cardDetails.agency}
+                    value={card.agency}
+                  />
+                  <CardDetail
+                    label={copy.cardDetails.caution}
+                    value={card.caution}
+                  />
+                  <CardDetail
+                    label={copy.cardDetails.reflection}
+                    value={card.reflection}
+                  />
+                </div>
+              </article>
+            ))}
+          </div>
         </>
       ) : (
         <div className="rounded-ts-control border border-ts-divider bg-ts-canvas p-4">

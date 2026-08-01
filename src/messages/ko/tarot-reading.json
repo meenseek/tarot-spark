@@ -21,6 +21,11 @@
   "drawStatus": "카드 {count}장을 뽑았습니다.",
   "workspaceLabel": "뽑은 카드와 AI 질문",
   "cardMarkLabel": "타로 카드 그림",
+  "sharedReading": {
+    "heading": "누군가 tarot-spark 리딩을 공유했어요.",
+    "intro": "뽑힌 카드와 AI 질문을 먼저 살펴보세요. 질문을 복사하거나, 별도의 내 리딩을 새로 만들 수 있어요.",
+    "createOwn": "내 카드도 뽑기"
+  },
   "instantReading": {
     "heading": "카드의 흐름 바로 읽기",
     "intro": "뽑은 카드와 선택한 방식만으로 하나의 흐름을 정리해 드려요. 따로 적은 상황은 보내거나 해석에 사용하지 않습니다.",

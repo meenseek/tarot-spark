@@ -54,6 +54,11 @@ export type ReadingUrlAttribution = {
   readonly sourceId: ShareSourceId;
 };
 
+export type ReadingSearchParams = Record<
+  string,
+  string | readonly string[] | undefined
+>;
+
 export function buildReadingUrl(
   href: string,
   state: ReadingUrlState,
@@ -102,6 +107,35 @@ export function getLocalizedReadingHref(
   return `${url.pathname}${url.search}`;
 }
 
+export function getLocalizedShareReadingHref(
+  locale: Locale,
+  state: ReadingUrlState,
+  attribution?: ReadingUrlAttribution,
+) {
+  const absoluteUrl = buildReadingUrl(
+    getShareBaseUrl("https://tarot-spark.local", locale),
+    state,
+    attribution,
+  );
+  const url = new URL(absoluteUrl);
+
+  return `${url.pathname}${url.search}`;
+}
+
+export function getLocalizedGeneratorHref(
+  locale: Locale,
+  attribution?: ReadingUrlAttribution,
+) {
+  const url = new URL(getLocalePath(locale), "https://tarot-spark.local");
+
+  if (attribution) {
+    url.searchParams.set(shareSourceParam, attribution.sourceId);
+    url.searchParams.set(shareCampaignParam, attribution.campaignId);
+  }
+
+  return `${url.pathname}${url.search}`;
+}
+
 export function getReadingAttributionFromUrl(
   href: string,
 ): ReadingUrlAttribution | null | undefined {
@@ -127,6 +161,24 @@ export function getReadingAttributionFromUrl(
     !isShareCampaignId(campaignId)
   ) {
     return null;
+  }
+
+  return { campaignId, sourceId };
+}
+
+export function getReadingAttributionFromSearchParams(
+  searchParams: ReadingSearchParams,
+): ReadingUrlAttribution | undefined {
+  const sourceId = searchParams[shareSourceParam];
+  const campaignId = searchParams[shareCampaignParam];
+
+  if (
+    typeof sourceId !== "string" ||
+    typeof campaignId !== "string" ||
+    !isShareSourceId(sourceId) ||
+    !isShareCampaignId(campaignId)
+  ) {
+    return undefined;
   }
 
   return { campaignId, sourceId };

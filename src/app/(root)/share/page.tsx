@@ -22,9 +22,18 @@ export async function generateMetadata({
 export default async function ShareReadingPage({
   searchParams,
 }: ShareReadingPageProps) {
-  if (!getShareReadingSnapshot(defaultLocale, await searchParams)) {
+  const snapshot = getShareReadingSnapshot(defaultLocale, await searchParams);
+
+  if (!snapshot) {
     redirect(getRelationshipFlowPath(defaultLocale));
   }
 
-  return <TarotExperience locale={defaultLocale} />;
+  return (
+    <TarotExperience
+      initialAttribution={snapshot.attribution}
+      initialReadingState={snapshot.state}
+      locale={defaultLocale}
+      viewMode="shared"
+    />
+  );
 }

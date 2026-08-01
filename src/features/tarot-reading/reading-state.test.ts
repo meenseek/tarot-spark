@@ -6,6 +6,9 @@ import {
   clearPrivateContextHandoff,
   consumePrivateContextHandoff,
   getLocalizedReadingHref,
+  getLocalizedGeneratorHref,
+  getLocalizedShareReadingHref,
+  getReadingAttributionFromSearchParams,
   getReadingAttributionFromUrl,
   getReadingStateFromUrl,
   readPrivateContextHandoff,
@@ -78,6 +81,27 @@ describe("reading URL state", () => {
     }
   });
 
+  it("parses only one complete allowlisted server search-param pair", () => {
+    expect(
+      getReadingAttributionFromSearchParams({
+        campaign: "topic-guide",
+        source: "naver",
+      }),
+    ).toEqual({ campaignId: "topic-guide", sourceId: "naver" });
+
+    for (const searchParams of [
+      { source: "naver" },
+      { campaign: "topic-guide" },
+      { campaign: "topic-guide", source: "private" },
+      { campaign: "topic-guide", source: ["naver", "threads"] },
+      { campaign: ["topic-guide", "vertical-slice"], source: "naver" },
+    ]) {
+      expect(
+        getReadingAttributionFromSearchParams(searchParams),
+      ).toBeUndefined();
+    }
+  });
+
   it("restores legacy three-card URLs as the quick balanced reading", () => {
     const restored = getReadingStateFromUrl(
       tarotData,
@@ -132,6 +156,27 @@ describe("reading URL state", () => {
 
     expect(url.searchParams.get("source")).toBe("threads");
     expect(url.searchParams.get("campaign")).toBe("prompt-education");
+  });
+
+  it("keeps a shared snapshot on localized share routes", () => {
+    expect(
+      getLocalizedShareReadingHref("ko", createState("quick", "balanced"), {
+        campaignId: "vertical-slice",
+        sourceId: "copy",
+      }),
+    ).toBe(
+      "/ko/share?topic=love&cards=the-fool%2Cthe-magician%2Cthe-high-priestess&source=copy&campaign=vertical-slice",
+    );
+  });
+
+  it("builds a clean generator CTA with attribution only", () => {
+    expect(
+      getLocalizedGeneratorHref("ko", {
+        campaignId: "vertical-slice",
+        sourceId: "instagram",
+      }),
+    ).toBe("/ko?source=instagram&campaign=vertical-slice");
+    expect(getLocalizedGeneratorHref("en")).toBe("/");
   });
 
   function createState(

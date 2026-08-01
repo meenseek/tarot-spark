@@ -9,12 +9,17 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   announceAnalyticsReady,
   clearAnalyticsReady,
 } from "@/features/tarot-reading/analytics";
-import { TarotExperience } from "@/features/tarot-reading";
+import {
+  getReadingStateFromUrl,
+  TarotExperience,
+} from "@/features/tarot-reading";
+import { storePrivateContextHandoff } from "@/features/tarot-reading/reading-state";
+import { getTarotData } from "@/i18n/tarot-data";
 import Home from "./(root)/page";
 
 const originalExecCommand = document.execCommand;
@@ -34,8 +39,14 @@ const kakaoSdkScriptUrl =
   "https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js";
 const kakaoSdkIntegrity =
   "sha384-OL+ylM/iuPLtW5U3XcvLSGhE8JzReKDank5InqlHGWPhb4140/yrBw0bg0y7+C9J";
+const testIntersectionObservers = new Set<TestIntersectionObserver>();
 
 describe("Home", () => {
+  beforeEach(() => {
+    testIntersectionObservers.clear();
+    vi.stubGlobal("IntersectionObserver", TestIntersectionObserver);
+  });
+
   afterEach(() => {
     cleanup();
     vi.useRealTimers();
@@ -52,6 +63,7 @@ describe("Home", () => {
     window.history.replaceState(null, "", originalUrl);
     window.sessionStorage.clear();
     clearAnalyticsReady();
+    vi.unstubAllGlobals();
 
     if (originalExecCommand) {
       document.execCommand = originalExecCommand;
@@ -105,10 +117,21 @@ describe("Home", () => {
       "href",
       "/privacy",
     );
+    expect(
+      screen
+        .getByRole("button", { name: "Draw cards" })
+        .compareDocumentPosition(
+          screen.getByTestId("reading-preferences-toggle"),
+        ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(screen.getByTestId("reading-preferences")).not.toHaveAttribute(
+      "open",
+    );
   });
 
   it("renders Korean localized content", () => {
     render(<TarotExperience locale="ko" />);
+    openReadingPreferences();
 
     expect(
       screen.getByRole("heading", {
@@ -147,6 +170,7 @@ describe("Home", () => {
       .mockResolvedValue(Response.json({ reading }));
 
     render(<TarotExperience locale="ko" />);
+    openReadingPreferences();
 
     fireEvent.change(
       screen.getByRole("textbox", { name: /지금 고민하는 상황/ }),
@@ -236,6 +260,7 @@ describe("Home", () => {
 
   it("matches the context example to every selected topic", () => {
     render(<Home />);
+    openReadingPreferences();
 
     const context = screen.getByLabelText(/Situation or relationship context/);
     const topicExamples = [
@@ -361,6 +386,12 @@ describe("Home", () => {
       }),
     ).toBeInTheDocument();
     expect(
+      screen
+        .getByRole("heading", { name: "Choose the prompt you need next" })
+        .compareDocumentPosition(screen.getByTestId("card-detail-list")) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
       screen.queryByRole("button", {
         name: "KakaoTalk",
       }),
@@ -401,6 +432,7 @@ describe("Home", () => {
       expect(drawStatus).toHaveTextContent("3 cards drawn.");
     });
 
+    openReadingPreferences();
     fireEvent.click(
       screen.getByRole("radio", { name: /Direct, not deterministic/ }),
     );
@@ -495,6 +527,88 @@ describe("Home", () => {
     );
   });
 
+  it("preserves a direct safe attribution pair before a reading is selected", async () => {
+    window.history.replaceState(
+      null,
+      "",
+      "/?source=naver&campaign=topic-guide",
+    );
+
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "한국어" })).toHaveAttribute(
+        "href",
+        "/ko?topic=love&source=naver&campaign=topic-guide",
+      );
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+    expect(window.location.search).toContain("source=naver");
+    expect(window.location.search).toContain("campaign=topic-guide");
+  });
+
+  it("renders a server-seeded shared result without generator controls or private handoff", async () => {
+    const initialReadingState = getReadingStateFromUrl(
+      getTarotData("en"),
+      "https://tarot-spark.local/share?topic=relationship-flow&style=relational&cards=the-fool,the-lovers,the-star",
+    );
+
+    expect(initialReadingState).toBeDefined();
+    storePrivateContextHandoff(
+      window.sessionStorage,
+      "Stale private context that must not enter a shared reading.",
+    );
+
+    render(
+      <TarotExperience
+        initialAttribution={{
+          campaignId: "vertical-slice",
+          sourceId: "instagram",
+        }}
+        initialReadingState={initialReadingState}
+        locale="en"
+        viewMode="shared"
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", {
+        name: "A tarot-spark reading was shared with you.",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Generated prompt")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Draw cards" })).toBeNull();
+    expect(screen.queryByTestId("reading-preferences")).toBeNull();
+
+    const createOwnLink = screen.getByRole("link", {
+      name: "Create your own reading",
+    });
+    expect(createOwnLink).toHaveAttribute(
+      "href",
+      "/?source=instagram&campaign=vertical-slice",
+    );
+    expect(
+      screen
+        .getByLabelText("Generated prompt")
+        .compareDocumentPosition(createOwnLink) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      createOwnLink.compareDocumentPosition(
+        screen.getByTestId("card-detail-list"),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(screen.getByRole("link", { name: "한국어" })).toHaveAttribute(
+      "href",
+      "/ko/share?topic=relationship-flow&style=relational&cards=the-fool%2Cthe-lovers%2Cthe-star&source=instagram&campaign=vertical-slice",
+    );
+
+    await waitFor(() => {
+      expect(window.sessionStorage.length).toBe(0);
+    });
+  });
+
   it("preserves share attribution and emits one restored result after analytics is ready", async () => {
     const events: {
       readonly name: string;
@@ -517,11 +631,12 @@ describe("Home", () => {
 
     try {
       render(<Home />);
-      announceAnalyticsReady();
 
       await waitFor(() => {
         expect(screen.getByLabelText("Generated prompt")).toBeVisible();
       });
+      setReadingResultIntersection(true);
+      announceAnalyticsReady();
       expect(events.filter(({ name }) => name === "result_view")).toEqual([
         {
           name: "result_view",
@@ -562,6 +677,7 @@ describe("Home", () => {
   it("builds a contextual direct six-card prompt without exposing context", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     render(<Home />);
+    openReadingPreferences();
 
     fireEvent.click(screen.getByRole("radio", { name: /Deep 6-card/ }));
     fireEvent.click(
@@ -604,6 +720,7 @@ describe("Home", () => {
   it("preserves private context once during same-tab locale switching", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     render(<Home />);
+    openReadingPreferences();
 
     fireEvent.change(
       screen.getByRole("textbox", {
@@ -632,6 +749,7 @@ describe("Home", () => {
         <TarotExperience locale="ko" />
       </StrictMode>,
     );
+    openReadingPreferences();
 
     await waitFor(() => {
       expect(
@@ -675,10 +793,12 @@ describe("Home", () => {
     window.addEventListener("tarot_spark_event", listener);
 
     try {
+      announceAnalyticsReady();
       render(<Home />);
 
       fireEvent.click(screen.getByRole("button", { name: "Reunion 3 cards" }));
       fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+      setReadingResultIntersection(true);
 
       expect(events).toContainEqual({
         name: "topic_click",
@@ -714,6 +834,102 @@ describe("Home", () => {
           style_id: "balanced",
         },
       });
+    } finally {
+      window.removeEventListener("tarot_spark_event", listener);
+    }
+  });
+
+  it("does not backfill a result that left view before analytics became ready", async () => {
+    const events: { readonly name: string }[] = [];
+    const listener = (event: Event) => {
+      events.push((event as CustomEvent).detail);
+    };
+    window.history.replaceState(
+      null,
+      "",
+      "/?topic=love&cards=the-fool,the-magician,the-high-priestess",
+    );
+    window.addEventListener("tarot_spark_event", listener);
+
+    try {
+      render(<Home />);
+      await waitFor(() => {
+        expect(screen.getByLabelText("Generated prompt")).toBeVisible();
+      });
+
+      setReadingResultIntersection(true);
+      setReadingResultIntersection(false);
+      announceAnalyticsReady();
+
+      expect(events.filter(({ name }) => name === "result_view")).toHaveLength(
+        0,
+      );
+
+      setReadingResultIntersection(true);
+      expect(events.filter(({ name }) => name === "result_view")).toHaveLength(
+        1,
+      );
+    } finally {
+      window.removeEventListener("tarot_spark_event", listener);
+    }
+  });
+
+  it("counts identical user redraws once per draw sequence", () => {
+    const events: { readonly name: string }[] = [];
+    const listener = (event: Event) => {
+      events.push((event as CustomEvent).detail);
+    };
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    window.addEventListener("tarot_spark_event", listener);
+
+    try {
+      announceAnalyticsReady();
+      render(<Home />);
+
+      fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+      setReadingResultIntersection(true);
+      setReadingResultIntersection(true);
+
+      fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+      setReadingResultIntersection(true);
+
+      expect(events.filter(({ name }) => name === "result_view")).toHaveLength(
+        2,
+      );
+    } finally {
+      window.removeEventListener("tarot_spark_event", listener);
+    }
+  });
+
+  it("does not duplicate a restored result across Strict Mode effect remounts", async () => {
+    const events: { readonly name: string }[] = [];
+    const listener = (event: Event) => {
+      events.push((event as CustomEvent).detail);
+    };
+    window.history.replaceState(
+      null,
+      "",
+      "/?topic=love&cards=the-fool,the-magician,the-high-priestess",
+    );
+    window.addEventListener("tarot_spark_event", listener);
+
+    try {
+      announceAnalyticsReady();
+      render(
+        <StrictMode>
+          <Home />
+        </StrictMode>,
+      );
+      await waitFor(() => {
+        expect(screen.getByLabelText("Generated prompt")).toBeVisible();
+      });
+
+      setReadingResultIntersection(true);
+      setReadingResultIntersection(true);
+
+      expect(events.filter(({ name }) => name === "result_view")).toHaveLength(
+        1,
+      );
     } finally {
       window.removeEventListener("tarot_spark_event", listener);
     }
@@ -1120,6 +1336,56 @@ function renderDrawnReading() {
 
   render(<Home />);
   fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+}
+
+function openReadingPreferences() {
+  fireEvent.click(screen.getByTestId("reading-preferences-toggle"));
+}
+
+function setReadingResultIntersection(isIntersecting: boolean) {
+  act(() => {
+    for (const observer of testIntersectionObservers) {
+      observer.emit(isIntersecting);
+    }
+  });
+}
+
+class TestIntersectionObserver {
+  readonly root = null;
+  readonly rootMargin = "0px";
+  readonly thresholds = [0.01];
+  private readonly targets = new Set<Element>();
+
+  constructor(private readonly callback: IntersectionObserverCallback) {
+    testIntersectionObservers.add(this);
+  }
+
+  disconnect() {
+    this.targets.clear();
+    testIntersectionObservers.delete(this);
+  }
+
+  observe(target: Element) {
+    this.targets.add(target);
+  }
+
+  takeRecords() {
+    return [];
+  }
+
+  unobserve(target: Element) {
+    this.targets.delete(target);
+  }
+
+  emit(isIntersecting: boolean) {
+    const entries = [...this.targets].map((target) => ({
+      intersectionRatio: isIntersecting ? 1 : 0,
+      isIntersecting,
+      target,
+    })) as IntersectionObserverEntry[];
+
+    this.callback(entries, this as unknown as IntersectionObserver);
+  }
 }
 
 function restoreEnv(key: string, value: string | undefined) {

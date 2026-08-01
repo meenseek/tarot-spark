@@ -9,13 +9,22 @@ import { getDailyQuestionPath } from "@/features/daily-question";
 import { isInstantReadingEnabled } from "@/server/instant-reading-config";
 import { TarotExperienceClient } from "./TarotExperienceClient";
 import { getTarotReadingCopy } from "./i18n";
+import type { ReadingUrlAttribution, ReadingUrlState } from "./reading-state";
+
+export type TarotExperienceViewMode = "generator" | "shared";
 
 type TarotExperienceProps = {
+  readonly initialAttribution?: ReadingUrlAttribution | undefined;
+  readonly initialReadingState?: ReadingUrlState | undefined;
   readonly locale?: Locale;
+  readonly viewMode?: TarotExperienceViewMode;
 };
 
 export function TarotExperience({
+  initialAttribution,
+  initialReadingState,
   locale = defaultLocale,
+  viewMode = "generator",
 }: TarotExperienceProps) {
   const publicPageShellCopy = getPublicPageShellCopy(locale);
 
@@ -24,6 +33,8 @@ export function TarotExperience({
       copy={getTarotReadingCopy(locale)}
       dailyQuestionPath={getDailyQuestionPath(locale)}
       instantReadingEnabled={locale === "ko" && isInstantReadingEnabled()}
+      initialAttribution={initialAttribution}
+      initialReadingState={initialReadingState}
       kakaoAllowedOrigins={getKakaoAllowedOrigins()}
       kakaoJavaScriptKey={getKakaoJavaScriptKey()}
       locale={locale}
@@ -31,6 +42,7 @@ export function TarotExperience({
       publicPageNavigationLabel={publicPageShellCopy.pageNavigationLabel}
       shareSiteUrl={getShareSiteUrl().toString()}
       tarotData={getTarotData(locale)}
+      viewMode={viewMode}
     />
   );
 }

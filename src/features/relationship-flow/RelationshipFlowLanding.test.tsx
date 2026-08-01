@@ -48,4 +48,26 @@ describe("RelationshipFlowLanding", () => {
       "/ko?topic=relationship-flow&spread=deep&style=relational",
     );
   });
+
+  it("preserves only a typed attribution pair through locale and generator links", () => {
+    render(
+      <RelationshipFlowLanding
+        attribution={{ campaignId: "topic-guide", sourceId: "naver" }}
+        locale="ko"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "English" })).toHaveAttribute(
+      "href",
+      "/relationship-flow?source=naver&campaign=topic-guide",
+    );
+    expect(
+      screen.getAllByRole("link", {
+        name: "관계 흐름 카드 뽑으러 가기",
+      })[0],
+    ).toHaveAttribute(
+      "href",
+      "/ko?topic=relationship-flow&spread=deep&style=relational&source=naver&campaign=topic-guide",
+    );
+  });
 });
