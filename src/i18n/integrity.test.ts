@@ -147,6 +147,11 @@ const uiCopySchema = {
   drawStatus: "string",
   workspaceLabel: "string",
   cardMarkLabel: "string",
+  sharedReading: {
+    heading: "string",
+    intro: "string",
+    createOwn: "string",
+  },
   instantReading: {
     heading: "string",
     intro: "string",

@@ -11,6 +11,7 @@ import {
   getPublicPageLinks,
   getPublicPageShellCopy,
 } from "@/features/public-pages";
+import type { ReadingUrlAttribution } from "@/features/tarot-reading/reading-state";
 import {
   getLocalePath,
   localeNames,
@@ -24,10 +25,12 @@ import {
 } from "./i18n";
 
 type RelationshipFlowLandingProps = {
+  readonly attribution?: ReadingUrlAttribution | undefined;
   readonly locale: Locale;
 };
 
 export function RelationshipFlowLanding({
+  attribution,
   locale,
 }: RelationshipFlowLandingProps) {
   const copy = getRelationshipFlowCopy(locale);
@@ -44,7 +47,7 @@ export function RelationshipFlowLanding({
             activeLocale={locale}
             ariaLabel={shellCopy.languageSwitchLabel}
             links={supportedLocales.map((targetLocale) => ({
-              href: getRelationshipFlowPath(targetLocale),
+              href: getRelationshipFlowPath(targetLocale, attribution),
               label: localeNames[targetLocale],
               locale: targetLocale,
             }))}
@@ -71,7 +74,7 @@ export function RelationshipFlowLanding({
             </p>
             <Link
               className={`${primaryButtonClassName} mt-2 w-fit`}
-              href={getRelationshipFlowReadingPath(locale)}
+              href={getRelationshipFlowReadingPath(locale, attribution)}
             >
               {copy.ctaButton}
             </Link>
@@ -176,7 +179,7 @@ export function RelationshipFlowLanding({
           </p>
           <Link
             className={`${primaryButtonClassName} w-fit`}
-            href={getRelationshipFlowReadingPath(locale)}
+            href={getRelationshipFlowReadingPath(locale, attribution)}
           >
             {copy.ctaButton}
           </Link>

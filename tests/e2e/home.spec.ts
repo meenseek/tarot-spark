@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { rejectOptionalServices } from "./privacy-helpers";
 
 test.beforeEach(async ({ context }) => {
@@ -34,6 +34,38 @@ test("loads Korean localized content", async ({ page }) => {
   await expect(
     page.getByText(/지금은 그림이 완성된 메이저 아르카나 12장/),
   ).toBeVisible();
+});
+
+test("keeps the primary draw and prompt actions ahead of optional detail", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/ko");
+
+  const drawTop = await page
+    .getByRole("button", { name: "카드 뽑기" })
+    .evaluate((element) => element.getBoundingClientRect().top + scrollY);
+
+  expect(drawTop).toBeLessThanOrEqual(1100);
+
+  await page.getByRole("button", { name: "카드 뽑기" }).click();
+  await expect(page.getByTestId("card-detail-list")).toBeVisible();
+
+  expect(
+    await page.evaluate(() => {
+      const promptHeading = document.querySelector("#prompt-pack-heading");
+      const cardDetails = document.querySelector(
+        '[data-testid="card-detail-list"]',
+      );
+
+      return Boolean(
+        promptHeading &&
+        cardDetails &&
+        promptHeading.compareDocumentPosition(cardDetails) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+    }),
+  ).toBe(true);
 });
 
 test("keeps every localized context example visible at 320px", async ({
@@ -98,6 +130,7 @@ test("keeps every localized context example visible at 320px", async ({
 
   for (const { contextLabel, path, topicExamples } of localizedExamples) {
     await page.goto(path);
+    await openReadingPreferences(page);
     const context = page.getByLabel(contextLabel);
 
     for (const [topicButtonName, placeholder] of topicExamples) {
@@ -262,6 +295,7 @@ test("preserves reading and private context when switching languages", async ({
   page,
 }) => {
   await page.goto("/");
+  await openReadingPreferences(page);
 
   await page
     .getByRole("textbox", { name: /Situation or relationship context/ })
@@ -287,6 +321,7 @@ test("preserves reading and private context when switching languages", async ({
       name: "지금 고민을 카드로 펼쳐보고, AI에 물어볼 질문까지 만들어보세요.",
     }),
   ).toBeVisible();
+  await openReadingPreferences(page);
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toBeVisible();
   await expect(
     page.getByRole("textbox", { name: /지금 고민하는 상황/ }),
@@ -305,6 +340,7 @@ test("creates a direct six-card prompt while keeping context private", async ({
   page,
 }) => {
   await page.goto("/");
+  await openReadingPreferences(page);
 
   await page.getByRole("radio", { name: /Deep 6-card/ }).check();
   await page.getByRole("radio", { name: /Direct, not deterministic/ }).check();
@@ -350,6 +386,7 @@ test("shows an instant Korean reading without sending private context", async ({
     });
   });
   await page.goto("/ko");
+  await openReadingPreferences(page);
 
   await page
     .getByRole("textbox", { name: /지금 고민하는 상황/ })
@@ -416,7 +453,7 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
   page,
   request,
 }) => {
-  await page.goto("/relationship-flow");
+  await page.goto("/relationship-flow?source=naver&campaign=topic-guide");
 
   await expect(
     page.getByRole("heading", {
@@ -429,7 +466,11 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
       .first(),
   ).toHaveAttribute(
     "href",
-    "/?topic=relationship-flow&spread=deep&style=relational",
+    "/?topic=relationship-flow&spread=deep&style=relational&source=naver&campaign=topic-guide",
+  );
+  await expect(page.getByRole("link", { name: "한국어" })).toHaveAttribute(
+    "href",
+    "/ko/relationship-flow?source=naver&campaign=topic-guide",
   );
 
   await page.goto(
@@ -468,9 +509,61 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
   await expect(page).not.toHaveURL(/private|context/);
 });
 
+test("renders a shared reading first and keeps its localized share route", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 844, width: 390 });
+  const response = await page.goto(
+    "/share?topic=relationship-flow&style=relational&cards=the-fool,the-lovers,the-star&source=instagram&campaign=vertical-slice",
+  );
+
+  expect(await response?.text()).toContain(
+    "A tarot-spark reading was shared with you.",
+  );
+  await expect(page.getByTestId("shared-reading-view")).toBeVisible();
+  await expect(page.locator('[data-testid^="reading-card-"]')).toHaveCount(3);
+  await expect(page.getByRole("button", { name: "Draw cards" })).toHaveCount(0);
+  await expect(page.getByTestId("reading-preferences")).toHaveCount(0);
+
+  const workspaceTop = await page
+    .getByTestId("reading-result-observer")
+    .evaluate((element) => element.getBoundingClientRect().top + scrollY);
+  expect(workspaceTop).toBeLessThan(844);
+
+  await expect(
+    page.getByRole("link", { name: "Create your own reading" }),
+  ).toHaveAttribute("href", "/?source=instagram&campaign=vertical-slice");
+  await expect(page.getByRole("link", { name: "한국어" })).toHaveAttribute(
+    "href",
+    "/ko/share?topic=relationship-flow&style=relational&cards=the-fool%2Cthe-lovers%2Cthe-star&source=instagram&campaign=vertical-slice",
+  );
+
+  await page.getByRole("link", { name: "한국어" }).click();
+
+  await expect(page).toHaveURL((url) => url.pathname === "/ko/share");
+  await expect(
+    page.getByRole("heading", {
+      name: "누군가 tarot-spark 리딩을 공유했어요.",
+    }),
+  ).toBeVisible();
+  await expect(page.locator('[data-testid^="reading-card-"]')).toHaveCount(3);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    "content",
+    /noindex/,
+  );
+  expectPathname(
+    await page.locator('link[rel="canonical"]').getAttribute("href"),
+    "/ko/relationship-flow",
+  );
+});
+
 function expectPathname(href: string | null, pathname: string) {
   expect(href).not.toBeNull();
   expect(new URL(href ?? "http://localhost").pathname).toBe(pathname);
+}
+
+async function openReadingPreferences(page: Page) {
+  await page.getByTestId("reading-preferences-toggle").click();
 }
 
 function getSitemapLocPathnames(sitemapXml: string) {

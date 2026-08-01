@@ -24,6 +24,11 @@ describe("share reading state", () => {
       campaignId: "vertical-slice",
       sourceId: "instagram",
     });
+    expect(snapshot?.state).toMatchObject({
+      spreadId: "quick",
+      styleId: "relational",
+      topicId: "relationship-flow",
+    });
   });
 
   it.each([

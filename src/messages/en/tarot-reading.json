@@ -21,6 +21,11 @@
   "drawStatus": "{count} cards drawn.",
   "workspaceLabel": "Tarot reading workspace",
   "cardMarkLabel": "Decorative tarot card mark",
+  "sharedReading": {
+    "heading": "A tarot-spark reading was shared with you.",
+    "intro": "Explore the drawn cards and Prompt Pack first. You can copy a prompt or create a separate reading of your own.",
+    "createOwn": "Create your own reading"
+  },
   "instantReading": {
     "heading": "Read the card flow",
     "intro": "Create one connected interpretation from the drawn cards and selected reading options. Optional situation text is not sent or used.",

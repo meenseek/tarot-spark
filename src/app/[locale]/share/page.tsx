@@ -39,9 +39,18 @@ export default async function LocalizedShareReadingPage({
     notFound();
   }
 
-  if (!getShareReadingSnapshot(rawLocale, await searchParams)) {
+  const snapshot = getShareReadingSnapshot(rawLocale, await searchParams);
+
+  if (!snapshot) {
     redirect(getRelationshipFlowPath(rawLocale));
   }
 
-  return <TarotExperience locale={rawLocale} />;
+  return (
+    <TarotExperience
+      initialAttribution={snapshot.attribution}
+      initialReadingState={snapshot.state}
+      locale={rawLocale}
+      viewMode="shared"
+    />
+  );
 }
