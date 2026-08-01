@@ -1,8 +1,118 @@
 import { ImageResponse } from "next/og";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { cardArtSources } from "@/components/visual/tarot-card-art-sources";
+import type { TarotCardId } from "@/domain/tarot";
 import { getShareReadingSnapshot } from "@/features/share-reading";
 import { defaultLocale, isLocale } from "@/i18n/config";
 
+export type ShareImageModel = {
+  readonly cardArtUrls: readonly string[];
+};
+
+const cardArtDataUrls = new Map<TarotCardId, string>();
+
 export function getShareImageResponse(request: Request) {
+  const model = getShareImageModel(request);
+
+  if (model instanceof Response) {
+    return model;
+  }
+
+  const hasDeepSpread = model.cardArtUrls.length > 3;
+  const cardWidth = hasDeepSpread ? 150 : 250;
+  const cardHeight = hasDeepSpread ? 210 : 350;
+
+  return new ImageResponse(
+    <div
+      style={{
+        alignItems: "stretch",
+        background: "#fbf7f2",
+        display: "flex",
+        height: "100%",
+        padding: "42px 52px",
+        width: "100%",
+      }}
+    >
+      <div
+        style={{
+          alignItems: "center",
+          background: "#fffdfc",
+          border: "2px solid #d9ccd2",
+          borderRadius: 30,
+          display: "flex",
+          flex: 1,
+          flexDirection: "column",
+          justifyContent: "space-between",
+          overflow: "hidden",
+          padding: "34px 44px",
+          position: "relative",
+        }}
+      >
+        <CelestialRule />
+
+        <div
+          style={{
+            alignItems: "center",
+            display: "flex",
+            flex: 1,
+            gap: hasDeepSpread ? 18 : 28,
+            justifyContent: "center",
+            width: "100%",
+          }}
+        >
+          {model.cardArtUrls.map((cardArtUrl, index) => (
+            <div
+              key={cardArtUrl}
+              style={{
+                background: "#fbf7f2",
+                border: "3px solid #704158",
+                borderRadius: hasDeepSpread ? 15 : 20,
+                boxShadow: "0 14px 28px rgba(58, 38, 51, 0.14)",
+                display: "flex",
+                height: cardHeight + 12,
+                overflow: "hidden",
+                padding: 4,
+                transform:
+                  index % 3 === 0
+                    ? "rotate(-2deg)"
+                    : index % 3 === 2
+                      ? "rotate(2deg)"
+                      : "rotate(0deg)",
+                width: cardWidth + 12,
+              }}
+            >
+              {/* ImageResponse renders remote-style image nodes itself. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                alt=""
+                height={cardHeight}
+                src={cardArtUrl}
+                style={{
+                  borderRadius: hasDeepSpread ? 10 : 14,
+                  height: cardHeight,
+                  objectFit: "cover",
+                  width: cardWidth,
+                }}
+                width={cardWidth}
+              />
+            </div>
+          ))}
+        </div>
+
+        <CelestialRule />
+      </div>
+    </div>,
+    {
+      height: 630,
+      width: 1200,
+    },
+  );
+}
+
+export function getShareImageModel(
+  request: Request,
+): ShareImageModel | Response {
   const url = new URL(request.url);
   const localeParam = url.searchParams.get("locale");
 
@@ -31,133 +141,62 @@ export function getShareImageResponse(request: Request) {
     return new Response("Invalid share state", { status: 400 });
   }
 
-  const displaySnapshot =
-    locale === "en"
-      ? snapshot
-      : (getShareReadingSnapshot("en", searchParams) ?? snapshot);
-  const heading = "A reflective tarot prompt";
-  const spreadLabel = `${displaySnapshot.spread.label} / ${displaySnapshot.readingStyle.label}`;
+  return {
+    cardArtUrls: snapshot.cards.map(({ card }) => getCardArtDataUrl(card.id)),
+  };
+}
 
-  return new ImageResponse(
+function getCardArtDataUrl(cardId: TarotCardId) {
+  const cachedDataUrl = cardArtDataUrls.get(cardId);
+
+  if (cachedDataUrl) {
+    return cachedDataUrl;
+  }
+
+  const publicPath = cardArtSources[cardId].replace(/^\//, "");
+  const image = readFileSync(path.join(process.cwd(), "public", publicPath));
+  const dataUrl = `data:image/jpeg;base64,${image.toString("base64")}`;
+  cardArtDataUrls.set(cardId, dataUrl);
+
+  return dataUrl;
+}
+
+function CelestialRule() {
+  return (
     <div
       style={{
-        alignItems: "stretch",
-        background: "#fbf7f2",
-        color: "#3a2633",
+        alignItems: "center",
         display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        justifyContent: "space-between",
-        padding: "56px 64px",
+        gap: 14,
+        justifyContent: "center",
         width: "100%",
       }}
     >
       <div
         style={{
-          alignItems: "center",
+          background: "#d9ccd2",
           display: "flex",
-          justifyContent: "space-between",
+          height: 2,
+          width: 170,
         }}
-      >
-        <div
-          style={{
-            color: "#704158",
-            display: "flex",
-            fontSize: 24,
-            fontWeight: 700,
-          }}
-        >
-          tarot-spark
-        </div>
-        <div
-          style={{
-            color: "#66515d",
-            display: "flex",
-            fontSize: 20,
-          }}
-        >
-          {spreadLabel}
-        </div>
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <div
-          style={{
-            color: "#704158",
-            display: "flex",
-            fontSize: 22,
-            fontWeight: 700,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-          }}
-        >
-          {displaySnapshot.topic.label}
-        </div>
-        <div
-          style={{
-            display: "flex",
-            fontSize: 48,
-            fontWeight: 700,
-            letterSpacing: "-0.03em",
-            lineHeight: 1.1,
-            maxWidth: 980,
-          }}
-        >
-          {heading}
-        </div>
-      </div>
-
-      <div style={{ display: "flex", gap: 14 }}>
-        {displaySnapshot.cards.map(({ card, position }, index) => (
-          <div
-            key={card.id}
-            style={{
-              background: "#fffdfc",
-              border: "2px solid #d9ccd2",
-              borderRadius: 18,
-              display: "flex",
-              flex: 1,
-              flexDirection: "column",
-              gap: 12,
-              minHeight: 180,
-              padding: "22px 18px",
-            }}
-          >
-            <div
-              style={{
-                color: "#b7863e",
-                display: "flex",
-                fontSize: 30,
-              }}
-            >
-              {String(index + 1).padStart(2, "0")}
-            </div>
-            <div
-              style={{
-                display: "flex",
-                fontSize: displaySnapshot.cards.length > 3 ? 21 : 27,
-                fontWeight: 700,
-                lineHeight: 1.15,
-              }}
-            >
-              {card.name}
-            </div>
-            <div
-              style={{
-                color: "#66515d",
-                display: "flex",
-                fontSize: displaySnapshot.cards.length > 3 ? 16 : 19,
-              }}
-            >
-              {position.label}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>,
-    {
-      height: 630,
-      width: 1200,
-    },
+      />
+      <div
+        style={{
+          border: "3px solid #b7863e",
+          display: "flex",
+          height: 18,
+          transform: "rotate(45deg)",
+          width: 18,
+        }}
+      />
+      <div
+        style={{
+          background: "#d9ccd2",
+          display: "flex",
+          height: 2,
+          width: 170,
+        }}
+      />
+    </div>
   );
 }
