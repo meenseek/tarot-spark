@@ -136,7 +136,12 @@ or personal context to analytics fields or reading URLs.
 Review this funnel by locale, source, campaign, topic, spread, style, and prompt
 slot:
 
-`topic_click` -> `draw_start` -> `result_view` -> `prompt_copy`
+`draw_start` -> `result_view` -> `prompt_copy`
+
+`result_view` means the result content actually intersected the viewport while
+analytics consent was active. Do not backfill a result that left the viewport
+before analytics became ready. Use `topic_click` separately as topic-selector
+diagnostics; the default topic can reach `draw_start` without a topic click.
 
 Review sharing separately:
 
