@@ -41,6 +41,9 @@
   - `share_result`
 - Analytics events should help answer what users click, where they drop off, and
   which topics lead to result views or prompt copies.
+- Emit `result_view` only for result content that is currently intersecting the
+  viewport after analytics consent is active; do not backfill a view that ended
+  before analytics became ready.
 - Add new event names only when an existing core event cannot describe the
   behavior.
 - Keep event payloads free of names, birth dates, contact details, and free-form

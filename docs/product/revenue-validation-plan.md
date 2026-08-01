@@ -153,9 +153,14 @@ occurred before analytics consent to the analyzable-session denominator.
 Review these funnels:
 
 ```text
-topic_click -> draw_start -> result_view -> successful prompt_copy
+draw_start -> result_view -> successful prompt_copy
 share_click -> exactly one share_result
 ```
+
+Count `result_view` only when the result content intersects the viewport while
+analytics consent is active. Do not backfill an earlier intersection after the
+result has left view. Review `topic_click` as selector diagnostics rather than
+the funnel entrance because the default topic requires no topic click.
 
 Publish up to four original Korean guides during the first cohort:
 
