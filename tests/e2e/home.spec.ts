@@ -501,6 +501,11 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
   );
   expect(imageResponse.ok()).toBe(true);
   expect(imageResponse.headers()["content-type"]).toContain("image/png");
+  const koreanImageResponse = await request.get(
+    "/api/share-image?locale=ko&topic=relationship-flow&spread=quick&style=relational&cards=the-fool,the-lovers,the-star",
+  );
+  expect(koreanImageResponse.ok()).toBe(true);
+  expect(koreanImageResponse.headers()["content-type"]).toContain("image/png");
 
   await page.goto(
     "/share?topic=relationship-flow&cards=the-fool,the-lovers,the-star&context=private",
