@@ -14,7 +14,8 @@ test("revokes analytics without losing private reading context", async ({
   page,
 }) => {
   await page.goto("/");
-  await page.getByTestId("reading-preferences-toggle").click();
+  const preferencesToggle = page.getByTestId("reading-preferences-toggle");
+  await preferencesToggle.press("Enter");
 
   const contextInput = page.getByRole("textbox", {
     name: /Situation or relationship context/,
@@ -32,6 +33,7 @@ test("revokes analytics without losing private reading context", async ({
   await page.getByRole("button", { name: "Save choices" }).click();
   await reloaded;
 
+  await page.getByTestId("reading-preferences-toggle").press("Enter");
   await expect(contextInput).toHaveValue(
     "Keep this private context through consent changes.",
   );
