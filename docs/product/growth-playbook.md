@@ -7,8 +7,8 @@ messages, prediction claims, or personal-data collection. Treat a successful
 `prompt_copy` as activation. Treat `share_click` as intent and `share_result` as
 the terminal share outcome.
 
-Do not expand the illustrated deck from the three-card pilot to all 22 Major
-Arcana until the 200-session gate is reviewed.
+Do not expand the current 12-card illustrated preview to all 22 Major Arcana
+until the 200-session gate is reviewed.
 
 Use the [revenue validation plan](revenue-validation-plan.md) for monetization.
 Start its interest test only after its production-integrity and activation
@@ -21,8 +21,9 @@ structured way to reflect on a relationship.
 
 - Target AI users who find ordinary tarot prompts too short or generic.
 - Target tarot and journaling users who prefer self-reflection over prediction.
-- Target creators who can compare the three pilot illustrations and explain
-  which visual details feel coherent.
+- Target creators who can compare the current preview illustrations and explain
+  which visual details feel coherent. Use the Fool, Lovers, and Star as the
+  canonical feedback subset.
 - Do not target minors, crisis communities, mental-health support groups, or
   people seeking medical, legal, financial, investment, or safety decisions.
 
@@ -34,8 +35,8 @@ structured way to reflect on a relationship.
    content with an 800-1,400 character guide and screenshots. Link once after
    the useful content.
 3. Instagram: reach visual tarot and journaling discovery with an original
-   five-to-seven-slide carousel or one pilot-card image. Use the profile or
-   story link.
+   five-to-seven-slide carousel or one current-preview card image. Use the
+   profile or story link.
 4. Threads: reach Korean and English public conversations with a short
    observation, example prompt, and one question. Link in a relevant follow-up.
 5. Naver Cafe: reach existing Korean tarot, journaling, or AI communities with
@@ -77,8 +78,8 @@ Use one clear job per post.
    revealing a prediction.
 3. Relationship guide: separate observation, interpretation, uncertainty, and
    user agency.
-4. Deck progress: show the Fool, Lovers, or Star pilot and ask about frame,
-   character, symbol, and palette consistency.
+4. Deck progress: show the Fool, Lovers, or Star from the canonical feedback
+   subset and ask about frame, character, symbol, and palette consistency.
 5. Build notes: share a concrete privacy or content decision, such as excluding
    personal context from URLs.
 
@@ -92,7 +93,7 @@ self-reflection.
 
 - Publish one Naver Blog relationship-prompt guide.
 - Publish one Korean Threads prompt comparison without a link in the first post.
-- Publish one original Instagram carousel using the Lovers pilot.
+- Publish one original Instagram carousel using the Lovers reference card.
 - Read and record the rules of three candidate communities before commenting or
   posting there.
 
@@ -108,7 +109,8 @@ self-reflection.
 
 - Publish separate Fool, Lovers, and Star posts rather than a reused collage.
 - Ask one visual question per post: character, symbol, background, or palette.
-- Use the best-performing pilot as the first frame of an Instagram carousel.
+- Use the best-performing reference card as the first frame of an Instagram
+  carousel.
 - Compare `share_click` with `share_result`; fix failed outcomes before
   increasing posting frequency.
 
@@ -118,7 +120,7 @@ self-reflection.
 - Stop channels that deliver visits without `result_view`.
 - Keep channels that deliver successful `prompt_copy` without safety or privacy
   complaints.
-- Review the 200-session gate. Continue the three-card pilot if the evidence is
+- Review the 200-session gate. Continue the 12-card preview if the evidence is
   still thin; do not fill the deck to create a launch appearance.
 
 ## Measurement Contract
@@ -222,7 +224,7 @@ self-promotion.
 6. `The Lovers: 선택과 상호성은 말보다 행동에서 보이는가?`
 7. `오락과 자기 성찰 전용 | tarot-spark`
 
-Use the original Lovers pilot art. Do not add synthetic testimonials or outcome
+Use the canonical Lovers art. Do not add synthetic testimonials or outcome
 claims.
 
 ### English Reddit: Native Text Case Study
