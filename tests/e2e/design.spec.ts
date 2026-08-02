@@ -13,6 +13,17 @@ const colors = {
   surface: "rgb(255, 253, 252)",
 } as const;
 
+const previousCardPreviewArea = 80 * 112;
+
+type RectGeometry = {
+  readonly bottom: number;
+  readonly height: number;
+  readonly left: number;
+  readonly right: number;
+  readonly top: number;
+  readonly width: number;
+};
+
 async function serveCardArtFixture(page: Page, delayMs = 0) {
   await page.route("**/_next/image**", async (route) => {
     if (delayMs > 0) {
@@ -37,35 +48,156 @@ async function expectPreparedCardBacks(page: Page) {
   await expect(cards.locator("[data-art-id]")).toHaveCount(0);
   await expect(cards.locator("img")).toHaveCount(0);
 
-  const cardBackGeometry = await cardBacks.evaluateAll((elements) =>
-    elements.map((element) => {
-      const box = element.getBoundingClientRect();
-
-      return {
-        height: box.height,
-        markup: element.innerHTML,
-        pattern: element.getAttribute("data-card-back-pattern"),
-        width: box.width,
-      };
-    }),
+  const cardBackIdentity = await cardBacks.evaluateAll((elements) =>
+    elements.map((element) => ({
+      markup: element.innerHTML,
+      pattern: element.getAttribute("data-card-back-pattern"),
+    })),
   );
 
-  expect(new Set(cardBackGeometry.map(({ markup }) => markup)).size).toBe(1);
-  expect(new Set(cardBackGeometry.map(({ pattern }) => pattern))).toEqual(
+  expect(new Set(cardBackIdentity.map(({ markup }) => markup)).size).toBe(1);
+  expect(new Set(cardBackIdentity.map(({ pattern }) => pattern))).toEqual(
     new Set(["quiet-celestial-medallion"]),
   );
-  cardBackGeometry.forEach(({ height, width }) => {
-    expect(width).toBeCloseTo(80, 1);
-    expect(height).toBeCloseTo(112, 1);
-    expect(width / height).toBeCloseTo(5 / 7, 2);
+  await expectCardArtFrameBorders(cards);
+
+  return expectCardSpreadLayout(page, 3);
+}
+
+async function expectCardSpreadLayout(page: Page, expectedCardCount: number) {
+  const cards = page.locator('[data-testid^="reading-card-"]');
+  await expect(cards).toHaveCount(expectedCardCount);
+  await cards.evaluateAll(async (elements) => {
+    await Promise.all(
+      elements.flatMap((element) =>
+        element
+          .getAnimations()
+          .map((animation) => animation.finished.catch(() => undefined)),
+      ),
+    );
   });
+
+  const layout = await cards.evaluateAll((elements) => {
+    const getRect = (element: Element) => {
+      const rect = element.getBoundingClientRect();
+
+      return {
+        bottom: rect.bottom,
+        height: rect.height,
+        left: rect.left,
+        right: rect.right,
+        top: rect.top,
+        width: rect.width,
+      };
+    };
+
+    return elements.map((card) => {
+      const frame = card.querySelector("[data-card-art-frame]");
+      const heading = card.querySelector("h2");
+      const position = card.firstElementChild?.querySelector("span");
+      const tone = card.querySelector("p");
+
+      if (!frame || !heading || !position || !tone) {
+        throw new Error("Card spread layout elements are missing");
+      }
+
+      const frameRect = getRect(frame);
+      const frameStyle = getComputedStyle(frame);
+      const frameContentWidth =
+        frameRect.width -
+        Number.parseFloat(frameStyle.borderLeftWidth) -
+        Number.parseFloat(frameStyle.borderRightWidth);
+      const frameContentHeight =
+        frameRect.height -
+        Number.parseFloat(frameStyle.borderTopWidth) -
+        Number.parseFloat(frameStyle.borderBottomWidth);
+
+      return {
+        card: getRect(card),
+        frame: frameRect,
+        frameContentRatio: frameContentWidth / frameContentHeight,
+        heading: getRect(heading),
+        position: getRect(position),
+        tone: getRect(tone),
+      };
+    });
+  });
+  const viewportWidth = page.viewportSize()?.width;
+  expect(viewportWidth).toBeDefined();
+  const minimumAreaGain = (viewportWidth ?? 0) < 640 ? 1.4 : 1.2;
+
+  for (const [index, geometry] of layout.entries()) {
+    expectContained(geometry.card, geometry.frame, `card ${index} frame`);
+    expectContained(geometry.card, geometry.position, `card ${index} position`);
+    expectContained(geometry.card, geometry.heading, `card ${index} heading`);
+    expectContained(geometry.card, geometry.tone, `card ${index} tone`);
+    expect(geometry.frameContentRatio).toBeCloseTo(5 / 7, 2);
+    expect(geometry.frame.width * geometry.frame.height).toBeGreaterThanOrEqual(
+      previousCardPreviewArea * minimumAreaGain - 1,
+    );
+    expect(
+      rectanglesOverlap(geometry.frame, geometry.position),
+      `card ${index} frame and position overlap`,
+    ).toBe(false);
+    expect(
+      rectanglesOverlap(geometry.frame, geometry.heading),
+      `card ${index} frame and heading overlap`,
+    ).toBe(false);
+    expect(
+      rectanglesOverlap(geometry.frame, geometry.tone),
+      `card ${index} frame and tone overlap`,
+    ).toBe(false);
+  }
 
   const dimensions = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
     scrollWidth: document.documentElement.scrollWidth,
   }));
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
-  await expectCardArtFrameBorders(cards);
+
+  return layout.map(({ frame }) => frame);
+}
+
+function expectContained(
+  container: RectGeometry,
+  content: RectGeometry,
+  label: string,
+) {
+  const tolerance = 1;
+
+  expect(content.width, label).toBeGreaterThan(0);
+  expect(content.height, label).toBeGreaterThan(0);
+  expect(content.left, label).toBeGreaterThanOrEqual(
+    container.left - tolerance,
+  );
+  expect(content.right, label).toBeLessThanOrEqual(container.right + tolerance);
+  expect(content.top, label).toBeGreaterThanOrEqual(container.top - tolerance);
+  expect(content.bottom, label).toBeLessThanOrEqual(
+    container.bottom + tolerance,
+  );
+}
+
+function rectanglesOverlap(first: RectGeometry, second: RectGeometry) {
+  const tolerance = 0.5;
+
+  return (
+    first.left < second.right - tolerance &&
+    first.right > second.left + tolerance &&
+    first.top < second.bottom - tolerance &&
+    first.bottom > second.top + tolerance
+  );
+}
+
+function expectMatchingFrames(
+  before: readonly RectGeometry[],
+  after: readonly RectGeometry[],
+) {
+  expect(after).toHaveLength(before.length);
+
+  before.forEach((frame, index) => {
+    expect(after[index]?.width).toBeCloseTo(frame.width, 1);
+    expect(after[index]?.height).toBeCloseTo(frame.height, 1);
+  });
 }
 
 async function expectCardArtFrameBorders(cards: Locator) {
@@ -422,14 +554,10 @@ for (const width of [320, 360, 390] as const) {
   }) => {
     await page.setViewportSize({ height: 844, width });
     await page.goto("/ko");
-    await expectPreparedCardBacks(page);
+    const preparedFrames = await expectPreparedCardBacks(page);
     await page.getByRole("button", { name: "카드 뽑기" }).click();
-
-    const dimensions = await page.evaluate(() => ({
-      clientWidth: document.documentElement.clientWidth,
-      scrollWidth: document.documentElement.scrollWidth,
-    }));
-    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+    const drawnFrames = await expectCardSpreadLayout(page, 3);
+    expectMatchingFrames(preparedFrames, drawnFrames);
 
     const interactiveTargets = page.locator(
       "main a:visible, main button:visible, main textarea:visible",
@@ -450,6 +578,149 @@ for (const width of [320, 360, 390] as const) {
     }
   });
 }
+
+test("keeps restored and shared card spreads readable across breakpoints", async ({
+  page,
+}) => {
+  const cases = [
+    {
+      cardCount: 3,
+      path: "/?topic=relationship-flow&style=relational&cards=the-fool,the-lovers,the-star",
+      width: 639,
+    },
+    {
+      cardCount: 6,
+      path: "/ko?topic=love&spread=deep&cards=the-fool,the-magician,the-high-priestess,the-empress,the-emperor,the-lovers",
+      width: 640,
+    },
+    {
+      cardCount: 3,
+      path: "/share?topic=relationship-flow&style=relational&cards=the-fool,the-lovers,the-star",
+      shared: true,
+      width: 1024,
+    },
+  ] as const;
+
+  for (const currentCase of cases) {
+    await page.setViewportSize({ height: 844, width: currentCase.width });
+    await page.goto(currentCase.path);
+    await expectCardSpreadLayout(page, currentCase.cardCount);
+
+    if ("shared" in currentCase) {
+      const resultContent = page.getByTestId("shared-reading-result-content");
+      await expect(resultContent).toBeVisible();
+      const resultTop = await resultContent.evaluate(
+        (element) => element.getBoundingClientRect().top,
+      );
+      const cardBottoms = await page
+        .locator('[data-testid^="reading-card-"]')
+        .evaluateAll((elements) =>
+          elements.map((element) => element.getBoundingClientRect().bottom),
+        );
+      expect(resultTop).toBeGreaterThanOrEqual(Math.max(...cardBottoms) - 1);
+    }
+  }
+});
+
+test("keeps the quick reading result start in view after a pointer draw", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Draw cards" }).click();
+
+  const result = page.getByTestId("reading-result-observer");
+  await expect(result).toBeVisible();
+  await expect
+    .poll(async () =>
+      result.evaluate((element) => {
+        const rect = element.getBoundingClientRect();
+
+        return rect.top >= 0 && rect.top < innerHeight;
+      }),
+    )
+    .toBe(true);
+});
+
+test("keeps a failed-art glyph centered inside the enlarged frame", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 844, width: 320 });
+  await page.route("**/_next/image**", async (route) => {
+    const optimizedUrl = new URL(route.request().url()).searchParams.get("url");
+
+    if (optimizedUrl === "/cards/the-fool.jpg") {
+      await route.fulfill({
+        body: "failed card art",
+        contentType: "text/plain",
+        status: 500,
+      });
+      return;
+    }
+
+    await route.fulfill({
+      contentType: "image/jpeg",
+      path: "public/cards/the-fool.jpg",
+      status: 200,
+    });
+  });
+  await page.goto(
+    "/?topic=love&cards=the-fool,the-magician,the-high-priestess",
+  );
+
+  const firstCard = page.getByTestId("reading-card-0");
+  const glyph = firstCard.locator('[data-glyph-id="the-fool"]');
+  await expect(glyph).toBeVisible({ timeout: 10_000 });
+  await expectCardSpreadLayout(page, 3);
+
+  const geometry = await firstCard.evaluate((card) => {
+    const frame = card.querySelector("[data-card-art-frame]");
+    const currentGlyph = card.querySelector('[data-glyph-id="the-fool"]');
+
+    if (!frame || !currentGlyph) {
+      throw new Error("Fallback frame or glyph is missing");
+    }
+
+    const frameRect = frame.getBoundingClientRect();
+    const glyphRect = currentGlyph.getBoundingClientRect();
+
+    return {
+      frame: {
+        bottom: frameRect.bottom,
+        height: frameRect.height,
+        left: frameRect.left,
+        right: frameRect.right,
+        top: frameRect.top,
+        width: frameRect.width,
+      },
+      glyph: {
+        bottom: glyphRect.bottom,
+        height: glyphRect.height,
+        left: glyphRect.left,
+        right: glyphRect.right,
+        top: glyphRect.top,
+        width: glyphRect.width,
+      },
+    };
+  });
+
+  expectContained(geometry.frame, geometry.glyph, "fallback glyph");
+  expect(
+    Math.abs(
+      geometry.frame.left +
+        geometry.frame.width / 2 -
+        (geometry.glyph.left + geometry.glyph.width / 2),
+    ),
+  ).toBeLessThanOrEqual(1);
+  expect(
+    Math.abs(
+      geometry.frame.top +
+        geometry.frame.height / 2 -
+        (geometry.glyph.top + geometry.glyph.height / 2),
+    ),
+  ).toBeLessThanOrEqual(1);
+});
 
 test("reserves the hydrated Daily panel height at mobile widths", async ({
   browser,

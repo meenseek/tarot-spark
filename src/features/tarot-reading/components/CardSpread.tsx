@@ -53,7 +53,7 @@ export function CardSpread({
 
         return (
           <article
-            className={`grid min-h-56 grid-rows-[auto_1fr_auto] rounded-ts-control border border-ts-divider bg-ts-surface p-4 text-ts-ink shadow-ts-card ${
+            className={`grid grid-cols-[6rem_minmax(0,1fr)] grid-rows-[auto_1fr] gap-x-4 rounded-ts-control border border-ts-divider bg-ts-surface p-4 text-left text-ts-ink shadow-ts-card sm:min-h-56 sm:grid-cols-1 sm:grid-rows-[auto_1fr_auto] sm:gap-x-0 sm:p-2 ${
               shouldReveal ? "ts-card-arrive" : ""
             }`}
             data-card-id={displayCard.cardId}
@@ -63,22 +63,22 @@ export function CardSpread({
             key={`${displayCard.positionLabel}:${displayCard.cardId ?? "placeholder"}:${shouldReveal ? revealSequence : "static"}`}
             style={revealStyle}
           >
-            <div className="flex items-start justify-between gap-3 text-xs font-semibold text-ts-muted">
+            <div className="col-start-2 row-start-1 flex min-w-0 items-start justify-between gap-3 text-xs font-semibold text-ts-muted sm:col-start-1">
               <span>{displayCard.positionLabel}</span>
               <span>{String(index + 1).padStart(2, "0")}</span>
             </div>
-            <div className="flex items-center justify-center">
+            <div className="col-start-1 row-span-2 row-start-1 flex items-center justify-center sm:col-start-1 sm:row-span-1 sm:row-start-2">
               <div
-                className="relative grid h-28 w-20 place-items-center overflow-hidden rounded-ts-control bg-ts-canvas text-ts-action"
+                className="relative grid aspect-[5/7] w-24 place-items-center overflow-hidden rounded-ts-control bg-ts-canvas text-ts-action sm:w-22"
                 data-card-art-frame=""
               >
                 <TarotCardArt
                   cardId={displayCard.cardId}
                   className="object-cover"
-                  glyphClassName="h-16 w-16"
+                  glyphClassName="h-20 w-20 sm:h-18 sm:w-18"
                   revealSequence={revealSequence}
                   shouldReveal={shouldReveal}
-                  sizes="5rem"
+                  sizes="(max-width: 639px) 6rem, 5.5rem"
                 />
                 <span
                   aria-hidden="true"
@@ -88,7 +88,7 @@ export function CardSpread({
                 <span className="sr-only">{cardMarkLabel}</span>
               </div>
             </div>
-            <div>
+            <div className="col-start-2 row-start-2 min-w-0 self-end sm:col-start-1 sm:row-start-3">
               <h2 className="font-ts-display text-xl font-semibold">
                 {displayCard.cardName}
               </h2>

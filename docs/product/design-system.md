@@ -65,7 +65,10 @@ instead of palette utilities or color literals.
   illustration mapping exists.
 - Keep the card back identical across spread positions. Fill the `5:7` frame
   with a bilaterally symmetric outer and inner border plus one central celestial
-  medallion that stays legible at the `80 x 112` preview size.
+  medallion that stays legible at the smallest rendered preview.
+- Make card art the visual anchor in main and shared spreads. At narrow widths,
+  compact the metadata beside the art without lengthening the path to the
+  reading result.
 - Illustration-only colors may extend beyond the interface tokens. Their frame,
   surrounding paper, borders, controls, focus states, and text must still use
   semantic `ts-*` tokens.
