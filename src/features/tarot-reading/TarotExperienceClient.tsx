@@ -1066,7 +1066,9 @@ export function TarotExperienceClient({
               positions={selectedPositions}
               revealSequence={0}
             />
-            <div>{readingResult}</div>
+            <div data-testid="shared-reading-result-content">
+              {readingResult}
+            </div>
             <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>
           </section>
 
