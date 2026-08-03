@@ -14,11 +14,10 @@ test("revokes analytics without losing private reading context", async ({
   page,
 }) => {
   await page.goto("/");
-  const preferencesToggle = page.getByTestId("reading-preferences-toggle");
-  await preferencesToggle.press("Enter");
+  await openSituationContext(page);
 
   const contextInput = page.getByRole("textbox", {
-    name: /Situation or relationship context/,
+    name: /Add your situation/,
   });
   await contextInput.fill("Keep this private context through consent changes.");
   await page.getByRole("checkbox", { name: /Analytics/ }).check();
@@ -33,7 +32,7 @@ test("revokes analytics without losing private reading context", async ({
   await page.getByRole("button", { name: "Save choices" }).click();
   await reloaded;
 
-  await page.getByTestId("reading-preferences-toggle").press("Enter");
+  await openSituationContext(page);
   await expect(contextInput).toHaveValue(
     "Keep this private context through consent changes.",
   );
@@ -197,13 +196,21 @@ test("clears stale private handoff before opening a clean attributed generator",
     "source",
   ]);
 
-  await page.getByTestId("reading-preferences-toggle").click();
+  await openSituationContext(page);
   await expect(
     page.getByRole("textbox", {
-      name: /Situation or relationship context/,
+      name: /Add your situation/,
     }),
   ).toHaveValue("");
 });
+
+async function openSituationContext(page: import("@playwright/test").Page) {
+  const disclosure = page.getByTestId("situation-context");
+
+  if ((await disclosure.getAttribute("open")) === null) {
+    await page.getByTestId("situation-context-toggle").click();
+  }
+}
 
 async function getResultViewEvents(page: import("@playwright/test").Page) {
   return page.evaluate(() =>
