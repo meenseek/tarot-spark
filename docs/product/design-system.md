@@ -87,6 +87,22 @@ instead of palette utilities or color literals.
 - Keep hover and pressed states within the action and blush token families.
 - Reduce animation and transition durations when reduced motion is requested.
 
+## Reading Flow
+
+- Keep the optional situation entry visible between topic selection and the
+  draw action as a compact disclosure. Do not group it with card-count or
+  reading-style settings.
+- Let users draw without adding situation text. Keep card count and reading
+  style in a separate secondary disclosure.
+- Place the generated-prompt copy action before prompt variants, prompt source,
+  card details, and sharing options.
+- Keep the full generated prompt available for review and manual-copy recovery,
+  but collapse it by default.
+- Move focus to the selectable prompt or manual share URL when a copy or share
+  action fails.
+- Use a two-column prompt-variant grid on narrow screens. Switch to four columns
+  only at the `sm` breakpoint or wider.
+
 ## Card Draw Motion
 
 - Render drawn cards, the prompt, and analytics state immediately without a
