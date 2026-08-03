@@ -22,6 +22,8 @@ export type TarotReadingMessages = {
   readonly readingStyleSelectorLabel: string;
   readonly contextLabel: string;
   readonly contextOptional: string;
+  readonly contextEmptySummary: string;
+  readonly contextFilledSummary: string;
   readonly contextHelp: string;
   readonly contextCountLabel: string;
   readonly topicSelectorLabel: string;
@@ -66,6 +68,13 @@ export type TarotReadingMessages = {
       >
     >;
   };
+  readonly promptReady: string;
+  readonly promptContextIncluded: string;
+  readonly promptCopySuccess: string;
+  readonly promptContentDisclosure: string;
+  readonly promptContentClose: string;
+  readonly cardDetailsDisclosure: string;
+  readonly shareOptionsDisclosure: string;
   readonly cardDetails: {
     readonly archetype: string;
     readonly keywords: string;
@@ -125,6 +134,8 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     copiedShareText: copy.copiedShareText,
     copyPrompt: copy.copyPrompt,
     contextCountLabel: copy.contextCountLabel,
+    contextEmptySummary: copy.contextEmptySummary,
+    contextFilledSummary: copy.contextFilledSummary,
     contextHelp: copy.contextHelp,
     contextLabel: copy.contextLabel,
     contextOptional: copy.contextOptional,
@@ -151,16 +162,23 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     placeholderCardName: copy.placeholderCardName,
     placeholderCardTone: copy.placeholderCardTone,
     promptPack: copy.promptPack,
+    promptReady: copy.promptReady,
+    promptContextIncluded: copy.promptContextIncluded,
+    promptCopySuccess: copy.promptCopySuccess,
+    promptContentDisclosure: copy.promptContentDisclosure,
+    promptContentClose: copy.promptContentClose,
     promptCopyBlockedAction: copy.promptCopyBlockedAction,
     readingStyleSelectorLabel: copy.readingStyleSelectorLabel,
     sharedReading: copy.sharedReading,
     share: copy.share,
+    shareOptionsDisclosure: copy.shareOptionsDisclosure,
     shareBlockedAction: copy.shareBlockedAction,
     shared: copy.shared,
     shareText: copy.shareText,
     shareTitle: copy.shareTitle,
     socialImageAlt: copy.socialImageAlt,
     spreadSelectorLabel: copy.spreadSelectorLabel,
+    cardDetailsDisclosure: copy.cardDetailsDisclosure,
     topicSelectorLabel: copy.topicSelectorLabel,
     workspaceLabel: copy.workspaceLabel,
   };

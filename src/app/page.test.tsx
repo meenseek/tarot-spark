@@ -119,6 +119,13 @@ describe("Home", () => {
     );
     expect(
       screen
+        .getByTestId("situation-context-toggle")
+        .compareDocumentPosition(
+          screen.getByRole("button", { name: "Draw cards" }),
+        ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      screen
         .getByRole("button", { name: "Draw cards" })
         .compareDocumentPosition(
           screen.getByTestId("reading-preferences-toggle"),
@@ -127,6 +134,7 @@ describe("Home", () => {
     expect(screen.getByTestId("reading-preferences")).not.toHaveAttribute(
       "open",
     );
+    expect(screen.getByTestId("situation-context")).not.toHaveAttribute("open");
     expect(
       screen
         .getByTestId("reading-workspace")
@@ -138,7 +146,7 @@ describe("Home", () => {
 
   it("renders Korean localized content", () => {
     render(<TarotExperience locale="ko" />);
-    openReadingPreferences();
+    openSituationContext();
 
     expect(
       screen.getByRole("heading", {
@@ -156,7 +164,7 @@ describe("Home", () => {
     expect(screen.getByText(/의료·법률·재정/i)).toBeInTheDocument();
     expect(
       screen.getByText(
-        /누군가를 알아볼 수 있는 정보나 회사 기밀은 적지 마세요/,
+        /복사할 질문에는 포함되며, 다른 AI에 붙여 넣으면 함께 전달됩니다/,
       ),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "개인정보" })).toHaveAttribute(
@@ -177,16 +185,13 @@ describe("Home", () => {
       .mockResolvedValue(Response.json({ reading }));
 
     render(<TarotExperience locale="ko" />);
-    openReadingPreferences();
+    openSituationContext();
 
-    fireEvent.change(
-      screen.getByRole("textbox", { name: /지금 고민하는 상황/ }),
-      {
-        target: {
-          value: "서버로 보내면 안 되는 민감한 개인 상황",
-        },
+    fireEvent.change(screen.getByRole("textbox", { name: /내 상황 더하기/ }), {
+      target: {
+        value: "서버로 보내면 안 되는 민감한 개인 상황",
       },
-    );
+    });
     fireEvent.click(screen.getByRole("button", { name: "카드 뽑기" }));
     fireEvent.click(screen.getByRole("button", { name: "지금 바로 해석하기" }));
 
@@ -267,9 +272,9 @@ describe("Home", () => {
 
   it("matches the context example to every selected topic", () => {
     render(<Home />);
-    openReadingPreferences();
+    openSituationContext();
 
-    const context = screen.getByLabelText(/Situation or relationship context/);
+    const context = screen.getByLabelText(/Add your situation/);
     const topicExamples = [
       [
         "Love 3 cards",
@@ -299,6 +304,30 @@ describe("Home", () => {
     }
   });
 
+  it("keeps optional situation entry discoverable and confirms saved input", () => {
+    render(<Home />);
+
+    const situationDisclosure = screen.getByTestId("situation-context");
+    expect(situationDisclosure).not.toHaveAttribute("open");
+    expect(screen.getByText("Make the prompt more specific")).toBeVisible();
+
+    openSituationContext();
+    fireEvent.change(screen.getByLabelText("Add your situation"), {
+      target: { value: "I want to understand what I can change." },
+    });
+    fireEvent.click(screen.getByTestId("situation-context-toggle"));
+
+    expect(situationDisclosure).not.toHaveAttribute("open");
+    expect(screen.getByText("Situation added · Edit")).toBeVisible();
+    expect(
+      screen
+        .getByTestId("situation-context-toggle")
+        .compareDocumentPosition(
+          screen.getByRole("button", { name: "Draw cards" }),
+        ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it("labels the Korean Instagram action as a link copy", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     Reflect.deleteProperty(navigator, "clipboard");
@@ -307,6 +336,7 @@ describe("Home", () => {
     render(<TarotExperience locale="ko" />);
 
     fireEvent.click(screen.getByRole("button", { name: "카드 뽑기" }));
+    openShareOptions();
     fireEvent.click(
       screen.getByRole("button", { name: "Instagram용 링크 복사" }),
     );
@@ -333,6 +363,8 @@ describe("Home", () => {
         selector: "p",
       }),
     ).toBeInTheDocument();
+
+    openPromptContent();
 
     const prompt = screen.getByLabelText(
       "AI에 붙여 넣을 질문",
@@ -368,6 +400,25 @@ describe("Home", () => {
       ),
     ).toBeInTheDocument();
 
+    expect(screen.getByTestId("prompt-ready")).toBeVisible();
+    expect(screen.getByTestId("prompt-content-disclosure")).not.toHaveAttribute(
+      "open",
+    );
+    expect(screen.getByTestId("card-details-disclosure")).not.toHaveAttribute(
+      "open",
+    );
+    expect(screen.getByTestId("share-options-disclosure")).not.toHaveAttribute(
+      "open",
+    );
+    expect(
+      screen
+        .getByTestId("prompt-ready")
+        .compareDocumentPosition(screen.getByTestId("prompt-type-disclosure")) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    openPromptContent();
+
     const prompt = screen.getByLabelText(
       "Generated prompt",
     ) as HTMLTextAreaElement;
@@ -387,6 +438,8 @@ describe("Home", () => {
         name: "Copy selected prompt",
       }),
     ).toBeInTheDocument();
+
+    openShareOptions();
     expect(
       screen.getByRole("button", {
         name: "Share",
@@ -394,9 +447,10 @@ describe("Home", () => {
     ).toBeInTheDocument();
     expect(
       screen
-        .getByRole("heading", { name: "Choose the prompt you need next" })
-        .compareDocumentPosition(screen.getByTestId("card-detail-list")) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
+        .getByTestId("prompt-ready")
+        .compareDocumentPosition(
+          screen.getByTestId("card-details-disclosure"),
+        ) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(
       screen.queryByRole("button", {
@@ -539,6 +593,8 @@ describe("Home", () => {
       screen.getByRole("button", { name: "Reunion 3 cards" }),
     ).toHaveAttribute("aria-pressed", "true");
 
+    openPromptContent();
+
     const prompt = screen.getByLabelText(
       "Generated prompt",
     ) as HTMLTextAreaElement;
@@ -666,7 +722,10 @@ describe("Home", () => {
       render(<Home />);
 
       await waitFor(() => {
-        expect(screen.getByLabelText("Generated prompt")).toBeVisible();
+        expect(screen.getByTestId("prompt-ready")).toBeVisible();
+      });
+      await waitFor(() => {
+        expect(testIntersectionObservers.size).toBeGreaterThan(0);
       });
       setReadingResultIntersection(true);
       announceAnalyticsReady();
@@ -711,6 +770,7 @@ describe("Home", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     render(<Home />);
     openReadingPreferences();
+    openSituationContext();
 
     fireEvent.click(screen.getByRole("radio", { name: /Deep 6-card/ }));
     fireEvent.click(
@@ -720,7 +780,7 @@ describe("Home", () => {
     );
     fireEvent.change(
       screen.getByRole("textbox", {
-        name: /Situation or relationship context/,
+        name: /Add your situation/,
       }),
       {
         target: {
@@ -730,6 +790,7 @@ describe("Home", () => {
       },
     );
     fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+    openPromptContent();
 
     const prompt = screen.getByLabelText(
       "Generated prompt",
@@ -753,11 +814,11 @@ describe("Home", () => {
   it("preserves private context once during same-tab locale switching", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     render(<Home />);
-    openReadingPreferences();
+    openSituationContext();
 
     fireEvent.change(
       screen.getByRole("textbox", {
-        name: /Situation or relationship context/,
+        name: /Add your situation/,
       }),
       {
         target: {
@@ -782,16 +843,17 @@ describe("Home", () => {
         <TarotExperience locale="ko" />
       </StrictMode>,
     );
-    openReadingPreferences();
+    openSituationContext();
 
     await waitFor(() => {
       expect(
         screen.getByRole("textbox", {
-          name: /지금 고민하는 상황/,
+          name: /내 상황 더하기/,
         }),
       ).toHaveValue("My manager relationship is difficult.");
     });
     expect(window.sessionStorage.length).toBe(0);
+    openPromptContent();
     expect(
       (screen.getByLabelText("AI에 붙여 넣을 질문") as HTMLTextAreaElement)
         .value,
@@ -887,7 +949,10 @@ describe("Home", () => {
     try {
       render(<Home />);
       await waitFor(() => {
-        expect(screen.getByLabelText("Generated prompt")).toBeVisible();
+        expect(screen.getByTestId("prompt-ready")).toBeVisible();
+      });
+      await waitFor(() => {
+        expect(testIntersectionObservers.size).toBeGreaterThan(0);
       });
 
       setReadingResultIntersection(true);
@@ -954,7 +1019,7 @@ describe("Home", () => {
         </StrictMode>,
       );
       await waitFor(() => {
-        expect(screen.getByLabelText("Generated prompt")).toBeVisible();
+        expect(screen.getByTestId("prompt-ready")).toBeVisible();
       });
 
       setReadingResultIntersection(true);
@@ -987,7 +1052,9 @@ describe("Home", () => {
     try {
       render(<Home />);
       fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+      openPromptTypes();
       fireEvent.click(screen.getByRole("button", { name: /^Action plan/ }));
+      openPromptContent();
 
       const prompt = screen.getByLabelText(
         "Generated prompt",
@@ -1038,10 +1105,30 @@ describe("Home", () => {
       expect(failureMessage).toBeInTheDocument();
       expect(failureMessage).not.toHaveTextContent(/permission/i);
     });
+    const promptFallback = screen.getByLabelText("Generated prompt");
+    expect(screen.getByTestId("prompt-content-disclosure")).toHaveAttribute(
+      "open",
+    );
+    expect(promptFallback).toHaveFocus();
+    expect(promptFallback).toHaveAttribute(
+      "aria-describedby",
+      "prompt-copy-failure",
+    );
     expect(
       screen.getByRole("button", { name: "Copy selected prompt" }),
     ).toBeInTheDocument();
     expect(screen.queryByRole("textbox", { name: "Share URL" })).toBeNull();
+
+    const copyButton = screen.getByRole("button", {
+      name: "Copy selected prompt",
+    });
+    copyButton.focus();
+    fireEvent.click(copyButton);
+
+    await waitFor(() => {
+      expect(document.execCommand).toHaveBeenCalledTimes(2);
+      expect(promptFallback).toHaveFocus();
+    });
   });
 
   it("keeps share idle when native share is cancelled", async () => {
@@ -1064,6 +1151,7 @@ describe("Home", () => {
     window.addEventListener("tarot_spark_event", listener);
 
     try {
+      openShareOptions();
       fireEvent.click(screen.getByRole("button", { name: "Share" }));
 
       await act(async () => {
@@ -1108,6 +1196,7 @@ describe("Home", () => {
 
     renderDrawnReading();
 
+    openShareOptions();
     fireEvent.click(screen.getByRole("button", { name: "Share" }));
 
     await waitFor(() => {
@@ -1115,6 +1204,11 @@ describe("Home", () => {
     });
     expect(share).toHaveBeenCalledTimes(1);
     const manualUrl = screen.getByRole("textbox", { name: "Share URL" });
+    expect(screen.getByTestId("share-options-disclosure")).toHaveAttribute(
+      "open",
+    );
+    expect(manualUrl).toHaveFocus();
+    expect(manualUrl).toHaveAttribute("aria-describedby", "share-failure");
     const parsedUrl = new URL((manualUrl as HTMLInputElement).value);
     expect(parsedUrl.searchParams.get("source")).toBe("copy");
     expect(parsedUrl.searchParams.get("campaign")).toBe("vertical-slice");
@@ -1136,6 +1230,7 @@ describe("Home", () => {
       expect(failureMessage).toBeInTheDocument();
       expect(failureMessage).not.toHaveTextContent(/권한/);
     });
+    expect(screen.getByLabelText("AI에 붙여 넣을 질문")).toHaveFocus();
     expect(screen.queryByRole("textbox", { name: "공유 URL" })).toBeNull();
   });
 
@@ -1145,6 +1240,7 @@ describe("Home", () => {
 
     renderDrawnReading();
 
+    openShareOptions();
     fireEvent.click(screen.getByRole("button", { name: "Share" }));
 
     await waitFor(() => {
@@ -1174,6 +1270,7 @@ describe("Home", () => {
     renderDrawnReading();
     const shareUrl = getExpectedShareUrl("kakao");
 
+    openShareOptions();
     fireEvent.click(await screen.findByRole("button", { name: "KakaoTalk" }));
 
     await waitFor(() => {
@@ -1209,6 +1306,8 @@ describe("Home", () => {
 
     renderDrawnReading();
 
+    openShareOptions();
+
     expect(
       screen.queryByRole("button", { name: "KakaoTalk" }),
     ).not.toBeInTheDocument();
@@ -1238,6 +1337,8 @@ describe("Home", () => {
 
     renderDrawnReading();
 
+    openShareOptions();
+
     expect(
       screen.queryByRole("button", { name: "KakaoTalk" }),
     ).not.toBeInTheDocument();
@@ -1263,6 +1364,7 @@ describe("Home", () => {
 
     renderDrawnReading();
 
+    openShareOptions();
     fireEvent.click(screen.getByRole("button", { name: "Copy URL" }));
 
     await waitFor(() => {
@@ -1298,6 +1400,7 @@ describe("Home", () => {
 
     renderDrawnReading();
 
+    openShareOptions();
     fireEvent.click(
       screen.getByRole("button", { name: "Copy link for Instagram" }),
     );
@@ -1319,6 +1422,7 @@ describe("Home", () => {
 
     renderDrawnReading();
 
+    openShareOptions();
     fireEvent.click(await screen.findByRole("button", { name: "KakaoTalk" }));
 
     const firstScript = document.getElementById(
@@ -1377,6 +1481,34 @@ function renderDrawnReading() {
 
 function openReadingPreferences() {
   fireEvent.click(screen.getByTestId("reading-preferences-toggle"));
+}
+
+function openSituationContext() {
+  fireEvent.click(screen.getByTestId("situation-context-toggle"));
+}
+
+function openPromptTypes() {
+  fireEvent.click(
+    within(screen.getByTestId("prompt-type-disclosure")).getByText(
+      "Change prompt type",
+    ),
+  );
+}
+
+function openPromptContent() {
+  fireEvent.click(
+    within(screen.getByTestId("prompt-content-disclosure")).getByText(
+      /View prompt|질문 내용 보기/,
+    ),
+  );
+}
+
+function openShareOptions() {
+  fireEvent.click(
+    within(screen.getByTestId("share-options-disclosure")).getByText(
+      /View sharing options|공유 방법 보기/,
+    ),
+  );
 }
 
 function setReadingResultIntersection(isIntersecting: boolean) {

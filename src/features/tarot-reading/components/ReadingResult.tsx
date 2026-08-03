@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useRef } from "react";
 import {
   primaryButtonClassName,
   secondaryButtonClassName,
@@ -23,6 +26,7 @@ type ReadingResultProps = {
   readonly copy: TarotReadingCopy;
   readonly copyState: CopyState;
   readonly hasKakaoShare: boolean;
+  readonly hasUserContext: boolean;
   readonly instagramCopyState: CopyState;
   readonly instantReading: InstantReadingV1 | undefined;
   readonly instantReadingEnabled: boolean;
@@ -49,6 +53,7 @@ export function ReadingResult({
   copy,
   copyState,
   hasKakaoShare,
+  hasUserContext,
   instagramCopyState,
   instantReading,
   instantReadingEnabled,
@@ -69,6 +74,10 @@ export function ReadingResult({
   onCopyUrl,
   onShareReading,
 }: ReadingResultProps) {
+  const promptDisclosureRef = useRef<HTMLDetailsElement | null>(null);
+  const promptTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const shareDisclosureRef = useRef<HTMLDetailsElement | null>(null);
+  const manualShareUrlRef = useRef<HTMLInputElement | null>(null);
   const actionGridClassName =
     "grid gap-2 sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]";
   const hasShareFailure =
@@ -76,18 +85,48 @@ export function ReadingResult({
     kakaoShareState === "failed" ||
     shareState === "failed" ||
     urlCopyState === "failed";
+  const selectedPromptSlot = copy.promptPack.slots[selectedPromptSlotId];
+
+  useEffect(() => {
+    if (copyState !== "failed") {
+      return;
+    }
+
+    if (promptDisclosureRef.current) {
+      promptDisclosureRef.current.open = true;
+    }
+    promptTextareaRef.current?.focus();
+    promptTextareaRef.current?.select();
+  }, [copyState]);
+
+  useEffect(() => {
+    if (!hasShareFailure) {
+      return;
+    }
+
+    if (shareDisclosureRef.current) {
+      shareDisclosureRef.current.open = true;
+    }
+    manualShareUrlRef.current?.focus();
+    manualShareUrlRef.current?.select();
+  }, [hasShareFailure]);
 
   return (
     <div className="grid gap-4">
       {cards.length > 0 ? (
         <>
-          <div className="grid gap-3">
+          <div className="grid gap-2">
             <p className="text-sm font-semibold text-ts-action">
               {selectedTopic.label}
             </p>
             <p className="text-base leading-7 text-ts-ink">
               {selectedTopic.resultFrame}
             </p>
+            {readingLens && (
+              <p className="text-sm font-semibold text-ts-action">
+                {copy.interpretationLensLabel}: {readingLens.label}
+              </p>
+            )}
           </div>
 
           {instantReadingEnabled && (
@@ -100,71 +139,29 @@ export function ReadingResult({
             />
           )}
 
-          {readingLens && (
-            <p className="text-sm font-semibold text-ts-action">
-              {copy.interpretationLensLabel}: {readingLens.label}
-            </p>
-          )}
-
-          <section className="grid gap-3" aria-labelledby="prompt-pack-heading">
+          <section
+            aria-labelledby="prompt-ready-heading"
+            className="flex flex-col gap-3 rounded-ts-control border-2 border-ts-action bg-ts-blush p-4 sm:flex-row sm:items-center sm:justify-between"
+            data-testid="prompt-ready"
+          >
             <div className="grid gap-1">
-              <h2
-                className="font-ts-display text-2xl font-semibold text-ts-ink"
-                id="prompt-pack-heading"
-              >
-                {copy.promptPack.heading}
-              </h2>
-              <p className="text-sm leading-6 text-ts-muted">
-                {copy.promptPack.intro}
+              <p className="text-xs font-semibold text-ts-action">
+                {selectedPromptSlot.label}
               </p>
+              <h2
+                className="font-ts-display text-xl font-semibold text-ts-ink"
+                id="prompt-ready-heading"
+              >
+                {copy.promptReady}
+              </h2>
+              {hasUserContext && (
+                <p className="text-xs leading-5 text-ts-muted">
+                  {copy.promptContextIncluded}
+                </p>
+              )}
             </div>
-            <div
-              aria-label={copy.promptPack.selectorLabel}
-              className="grid gap-2 sm:grid-cols-2"
-              role="group"
-            >
-              {promptSlotIds.map((promptSlotId) => {
-                const slot = copy.promptPack.slots[promptSlotId];
-                const isSelected = promptSlotId === selectedPromptSlotId;
-
-                return (
-                  <button
-                    aria-pressed={isSelected}
-                    className={`min-h-24 rounded-ts-control border-2 p-3 text-left transition-colors duration-[var(--ts-motion-fast)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action ${
-                      isSelected
-                        ? "border-ts-action bg-ts-blush"
-                        : "border-ts-border bg-ts-surface hover:border-ts-action hover:bg-ts-blush"
-                    }`}
-                    key={promptSlotId}
-                    onClick={() => onPromptSlotChange(promptSlotId)}
-                    type="button"
-                  >
-                    <span className="block text-sm font-semibold text-ts-ink">
-                      {slot.label}
-                    </span>
-                    <span className="mt-1 block text-xs leading-5 text-ts-muted">
-                      {slot.description}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-          <label className="grid gap-2 text-sm font-semibold text-ts-ink">
-            {copy.generatedPromptLabel}:{" "}
-            {copy.promptPack.slots[selectedPromptSlotId].label}
-            <textarea
-              aria-label={copy.generatedPromptLabel}
-              className="min-h-56 resize-y rounded-ts-control border-2 border-ts-border bg-ts-surface p-4 font-ts-sans text-sm font-normal leading-6 text-ts-ink outline-none transition-colors duration-[var(--ts-motion-fast)] focus:border-ts-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
-              readOnly
-              value={prompt}
-            />
-          </label>
-
-          <div className={actionGridClassName}>
             <button
-              className={`${primaryButtonClassName} min-h-11 gap-2 px-3 py-2 leading-5`}
+              className={`${primaryButtonClassName} min-h-11 shrink-0 px-4 py-2 leading-5`}
               onClick={onCopyPrompt}
               type="button"
             >
@@ -172,151 +169,283 @@ export function ReadingResult({
                 {copyState === "copied" ? copy.copied : copy.copyPrompt}
               </span>
             </button>
-            {hasKakaoShare && (
-              <button
-                className={`${secondaryButtonClassName} gap-2 px-3`}
-                onClick={onKakaoShare}
-                type="button"
-              >
-                <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#FEE500]">
-                  <Image
-                    alt=""
-                    aria-hidden="true"
-                    className="h-4 w-4"
-                    height={16}
-                    src="/brand/kakaotalk-symbol.svg"
-                    width={16}
-                  />
-                </span>
-                <span className="whitespace-nowrap">
-                  {kakaoShareState === "opened"
-                    ? copy.kakaoShared
-                    : copy.kakaoShare}
-                </span>
-              </button>
-            )}
-            <button
-              className={`${secondaryButtonClassName} gap-2 px-3`}
-              onClick={onInstagramShare}
-              type="button"
+          </section>
+
+          {copyState === "copied" && (
+            <p
+              aria-live="polite"
+              className="text-sm font-medium leading-6 text-ts-success"
+              data-testid="prompt-copy-success"
+              role="status"
             >
-              <Image
-                alt=""
-                aria-hidden="true"
-                className="h-5 w-5 shrink-0"
-                height={20}
-                src="/brand/instagram-glyph-gradient.png"
-                width={20}
-              />
-              <span className="whitespace-nowrap">
-                {instagramCopyState === "copied"
-                  ? copy.instagramCopied
-                  : copy.instagramShare}
-              </span>
-            </button>
-            <button
-              className={`${secondaryButtonClassName} gap-2 px-3`}
-              onClick={onShareReading}
-              type="button"
-            >
-              <span className="whitespace-nowrap">
-                {getShareButtonLabel(copy, shareState)}
-              </span>
-            </button>
-            <button
-              className={`${secondaryButtonClassName} gap-2 px-3`}
-              onClick={onCopyUrl}
-              type="button"
-            >
-              <span className="whitespace-nowrap">
-                {urlCopyState === "copied" ? copy.copiedUrl : copy.copyUrl}
-              </span>
-            </button>
-          </div>
+              {copy.promptCopySuccess}
+            </p>
+          )}
+
           {copyState === "failed" && (
             <p
               aria-live="polite"
-              className="text-sm font-medium text-ts-danger"
+              className="text-sm font-medium leading-6 text-ts-danger"
+              id="prompt-copy-failure"
               role="status"
             >
               {copy.promptCopyBlockedAction}
             </p>
           )}
-          {hasShareFailure && (
-            <div className="grid gap-2" data-testid="manual-share-fallback">
-              <p
-                aria-live="polite"
-                className="text-sm font-medium text-ts-danger"
-                role="status"
-              >
-                {copy.shareBlockedAction}
+
+          <details
+            className="group rounded-ts-control border border-ts-divider bg-ts-surface"
+            data-testid="prompt-type-disclosure"
+          >
+            <summary className={disclosureSummaryClassName}>
+              <span className="font-semibold text-ts-ink">
+                {copy.promptPack.heading}
+              </span>
+              <span className="flex items-center gap-2 text-xs leading-5 text-ts-muted">
+                <span>{selectedPromptSlot.label}</span>
+                <DisclosureChevron />
+              </span>
+            </summary>
+            <div className="grid gap-3 border-t border-ts-divider p-4">
+              <p className="text-sm leading-6 text-ts-muted">
+                {copy.promptPack.intro}
               </p>
+              <div
+                aria-label={copy.promptPack.selectorLabel}
+                className="grid grid-cols-2 gap-2 sm:grid-cols-4"
+                role="group"
+              >
+                {promptSlotIds.map((promptSlotId) => {
+                  const slot = copy.promptPack.slots[promptSlotId];
+                  const isSelected = promptSlotId === selectedPromptSlotId;
+
+                  return (
+                    <button
+                      aria-pressed={isSelected}
+                      className={`min-h-11 rounded-full border-2 px-2 py-2 text-center text-xs font-semibold leading-4 transition-colors duration-[var(--ts-motion-fast)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action ${
+                        isSelected
+                          ? "border-ts-action bg-ts-blush text-ts-ink"
+                          : "border-ts-border bg-ts-surface text-ts-ink hover:border-ts-action hover:bg-ts-blush"
+                      }`}
+                      key={promptSlotId}
+                      onClick={() => onPromptSlotChange(promptSlotId)}
+                      type="button"
+                    >
+                      {slot.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs leading-5 text-ts-muted">
+                {selectedPromptSlot.description}
+              </p>
+            </div>
+          </details>
+
+          <details
+            className="group rounded-ts-control border border-ts-divider bg-ts-surface"
+            data-testid="prompt-content-disclosure"
+            ref={promptDisclosureRef}
+          >
+            <summary className={disclosureSummaryClassName}>
+              <span className="font-semibold text-ts-ink">
+                <span className="group-open:hidden">
+                  {copy.promptContentDisclosure}
+                </span>
+                <span className="hidden group-open:inline">
+                  {copy.promptContentClose}
+                </span>
+              </span>
+              <DisclosureChevron />
+            </summary>
+            <div className="border-t border-ts-divider p-4">
               <label className="grid gap-2 text-sm font-semibold text-ts-ink">
-                {copy.manualShareUrlLabel}
-                <input
-                  aria-label={copy.manualShareUrlLabel}
-                  className="min-h-11 rounded-ts-control border-2 border-ts-border bg-ts-surface px-3 py-2 font-ts-sans text-sm font-normal text-ts-ink outline-none focus:border-ts-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
+                {copy.generatedPromptLabel}: {selectedPromptSlot.label}
+                <textarea
+                  aria-describedby={
+                    copyState === "failed" ? "prompt-copy-failure" : undefined
+                  }
+                  aria-label={copy.generatedPromptLabel}
+                  className="min-h-56 resize-y rounded-ts-control border-2 border-ts-border bg-ts-surface p-4 font-ts-sans text-sm font-normal leading-6 text-ts-ink outline-none transition-colors duration-[var(--ts-motion-fast)] focus:border-ts-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
                   readOnly
-                  value={shareUrl}
+                  ref={promptTextareaRef}
+                  value={prompt}
                 />
               </label>
             </div>
-          )}
+          </details>
 
-          <div className="grid gap-3" data-testid="card-detail-list">
-            {cards.map(({ position, card }) => (
-              <article
-                className="grid gap-4 rounded-ts-control border border-ts-divider bg-ts-canvas p-4"
-                key={`${position.id}-${card.id}`}
-              >
-                <div className="grid gap-1 border-b border-ts-divider pb-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ts-action">
-                    {position.label}
+          <details
+            className="group rounded-ts-control border border-ts-divider bg-ts-surface"
+            data-testid="card-details-disclosure"
+          >
+            <summary className={disclosureSummaryClassName}>
+              <span className="font-semibold text-ts-ink">
+                {copy.cardDetailsDisclosure}
+              </span>
+              <span className="flex items-center gap-2 text-xs text-ts-muted">
+                <span>{cards.length}</span>
+                <DisclosureChevron />
+              </span>
+            </summary>
+            <div
+              className="grid gap-3 border-t border-ts-divider p-4"
+              data-testid="card-detail-list"
+            >
+              {cards.map(({ position, card }) => (
+                <article
+                  className="grid gap-4 rounded-ts-control border border-ts-divider bg-ts-canvas p-4"
+                  key={`${position.id}-${card.id}`}
+                >
+                  <div className="grid gap-1 border-b border-ts-divider pb-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ts-action">
+                      {position.label}
+                    </p>
+                    <h3 className="font-ts-display text-xl font-semibold text-ts-ink">
+                      {card.name}
+                    </h3>
+                    <p className="text-sm text-ts-muted">
+                      {copy.cardDetails.archetype}: {card.archetype}
+                    </p>
+                  </div>
+
+                  <div className="grid gap-4 text-sm sm:grid-cols-2">
+                    <CardDetail
+                      label={copy.cardDetails.keywords}
+                      value={card.keywords.join(" · ")}
+                    />
+                    <CardDetail
+                      label={copy.cardDetails.symbols}
+                      value={card.symbols.join(" · ")}
+                    />
+                    <CardDetail
+                      label={copy.cardDetails.light}
+                      value={card.light}
+                    />
+                    <CardDetail
+                      label={copy.cardDetails.shadow}
+                      value={card.shadow}
+                    />
+                  </div>
+
+                  <div className="grid gap-3 rounded-ts-inset border border-ts-divider bg-ts-surface p-4">
+                    <CardDetail
+                      label={copy.cardDetails.agency}
+                      value={card.agency}
+                    />
+                    <CardDetail
+                      label={copy.cardDetails.caution}
+                      value={card.caution}
+                    />
+                    <CardDetail
+                      label={copy.cardDetails.reflection}
+                      value={card.reflection}
+                    />
+                  </div>
+                </article>
+              ))}
+            </div>
+          </details>
+
+          <details
+            className="group rounded-ts-control border border-ts-divider bg-ts-surface"
+            data-testid="share-options-disclosure"
+            ref={shareDisclosureRef}
+          >
+            <summary className={disclosureSummaryClassName}>
+              <span className="font-semibold text-ts-ink">
+                {copy.shareOptionsDisclosure}
+              </span>
+              <DisclosureChevron />
+            </summary>
+            <div className="grid gap-3 border-t border-ts-divider p-4">
+              <div className={actionGridClassName}>
+                {hasKakaoShare && (
+                  <button
+                    className={`${secondaryButtonClassName} gap-2 px-3`}
+                    onClick={onKakaoShare}
+                    type="button"
+                  >
+                    <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#FEE500]">
+                      <Image
+                        alt=""
+                        aria-hidden="true"
+                        className="h-4 w-4"
+                        height={16}
+                        src="/brand/kakaotalk-symbol.svg"
+                        width={16}
+                      />
+                    </span>
+                    <span className="whitespace-nowrap">
+                      {kakaoShareState === "opened"
+                        ? copy.kakaoShared
+                        : copy.kakaoShare}
+                    </span>
+                  </button>
+                )}
+                <button
+                  className={`${secondaryButtonClassName} gap-2 px-3`}
+                  onClick={onInstagramShare}
+                  type="button"
+                >
+                  <Image
+                    alt=""
+                    aria-hidden="true"
+                    className="h-5 w-5 shrink-0"
+                    height={20}
+                    src="/brand/instagram-glyph-gradient.png"
+                    width={20}
+                  />
+                  <span className="whitespace-nowrap">
+                    {instagramCopyState === "copied"
+                      ? copy.instagramCopied
+                      : copy.instagramShare}
+                  </span>
+                </button>
+                <button
+                  className={`${secondaryButtonClassName} gap-2 px-3`}
+                  onClick={onShareReading}
+                  type="button"
+                >
+                  <span className="whitespace-nowrap">
+                    {getShareButtonLabel(copy, shareState)}
+                  </span>
+                </button>
+                <button
+                  className={`${secondaryButtonClassName} gap-2 px-3`}
+                  onClick={onCopyUrl}
+                  type="button"
+                >
+                  <span className="whitespace-nowrap">
+                    {urlCopyState === "copied" ? copy.copiedUrl : copy.copyUrl}
+                  </span>
+                </button>
+              </div>
+              {hasShareFailure && (
+                <div className="grid gap-2" data-testid="manual-share-fallback">
+                  <p
+                    aria-live="polite"
+                    className="text-sm font-medium text-ts-danger"
+                    id="share-failure"
+                    role="status"
+                  >
+                    {copy.shareBlockedAction}
                   </p>
-                  <h3 className="font-ts-display text-xl font-semibold text-ts-ink">
-                    {card.name}
-                  </h3>
-                  <p className="text-sm text-ts-muted">
-                    {copy.cardDetails.archetype}: {card.archetype}
-                  </p>
+                  <label className="grid gap-2 text-sm font-semibold text-ts-ink">
+                    {copy.manualShareUrlLabel}
+                    <input
+                      aria-describedby="share-failure"
+                      aria-label={copy.manualShareUrlLabel}
+                      className="min-h-11 rounded-ts-control border-2 border-ts-border bg-ts-surface px-3 py-2 font-ts-sans text-sm font-normal text-ts-ink outline-none focus:border-ts-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
+                      readOnly
+                      ref={manualShareUrlRef}
+                      value={shareUrl}
+                    />
+                  </label>
                 </div>
-
-                <div className="grid gap-4 text-sm sm:grid-cols-2">
-                  <CardDetail
-                    label={copy.cardDetails.keywords}
-                    value={card.keywords.join(" · ")}
-                  />
-                  <CardDetail
-                    label={copy.cardDetails.symbols}
-                    value={card.symbols.join(" · ")}
-                  />
-                  <CardDetail
-                    label={copy.cardDetails.light}
-                    value={card.light}
-                  />
-                  <CardDetail
-                    label={copy.cardDetails.shadow}
-                    value={card.shadow}
-                  />
-                </div>
-
-                <div className="grid gap-3 rounded-ts-inset border border-ts-divider bg-ts-surface p-4">
-                  <CardDetail
-                    label={copy.cardDetails.agency}
-                    value={card.agency}
-                  />
-                  <CardDetail
-                    label={copy.cardDetails.caution}
-                    value={card.caution}
-                  />
-                  <CardDetail
-                    label={copy.cardDetails.reflection}
-                    value={card.reflection}
-                  />
-                </div>
-              </article>
-            ))}
-          </div>
+              )}
+            </div>
+          </details>
         </>
       ) : (
         <div className="rounded-ts-control border border-ts-divider bg-ts-canvas p-4">
@@ -329,6 +458,20 @@ export function ReadingResult({
         </div>
       )}
     </div>
+  );
+}
+
+const disclosureSummaryClassName =
+  "flex min-h-12 cursor-pointer list-none flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-ts-control px-4 py-3 text-sm marker:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action [&::-webkit-details-marker]:hidden";
+
+function DisclosureChevron() {
+  return (
+    <span
+      aria-hidden="true"
+      className="text-base text-ts-action transition-transform duration-[var(--ts-motion-fast)] group-open:rotate-180"
+    >
+      ⌄
+    </span>
   );
 }
 

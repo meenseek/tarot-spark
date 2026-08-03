@@ -4,35 +4,26 @@ import type {
   Spread,
   SpreadId,
 } from "@/domain/tarot";
-import { maxUserContextLength } from "@/domain/tarot";
 import type { TarotReadingCopy } from "../i18n";
 
 type ReadingPreferencesProps = {
-  readonly contextCountLabel: string;
-  readonly contextPlaceholder: string;
   readonly copy: TarotReadingCopy;
-  readonly onContextChange: (value: string) => void;
   readonly onSpreadChange: (spreadId: SpreadId) => void;
   readonly onStyleChange: (styleId: ReadingStyleId) => void;
   readonly readingStyles: readonly ReadingStyle[];
   readonly selectedSpreadId: SpreadId;
   readonly selectedStyleId: ReadingStyleId;
   readonly spreads: readonly Spread[];
-  readonly userContext: string;
 };
 
 export function ReadingPreferences({
-  contextCountLabel,
-  contextPlaceholder,
   copy,
-  onContextChange,
   onSpreadChange,
   onStyleChange,
   readingStyles,
   selectedSpreadId,
   selectedStyleId,
   spreads,
-  userContext,
 }: ReadingPreferencesProps) {
   const selectedSpread = spreads.find(
     (spread) => spread.id === selectedSpreadId,
@@ -142,33 +133,6 @@ export function ReadingPreferences({
             ))}
           </div>
         </fieldset>
-
-        <div className="grid gap-2">
-          <label
-            className="text-sm font-semibold text-ts-ink"
-            htmlFor="tarot-user-context"
-          >
-            {copy.contextLabel}{" "}
-            <span className="font-normal text-ts-muted">
-              ({copy.contextOptional})
-            </span>
-          </label>
-          <textarea
-            aria-describedby="tarot-context-help tarot-context-count"
-            className="min-h-40 resize-y rounded-ts-control border-2 border-ts-border bg-ts-canvas p-3 text-sm leading-6 text-ts-ink outline-none transition-colors duration-[var(--ts-motion-fast)] placeholder:text-ts-muted focus:border-ts-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action sm:min-h-28"
-            id="tarot-user-context"
-            maxLength={maxUserContextLength}
-            onChange={(event) => onContextChange(event.currentTarget.value)}
-            placeholder={contextPlaceholder}
-            value={userContext}
-          />
-          <div className="flex flex-col justify-between gap-1 text-xs leading-5 text-ts-muted sm:flex-row">
-            <p id="tarot-context-help">{copy.contextHelp}</p>
-            <p className="shrink-0 tabular-nums" id="tarot-context-count">
-              {contextCountLabel}
-            </p>
-          </div>
-        </div>
       </div>
     </details>
   );

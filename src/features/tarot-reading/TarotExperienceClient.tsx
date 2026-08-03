@@ -54,6 +54,7 @@ import type { InstantReadingStatus } from "./components/InstantReadingPanel";
 import { LanguageSwitch } from "./components/LanguageSwitch";
 import { ReadingPreferences } from "./components/ReadingPreferences";
 import { ReadingResult } from "./components/ReadingResult";
+import { SituationContextInput } from "./components/SituationContextInput";
 import { TopicSelector } from "./components/TopicSelector";
 import type { TarotReadingCopy } from "./i18n";
 import {
@@ -166,6 +167,7 @@ export function TarotExperienceClient({
   const resultViewCurrentlyVisibleRef = useRef(false);
   const resultViewTargetRef = useRef<HTMLDivElement | null>(null);
   const readingWorkspaceRef = useRef<HTMLElement | null>(null);
+  const situationContextDisclosureRef = useRef<HTMLDetailsElement | null>(null);
   const shouldScrollToResultRef = useRef(false);
   const pendingPrivateContextHandoff = useRef<string | undefined>(undefined);
   const currentOrigin = useSyncExternalStore(
@@ -590,6 +592,9 @@ export function TarotExperienceClient({
 
   function preserveContextForLocaleChange(targetLocale: Locale) {
     if (viewMode === "generator" && targetLocale !== locale) {
+      if (situationContextDisclosureRef.current) {
+        situationContextDisclosureRef.current.open = false;
+      }
       storePrivateContextHandoff(window.sessionStorage, userContext);
     }
   }
@@ -730,6 +735,8 @@ export function TarotExperienceClient({
     if (!prompt) {
       return;
     }
+
+    setCopyState("idle");
 
     try {
       await writeClipboard(prompt);
@@ -987,6 +994,7 @@ export function TarotExperienceClient({
       copy={copy}
       copyState={copyState}
       hasKakaoShare={hasKakaoShare}
+      hasUserContext={userContext.trim().length > 0}
       instagramCopyState={instagramCopyState}
       instantReading={instantReading}
       instantReadingEnabled={viewMode === "generator" && instantReadingEnabled}
@@ -1137,6 +1145,15 @@ export function TarotExperienceClient({
             topics={tarotData.topics}
           />
 
+          <SituationContextInput
+            contextCountLabel={contextCountLabel}
+            contextPlaceholder={selectedTopic.contextPlaceholder}
+            copy={copy}
+            disclosureRef={situationContextDisclosureRef}
+            onContextChange={changeUserContext}
+            userContext={userContext}
+          />
+
           <button
             className={primaryButtonClassName}
             onClick={startDraw}
@@ -1156,18 +1173,13 @@ export function TarotExperienceClient({
           </p>
 
           <ReadingPreferences
-            contextCountLabel={contextCountLabel}
-            contextPlaceholder={selectedTopic.contextPlaceholder}
             copy={copy}
-            key={locale}
-            onContextChange={changeUserContext}
             onSpreadChange={chooseSpread}
             onStyleChange={chooseReadingStyle}
             readingStyles={tarotData.readingStyles}
             selectedSpreadId={selectedSpread.id}
             selectedStyleId={selectedReadingStyle.id}
             spreads={tarotData.spreads}
-            userContext={userContext}
           />
         </div>
 
