@@ -30,6 +30,17 @@ export type TarotReadingMessages = {
   readonly cardCountLabel: string;
   readonly drawButton: string;
   readonly drawStatus: string;
+  readonly resultHeading: string;
+  readonly cardOverviewLabel: string;
+  readonly currentReadingSettings: string;
+  readonly customizeCurrent: string;
+  readonly customizeCurrentIntro: string;
+  readonly editNextReading: string;
+  readonly editNextHeading: string;
+  readonly editNextIntro: string;
+  readonly cancelEdit: string;
+  readonly redrawCurrent: string;
+  readonly drawNext: string;
   readonly workspaceLabel: string;
   readonly cardMarkLabel: string;
   readonly sharedReading: {
@@ -139,11 +150,19 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     contextHelp: copy.contextHelp,
     contextLabel: copy.contextLabel,
     contextOptional: copy.contextOptional,
+    currentReadingSettings: copy.currentReadingSettings,
+    customizeCurrent: copy.customizeCurrent,
+    customizeCurrentIntro: copy.customizeCurrentIntro,
     dailyQuestionLink: copy.dailyQuestionLink,
     deckPreviewNote: copy.deckPreviewNote,
     disclaimer: copy.disclaimer,
     drawButton: copy.drawButton,
+    drawNext: copy.drawNext,
     drawStatus: copy.drawStatus,
+    editNextHeading: copy.editNextHeading,
+    editNextIntro: copy.editNextIntro,
+    editNextReading: copy.editNextReading,
+    cancelEdit: copy.cancelEdit,
     emptyBody: copy.emptyBody,
     emptyHeading: copy.emptyHeading,
     generatedPromptLabel: copy.generatedPromptLabel,
@@ -169,6 +188,9 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     promptContentClose: copy.promptContentClose,
     promptCopyBlockedAction: copy.promptCopyBlockedAction,
     readingStyleSelectorLabel: copy.readingStyleSelectorLabel,
+    redrawCurrent: copy.redrawCurrent,
+    resultHeading: copy.resultHeading,
+    cardOverviewLabel: copy.cardOverviewLabel,
     sharedReading: copy.sharedReading,
     share: copy.share,
     shareOptionsDisclosure: copy.shareOptionsDisclosure,

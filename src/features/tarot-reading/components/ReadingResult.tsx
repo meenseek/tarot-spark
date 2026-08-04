@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import {
   primaryButtonClassName,
   secondaryButtonClassName,
@@ -12,10 +12,9 @@ import {
   type InstantReadingV1,
   type PromptSlotId,
   type ReadingLens,
-  type Topic,
 } from "@/domain/tarot";
 import type { TarotReadingCopy } from "../i18n";
-import type { CopyState, KakaoShareState, ShareState } from "../types";
+import type { CopyState, ShareFeedback } from "../types";
 import {
   InstantReadingPanel,
   type InstantReadingStatus,
@@ -23,22 +22,21 @@ import {
 
 type ReadingResultProps = {
   readonly cards: readonly DrawnCard[];
+  readonly afterPromptAction?: ReactNode;
   readonly copy: TarotReadingCopy;
   readonly copyState: CopyState;
+  readonly currentCustomization?: ReactNode;
   readonly hasKakaoShare: boolean;
   readonly hasUserContext: boolean;
-  readonly instagramCopyState: CopyState;
   readonly instantReading: InstantReadingV1 | undefined;
   readonly instantReadingEnabled: boolean;
   readonly instantReadingStatus: InstantReadingStatus;
-  readonly kakaoShareState: KakaoShareState;
   readonly prompt: string;
   readonly readingLens: ReadingLens | undefined;
+  readonly resultActions?: ReactNode;
   readonly selectedPromptSlotId: PromptSlotId;
-  readonly selectedTopic: Topic;
+  readonly shareFeedback: ShareFeedback | undefined;
   readonly shareUrl: string;
-  readonly shareState: ShareState;
-  readonly urlCopyState: CopyState;
   readonly onInstagramShare: () => void;
   readonly onGenerateInstantReading: () => void;
   readonly onKakaoShare: () => void;
@@ -50,22 +48,21 @@ type ReadingResultProps = {
 
 export function ReadingResult({
   cards,
+  afterPromptAction,
   copy,
   copyState,
+  currentCustomization,
   hasKakaoShare,
   hasUserContext,
-  instagramCopyState,
   instantReading,
   instantReadingEnabled,
   instantReadingStatus,
-  kakaoShareState,
   prompt,
   readingLens,
+  resultActions,
   selectedPromptSlotId,
-  selectedTopic,
+  shareFeedback,
   shareUrl,
-  shareState,
-  urlCopyState,
   onInstagramShare,
   onGenerateInstantReading,
   onKakaoShare,
@@ -80,11 +77,7 @@ export function ReadingResult({
   const manualShareUrlRef = useRef<HTMLInputElement | null>(null);
   const actionGridClassName =
     "grid gap-2 sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]";
-  const hasShareFailure =
-    instagramCopyState === "failed" ||
-    kakaoShareState === "failed" ||
-    shareState === "failed" ||
-    urlCopyState === "failed";
+  const hasShareFailure = shareFeedback?.status === "failed";
   const selectedPromptSlot = copy.promptPack.slots[selectedPromptSlotId];
 
   useEffect(() => {
@@ -115,30 +108,6 @@ export function ReadingResult({
     <div className="grid gap-4">
       {cards.length > 0 ? (
         <>
-          <div className="grid gap-2">
-            <p className="text-sm font-semibold text-ts-action">
-              {selectedTopic.label}
-            </p>
-            <p className="text-base leading-7 text-ts-ink">
-              {selectedTopic.resultFrame}
-            </p>
-            {readingLens && (
-              <p className="text-sm font-semibold text-ts-action">
-                {copy.interpretationLensLabel}: {readingLens.label}
-              </p>
-            )}
-          </div>
-
-          {instantReadingEnabled && (
-            <InstantReadingPanel
-              cards={cards}
-              copy={copy.instantReading}
-              onGenerate={onGenerateInstantReading}
-              reading={instantReading}
-              status={instantReadingStatus}
-            />
-          )}
-
           <section
             aria-labelledby="prompt-ready-heading"
             className="flex flex-col gap-3 rounded-ts-control border-2 border-ts-action bg-ts-blush p-4 sm:flex-row sm:items-center sm:justify-between"
@@ -193,9 +162,30 @@ export function ReadingResult({
             </p>
           )}
 
+          {afterPromptAction}
+
+          {instantReadingEnabled && (
+            <InstantReadingPanel
+              cards={cards}
+              copy={copy.instantReading}
+              onGenerate={onGenerateInstantReading}
+              reading={instantReading}
+              status={instantReadingStatus}
+            />
+          )}
+
+          {readingLens && (
+            <p className="text-sm font-semibold text-ts-action">
+              {copy.interpretationLensLabel}: {readingLens.label}
+            </p>
+          )}
+
+          {currentCustomization}
+
           <details
             className="group rounded-ts-control border border-ts-divider bg-ts-surface"
             data-testid="prompt-type-disclosure"
+            suppressHydrationWarning
           >
             <summary className={disclosureSummaryClassName}>
               <span className="font-semibold text-ts-ink">
@@ -246,6 +236,7 @@ export function ReadingResult({
             className="group rounded-ts-control border border-ts-divider bg-ts-surface"
             data-testid="prompt-content-disclosure"
             ref={promptDisclosureRef}
+            suppressHydrationWarning
           >
             <summary className={disclosureSummaryClassName}>
               <span className="font-semibold text-ts-ink">
@@ -278,6 +269,7 @@ export function ReadingResult({
           <details
             className="group rounded-ts-control border border-ts-divider bg-ts-surface"
             data-testid="card-details-disclosure"
+            suppressHydrationWarning
           >
             <summary className={disclosureSummaryClassName}>
               <span className="font-semibold text-ts-ink">
@@ -351,6 +343,7 @@ export function ReadingResult({
             className="group rounded-ts-control border border-ts-divider bg-ts-surface"
             data-testid="share-options-disclosure"
             ref={shareDisclosureRef}
+            suppressHydrationWarning
           >
             <summary className={disclosureSummaryClassName}>
               <span className="font-semibold text-ts-ink">
@@ -376,8 +369,9 @@ export function ReadingResult({
                         width={16}
                       />
                     </span>
-                    <span className="whitespace-nowrap">
-                      {kakaoShareState === "opened"
+                    <span className="min-w-0 break-words leading-5">
+                      {shareFeedback?.method === "kakaotalk" &&
+                      shareFeedback.status === "opened"
                         ? copy.kakaoShared
                         : copy.kakaoShare}
                     </span>
@@ -396,8 +390,9 @@ export function ReadingResult({
                     src="/brand/instagram-glyph-gradient.png"
                     width={20}
                   />
-                  <span className="whitespace-nowrap">
-                    {instagramCopyState === "copied"
+                  <span className="min-w-0 break-words leading-5">
+                    {shareFeedback?.method === "instagram_copy_url" &&
+                    shareFeedback.status === "copied"
                       ? copy.instagramCopied
                       : copy.instagramShare}
                   </span>
@@ -407,8 +402,8 @@ export function ReadingResult({
                   onClick={onShareReading}
                   type="button"
                 >
-                  <span className="whitespace-nowrap">
-                    {getShareButtonLabel(copy, shareState)}
+                  <span className="min-w-0 break-words leading-5">
+                    {getShareButtonLabel(copy, shareFeedback)}
                   </span>
                 </button>
                 <button
@@ -416,8 +411,11 @@ export function ReadingResult({
                   onClick={onCopyUrl}
                   type="button"
                 >
-                  <span className="whitespace-nowrap">
-                    {urlCopyState === "copied" ? copy.copiedUrl : copy.copyUrl}
+                  <span className="min-w-0 break-words leading-5">
+                    {shareFeedback?.method === "copy_url" &&
+                    shareFeedback.status === "copied"
+                      ? copy.copiedUrl
+                      : copy.copyUrl}
                   </span>
                 </button>
               </div>
@@ -446,6 +444,8 @@ export function ReadingResult({
               )}
             </div>
           </details>
+
+          {resultActions}
         </>
       ) : (
         <div className="rounded-ts-control border border-ts-divider bg-ts-canvas p-4">
@@ -486,12 +486,18 @@ function CardDetail({ label, value }: { label: string; value: string }) {
   );
 }
 
-function getShareButtonLabel(copy: TarotReadingCopy, shareState: ShareState) {
-  if (shareState === "shared") {
+function getShareButtonLabel(
+  copy: TarotReadingCopy,
+  shareFeedback: ShareFeedback | undefined,
+) {
+  if (shareFeedback?.method === "native" && shareFeedback.status === "shared") {
     return copy.shared;
   }
 
-  if (shareState === "copied") {
+  if (
+    shareFeedback?.method === "clipboard" &&
+    shareFeedback.status === "copied"
+  ) {
     return copy.copiedShareText;
   }
 

@@ -9,7 +9,11 @@ import { getDailyQuestionPath } from "@/features/daily-question";
 import { isInstantReadingEnabled } from "@/server/instant-reading-config";
 import { TarotExperienceClient } from "./TarotExperienceClient";
 import { getTarotReadingCopy } from "./i18n";
-import type { ReadingUrlAttribution, ReadingUrlState } from "./reading-state";
+import {
+  getPrivateContextHandoffResetScript,
+  type ReadingUrlAttribution,
+  type ReadingUrlState,
+} from "./reading-state";
 
 export type TarotExperienceViewMode = "generator" | "shared";
 
@@ -29,22 +33,56 @@ export function TarotExperience({
   const publicPageShellCopy = getPublicPageShellCopy(locale);
 
   return (
-    <TarotExperienceClient
-      copy={getTarotReadingCopy(locale)}
-      dailyQuestionPath={getDailyQuestionPath(locale)}
-      instantReadingEnabled={locale === "ko" && isInstantReadingEnabled()}
-      initialAttribution={initialAttribution}
-      initialReadingState={initialReadingState}
-      kakaoAllowedOrigins={getKakaoAllowedOrigins()}
-      kakaoJavaScriptKey={getKakaoJavaScriptKey()}
-      locale={locale}
-      publicPageLinks={getPublicPageLinks(locale)}
-      publicPageNavigationLabel={publicPageShellCopy.pageNavigationLabel}
-      shareSiteUrl={getShareSiteUrl().toString()}
-      tarotData={getTarotData(locale)}
-      viewMode={viewMode}
-    />
+    <>
+      {viewMode === "shared" ? (
+        <script
+          dangerouslySetInnerHTML={{
+            __html: getPrivateContextHandoffResetScript(),
+          }}
+        />
+      ) : null}
+      <TarotExperienceClient
+        copy={getTarotReadingCopy(locale)}
+        dailyQuestionPath={getDailyQuestionPath(locale)}
+        instantReadingEnabled={locale === "ko" && isInstantReadingEnabled()}
+        initialAttribution={initialAttribution}
+        initialReadingState={initialReadingState}
+        kakaoAllowedOrigins={getKakaoAllowedOrigins()}
+        kakaoJavaScriptKey={getKakaoJavaScriptKey()}
+        key={getExperienceKey(
+          locale,
+          viewMode,
+          initialReadingState,
+          initialAttribution,
+        )}
+        locale={locale}
+        publicPageLinks={getPublicPageLinks(locale)}
+        publicPageNavigationLabel={publicPageShellCopy.pageNavigationLabel}
+        shareSiteUrl={getShareSiteUrl().toString()}
+        tarotData={getTarotData(locale)}
+        viewMode={viewMode}
+      />
+    </>
   );
+}
+
+function getExperienceKey(
+  locale: Locale,
+  viewMode: TarotExperienceViewMode,
+  readingState: ReadingUrlState | undefined,
+  attribution: ReadingUrlAttribution | undefined,
+) {
+  return JSON.stringify({
+    attribution,
+    locale,
+    readingState: readingState
+      ? {
+          ...readingState,
+          cards: readingState.cards.map(({ card }) => card.id),
+        }
+      : undefined,
+    viewMode,
+  });
 }
 
 function getKakaoJavaScriptKey() {

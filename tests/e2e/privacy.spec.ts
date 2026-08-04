@@ -204,6 +204,95 @@ test("clears stale private handoff before opening a clean attributed generator",
   ).toHaveValue("");
 });
 
+test("clears stale private handoff before consecutive pre-hydration navigation", async ({
+  context,
+  page,
+}) => {
+  await context.addInitScript(
+    ({ key, value }) => {
+      if (window.location.pathname === "/share") {
+        window.sessionStorage.setItem(key, value);
+      }
+    },
+    {
+      key: privateContextHandoffStorageKey,
+      value: JSON.stringify({
+        context: "Stale pre-hydration private context.",
+        expiresAt: Date.now() + 60_000,
+        version: 1,
+      }),
+    },
+  );
+
+  let blockNextScripts = true;
+  await page.route("**/_next/static/**/*.js", async (route) => {
+    if (blockNextScripts) {
+      await route.abort();
+      return;
+    }
+
+    await route.continue();
+  });
+
+  await page.goto(
+    "/share?topic=relationship-flow&style=relational&cards=the-fool,the-lovers,the-star&source=instagram&campaign=vertical-slice",
+  );
+  const createOwnLink = page.getByRole("link", {
+    name: "Create your own reading",
+  });
+  await expect(createOwnLink).toHaveAttribute(
+    "href",
+    "/?source=instagram&campaign=vertical-slice",
+  );
+  await expect(
+    page.getByRole("button", { name: "Reject optional services" }),
+  ).toHaveCount(0);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        (key) => window.sessionStorage.getItem(key),
+        privateContextHandoffStorageKey,
+      ),
+    )
+    .toBeNull();
+
+  await createOwnLink.click();
+  await expect(page).toHaveURL((url) => {
+    return (
+      url.pathname === "/" &&
+      url.hash === "" &&
+      [...url.searchParams.keys()].sort().join(",") === "campaign,source"
+    );
+  });
+  await expect(page.getByRole("link", { name: "한국어" })).toBeVisible();
+
+  blockNextScripts = false;
+  await page.getByRole("link", { name: "한국어" }).click();
+  await expect(page).toHaveURL((url) => {
+    return (
+      url.pathname === "/ko" &&
+      url.hash === "" &&
+      url.searchParams.get("source") === "instagram" &&
+      url.searchParams.get("campaign") === "vertical-slice"
+    );
+  });
+  await expect
+    .poll(() =>
+      page.evaluate(
+        (key) => window.sessionStorage.getItem(key),
+        privateContextHandoffStorageKey,
+      ),
+    )
+    .toBeNull();
+
+  await openSituationContext(page);
+  await expect(
+    page.getByRole("textbox", {
+      name: /내 상황 더하기/,
+    }),
+  ).toHaveValue("");
+});
+
 async function openSituationContext(page: import("@playwright/test").Page) {
   const disclosure = page.getByTestId("situation-context");
 

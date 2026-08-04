@@ -26,6 +26,7 @@ export function SituationContextInput({
       className="group rounded-ts-panel border border-ts-divider bg-ts-surface shadow-ts-card"
       data-testid="situation-context"
       ref={disclosureRef}
+      suppressHydrationWarning
     >
       <summary
         className="flex min-h-12 cursor-pointer list-none flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-ts-panel px-4 py-3 text-left marker:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action [&::-webkit-details-marker]:hidden"

@@ -98,6 +98,64 @@ describe("PrivacyConsent", () => {
     );
   });
 
+  it("does not steal focus when the first-choice panel appears", async () => {
+    renderConsent();
+
+    const heading = await screen.findByRole("heading", {
+      name: "Optional privacy choices",
+    });
+
+    expect(heading).not.toHaveFocus();
+  });
+
+  it("focuses the panel heading when settings opens and restores the trigger after saving", async () => {
+    setStoredRejection();
+    renderConsent();
+
+    const settingsButton = await screen.findByRole("button", {
+      name: "Privacy choices",
+    });
+    fireEvent.click(settingsButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("heading", { name: "Optional privacy choices" }),
+      ).toHaveFocus();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "Privacy choices" }),
+      ).toHaveFocus();
+    });
+  });
+
+  it("restores the settings trigger after rejecting without a reload", async () => {
+    setStoredRejection();
+    renderConsent();
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByRole("heading", { name: "Optional privacy choices" }),
+      ).toHaveFocus();
+    });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Reject optional services" }),
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "Privacy choices" }),
+      ).toHaveFocus();
+    });
+  });
+
   it("hydrates stored choices under React strict effects", async () => {
     window.localStorage.setItem(
       getConsentStorageKey(),
@@ -305,6 +363,9 @@ describe("PrivacyConsent", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
 
     expect(reloadDocument).toHaveBeenCalledOnce();
+    expect(
+      screen.getByRole("button", { name: "Privacy choices" }),
+    ).not.toHaveFocus();
     expect(window.localStorage.getItem(getConsentStorageKey())).toContain(
       '"analytics":false',
     );
@@ -344,6 +405,17 @@ function getGoogleScripts() {
       'script[src*="googletagmanager.com"], script[src*="googlesyndication.com"]',
     ),
   ];
+}
+
+function setStoredRejection() {
+  window.localStorage.setItem(
+    getConsentStorageKey(),
+    JSON.stringify({
+      version: 1,
+      analytics: false,
+      advertising: false,
+    }),
+  );
 }
 
 function getConsentStorageKey() {

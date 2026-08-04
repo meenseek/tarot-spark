@@ -10,6 +10,7 @@ const allowedSearchParamNames = [
   "cards",
   "spread",
   "style",
+  "drawStyle",
   "source",
   "campaign",
 ] as const;

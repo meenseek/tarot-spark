@@ -172,6 +172,7 @@ describe("GoogleAnalyticsEvents", () => {
       topic_id: "love",
       spread_id: "quick",
       style_id: "balanced",
+      draw_style_id: "balanced",
       card_count: 3,
       method: "native",
     };
@@ -213,6 +214,7 @@ describe("GoogleAnalyticsEvents", () => {
       topic_id: "love",
       spread_id: "quick",
       style_id: "balanced",
+      draw_style_id: "balanced",
       card_count: 3,
     };
 
@@ -278,6 +280,7 @@ describe("GoogleAnalyticsEvents", () => {
           topic_id: "relationship-flow",
           spread_id: "quick",
           style_id: "relational",
+          draw_style_id: "relational",
           card_count: 3,
           source: "instagram",
           campaign: "vertical-slice",
@@ -296,6 +299,7 @@ function PendingResultView() {
           topic_id: "relationship-flow",
           spread_id: "quick",
           style_id: "relational",
+          draw_style_id: "relational",
           card_count: 3,
           source: "instagram",
           campaign: "vertical-slice",

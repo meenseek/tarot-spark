@@ -10,6 +10,7 @@ import {
   getLocalizedShareReadingHref,
   getReadingAttributionFromSearchParams,
   getReadingAttributionFromUrl,
+  getReadingStateFromSearchParams,
   getReadingStateFromUrl,
   readPrivateContextHandoff,
   storePrivateContextHandoff,
@@ -109,6 +110,7 @@ describe("reading URL state", () => {
     );
 
     expect(restored).toMatchObject({
+      drawStyleId: "balanced",
       spreadId: "quick",
       styleId: "balanced",
       topicId: "love",
@@ -126,6 +128,80 @@ describe("reading URL state", () => {
     expect(restored).toEqual(state);
   });
 
+  it("preserves an immutable draw style only for result URLs", () => {
+    const resultUrl = new URL(
+      buildReadingUrl(
+        "https://example.com/",
+        createState("quick", "direct", "balanced"),
+      ),
+    );
+
+    expect(resultUrl.searchParams.get("style")).toBe("direct");
+    expect(resultUrl.searchParams.get("drawStyle")).toBe("balanced");
+    expect(getReadingStateFromUrl(tarotData, resultUrl.toString())).toEqual(
+      createState("quick", "direct", "balanced"),
+    );
+
+    const defaultCurrentStyleUrl = new URL(
+      buildReadingUrl(
+        "https://example.com/",
+        createState("quick", "balanced", "direct"),
+      ),
+    );
+
+    expect(defaultCurrentStyleUrl.searchParams.has("style")).toBe(false);
+    expect(defaultCurrentStyleUrl.searchParams.get("drawStyle")).toBe("direct");
+
+    const setupUrl = new URL(
+      buildReadingUrl("https://example.com/", {
+        ...createState("quick", "direct", "balanced"),
+        cards: [],
+      }),
+    );
+
+    expect(setupUrl.searchParams.has("drawStyle")).toBe(false);
+  });
+
+  it("strictly parses generator reading fields while keeping unknown fields out of the seed", () => {
+    expect(
+      getReadingStateFromSearchParams(tarotData, {
+        privateContext: "must-not-enter-state",
+        source: "copy",
+        spread: "deep",
+        style: "direct",
+        topic: "career-direction",
+        unknown: ["ignored", "even-as-an-array"],
+      }),
+    ).toEqual({
+      cards: [],
+      drawStyleId: "direct",
+      spreadId: "deep",
+      styleId: "direct",
+      topicId: "career-direction",
+    });
+
+    for (const searchParams of [
+      { topic: ["love", "career"] },
+      { cards: "" },
+      { style: "unknown" },
+      { cards: "the-fool,the-magician,the-high-priestess", drawStyle: "x" },
+      { drawStyle: "direct", topic: "love" },
+    ]) {
+      expect(
+        getReadingStateFromSearchParams(tarotData, searchParams),
+      ).toBeUndefined();
+    }
+  });
+
+  it("rejects duplicate recognized reading fields from URL parsing", () => {
+    expect(
+      getReadingStateFromUrl(
+        tarotData,
+        "https://example.com/?topic=love&topic=career",
+      ),
+    ).toBeUndefined();
+  });
+
   it.each([
     "https://example.com/?topic=unknown",
     "https://example.com/?spread=unknown",
@@ -133,6 +209,8 @@ describe("reading URL state", () => {
     "https://example.com/?cards=the-fool,the-magician",
     "https://example.com/?cards=the-fool,the-fool,the-magician",
     "https://example.com/?spread=deep&cards=the-fool,the-magician,the-high-priestess",
+    "https://example.com/?drawStyle=direct",
+    "https://example.com/?cards=the-fool,the-magician,the-high-priestess&drawStyle=unknown",
   ])("rejects malformed or unknown state in %s", (href) => {
     expect(getReadingStateFromUrl(tarotData, href)).toBeUndefined();
   });
@@ -169,6 +247,23 @@ describe("reading URL state", () => {
     );
   });
 
+  it("preserves draw provenance across locale and share links", () => {
+    const state = createState("quick", "direct", "balanced");
+    const localeUrl = new URL(
+      getLocalizedReadingHref("ko", state),
+      "https://example.com",
+    );
+    const shareUrl = new URL(
+      getLocalizedShareReadingHref("ko", state),
+      "https://example.com",
+    );
+
+    expect(localeUrl.searchParams.get("style")).toBe("direct");
+    expect(localeUrl.searchParams.get("drawStyle")).toBe("balanced");
+    expect(shareUrl.searchParams.get("style")).toBe("direct");
+    expect(shareUrl.searchParams.get("drawStyle")).toBe("balanced");
+  });
+
   it("builds a clean generator CTA with attribution only", () => {
     expect(
       getLocalizedGeneratorHref("ko", {
@@ -182,6 +277,7 @@ describe("reading URL state", () => {
   function createState(
     spreadId: ReadingUrlState["spreadId"],
     styleId: ReadingUrlState["styleId"],
+    drawStyleId: ReadingUrlState["drawStyleId"] = styleId,
   ): ReadingUrlState {
     const spread = tarotData.spreads.find(
       (candidate) => candidate.id === spreadId,
@@ -203,6 +299,7 @@ describe("reading URL state", () => {
           return { card, position };
         },
       ),
+      drawStyleId,
       spreadId,
       styleId,
       topicId: "love",

@@ -103,6 +103,9 @@ function getShareImageUrl(
   url.searchParams.set("topic", snapshot.topic.id);
   url.searchParams.set("spread", snapshot.spread.id);
   url.searchParams.set("style", snapshot.readingStyle.id);
+  if (snapshot.state.drawStyleId !== snapshot.state.styleId) {
+    url.searchParams.set("drawStyle", snapshot.state.drawStyleId);
+  }
   url.searchParams.set(
     "cards",
     snapshot.cards.map(({ card }) => card.id).join(","),

@@ -14,6 +14,7 @@ const readingTopicParam = "topic";
 const readingCardsParam = "cards";
 const readingSpreadParam = "spread";
 const readingStyleParam = "style";
+const readingDrawStyleParam = "drawStyle";
 const shareSourceParam = "source";
 const shareCampaignParam = "campaign";
 const privateContextHandoffStorageKey =
@@ -23,6 +24,7 @@ const privateContextHandoffLifetimeMilliseconds = 60_000;
 
 export type ReadingUrlState = {
   readonly cards: readonly DrawnCard[];
+  readonly drawStyleId: ReadingStyleId;
   readonly spreadId: SpreadId;
   readonly styleId: ReadingStyleId;
   readonly topicId: TopicId;
@@ -78,6 +80,12 @@ export function buildReadingUrl(
   }
 
   if (state.cards.length > 0) {
+    const drawStyleId = state.drawStyleId ?? state.styleId;
+
+    if (drawStyleId !== state.styleId) {
+      url.searchParams.set(readingDrawStyleParam, drawStyleId);
+    }
+
     url.searchParams.set(
       readingCardsParam,
       state.cards.map(({ card }) => card.id).join(","),
@@ -207,38 +215,89 @@ export function getReadingStateFromUrl(
   href: string,
 ): ReadingUrlState | undefined {
   const url = new URL(href);
+  const searchParams: ReadingSearchParams = {};
+
+  for (const param of [
+    readingTopicParam,
+    readingCardsParam,
+    readingSpreadParam,
+    readingStyleParam,
+    readingDrawStyleParam,
+  ]) {
+    const values = url.searchParams.getAll(param);
+
+    if (values.length === 0) {
+      continue;
+    }
+
+    searchParams[param] = values.length === 1 ? values[0] : values;
+  }
+
+  return getReadingStateFromSearchParams(tarotData, searchParams);
+}
+
+export function getReadingStateFromSearchParams(
+  tarotData: LocaleTarotData,
+  searchParams: ReadingSearchParams,
+): ReadingUrlState | undefined {
   const hasReadingState = [
     readingTopicParam,
     readingCardsParam,
     readingSpreadParam,
     readingStyleParam,
-  ].some((param) => url.searchParams.has(param));
+    readingDrawStyleParam,
+  ].some((param) => searchParams[param] !== undefined);
 
   if (!hasReadingState) {
     return undefined;
   }
 
-  const topicParam = url.searchParams.get(readingTopicParam);
-  const topic = topicParam
-    ? tarotData.topics.find((candidate) => candidate.id === topicParam)
-    : tarotData.topics[0];
-  const spreadParam = url.searchParams.get(readingSpreadParam);
-  const spread = spreadParam
-    ? tarotData.spreads.find((candidate) => candidate.id === spreadParam)
-    : tarotData.spreads.find((candidate) => candidate.id === "quick");
-  const styleParam = url.searchParams.get(readingStyleParam);
-  const style = styleParam
-    ? tarotData.readingStyles.find((candidate) => candidate.id === styleParam)
-    : tarotData.readingStyles.find((candidate) => candidate.id === "balanced");
-  const cardsParam = url.searchParams.get(readingCardsParam);
+  const readingParamValues = [
+    searchParams[readingTopicParam],
+    searchParams[readingCardsParam],
+    searchParams[readingSpreadParam],
+    searchParams[readingStyleParam],
+    searchParams[readingDrawStyleParam],
+  ];
 
-  if (!topic || !spread || !style) {
+  if (
+    readingParamValues.some((value) => Array.isArray(value) || value === "")
+  ) {
     return undefined;
   }
 
-  if (!cardsParam) {
+  const topicParam = getStringValue(searchParams[readingTopicParam]);
+  const topic = topicParam
+    ? tarotData.topics.find((candidate) => candidate.id === topicParam)
+    : tarotData.topics[0];
+  const spreadParam = getStringValue(searchParams[readingSpreadParam]);
+  const spread = spreadParam
+    ? tarotData.spreads.find((candidate) => candidate.id === spreadParam)
+    : tarotData.spreads.find((candidate) => candidate.id === "quick");
+  const styleParam = getStringValue(searchParams[readingStyleParam]);
+  const style = styleParam
+    ? tarotData.readingStyles.find((candidate) => candidate.id === styleParam)
+    : tarotData.readingStyles.find((candidate) => candidate.id === "balanced");
+  const drawStyleParam = getStringValue(searchParams[readingDrawStyleParam]);
+  const drawStyle = drawStyleParam
+    ? tarotData.readingStyles.find(
+        (candidate) => candidate.id === drawStyleParam,
+      )
+    : style;
+  const cardsParam = getStringValue(searchParams[readingCardsParam]);
+
+  if (!topic || !spread || !style || !drawStyle) {
+    return undefined;
+  }
+
+  if (cardsParam === undefined) {
+    if (drawStyleParam !== undefined) {
+      return undefined;
+    }
+
     return {
       cards: [],
+      drawStyleId: style.id,
       spreadId: spread.id,
       styleId: style.id,
       topicId: topic.id,
@@ -270,10 +329,15 @@ export function getReadingStateFromUrl(
 
   return {
     cards,
+    drawStyleId: drawStyle.id,
     spreadId: spread.id,
     styleId: style.id,
     topicId: topic.id,
   };
+}
+
+function getStringValue(value: string | readonly string[] | undefined) {
+  return typeof value === "string" ? value : undefined;
 }
 
 export function storePrivateContextHandoff(
@@ -300,6 +364,10 @@ export function storePrivateContextHandoff(
   } catch {
     tryRemovePrivateContextHandoff(storage);
   }
+}
+
+export function getPrivateContextHandoffResetScript() {
+  return `try{window.sessionStorage.removeItem(${JSON.stringify(privateContextHandoffStorageKey)})}catch{}`;
 }
 
 export function consumePrivateContextHandoff(

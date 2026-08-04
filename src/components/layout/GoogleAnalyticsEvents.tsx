@@ -24,21 +24,30 @@ import { isLocale } from "@/i18n/config";
 type AnalyticsPayload = Record<string, string | number | boolean>;
 const analyticsEventPayloadKeys = {
   topic_click: ["locale", "topic_id"],
-  draw_start: ["locale", "topic_id", "spread_id", "style_id"],
+  draw_start: ["locale", "topic_id", "spread_id", "style_id", "draw_style_id"],
   card_selected: [
     "locale",
     "topic_id",
     "spread_id",
     "style_id",
+    "draw_style_id",
     "position_id",
     "card_id",
   ],
-  result_view: ["locale", "topic_id", "spread_id", "style_id", "card_count"],
+  result_view: [
+    "locale",
+    "topic_id",
+    "spread_id",
+    "style_id",
+    "draw_style_id",
+    "card_count",
+  ],
   prompt_copy: [
     "locale",
     "topic_id",
     "spread_id",
     "style_id",
+    "draw_style_id",
     "card_count",
     "prompt_slot",
     "prompt_version",
@@ -49,6 +58,7 @@ const analyticsEventPayloadKeys = {
     "topic_id",
     "spread_id",
     "style_id",
+    "draw_style_id",
     "card_count",
     "method",
   ],
@@ -57,6 +67,7 @@ const analyticsEventPayloadKeys = {
     "topic_id",
     "spread_id",
     "style_id",
+    "draw_style_id",
     "card_count",
     "method",
     "outcome",
@@ -230,7 +241,8 @@ function isAnalyticsPayload(
 
   if (
     !isAllowedValue(value["spread_id"], spreadIds) ||
-    !isAllowedValue(value["style_id"], readingStyleIds)
+    !isAllowedValue(value["style_id"], readingStyleIds) ||
+    !isAllowedValue(value["draw_style_id"], readingStyleIds)
   ) {
     return false;
   }
