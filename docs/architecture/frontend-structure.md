@@ -208,14 +208,38 @@ src/domain/tarot -> src/i18n
   source of truth; materialize localized arrays from those ids.
 - Keep browser storage, analytics, and clipboard helpers behind small wrapper
   functions in the feature or `src/lib`.
+- Model the reading workflow as a feature-local tagged session with `setup`,
+  `result`, and `edit-next-draw` modes. Keep committed result inputs separate
+  from the cancelable next-draw draft, and make same-value transitions return
+  the identical session.
+- Keep card-instance, public-state, and prompt revisions explicit. Use them with
+  operation ids so asynchronous copy and share completions update only the
+  latest compatible UI while still recording an invocation-eligible terminal
+  analytics event.
 - Keep free-form tarot context in client state. A locale switch may use a
   versioned, one-time `sessionStorage` handoff; the same handoff may preserve
   context across a document reload required to stop an already running optional
   service. Reading URLs and analytics payloads must omit the context.
 - Keep spread, spread-position, and reading-style ids in TypeScript. Localize
   their labels and prompt instructions through the tarot message data.
+- Keep both current prompt style and original draw style in public reading URL
+  state. This preserves prompt customization without misrepresenting how the
+  committed cards were drawn.
 - Do not add global state until at least two independent routes need the same
   mutable client state.
+
+## Route Rendering
+
+- Keep the experience static-first by deriving reading output from typed local
+  data and public URL state without a database or server-generated reading.
+- Render `/`, `/ko`, `/share`, and `/ko/share` at request time because their
+  initial HTML and share metadata depend on validated search parameters.
+- Parse generator search parameters on the server so cardless presets and
+  restored results remain usable in the initial HTML without JavaScript.
+- Keep public information routes statically generated when their content does
+  not depend on request state.
+- Treat request-time classification as an intentional exception to static route
+  generation, not permission to add a server data dependency.
 
 ## Testing
 
