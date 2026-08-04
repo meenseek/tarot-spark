@@ -1,5 +1,46 @@
 {
   "systemId": "quiet-celestial-storybook-full-deck",
   "version": "v3",
-  "records": {}
+  "records": {
+    "the-hermit": {
+      "assetSha256": "69a98136ac1781cccab0e0bc8ce68b8fc2a0d072d4ae48d89df844bbe0a860bb",
+      "generationRecordId": "the-hermit-retouch-002",
+      "promotedSuitAnchor": false,
+      "promptSha256": "10a17adf568afdc33b9f75318b1b0172f545139652f9c7cdadbe6505b9ece699",
+      "provenance": "retouched-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-04T15:14:05.000Z",
+      "reviewer": "Planck (tarot visual) + Harvey (UX); Halley (pipeline)",
+      "status": "approved"
+    },
+    "temperance": {
+      "assetSha256": "0a1fa14508d37f991ef819f1ef077e56929087542ac96baca7f6578672b180f5",
+      "generationRecordId": "temperance-retouch-002",
+      "promotedSuitAnchor": false,
+      "promptSha256": "1c452406e5a243ec7bfd9425eed79d64aeaa7aa02837ca82e1c7aa393a2b6dfb",
+      "provenance": "retouched-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-04T15:14:05.000Z",
+      "reviewer": "Planck (tarot visual) + Harvey (UX); Halley (pipeline)",
+      "status": "approved"
+    }
+  }
 }

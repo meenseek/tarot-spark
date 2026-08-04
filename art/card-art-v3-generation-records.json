@@ -13,5 +13,70 @@
     "jpegQuality": 88,
     "chromaSubsampling": "4:4:4"
   },
-  "records": []
+  "records": [
+    {
+      "id": "the-hermit-retouch-002",
+      "batchId": "legacy-keep",
+      "cardId": "the-hermit",
+      "cardSpecSha256": "f007f34df3c401f373fb20b4df495d1c1268b172d327e9f1c245f94fdd7992c5",
+      "generatedAt": "2026-08-04T15:14:05.000Z",
+      "generator": {
+        "mode": "deterministic-local-restoration",
+        "tool": "Sharp"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 182163,
+        "assetPath": "public/cards/v3/the-hermit.jpg",
+        "assetSha256": "69a98136ac1781cccab0e0bc8ce68b8fc2a0d072d4ae48d89df844bbe0a860bb",
+        "cropPosition": "centre",
+        "inputSha256": "8a876576ec18142f1d80a0d9ffefd8cd1cd52dac011f423b3e67c56ddc280ab9",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "promptSha256": "10a17adf568afdc33b9f75318b1b0172f545139652f9c7cdadbe6505b9ece699",
+      "rawOutputPath": "art/card-art-v3-raw/legacy-retouch/the-hermit-candidate-002.png",
+      "rawOutputSha256": "8a876576ec18142f1d80a0d9ffefd8cd1cd52dac011f423b3e67c56ddc280ab9",
+      "referenceSha256": {
+        "the-hermit": "3f141e25fcc2d4c36ff7098de62f74fa1816efeb1007eb1ac185c01bf5f251a3"
+      },
+      "regenerationReason": "Two precision ImageGen edit trials were rejected because they redrew material outside the reviewed star footprint.",
+      "retouchRecipeDefinitionSha256": "4e4cdd452f9abd57b8b2b12fd15b00d2ed725074eba53edd19920c35095f5e92",
+      "retouchRecipeSha256": "221acfbdcafe88a90ebb3d7079b224d79f067d149bfd8b8976e4c459a10b3518",
+      "retouchSourceSha256": "3f141e25fcc2d4c36ff7098de62f74fa1816efeb1007eb1ac185c01bf5f251a3",
+      "selectionStatus": "selected"
+    },
+    {
+      "id": "temperance-retouch-002",
+      "batchId": "legacy-keep",
+      "cardId": "temperance",
+      "cardSpecSha256": "e34104774ba4977ab90ef127b388a89294f73d5cc0f185d2527474e2bb548f2e",
+      "generatedAt": "2026-08-04T15:14:05.000Z",
+      "generator": {
+        "mode": "deterministic-local-restoration",
+        "tool": "Sharp"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 193699,
+        "assetPath": "public/cards/v3/temperance.jpg",
+        "assetSha256": "0a1fa14508d37f991ef819f1ef077e56929087542ac96baca7f6578672b180f5",
+        "cropPosition": "centre",
+        "inputSha256": "715a249bfde9d1067861df001801e5c3b65b2403f906a41fb768b7fe577a1197",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "promptSha256": "1c452406e5a243ec7bfd9425eed79d64aeaa7aa02837ca82e1c7aa393a2b6dfb",
+      "rawOutputPath": "art/card-art-v3-raw/legacy-retouch/temperance-candidate-002.png",
+      "rawOutputSha256": "715a249bfde9d1067861df001801e5c3b65b2403f906a41fb768b7fe577a1197",
+      "referenceSha256": {
+        "temperance": "188b644b4698704559759a66f4d0aa74488f44a12a7d8b7d9670de9c22896b82"
+      },
+      "regenerationReason": "The first local restoration was rejected after independent UX review found a secondary medium eight-point sky ornament.",
+      "retouchRecipeDefinitionSha256": "4e4cdd452f9abd57b8b2b12fd15b00d2ed725074eba53edd19920c35095f5e92",
+      "retouchRecipeSha256": "221acfbdcafe88a90ebb3d7079b224d79f067d149bfd8b8976e4c459a10b3518",
+      "retouchSourceSha256": "188b644b4698704559759a66f4d0aa74488f44a12a7d8b7d9670de9c22896b82",
+      "selectionStatus": "selected"
+    }
+  ]
 }
