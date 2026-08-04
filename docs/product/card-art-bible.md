@@ -149,6 +149,25 @@ node scripts/card-art-v3-retouch.mjs --card <the-hermit|temperance> \
   --output <raw-png-path>
 ```
 
+Do not silently edit a frozen base prompt after a failed ImageGen attempt. A
+retry may add one independently reviewed, observable constraint through a
+card-specific JSON artifact:
+
+```text
+pnpm run art:v3 -- --card <card-id> \
+  --retry-constraint-file <reviewed-json-path> --json
+```
+
+Only the canonical CLI output's `effectivePrompt` may be sent. The base
+`promptSha256` remains unchanged while the generation record stores the exact
+constraint, failure reason, independent reviewer evidence, artifact SHA, and
+`effectivePromptSha256` of the text actually sent. Every retry points to the
+immediately preceding rejected attempt. Attempt IDs, numbers, status suffixes,
+raw paths, and raw SHAs are unique and validated as one chain. ImageGen raw
+outputs are accepted only from the card-specific batch path. This makes
+count-ambiguity or anatomy retries explicit without invalidating earlier
+approvals.
+
 Run `pnpm run art:v3:check` before every generation and approval action. The
 same check also validates the frozen v2 chain. It rejects canonical-deck drift,
 wrong object counts, batches over eight cards, stale prompts or references,

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-10",
+  "attemptNumber": 4,
+  "previousAttemptId": "wands-10-attempt-003",
+  "constraint": "Render the destination as a nearby plain stone store doorway at the edge of an otherwise empty yard. Show no stored wood, racks, fences, posts, poles, tools, stakes, tents, flags, canopies, beams, branches, tool handles, or lumber. The carried tied bundle must be the only elongated wooden material anywhere and must contain exactly ten straight staffs, individually distinguishable within the binding, with all ten top ends, all ten shafts, and all ten bottom ends visibly countable. Preserve the second person's offered empty helping hand.",
+  "reason": "Three base-prompt attempts were rejected because the visible store yard repeatedly introduced stored staffs, poles, lumber, flags, and ambiguous bundle counts.",
+  "result": "approved",
+  "reviewedAt": "2026-08-04T16:00:08.000Z",
+  "reviewer": "Planck (independent tarot content static audit)"
+}
