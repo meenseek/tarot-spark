@@ -89,15 +89,32 @@ instead of palette utilities or color literals.
 
 ## Reading Flow
 
+- Present topics as one labeled radio group. Keep the selected state native and
+  visible, and put the active spread count in the draw action instead of
+  repeating it in every topic label.
 - Keep the optional situation entry visible between topic selection and the
-  draw action as a compact disclosure. Do not group it with card-count or
+  reading-preferences disclosure. Do not group it with card-count or
   reading-style settings.
 - Let users draw without adding situation text. Keep card count and reading
-  style in a separate secondary disclosure.
+  style in a separate secondary disclosure, followed by one count-specific draw
+  action.
+- Treat setup, committed result, and edit-next-draw as distinct modes. Editing
+  the next draw must keep the committed cards and prompt visible; cancelling
+  must discard the draft and restore focus to the edit trigger.
+- Start each result with a compact three-column card overview containing card
+  art, position, and name. Keep full card meaning in the later details
+  disclosure so three- and six-card results reach the prompt action quickly.
 - Place the generated-prompt copy action before prompt variants, prompt source,
-  card details, and sharing options.
+  card details, sharing options, and shared-reading creation actions.
+- Keep current-prompt customization separate from edit-next-draw. Current style
+  or private-context changes may update the prompt and share URL, but must not
+  redraw cards or rewrite the recorded draw-style provenance.
 - Keep the full generated prompt available for review and manual-copy recovery,
   but collapse it by default.
+- Keep the entertainment and advice disclaimer visible outside collapsed
+  disclosures on both generated and shared results.
+- Move focus to the result heading after a user draw. Do not move focus for a
+  restored or shared URL.
 - Move focus to the selectable prompt or manual share URL when a copy or share
   action fails.
 - Use a two-column prompt-variant grid on narrow screens. Switch to four columns
