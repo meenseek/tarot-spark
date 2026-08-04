@@ -220,6 +220,28 @@ export function buildCardArtV3Prompt(manifest, cardId) {
   ].join("\n");
 }
 
+export function buildCardArtV3AttemptPrompt(
+  basePrompt,
+  retryConstraint = null,
+) {
+  if (retryConstraint === null) return basePrompt;
+  if (
+    typeof retryConstraint !== "string" ||
+    retryConstraint.trim().length < 20 ||
+    retryConstraint.trim().length > 1200
+  ) {
+    throw new Error(
+      "retryConstraint must be null or a 20–1200 character reviewed observable constraint.",
+    );
+  }
+  return [
+    basePrompt,
+    "",
+    "RETRY CONSTRAINT — PRESERVE EVERY BASE CONTRACT ABOVE",
+    retryConstraint.trim(),
+  ].join("\n");
+}
+
 export function getCardArtV3PromptRecord(
   files,
   cardId,
@@ -254,6 +276,120 @@ export function getCardArtV3PromptRecord(
     ),
     systemId: manifest.systemId,
     version: manifest.version,
+  };
+}
+
+export function getCardArtV3AttemptRecord(
+  files,
+  cardId,
+  retryConstraint = null,
+  repositoryRoot = defaultRepositoryRoot,
+) {
+  const promptRecord = getCardArtV3PromptRecord(files, cardId, repositoryRoot);
+  const normalizedRetryConstraint =
+    retryConstraint === null ? null : retryConstraint.trim();
+  const effectivePrompt = buildCardArtV3AttemptPrompt(
+    promptRecord.prompt,
+    normalizedRetryConstraint,
+  );
+  return {
+    ...promptRecord,
+    effectivePrompt,
+    effectivePromptSha256: sha256(effectivePrompt),
+    retryConstraint: normalizedRetryConstraint,
+  };
+}
+
+export function getCardArtV3ReviewedAttemptRecord(
+  files,
+  cardId,
+  retryConstraintArtifactPath,
+  repositoryRoot = defaultRepositoryRoot,
+) {
+  const artifact = loadRetryConstraintArtifact(
+    retryConstraintArtifactPath,
+    cardId,
+    repositoryRoot,
+  );
+  const previousAttempt = (files.generationRecords.records ?? []).find(
+    ({ id }) => id === artifact.previousAttemptId,
+  );
+  if (
+    !previousAttempt ||
+    previousAttempt.cardId !== cardId ||
+    previousAttempt.attemptNumber !== artifact.attemptNumber - 1 ||
+    previousAttempt.selectionStatus !== "rejected"
+  ) {
+    throw new Error(
+      `Retry constraint must reference the immediately preceding rejected attempt for ${cardId}.`,
+    );
+  }
+  return {
+    ...getCardArtV3AttemptRecord(
+      files,
+      cardId,
+      artifact.constraint,
+      repositoryRoot,
+    ),
+    attemptNumber: artifact.attemptNumber,
+    previousAttemptId: artifact.previousAttemptId,
+    regenerationReason: artifact.reason,
+    retryReview: {
+      artifactPath: artifact.projectRelativePath,
+      artifactSha256: artifact.sha256,
+      result: artifact.result,
+      reviewedAt: artifact.reviewedAt,
+      reviewer: artifact.reviewer,
+    },
+  };
+}
+
+function loadRetryConstraintArtifact(
+  artifactPath,
+  cardId,
+  repositoryRoot = defaultRepositoryRoot,
+) {
+  const absolutePath = resolve(repositoryRoot, artifactPath ?? "");
+  const projectRelativePath = artifactPath;
+  if (
+    !isProjectRelativePath(projectRelativePath) ||
+    !new RegExp(
+      `^art/card-art-v3-retry-constraints/${cardId}-attempt-[0-9]{3}\\.json$`,
+    ).test(projectRelativePath)
+  ) {
+    throw new Error(
+      "retry constraint artifact must use its card-specific reviewed path.",
+    );
+  }
+  if (!existsSync(absolutePath)) {
+    throw new Error(`Missing retry constraint artifact ${absolutePath}.`);
+  }
+  const buffer = readFileSync(absolutePath);
+  const artifact = JSON.parse(buffer.toString("utf8"));
+  if (
+    artifact.schemaVersion !== 1 ||
+    artifact.cardId !== cardId ||
+    !Number.isInteger(artifact.attemptNumber) ||
+    artifact.attemptNumber < 2 ||
+    artifact.previousAttemptId !==
+      `${cardId}-attempt-${String(artifact.attemptNumber - 1).padStart(3, "0")}` ||
+    artifact.result !== "approved" ||
+    typeof artifact.reason !== "string" ||
+    artifact.reason.trim() === "" ||
+    typeof artifact.reviewer !== "string" ||
+    artifact.reviewer.trim() === "" ||
+    typeof artifact.reviewedAt !== "string" ||
+    artifact.reviewedAt.trim() === ""
+  ) {
+    throw new Error(
+      `Invalid reviewed retry constraint artifact for ${cardId}.`,
+    );
+  }
+  buildCardArtV3AttemptPrompt("base", artifact.constraint);
+  return {
+    ...artifact,
+    projectRelativePath,
+    sha256: sha256(buffer),
   };
 }
 
@@ -855,6 +991,9 @@ export function validateCardArtV3System(
   }
 
   const generationIds = new Set();
+  const imageGenRawPaths = new Set();
+  const imageGenRawSha256 = new Set();
+  const latestImageGenAttemptByCard = new Map();
   for (const [index, record] of (generationRecords.records ?? []).entries()) {
     const label = `generationRecords.records[${index}]`;
     requireString(record.id, `${label}.id`);
@@ -935,6 +1074,133 @@ export function validateCardArtV3System(
       errors.push(
         `${label} retouch provenance must be null for ImageGen cards.`,
       );
+    }
+    if (!card?.needsRetouch) {
+      const expectedAttemptId = `${record.cardId}-attempt-${String(
+        record.attemptNumber,
+      ).padStart(3, "0")}`;
+      if (
+        !Number.isInteger(record.attemptNumber) ||
+        record.attemptNumber < 1 ||
+        record.id !== expectedAttemptId
+      ) {
+        errors.push(
+          `${label} must bind its sequential attemptNumber to its generation id.`,
+        );
+      }
+      if (!["selected", "rejected"].includes(record.selectionStatus)) {
+        errors.push(
+          `${label}.selectionStatus must be selected or rejected for an immutable ImageGen attempt.`,
+        );
+      }
+      const expectedRawPath = `art/card-art-v3-raw/${record.batchId}/${record.cardId}-candidate-${String(
+        record.attemptNumber,
+      ).padStart(3, "0")}${
+        record.selectionStatus === "rejected" ? "-rejected" : ""
+      }.png`;
+      if (record.rawOutputPath !== expectedRawPath) {
+        errors.push(
+          `${label}.rawOutputPath must match its attempt number and immutable status.`,
+        );
+      }
+      const previousAttempt = latestImageGenAttemptByCard.get(record.cardId);
+      if (record.attemptNumber === 1) {
+        if (record.previousAttemptId !== null || previousAttempt) {
+          errors.push(`${label} first attempt must not have a predecessor.`);
+        }
+        if (record.retryConstraint !== null) {
+          errors.push(`${label} first attempt cannot use a retry constraint.`);
+        }
+      } else if (
+        !previousAttempt ||
+        previousAttempt.id !== record.previousAttemptId ||
+        previousAttempt.attemptNumber !== record.attemptNumber - 1 ||
+        previousAttempt.selectionStatus !== "rejected"
+      ) {
+        errors.push(
+          `${label} must reference the immediately preceding rejected attempt.`,
+        );
+      }
+      if (
+        record.attemptNumber > 1 &&
+        (typeof record.regenerationReason !== "string" ||
+          record.regenerationReason.trim() === "")
+      ) {
+        errors.push(
+          `${label}.regenerationReason is required after the first attempt.`,
+        );
+      }
+      if (record.retryConstraint === null) {
+        if (record.retryReview !== null) {
+          errors.push(
+            `${label}.retryReview must be null without a constraint.`,
+          );
+        }
+      } else if (typeof record.retryConstraint === "string") {
+        try {
+          const retryArtifact = loadRetryConstraintArtifact(
+            record.retryReview?.artifactPath,
+            record.cardId,
+            repositoryRoot,
+          );
+          if (
+            retryArtifact.sha256 !== record.retryReview?.artifactSha256 ||
+            retryArtifact.constraint.trim() !== record.retryConstraint.trim() ||
+            retryArtifact.attemptNumber !== record.attemptNumber ||
+            retryArtifact.previousAttemptId !== record.previousAttemptId ||
+            retryArtifact.reason !== record.regenerationReason ||
+            retryArtifact.result !== record.retryReview?.result ||
+            retryArtifact.reviewedAt !== record.retryReview?.reviewedAt ||
+            retryArtifact.reviewer !== record.retryReview?.reviewer
+          ) {
+            errors.push(
+              `${label}.retryReview must exactly bind the independently approved constraint artifact.`,
+            );
+          }
+        } catch (error) {
+          errors.push(`${label}.retryReview is invalid: ${error.message}`);
+        }
+      }
+      if (imageGenRawPaths.has(record.rawOutputPath)) {
+        errors.push(`${label}.rawOutputPath must be globally unique.`);
+      }
+      if (imageGenRawSha256.has(record.rawOutputSha256)) {
+        errors.push(`${label}.rawOutputSha256 must be globally unique.`);
+      }
+      imageGenRawPaths.add(record.rawOutputPath);
+      imageGenRawSha256.add(record.rawOutputSha256);
+      latestImageGenAttemptByCard.set(record.cardId, record);
+      if (
+        record.retryConstraint !== null &&
+        typeof record.retryConstraint !== "string"
+      ) {
+        errors.push(`${label}.retryConstraint must be null or a string.`);
+      } else {
+        try {
+          const expectedEffectivePrompt = buildCardArtV3AttemptPrompt(
+            buildCardArtV3Prompt(manifest, record.cardId),
+            record.retryConstraint,
+          );
+          if (
+            record.effectivePromptSha256 !== sha256(expectedEffectivePrompt)
+          ) {
+            errors.push(
+              `${label}.effectivePromptSha256 does not match the exact sent prompt.`,
+            );
+          }
+        } catch (error) {
+          errors.push(`${label}.retryConstraint is invalid: ${error.message}`);
+        }
+      }
+      if (
+        record.retryConstraint !== null &&
+        (typeof record.regenerationReason !== "string" ||
+          record.regenerationReason.trim() === "")
+      ) {
+        errors.push(
+          `${label}.regenerationReason is required when retryConstraint is used.`,
+        );
+      }
     }
     if (
       record.promptSha256 !==
@@ -1463,16 +1729,31 @@ async function main() {
   const cardIndex = args.indexOf("--card");
   if (cardIndex === -1 || !args[cardIndex + 1]) {
     throw new Error(
-      "Usage: pnpm art:v3 -- --card <canonical-card-id> [--json] | --check",
+      "Usage: pnpm art:v3 -- --card <canonical-card-id> [--retry-constraint-file <reviewed-json>] [--json] | --check",
     );
   }
-  const record = getCardArtV3PromptRecord(
-    files,
-    args[cardIndex + 1],
-    defaultRepositoryRoot,
-  );
+  const retryConstraintIndex = args.indexOf("--retry-constraint-file");
+  if (retryConstraintIndex !== -1 && !args[retryConstraintIndex + 1]) {
+    throw new Error("--retry-constraint-file requires a reviewed JSON path.");
+  }
+  const record =
+    retryConstraintIndex === -1
+      ? getCardArtV3AttemptRecord(
+          files,
+          args[cardIndex + 1],
+          null,
+          defaultRepositoryRoot,
+        )
+      : getCardArtV3ReviewedAttemptRecord(
+          files,
+          args[cardIndex + 1],
+          args[retryConstraintIndex + 1],
+          defaultRepositoryRoot,
+        );
   console.log(
-    args.includes("--json") ? JSON.stringify(record, null, 2) : record.prompt,
+    args.includes("--json")
+      ? JSON.stringify(record, null, 2)
+      : record.effectivePrompt,
   );
 }
 

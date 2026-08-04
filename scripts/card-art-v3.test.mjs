@@ -1,11 +1,14 @@
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import sharp from "sharp";
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  buildCardArtV3AttemptPrompt,
   buildCardArtV3Prompt,
+  getCardArtV3AttemptRecord,
   getCardArtV3ManifestSha256,
   getCardArtV3PromptRecord,
   loadCardArtV3Files,
@@ -37,9 +40,9 @@ describe("card art v3 preflight", () => {
     const files = loadCardArtV3Files(repositoryRoot);
 
     expect(validateCardArtV3System(files, repositoryRoot)).toEqual({
-      approvedCount: 0,
+      approvedCount: 2,
       cardCount: 78,
-      generationCount: 0,
+      generationCount: 6,
       releaseCount: 0,
     });
   });
@@ -67,12 +70,63 @@ describe("card art v3 preflight", () => {
     );
   });
 
-  it("refuses pilots and post-pilot prompts until prior approvals are fully valid", () => {
+  it("binds a retry-only observable constraint to the exact effective prompt", () => {
+    const files = loadCardArtV3Files(repositoryRoot);
+    const base = getCardArtV3AttemptRecord(files, "wands-10");
+    const retryConstraint =
+      "Keep the store yard distant and closed; show no additional pole-like object anywhere outside the ten carried staffs.";
+    const retry = getCardArtV3AttemptRecord(files, "wands-10", retryConstraint);
+
+    expect(base.retryConstraint).toBeNull();
+    expect(base.effectivePrompt).toBe(base.prompt);
+    expect(base.effectivePromptSha256).toBe(base.promptSha256);
+    expect(retry.promptSha256).toBe(base.promptSha256);
+    expect(retry.effectivePrompt).toBe(
+      buildCardArtV3AttemptPrompt(base.prompt, retryConstraint),
+    );
+    expect(retry.effectivePromptSha256).not.toBe(retry.promptSha256);
+    expect(() => buildCardArtV3AttemptPrompt(base.prompt, "too short")).toThrow(
+      /20–1200 character/i,
+    );
+  });
+
+  it("prints only the reviewed effective retry prompt through the canonical CLI", () => {
+    const artifactPath =
+      "art/card-art-v3-retry-constraints/wands-10-attempt-004.json";
+    const output = execFileSync(
+      process.execPath,
+      [
+        "--import=tsx",
+        "scripts/card-art-v3.mjs",
+        "--card",
+        "wands-10",
+        "--retry-constraint-file",
+        artifactPath,
+        "--json",
+      ],
+      { cwd: repositoryRoot, encoding: "utf8" },
+    );
+    const record = JSON.parse(output);
+
+    expect(record.attemptNumber).toBe(4);
+    expect(record.previousAttemptId).toBe("wands-10-attempt-003");
+    expect(record.effectivePrompt).toContain(
+      "RETRY CONSTRAINT — PRESERVE EVERY BASE CONTRACT ABOVE",
+    );
+    expect(record.effectivePromptSha256).not.toBe(record.promptSha256);
+    expect(record.retryReview).toMatchObject({
+      artifactPath,
+      result: "approved",
+      reviewer: "Planck (independent tarot content static audit)",
+    });
+  });
+
+  it("opens pilots after both retouches and keeps post-pilot prompts closed", () => {
     const files = loadCardArtV3Files(repositoryRoot);
 
     expect(() =>
       getCardArtV3PromptRecord(files, "wands-ace", repositoryRoot),
-    ).toThrow(/both legacy retouches/i);
+    ).not.toThrow();
     expect(() =>
       getCardArtV3PromptRecord(files, "wands-knight", repositoryRoot),
     ).toThrow(/all 16 pilots/i);
@@ -95,12 +149,20 @@ describe("card art v3 preflight", () => {
     ).not.toThrow();
   });
 
-  it("opens only the two retouches at the initial generation gate", () => {
+  it("opens only retouches and the sixteen pilots at the current gate", () => {
     const files = loadCardArtV3Files(repositoryRoot);
-    const initiallyOpenIds = new Set(["the-hermit", "temperance"]);
+    const currentlyOpenIds = new Set(
+      Object.entries(files.manifest.cards)
+        .filter(
+          ([, card]) =>
+            card.needsRetouch === true ||
+            files.manifest.generationPlan.pilotBatchIds.includes(card.batch),
+        )
+        .map(([cardId]) => cardId),
+    );
 
     for (const cardId of Object.keys(files.manifest.cards)) {
-      if (initiallyOpenIds.has(cardId)) {
+      if (currentlyOpenIds.has(cardId)) {
         expect(() =>
           getCardArtV3PromptRecord(files, cardId, repositoryRoot),
         ).not.toThrow();
@@ -288,6 +350,42 @@ describe("card art v3 preflight", () => {
     expect(() => validateCardArtV3System(files, repositoryRoot)).toThrow(
       /exactly match the frozen prompt record references/i,
     );
+  });
+
+  it("rejects broken ImageGen attempt chains, reused raw evidence, and first-attempt retries", () => {
+    const files = loadCardArtV3Files(repositoryRoot);
+
+    const brokenChain = structuredClone(files);
+    const secondAttempt = brokenChain.generationRecords.records.find(
+      ({ id }) => id === "wands-10-attempt-002",
+    );
+    secondAttempt.previousAttemptId = "wands-10-attempt-999";
+    expect(() => validateCardArtV3System(brokenChain, repositoryRoot)).toThrow(
+      /immediately preceding rejected attempt/i,
+    );
+
+    const reusedRaw = structuredClone(files);
+    const first = reusedRaw.generationRecords.records.find(
+      ({ id }) => id === "wands-10-attempt-001",
+    );
+    const second = reusedRaw.generationRecords.records.find(
+      ({ id }) => id === "wands-10-attempt-002",
+    );
+    second.rawOutputPath = first.rawOutputPath;
+    second.rawOutputSha256 = first.rawOutputSha256;
+    expect(() => validateCardArtV3System(reusedRaw, repositoryRoot)).toThrow(
+      /globally unique|attempt number and immutable status/i,
+    );
+
+    const firstAttemptRetry = structuredClone(files);
+    const pageAttempt = firstAttemptRetry.generationRecords.records.find(
+      ({ id }) => id === "wands-page-attempt-001",
+    );
+    pageAttempt.retryConstraint =
+      "Show no background pole-like objects outside the single reviewed staff.";
+    expect(() =>
+      validateCardArtV3System(firstAttemptRetry, repositoryRoot),
+    ).toThrow(/first attempt cannot use a retry constraint/i);
   });
 });
 
