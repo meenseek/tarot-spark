@@ -525,6 +525,51 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "wands-10-attempt-009",
+      "attemptNumber": 9,
+      "batchId": "pilot-wands",
+      "cardId": "wands-10",
+      "cardSpecSha256": "7e827d502328555db13cb3eee32d0803a00b16e7d16dfbce977b6caf2d291c12",
+      "controlReference": {
+        "id": "wands-10-ten-staff-fan-v1",
+        "path": "art/card-art-v3-controls/wands-10-ten-staff-fan-v1.png",
+        "sha256": "a9490bc20ff775fc2e60e1874120cce390a34d0e13cdd59a7c2c1c3e9a3c2572"
+      },
+      "editSource": {
+        "attemptId": "wands-10-attempt-005",
+        "path": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-005-rejected.png",
+        "sha256": "e8fdd2224a638561d41b2403785c2ad07df55157b38a196778c67baf324539ef"
+      },
+      "effectivePromptSha256": "405f7eaef4fe3e2c963ec320d8c72f3373cdc6a2019a5d97b8c9fdc280b2c41d",
+      "generatedAt": "2026-08-04T17:41:08.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": "wands-10-attempt-008",
+      "promptSha256": "63d7722a8d85b8cf752f653aaf4282ed86e7b6a57516cf61eae6388284a613d1",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-009-rejected.png",
+      "rawOutputSha256": "aaf7d8ebd4ccc269c84548933a4b3b219fc6a405c4421e8283dea4a8075a4076",
+      "referenceSha256": {
+        "wands-10-attempt-005": "e8fdd2224a638561d41b2403785c2ad07df55157b38a196778c67baf324539ef",
+        "wands-10-ten-staff-fan-v1": "a9490bc20ff775fc2e60e1874120cce390a34d0e13cdd59a7c2c1c3e9a3c2572"
+      },
+      "regenerationReason": "Prompt-only full generations and single-source precision edits repeatedly produced mismatched top, shaft, and bottom counts. The independently reviewed second reference fixes the exact ten-staff topology while attempt 005 supplies the approved scene, anatomy, material, and style to preserve.",
+      "retryConstraint": "Precision-edit only the exposed wooden staff geometry in the first supplied image; it is the immutable target scene. Do not replace or redraw its rope binding, hands, people, or any other scene element. The second supplied image is a geometry control, not a style or scene reference. Use the control only for the count, ordering, separation, and one-to-one top–shaft–bottom correspondence of exactly ten separate unbroken straight staffs in one fan-shaped tied bundle. Preserve the first image's people, faces, every hand and finger, clothing, rope design, stone doorway, landscape, crop, style, palette, linework, gouache texture, lighting, and composition. Keep a visible background gap between every neighboring staff both above and below the rope binding. Where a staff crosses a hand, finger, sleeve, or the rope, keep those source pixels in the foreground and align the visible shaft segments before and after the occlusion on one straight centerline. The result must show exactly ten rounded top ends, exactly ten corresponding shafts, and exactly ten rounded bottom ends; no merge, branch, fork, hidden extra segment, or unmatched endpoint. Do not copy the control's cream background, flat vector rendering, dimensions, colors, or rope appearance. Add no other wood, object, text, label, numeral, or marker. Change no pixel outside the wooden staff silhouettes and the newly exposed or covered gaps between them, except minimal edge blending along staff-to-background boundaries; never blend across a face, hand, finger, sleeve, or rope edge.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/wands-10-attempt-009.json",
+        "artifactSha256": "c305c084b13e049986058d5499650ce40b194ce9ee97c5cddcec973d8f05d9f7",
+        "result": "approved",
+        "reviewedAt": "2026-08-04T17:19:14.000Z",
+        "reviewer": "Planck (independent tarot content control-reference audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }
