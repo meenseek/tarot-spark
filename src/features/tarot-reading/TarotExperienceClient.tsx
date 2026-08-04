@@ -194,6 +194,7 @@ export function TarotExperienceClient({
   const editTriggerRef = useRef<HTMLButtonElement | null>(null);
   const situationContextDisclosureRef = useRef<HTMLDetailsElement | null>(null);
   const shouldScrollToResultRef = useRef(false);
+  const resultScrollBehaviorRef = useRef<ScrollBehavior>("auto");
   const shouldFocusResultRef = useRef(false);
   const shouldFocusEditRef = useRef(false);
   const shouldRestoreEditTriggerFocusRef = useRef(false);
@@ -421,7 +422,7 @@ export function TarotExperienceClient({
       "(prefers-reduced-motion: reduce)",
     ).matches;
     workspace.scrollIntoView({
-      behavior: prefersReducedMotion ? "auto" : "smooth",
+      behavior: prefersReducedMotion ? "auto" : resultScrollBehaviorRef.current,
       block: "start",
     });
   }, [cards.length, drawSequenceId]);
@@ -724,7 +725,8 @@ export function TarotExperienceClient({
     actionType: "DRAW_COMMIT" | "REDRAW_CURRENT",
   ) {
     resetInstantReading();
-    shouldScrollToResultRef.current = event.detail > 0;
+    shouldScrollToResultRef.current = true;
+    resultScrollBehaviorRef.current = event.detail > 0 ? "smooth" : "auto";
     shouldFocusResultRef.current = true;
     trackEvent("draw_start", {
       ...analyticsAttribution,
