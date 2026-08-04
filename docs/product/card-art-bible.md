@@ -96,8 +96,10 @@ in `art/card-art-v3-legacy-audit.json` records these decisions:
 
 - Reuse The Fool, The Lovers, The Chariot, Strength, and Wheel of Fortune
   byte-identically in v3.
-- Retouch The Hermit and Temperance only to remove the large eight-point star;
-  keep their v2 source bytes unchanged.
+- Retouch The Hermit to remove its large eight-point star. Retouch Temperance
+  to remove the large star and the secondary medium eight-point sky ornament
+  that an independent thumbnail/full-size review still read as a competing
+  symbol. Keep both v2 source files byte-identical.
 - Replace The Magician, The High Priestess, The Empress, The Emperor, and The
   Star with clearer card-specific compositions.
 
@@ -111,9 +113,12 @@ URLs.
 ## Canonical Prompt System
 
 Treat `art/card-art-v3-manifest.json` as the only source for all 78 card
-directions, ImageGen mode, prompt, exclusions, cast, locations, suit and rank
+directions, generator mode, prompt, exclusions, cast, locations, suit and rank
 rules, exact object counts, frame, generation order, and reference precedence.
-Do not rewrite a prompt for an individual run.
+Do not rewrite a prompt for an individual run. New and replacement art uses
+ImageGen. The Hermit and Temperance use the manifest's source-only,
+deterministic local restoration recipe because precision ImageGen trials
+redrew material outside the approved star footprint and were rejected.
 
 Print the exact prompt with:
 
@@ -121,7 +126,7 @@ Print the exact prompt with:
 pnpm run art:v3 -- --card <card-id>
 ```
 
-Print the prompt, fixed `default` mode, version, SHA-256, and absolute
+Print the prompt, applicable generator mode, version, SHA-256, and absolute
 `referenced_image_paths` values with:
 
 ```text
@@ -130,6 +135,19 @@ pnpm run art:v3 -- --card <card-id> --json
 
 The JSON record contains the exact prompt SHA, card-spec SHA, manifest SHA, and
 reference ID-to-asset SHA map. Pass its `referenced_image_paths` unchanged.
+For either retouch, the map contains only that card's immutable v2 source and
+the generation record also binds the committed restoration-script SHA, recipe
+definition SHA, immutable source SHA, exact card-specific raw path, and expected
+raw PNG SHA. Validation rejects an arbitrary project image even when its own
+hash is supplied.
+
+Create either reviewed legacy retouch without overwriting an existing raw
+candidate:
+
+```text
+node scripts/card-art-v3-retouch.mjs --card <the-hermit|temperance> \
+  --output <raw-png-path>
+```
 
 Run `pnpm run art:v3:check` before every generation and approval action. The
 same check also validates the frozen v2 chain. It rejects canonical-deck drift,
@@ -151,6 +169,10 @@ compare their committed prefixes with `HEAD` or the explicit base revision.
 The twelve-card legacy audit is an immutable source review only. A retouch's
 full-size review, thumbnail review, final asset SHA, and provenance belong in
 that card's immutable approval record, never back in the source audit.
+The zero-changed-pixels-outside-the-mask assertion applies to the lossless raw
+PNG. The normalized JPEG is separately checked for dimensions, color, size,
+visual continuity, and exact final SHA because JPEG recompression can change
+pixels outside the local mask.
 
 The enforced stage order is:
 

@@ -7,6 +7,27 @@
     "mode": "default",
     "referenceInput": "referenced_image_paths"
   },
+  "retouchGenerator": {
+    "tool": "Sharp",
+    "mode": "deterministic-local-restoration",
+    "referenceInput": "source-only",
+    "recipeId": "local-star-restoration-v1",
+    "recipePath": "scripts/card-art-v3-retouch.mjs",
+    "recipeDefinitionSha256": "4e4cdd452f9abd57b8b2b12fd15b00d2ed725074eba53edd19920c35095f5e92",
+    "expectedOutputs": {
+      "the-hermit": {
+        "sourceSha256": "3f141e25fcc2d4c36ff7098de62f74fa1816efeb1007eb1ac185c01bf5f251a3",
+        "rawOutputPath": "art/card-art-v3-raw/legacy-retouch/the-hermit-candidate-002.png",
+        "rawOutputSha256": "8a876576ec18142f1d80a0d9ffefd8cd1cd52dac011f423b3e67c56ddc280ab9"
+      },
+      "temperance": {
+        "sourceSha256": "188b644b4698704559759a66f4d0aa74488f44a12a7d8b7d9670de9c22896b82",
+        "rawOutputPath": "art/card-art-v3-raw/legacy-retouch/temperance-candidate-002.png",
+        "rawOutputSha256": "715a249bfde9d1067861df001801e5c3b65b2403f906a41fb768b7fe577a1197"
+      }
+    },
+    "scope": "The Hermit and Temperance only, after precision ImageGen edits were rejected for redrawing material outside the reviewed star footprint."
+  },
   "frame": {
     "aspectRatio": "5:7",
     "width": 700,
@@ -501,7 +522,7 @@
       "number": 14,
       "disposition": "keep",
       "needsRetouch": true,
-      "retouchInstruction": "Remove the large eight-point star and preserve the figure, vessel exchange, palette and all other approved visual properties; the v2 source remains byte-identical history.",
+      "retouchInstruction": "Remove the large and secondary medium eight-point sky stars and preserve the figure, vessel exchange, palette and all other approved visual properties; the v2 source remains byte-identical history.",
       "batch": "legacy-keep",
       "assetPath": "public/cards/v3/temperance.jpg",
       "castIds": ["young-traveler"],

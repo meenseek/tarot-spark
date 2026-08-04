@@ -227,6 +227,7 @@ export function getCardArtV3PromptRecord(
 ) {
   validateForPrompt(files, repositoryRoot);
   const manifest = files.manifest;
+  const card = getCard(manifest, cardId);
   assertGenerationStageOpen(files, cardId);
   const referenceRecords = resolveReferenceRecords(
     files,
@@ -234,12 +235,15 @@ export function getCardArtV3PromptRecord(
     repositoryRoot,
   );
   const prompt = buildCardArtV3Prompt(manifest, cardId);
+  const generator = card.needsRetouch
+    ? manifest.retouchGenerator
+    : manifest.generator;
 
   return {
     cardId,
     cardSpecSha256: getCardArtV3CardSpecSha256(manifest, cardId),
     manifestSha256: getCardArtV3ManifestSha256(manifest),
-    mode: manifest.generator.mode,
+    mode: generator.mode,
     prompt,
     promptSha256: sha256(prompt),
     referenceSha256: Object.fromEntries(
@@ -278,9 +282,11 @@ function resolveReferenceRecords(files, cardId, repositoryRoot) {
   );
   const usesPromotedSuitAnchors =
     card.arcana === "minor" && !card.batch.startsWith("pilot-");
-  const referenceIds = usesPromotedSuitAnchors
-    ? manifest.generationPlan.plannedSuitAnchorIds[card.suit]
-    : card.legacySeedReferenceIds;
+  const referenceIds = card.needsRetouch
+    ? [cardId]
+    : usesPromotedSuitAnchors
+      ? manifest.generationPlan.plannedSuitAnchorIds[card.suit]
+      : card.legacySeedReferenceIds;
 
   return referenceIds.map((referenceId) => {
     const legacySource = legacySources.get(referenceId);
@@ -471,6 +477,36 @@ export function validateCardArtV3System(
     errors.push(
       'manifest.generator.referenceInput must be "referenced_image_paths".',
     );
+  }
+  if (
+    manifest.retouchGenerator?.tool !== "Sharp" ||
+    manifest.retouchGenerator?.mode !== "deterministic-local-restoration" ||
+    manifest.retouchGenerator?.referenceInput !== "source-only" ||
+    manifest.retouchGenerator?.recipeId !== "local-star-restoration-v1" ||
+    manifest.retouchGenerator?.recipePath !==
+      "scripts/card-art-v3-retouch.mjs" ||
+    manifest.retouchGenerator?.recipeDefinitionSha256 !==
+      "4e4cdd452f9abd57b8b2b12fd15b00d2ed725074eba53edd19920c35095f5e92"
+  ) {
+    errors.push(
+      "manifest.retouchGenerator must remain the reviewed local-star-restoration-v1 contract.",
+    );
+  }
+  for (const cardId of ["the-hermit", "temperance"]) {
+    const expected = manifest.retouchGenerator?.expectedOutputs?.[cardId];
+    const legacySource = manifest.legacySources?.find(
+      ({ id }) => id === cardId,
+    );
+    if (
+      expected?.sourceSha256 !== legacySource?.sha256 ||
+      expected?.rawOutputPath !==
+        `art/card-art-v3-raw/legacy-retouch/${cardId}-candidate-002.png` ||
+      !/^[a-f0-9]{64}$/.test(expected?.rawOutputSha256 ?? "")
+    ) {
+      errors.push(
+        `manifest.retouchGenerator.expectedOutputs.${cardId} must bind the reviewed source, exact raw path, and raw SHA-256.`,
+      );
+    }
   }
   if (
     manifest.frame?.aspectRatio !== "5:7" ||
@@ -843,11 +879,62 @@ export function validateCardArtV3System(
     ) {
       errors.push(`${label} manifest or card-spec SHA-256 is stale.`);
     }
+    const expectedGenerator = card?.needsRetouch
+      ? manifest.retouchGenerator
+      : manifest.generator;
     if (
-      record.generator?.tool !== manifest.generator.tool ||
-      record.generator?.mode !== manifest.generator.mode
+      record.generator?.tool !== expectedGenerator?.tool ||
+      record.generator?.mode !== expectedGenerator?.mode
     ) {
-      errors.push(`${label}.generator must match the manifest tool and mode.`);
+      errors.push(
+        `${label}.generator must match the applicable manifest tool and mode.`,
+      );
+    }
+    if (card?.needsRetouch) {
+      const expectedRetouch =
+        manifest.retouchGenerator?.expectedOutputs?.[record.cardId];
+      const recipePath = resolve(
+        repositoryRoot,
+        manifest.retouchGenerator?.recipePath ?? "",
+      );
+      if (!existsSync(recipePath)) {
+        errors.push(`${label}.retouch recipe is missing.`);
+      } else if (
+        record.retouchRecipeSha256 !== sha256(readFileSync(recipePath))
+      ) {
+        errors.push(
+          `${label}.retouchRecipeSha256 does not match the frozen recipe.`,
+        );
+      }
+      if (
+        record.retouchRecipeDefinitionSha256 !==
+        manifest.retouchGenerator?.recipeDefinitionSha256
+      ) {
+        errors.push(
+          `${label}.retouchRecipeDefinitionSha256 does not match the frozen definition.`,
+        );
+      }
+      if (record.retouchSourceSha256 !== expectedRetouch?.sourceSha256) {
+        errors.push(
+          `${label}.retouchSourceSha256 does not match the frozen source.`,
+        );
+      }
+      if (
+        record.rawOutputPath !== expectedRetouch?.rawOutputPath ||
+        record.rawOutputSha256 !== expectedRetouch?.rawOutputSha256
+      ) {
+        errors.push(
+          `${label} must bind the exact deterministic retouch path and raw SHA-256.`,
+        );
+      }
+    } else if (
+      record.retouchRecipeSha256 !== null ||
+      record.retouchRecipeDefinitionSha256 !== null ||
+      record.retouchSourceSha256 !== null
+    ) {
+      errors.push(
+        `${label} retouch provenance must be null for ImageGen cards.`,
+      );
     }
     if (
       record.promptSha256 !==
