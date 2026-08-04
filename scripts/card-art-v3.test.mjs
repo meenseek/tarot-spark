@@ -15,6 +15,11 @@ import {
   cardArtV3NormalizationRecipe,
   normalizeCardArtV3,
 } from "./card-art-v3-normalize.mjs";
+import {
+  cardArtV3RetouchRecipe,
+  renderCardArtV3Retouch,
+  retouchCardArtV3,
+} from "./card-art-v3-retouch.mjs";
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
 const temporaryDirectories = [];
@@ -49,18 +54,14 @@ describe("card art v3 preflight", () => {
     );
 
     expect(first).toEqual(second);
-    expect(first.mode).toBe("default");
+    expect(first.mode).toBe("deterministic-local-restoration");
     expect(first.prompt).toContain("CARD DIRECTION — The Hermit");
     expect(first.prompt).toContain("Retouch-only lock");
     expect(first.prompt).toContain("no visible letters");
     expect(first.referenced_image_paths).toEqual([
       resolve(repositoryRoot, "public/cards/the-hermit.jpg"),
-      resolve(repositoryRoot, "public/cards/the-lovers.jpg"),
     ]);
-    expect(Object.keys(first.referenceSha256)).toEqual([
-      "the-hermit",
-      "the-lovers",
-    ]);
+    expect(Object.keys(first.referenceSha256)).toEqual(["the-hermit"]);
     expect(buildCardArtV3Prompt(files.manifest, "wands-ace")).toContain(
       "show exactly 1 wands suit object",
     );
@@ -234,14 +235,19 @@ describe("card art v3 preflight", () => {
       "the-hermit",
       repositoryRoot,
     );
-    const rawOutputPath = "public/cards/the-hermit.jpg";
+    const expectedRetouch =
+      files.manifest.retouchGenerator.expectedOutputs["the-hermit"];
+    const rawOutputPath = expectedRetouch.rawOutputPath;
     const rawOutput = await readFile(resolve(repositoryRoot, rawOutputPath));
     files.generationRecords.records.push({
       batchId: files.manifest.cards["the-hermit"].batch,
       cardId: "the-hermit",
       cardSpecSha256: promptRecord.cardSpecSha256,
       generatedAt: "2026-08-04T00:00:00.000Z",
-      generator: { mode: "default", tool: "OpenAI ImageGen" },
+      generator: {
+        mode: "deterministic-local-restoration",
+        tool: "Sharp",
+      },
       id: "the-hermit-candidate-001",
       manifestSha256: promptRecord.manifestSha256,
       promptSha256: promptRecord.promptSha256,
@@ -249,10 +255,31 @@ describe("card art v3 preflight", () => {
       rawOutputSha256: createHash("sha256").update(rawOutput).digest("hex"),
       referenceSha256: promptRecord.referenceSha256,
       regenerationReason: null,
+      retouchRecipeDefinitionSha256:
+        files.manifest.retouchGenerator.recipeDefinitionSha256,
+      retouchRecipeSha256: createHash("sha256")
+        .update(
+          await readFile(
+            resolve(repositoryRoot, "scripts/card-art-v3-retouch.mjs"),
+          ),
+        )
+        .digest("hex"),
+      retouchSourceSha256: expectedRetouch.sourceSha256,
       selectionStatus: "candidate",
     });
 
     expect(() => validateCardArtV3System(files, repositoryRoot)).not.toThrow();
+    const forged = structuredClone(files);
+    forged.generationRecords.records[0].rawOutputPath =
+      "public/cards/the-hermit.jpg";
+    forged.generationRecords.records[0].rawOutputSha256 = createHash("sha256")
+      .update(
+        await readFile(resolve(repositoryRoot, "public/cards/the-hermit.jpg")),
+      )
+      .digest("hex");
+    expect(() => validateCardArtV3System(forged, repositoryRoot)).toThrow(
+      /exact deterministic retouch path and raw sha-256/i,
+    );
     files.generationRecords.records[0].referenceSha256 = {
       "the-fool": files.manifest.legacySources.find(
         ({ id }) => id === "the-fool",
@@ -288,5 +315,83 @@ describe("card art v3 normalization", () => {
     await expect(normalizeCardArtV3({ inputPath, outputPath })).rejects.toThrow(
       /refusing to overwrite/i,
     );
+  });
+});
+
+describe("card art v3 legacy retouch", () => {
+  it.each(["the-hermit", "temperance"])(
+    "removes only the frozen local star region for %s",
+    async (cardId) => {
+      const config = cardArtV3RetouchRecipe.cards[cardId];
+      const sourcePath = resolve(repositoryRoot, config.sourcePath);
+
+      const rendered = await renderCardArtV3Retouch({ cardId });
+      const files = loadCardArtV3Files(repositoryRoot);
+      const expectedRetouch =
+        files.manifest.retouchGenerator.expectedOutputs[cardId];
+      expect(rendered.outputSha256).toBe(expectedRetouch.rawOutputSha256);
+      expect(rendered.sourceSha256).toBe(expectedRetouch.sourceSha256);
+      expect(rendered.recipeDefinitionSha256).toBe(
+        files.manifest.retouchGenerator.recipeDefinitionSha256,
+      );
+      const source = await sharp(sourcePath).removeAlpha().raw().toBuffer({
+        resolveWithObject: true,
+      });
+      const output = await sharp(rendered.buffer).removeAlpha().raw().toBuffer({
+        resolveWithObject: true,
+      });
+      expect(output.info).toMatchObject({
+        channels: 3,
+        height: source.info.height,
+        width: source.info.width,
+      });
+
+      let changedInside = 0;
+      let changedOutside = 0;
+      for (let y = 0; y < source.info.height; y += 1) {
+        for (let x = 0; x < source.info.width; x += 1) {
+          const index = (y * source.info.width + x) * 3;
+          const changed = [0, 1, 2].some(
+            (channel) =>
+              source.data[index + channel] !== output.data[index + channel],
+          );
+          if (!changed) continue;
+          const inside = config.regions.some(
+            ({ center, radius }) =>
+              Math.abs(x - center.x) <= radius.x + 14 &&
+              Math.abs(y - center.y) <= radius.y + 14,
+          );
+          if (inside) changedInside += 1;
+          else changedOutside += 1;
+        }
+      }
+      expect(changedInside).toBeGreaterThan(0);
+      expect(changedOutside).toBe(0);
+
+      for (const { center } of config.regions) {
+        const centerIndex = (center.y * source.info.width + center.x) * 3;
+        expect(output.data[centerIndex + 2]).toBeGreaterThan(
+          output.data[centerIndex],
+        );
+      }
+    },
+  );
+
+  it("rejects arbitrary output paths and atomically refuses an existing candidate", async () => {
+    await expect(
+      retouchCardArtV3({
+        cardId: "the-hermit",
+        outputPath: resolve(tmpdir(), "the-hermit-candidate-999.png"),
+      }),
+    ).rejects.toThrow(/directly under/i);
+    await expect(
+      retouchCardArtV3({
+        cardId: "the-hermit",
+        outputPath: resolve(
+          repositoryRoot,
+          "art/card-art-v3-raw/legacy-retouch/the-hermit-candidate-002.png",
+        ),
+      }),
+    ).rejects.toThrow(/refusing to overwrite/i);
   });
 });
