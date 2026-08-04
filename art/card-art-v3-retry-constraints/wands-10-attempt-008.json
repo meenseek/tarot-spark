@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-10",
+  "attemptNumber": 8,
+  "previousAttemptId": "wands-10-attempt-007",
+  "editSourceAttemptId": "wands-10-attempt-005",
+  "editSourcePath": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-005-rejected.png",
+  "editSourceSha256": "e8fdd2224a638561d41b2403785c2ad07df55157b38a196778c67baf324539ef",
+  "constraint": "Precision-edit the supplied attempt-005 source image only. The source bundle contains exactly eight complete straight staffs. Count their existing visible top ends from the viewer's left to right as source staffs 1 through 8. Add exactly two—and only two—new complete straight staffs inside the existing fan: place the first new staff in the gap between source staffs 1 and 2, and the second in the gap between source staffs 7 and 8. Do not place either addition outside the existing leftmost or rightmost staff.\n\nEach new staff must match the existing staff diameter, bark material, perspective, and straight-line direction while remaining visually separate from both neighboring staffs. Give each one a single visible rounded top end and a single visible bottom end. Above and below every occlusion, its shaft segments must remain on the same straight centerline so one top, one shaft, and one bottom correspond unambiguously. Where a new shaft crosses an existing hand, finger, sleeve, or the rope binding, preserve the existing hand, finger, sleeve, and rope pixels in the foreground and show the new shaft only before and after that occlusion. Both new staffs must pass beneath the same existing rope binding so all ten read as one tied carried bundle.\n\nAfter the edit show exactly ten top ends, ten corresponding staffs, and ten bottom ends with one-to-one correspondence. Preserve all eight source staffs, both people, every hand and finger, the rope, clothing, stone doorway, landscape, crop, palette, linework, gouache texture, lighting, and all unrelated content as closely as possible. Do not remove, move, redraw, split, fork, shorten, lengthen, or duplicate an existing staff. Add no other wood, object, text, label, numeral, or marker.",
+  "reason": "Full generations repeatedly produced seven, eight, or thirteen visible staff tops, and a single-deletion precision edit could not repair the ambiguous thirteen-top candidate. Attempt 005 is the cleanest coherent source with exactly eight complete traceable staffs, so the reviewed repair adds only two at fixed internal positions.",
+  "result": "approved",
+  "reviewedAt": "2026-08-04T16:57:59.000Z",
+  "reviewer": "Planck (independent tarot content precision-edit audit)"
+}

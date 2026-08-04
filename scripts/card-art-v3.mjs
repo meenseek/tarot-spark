@@ -19,6 +19,7 @@ const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const defaultRepositoryRoot = resolve(scriptDirectory, "..");
 const fileNames = Object.freeze({
   approvals: "art/card-art-v3-approvals.json",
+  controlRegistry: "art/card-art-v3-control-registry.json",
   generationRecords: "art/card-art-v3-generation-records.json",
   legacyAudit: "art/card-art-v3-legacy-audit.json",
   manifest: "art/card-art-v3-manifest.json",
@@ -136,6 +137,7 @@ export function loadCardArtV3Baseline(
     if (
       ![
         "approvals",
+        "controlRegistry",
         "generationRecords",
         "legacyAudit",
         "releaseHistory",
@@ -242,6 +244,19 @@ export function buildCardArtV3AttemptPrompt(
   ].join("\n");
 }
 
+export function buildCardArtV3PrecisionEditPrompt(editInstruction) {
+  if (
+    typeof editInstruction !== "string" ||
+    editInstruction.trim().length < 20 ||
+    editInstruction.trim().length > 2400
+  ) {
+    throw new Error(
+      "editInstruction must be a 20–2400 character independently reviewed precision-edit instruction.",
+    );
+  }
+  return editInstruction.trim();
+}
+
 export function getCardArtV3PromptRecord(
   files,
   cardId,
@@ -296,6 +311,7 @@ export function getCardArtV3AttemptRecord(
     ...promptRecord,
     effectivePrompt,
     effectivePromptSha256: sha256(effectivePrompt),
+    editSource: null,
     retryConstraint: normalizedRetryConstraint,
   };
 }
@@ -324,14 +340,75 @@ export function getCardArtV3ReviewedAttemptRecord(
       `Retry constraint must reference the immediately preceding rejected attempt for ${cardId}.`,
     );
   }
+  if (
+    !isCanonicalUtcTimestamp(previousAttempt.generatedAt) ||
+    Date.parse(previousAttempt.generatedAt) >= Date.parse(artifact.reviewedAt)
+  ) {
+    throw new Error(
+      `Retry review must occur after its preceding attempt for ${cardId}.`,
+    );
+  }
+  const editSource = artifact.editSource;
+  const controlReference = artifact.controlReference;
+  if (editSource !== null) {
+    const sourceAttempt = (files.generationRecords.records ?? []).find(
+      ({ id }) => id === editSource.attemptId,
+    );
+    if (
+      !sourceAttempt ||
+      sourceAttempt.cardId !== cardId ||
+      sourceAttempt.selectionStatus !== "rejected" ||
+      sourceAttempt.attemptNumber >= artifact.attemptNumber ||
+      sourceAttempt.rawOutputPath !== editSource.path ||
+      sourceAttempt.rawOutputSha256 !== editSource.sha256 ||
+      !isCanonicalUtcTimestamp(sourceAttempt.generatedAt) ||
+      Date.parse(sourceAttempt.generatedAt) >= Date.parse(artifact.reviewedAt)
+    ) {
+      throw new Error(
+        `Precision edit source must bind an immutable rejected attempt for ${cardId}.`,
+      );
+    }
+  }
+  const attemptRecord =
+    editSource === null
+      ? getCardArtV3AttemptRecord(
+          files,
+          cardId,
+          artifact.constraint,
+          repositoryRoot,
+        )
+      : {
+          ...getCardArtV3PromptRecord(files, cardId, repositoryRoot),
+          editSource: null,
+          retryConstraint: artifact.constraint.trim(),
+        };
+  const effectivePrompt =
+    editSource === null
+      ? attemptRecord.effectivePrompt
+      : buildCardArtV3PrecisionEditPrompt(artifact.constraint);
   return {
-    ...getCardArtV3AttemptRecord(
-      files,
-      cardId,
-      artifact.constraint,
-      repositoryRoot,
-    ),
+    ...attemptRecord,
+    ...(editSource === null
+      ? {}
+      : {
+          referenceSha256: {
+            [editSource.attemptId]: editSource.sha256,
+            ...(controlReference === null
+              ? {}
+              : { [controlReference.id]: controlReference.sha256 }),
+          },
+          referenced_image_paths: [
+            resolve(repositoryRoot, editSource.path),
+            ...(controlReference === null
+              ? []
+              : [resolve(repositoryRoot, controlReference.path)]),
+          ],
+        }),
     attemptNumber: artifact.attemptNumber,
+    controlReference,
+    editSource,
+    effectivePrompt,
+    effectivePromptSha256: sha256(effectivePrompt),
     previousAttemptId: artifact.previousAttemptId,
     regenerationReason: artifact.reason,
     retryReview: {
@@ -366,6 +443,34 @@ function loadRetryConstraintArtifact(
   }
   const buffer = readFileSync(absolutePath);
   const artifact = JSON.parse(buffer.toString("utf8"));
+  const editSourceFields = [
+    artifact.editSourceAttemptId,
+    artifact.editSourcePath,
+    artifact.editSourceSha256,
+  ];
+  const hasEditSource = editSourceFields.some((value) => value !== undefined);
+  const editSource = hasEditSource
+    ? {
+        attemptId: artifact.editSourceAttemptId,
+        path: artifact.editSourcePath,
+        sha256: artifact.editSourceSha256,
+      }
+    : null;
+  const controlReferenceFields = [
+    artifact.controlReferenceId,
+    artifact.controlReferencePath,
+    artifact.controlReferenceSha256,
+  ];
+  const hasControlReference = controlReferenceFields.some(
+    (value) => value !== undefined,
+  );
+  const controlReference = hasControlReference
+    ? {
+        id: artifact.controlReferenceId,
+        path: artifact.controlReferencePath,
+        sha256: artifact.controlReferenceSha256,
+      }
+    : null;
   if (
     artifact.schemaVersion !== 1 ||
     artifact.cardId !== cardId ||
@@ -378,16 +483,65 @@ function loadRetryConstraintArtifact(
     artifact.reason.trim() === "" ||
     typeof artifact.reviewer !== "string" ||
     artifact.reviewer.trim() === "" ||
-    typeof artifact.reviewedAt !== "string" ||
-    artifact.reviewedAt.trim() === ""
+    !isCanonicalUtcTimestamp(artifact.reviewedAt)
   ) {
     throw new Error(
       `Invalid reviewed retry constraint artifact for ${cardId}.`,
     );
   }
-  buildCardArtV3AttemptPrompt("base", artifact.constraint);
+  if (hasEditSource) {
+    const editSourcePath = resolve(repositoryRoot, editSource.path ?? "");
+    if (
+      typeof editSource.attemptId !== "string" ||
+      !new RegExp(`^${cardId}-attempt-[0-9]{3}$`).test(editSource.attemptId) ||
+      typeof editSource.path !== "string" ||
+      !isProjectRelativePath(editSource.path) ||
+      !new RegExp(
+        `^art/card-art-v3-raw/[^/]+/${cardId}-candidate-[0-9]{3}-rejected\\.png$`,
+      ).test(editSource.path) ||
+      typeof editSource.sha256 !== "string" ||
+      !existsSync(editSourcePath) ||
+      sha256(readFileSync(editSourcePath)) !== editSource.sha256
+    ) {
+      throw new Error(`Invalid immutable precision edit source for ${cardId}.`);
+    }
+  }
+  if (hasControlReference) {
+    const controlRegistry = readJson(
+      resolve(repositoryRoot, fileNames.controlRegistry),
+    );
+    const approvedControl =
+      controlRegistry.controls?.[controlReference.id ?? ""];
+    const controlReferencePath = resolve(
+      repositoryRoot,
+      controlReference.path ?? "",
+    );
+    if (
+      editSource === null ||
+      typeof controlReference.id !== "string" ||
+      !new RegExp(`^${cardId}-[a-z0-9-]+-v[0-9]+$`).test(controlReference.id) ||
+      controlReference.path !==
+        `art/card-art-v3-controls/${controlReference.id}.png` ||
+      typeof controlReference.sha256 !== "string" ||
+      approvedControl?.cardId !== cardId ||
+      approvedControl?.status !== "approved" ||
+      approvedControl?.render?.path !== controlReference.path ||
+      approvedControl?.render?.sha256 !== controlReference.sha256 ||
+      !existsSync(controlReferencePath) ||
+      sha256(readFileSync(controlReferencePath)) !== controlReference.sha256
+    ) {
+      throw new Error(`Invalid immutable control reference for ${cardId}.`);
+    }
+  }
+  if (editSource === null) {
+    buildCardArtV3AttemptPrompt("base", artifact.constraint);
+  } else {
+    buildCardArtV3PrecisionEditPrompt(artifact.constraint);
+  }
   return {
     ...artifact,
+    controlReference,
+    editSource,
     projectRelativePath,
     sha256: sha256(buffer),
   };
@@ -397,6 +551,7 @@ function validateForPrompt(files, repositoryRoot) {
   const fingerprint = sha256(
     stableStringify({
       approvals: files.approvals,
+      controlRegistry: files.controlRegistry,
       generationRecords: files.generationRecords,
       legacyAudit: files.legacyAudit,
       manifest: files.manifest,
@@ -561,6 +716,7 @@ export function validateCardArtV3System(
 ) {
   const {
     approvals,
+    controlRegistry,
     generationRecords,
     legacyAudit,
     manifest,
@@ -592,6 +748,7 @@ export function validateCardArtV3System(
   };
 
   requireString(manifest.systemId, "manifest.systemId");
+  validateControlRegistry(controlRegistry, manifest, repositoryRoot, errors);
   if (manifest.version !== "v3") errors.push('manifest.version must be "v3".');
   const releaseEntries = Array.isArray(releaseHistory.entries)
     ? releaseHistory.entries
@@ -994,6 +1151,7 @@ export function validateCardArtV3System(
   const imageGenRawPaths = new Set();
   const imageGenRawSha256 = new Set();
   const latestImageGenAttemptByCard = new Map();
+  const seenImageGenAttemptsById = new Map();
   for (const [index, record] of (generationRecords.records ?? []).entries()) {
     const label = `generationRecords.records[${index}]`;
     requireString(record.id, `${label}.id`);
@@ -1028,6 +1186,9 @@ export function validateCardArtV3System(
       errors.push(
         `${label}.generator must match the applicable manifest tool and mode.`,
       );
+    }
+    if (!isCanonicalUtcTimestamp(record.generatedAt)) {
+      errors.push(`${label}.generatedAt must be a canonical UTC timestamp.`);
     }
     if (card?.needsRetouch) {
       const expectedRetouch =
@@ -1120,6 +1281,11 @@ export function validateCardArtV3System(
         errors.push(
           `${label} must reference the immediately preceding rejected attempt.`,
         );
+      } else if (
+        Date.parse(previousAttempt.generatedAt) >=
+        Date.parse(record.generatedAt)
+      ) {
+        errors.push(`${label} must be generated after its preceding attempt.`);
       }
       if (
         record.attemptNumber > 1 &&
@@ -1136,6 +1302,17 @@ export function validateCardArtV3System(
             `${label}.retryReview must be null without a constraint.`,
           );
         }
+        if (record.editSource !== null && record.editSource !== undefined) {
+          errors.push(`${label}.editSource must be null without a constraint.`);
+        }
+        if (
+          record.controlReference !== null &&
+          record.controlReference !== undefined
+        ) {
+          errors.push(
+            `${label}.controlReference must be null without a constraint.`,
+          );
+        }
       } else if (typeof record.retryConstraint === "string") {
         try {
           const retryArtifact = loadRetryConstraintArtifact(
@@ -1149,6 +1326,10 @@ export function validateCardArtV3System(
             retryArtifact.attemptNumber !== record.attemptNumber ||
             retryArtifact.previousAttemptId !== record.previousAttemptId ||
             retryArtifact.reason !== record.regenerationReason ||
+            stableStringify(retryArtifact.editSource) !==
+              stableStringify(record.editSource ?? null) ||
+            stableStringify(retryArtifact.controlReference) !==
+              stableStringify(record.controlReference ?? null) ||
             retryArtifact.result !== record.retryReview?.result ||
             retryArtifact.reviewedAt !== record.retryReview?.reviewedAt ||
             retryArtifact.reviewer !== record.retryReview?.reviewer
@@ -1156,6 +1337,32 @@ export function validateCardArtV3System(
             errors.push(
               `${label}.retryReview must exactly bind the independently approved constraint artifact.`,
             );
+          }
+          const predecessor = latestImageGenAttemptByCard.get(record.cardId);
+          if (
+            Date.parse(retryArtifact.reviewedAt) >=
+              Date.parse(record.generatedAt) ||
+            !predecessor ||
+            Date.parse(predecessor.generatedAt) >=
+              Date.parse(retryArtifact.reviewedAt)
+          ) {
+            errors.push(
+              `${label} must preserve predecessor generation < retry review < generation time order.`,
+            );
+          }
+          if (retryArtifact.editSource !== null) {
+            const editSourceAttempt = seenImageGenAttemptsById.get(
+              retryArtifact.editSource.attemptId,
+            );
+            if (
+              !editSourceAttempt ||
+              Date.parse(editSourceAttempt.generatedAt) >=
+                Date.parse(retryArtifact.reviewedAt)
+            ) {
+              errors.push(
+                `${label} edit source must be generated before retry review.`,
+              );
+            }
           }
         } catch (error) {
           errors.push(`${label}.retryReview is invalid: ${error.message}`);
@@ -1169,7 +1376,6 @@ export function validateCardArtV3System(
       }
       imageGenRawPaths.add(record.rawOutputPath);
       imageGenRawSha256.add(record.rawOutputSha256);
-      latestImageGenAttemptByCard.set(record.cardId, record);
       if (
         record.retryConstraint !== null &&
         typeof record.retryConstraint !== "string"
@@ -1177,10 +1383,13 @@ export function validateCardArtV3System(
         errors.push(`${label}.retryConstraint must be null or a string.`);
       } else {
         try {
-          const expectedEffectivePrompt = buildCardArtV3AttemptPrompt(
-            buildCardArtV3Prompt(manifest, record.cardId),
-            record.retryConstraint,
-          );
+          const expectedEffectivePrompt =
+            record.editSource === null || record.editSource === undefined
+              ? buildCardArtV3AttemptPrompt(
+                  buildCardArtV3Prompt(manifest, record.cardId),
+                  record.retryConstraint,
+                )
+              : buildCardArtV3PrecisionEditPrompt(record.retryConstraint);
           if (
             record.effectivePromptSha256 !== sha256(expectedEffectivePrompt)
           ) {
@@ -1210,11 +1419,59 @@ export function validateCardArtV3System(
     }
     let expectedReferenceSha256 = {};
     try {
-      expectedReferenceSha256 = Object.fromEntries(
-        resolveReferenceRecords(files, record.cardId, repositoryRoot).map(
-          ({ id, sha256: hash }) => [id, hash],
-        ),
-      );
+      if (record.editSource !== null && record.editSource !== undefined) {
+        const sourceAttempt = seenImageGenAttemptsById.get(
+          record.editSource.attemptId,
+        );
+        if (
+          !sourceAttempt ||
+          sourceAttempt.cardId !== record.cardId ||
+          sourceAttempt.selectionStatus !== "rejected" ||
+          sourceAttempt.attemptNumber >= record.attemptNumber ||
+          sourceAttempt.rawOutputPath !== record.editSource.path ||
+          sourceAttempt.rawOutputSha256 !== record.editSource.sha256 ||
+          Date.parse(sourceAttempt.generatedAt) >=
+            Date.parse(record.generatedAt)
+        ) {
+          throw new Error(
+            "editSource must bind an immutable rejected attempt of the same card",
+          );
+        }
+        expectedReferenceSha256 = {
+          [record.editSource.attemptId]: record.editSource.sha256,
+          ...(record.controlReference === null ||
+          record.controlReference === undefined
+            ? {}
+            : {
+                [record.controlReference.id]: record.controlReference.sha256,
+              }),
+        };
+        if (
+          record.controlReference !== null &&
+          record.controlReference !== undefined
+        ) {
+          const controlPath = resolve(
+            repositoryRoot,
+            record.controlReference.path ?? "",
+          );
+          if (
+            record.controlReference.path !==
+              `art/card-art-v3-controls/${record.controlReference.id}.png` ||
+            !existsSync(controlPath) ||
+            sha256(readFileSync(controlPath)) !== record.controlReference.sha256
+          ) {
+            throw new Error(
+              "controlReference must bind its immutable reviewed PNG",
+            );
+          }
+        }
+      } else {
+        expectedReferenceSha256 = Object.fromEntries(
+          resolveReferenceRecords(files, record.cardId, repositoryRoot).map(
+            ({ id, sha256: hash }) => [id, hash],
+          ),
+        );
+      }
     } catch (error) {
       errors.push(
         `${label} cannot resolve frozen references: ${error.message}`,
@@ -1225,7 +1482,7 @@ export function validateCardArtV3System(
       stableStringify(expectedReferenceSha256)
     ) {
       errors.push(
-        `${label}.referenceSha256 must exactly match the frozen prompt record references.`,
+        `${label}.referenceSha256 must exactly match the actual frozen generation inputs.`,
       );
     }
     const rawOutput = resolve(repositoryRoot, record.rawOutputPath ?? "");
@@ -1250,6 +1507,10 @@ export function validateCardArtV3System(
       errors.push(
         `${label}.regenerationReason must be null or a non-empty string.`,
       );
+    }
+    if (!card?.needsRetouch) {
+      latestImageGenAttemptByCard.set(record.cardId, record);
+      seenImageGenAttemptsById.set(record.id, record);
     }
     if (record.selectionStatus === "selected") {
       const normalized = record.normalized;
@@ -1558,6 +1819,117 @@ function validateAppendOnlyV3Records(baseline, current, errors) {
   ) {
     errors.push("legacyAudit is immutable once committed.");
   }
+  if (
+    baseline.controlRegistry &&
+    Object.entries(baseline.controlRegistry.controls ?? {}).some(
+      ([controlId, priorControl]) =>
+        stableStringify(current.controlRegistry?.controls?.[controlId]) !==
+        stableStringify(priorControl),
+    )
+  ) {
+    errors.push(
+      "controlRegistry must preserve every committed control record unchanged.",
+    );
+  }
+}
+
+function validateControlRegistry(registry, manifest, repositoryRoot, errors) {
+  if (
+    registry?.systemId !== manifest.systemId ||
+    registry?.version !== "v3" ||
+    registry?.schemaVersion !== 1 ||
+    !registry.controls ||
+    typeof registry.controls !== "object" ||
+    Array.isArray(registry.controls)
+  ) {
+    errors.push(
+      "controlRegistry must match the reviewed v3 control registry schema.",
+    );
+    return;
+  }
+  const expectedChecks = [
+    "exactTopCount",
+    "exactContinuousShaftCount",
+    "exactBottomCount",
+    "noMergeSplitOrLoss",
+    "singleBundle",
+    "noText",
+    "thumbnailLegible",
+  ];
+  for (const [controlId, control] of Object.entries(registry.controls)) {
+    const label = `controlRegistry.controls.${controlId}`;
+    const sourcePath = `art/card-art-v3-controls/${controlId}.svg`;
+    const renderPath = `art/card-art-v3-controls/${controlId}.png`;
+    if (
+      !manifest.cards?.[control.cardId] ||
+      !new RegExp(`^${control.cardId}-[a-z0-9-]+-v[0-9]+$`).test(controlId) ||
+      control.status !== "approved" ||
+      typeof control.purpose !== "string" ||
+      control.purpose.trim() === ""
+    ) {
+      errors.push(`${label} must identify one approved card-specific control.`);
+    }
+    if (
+      control.source?.path !== sourcePath ||
+      !/^[a-f0-9]{64}$/.test(control.source?.sha256 ?? "") ||
+      control.render?.path !== renderPath ||
+      !/^[a-f0-9]{64}$/.test(control.render?.sha256 ?? "")
+    ) {
+      errors.push(`${label} must bind its exact SVG and PNG paths and hashes.`);
+      continue;
+    }
+    const absoluteSourcePath = resolve(repositoryRoot, sourcePath);
+    const absoluteRenderPath = resolve(repositoryRoot, renderPath);
+    if (
+      !existsSync(absoluteSourcePath) ||
+      sha256(readFileSync(absoluteSourcePath)) !== control.source.sha256
+    ) {
+      errors.push(`${label}.source must match its reviewed SVG bytes.`);
+    } else if (/<text\b/i.test(readFileSync(absoluteSourcePath, "utf8"))) {
+      errors.push(`${label}.source must not contain SVG text elements.`);
+    }
+    if (!existsSync(absoluteRenderPath)) {
+      errors.push(`${label}.render PNG is missing.`);
+    } else {
+      const renderBuffer = readFileSync(absoluteRenderPath);
+      const pngFrame = readPngFrame(renderBuffer);
+      if (
+        sha256(renderBuffer) !== control.render.sha256 ||
+        renderBuffer.length !== control.render.bytes ||
+        pngFrame.width !== control.render.width ||
+        pngFrame.height !== control.render.height
+      ) {
+        errors.push(
+          `${label}.render must match its reviewed PNG bytes and frame.`,
+        );
+      }
+    }
+    if (
+      control.render.tool !== "Sharp" ||
+      control.render.toolVersion !== "0.34.5" ||
+      control.render.format !== "png" ||
+      typeof control.render.renderContract !== "string" ||
+      control.render.renderContract.trim() === ""
+    ) {
+      errors.push(`${label}.render must preserve the reviewed Sharp contract.`);
+    }
+    if (
+      control.approval?.result !== "approved" ||
+      !isCanonicalUtcTimestamp(control.approval?.recordedAt) ||
+      !Array.isArray(control.approval?.reviewers) ||
+      new Set(control.approval.reviewers).size < 2 ||
+      control.approval.reviewers.some(
+        (reviewer) => typeof reviewer !== "string" || reviewer.trim() === "",
+      ) ||
+      JSON.stringify(Object.keys(control.approval?.checks ?? {})) !==
+        JSON.stringify(expectedChecks) ||
+      expectedChecks.some((check) => control.approval.checks[check] !== true)
+    ) {
+      errors.push(
+        `${label}.approval must bind two independent passing reviews.`,
+      );
+    }
+  }
 }
 
 function validateLegacyAudit(audit, manifest, repositoryRoot, errors) {
@@ -1657,6 +2029,19 @@ function readJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));
 }
 
+function isCanonicalUtcTimestamp(value) {
+  if (
+    typeof value !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)
+  ) {
+    return false;
+  }
+  const timestamp = Date.parse(value);
+  return (
+    Number.isFinite(timestamp) && new Date(timestamp).toISOString() === value
+  );
+}
+
 function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
 }
@@ -1681,6 +2066,20 @@ function isProjectRelativePath(value) {
     !value.startsWith("/") &&
     !value.split(/[\\/]/u).includes("..")
   );
+}
+
+function readPngFrame(buffer) {
+  const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+  if (
+    buffer.length < 24 ||
+    !buffer.subarray(0, signature.length).equals(signature)
+  ) {
+    return { height: 0, width: 0 };
+  }
+  return {
+    height: buffer.readUInt32BE(20),
+    width: buffer.readUInt32BE(16),
+  };
 }
 
 function readJpegMetadata(buffer) {

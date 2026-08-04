@@ -1,16 +1,18 @@
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import sharp from "sharp";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   buildCardArtV3AttemptPrompt,
+  buildCardArtV3PrecisionEditPrompt,
   buildCardArtV3Prompt,
   getCardArtV3AttemptRecord,
   getCardArtV3ManifestSha256,
   getCardArtV3PromptRecord,
+  getCardArtV3ReviewedAttemptRecord,
   loadCardArtV3Files,
   validateCardArtV3System,
 } from "./card-art-v3.mjs";
@@ -26,12 +28,16 @@ import {
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
 const temporaryDirectories = [];
+const temporaryFiles = [];
 
 afterEach(async () => {
   await Promise.all(
     temporaryDirectories
       .splice(0)
       .map((path) => rm(path, { force: true, recursive: true })),
+  );
+  await Promise.all(
+    temporaryFiles.splice(0).map((path) => rm(path, { force: true })),
   );
 });
 
@@ -42,7 +48,7 @@ describe("card art v3 preflight", () => {
     expect(validateCardArtV3System(files, repositoryRoot)).toEqual({
       approvedCount: 2,
       cardCount: 78,
-      generationCount: 6,
+      generationCount: 15,
       releaseCount: 0,
     });
   });
@@ -119,6 +125,125 @@ describe("card art v3 preflight", () => {
       result: "approved",
       reviewer: "Planck (independent tarot content static audit)",
     });
+  });
+
+  it("binds a precision edit to one immutable rejected source and the exact short edit prompt", () => {
+    const files = loadCardArtV3Files(repositoryRoot);
+    const artifactPath =
+      "art/card-art-v3-retry-constraints/wands-10-attempt-007.json";
+    const record = getCardArtV3ReviewedAttemptRecord(
+      files,
+      "wands-10",
+      artifactPath,
+      repositoryRoot,
+    );
+
+    expect(record.attemptNumber).toBe(7);
+    expect(record.editSource).toEqual({
+      attemptId: "wands-10-attempt-004",
+      path: "art/card-art-v3-raw/pilot-wands/wands-10-candidate-004-rejected.png",
+      sha256:
+        "c2cdf54ef8dbfcdc8642722659b85fe448e9c80f7533fc0fc6deb9de73f0d4eb",
+    });
+    expect(record.effectivePrompt).toBe(
+      buildCardArtV3PrecisionEditPrompt(record.retryConstraint),
+    );
+    expect(record.effectivePrompt).not.toContain("CARD DIRECTION");
+    expect(record.referenced_image_paths).toEqual([
+      resolve(repositoryRoot, record.editSource.path),
+    ]);
+    expect(record.referenceSha256).toEqual({
+      "wands-10-attempt-004": record.editSource.sha256,
+    });
+  });
+
+  it("binds a reviewed geometry control as the second immutable precision-edit input", () => {
+    const files = loadCardArtV3Files(repositoryRoot);
+    const record = getCardArtV3ReviewedAttemptRecord(
+      files,
+      "wands-10",
+      "art/card-art-v3-retry-constraints/wands-10-attempt-009.json",
+      repositoryRoot,
+    );
+
+    expect(record.controlReference).toEqual({
+      id: "wands-10-ten-staff-fan-v1",
+      path: "art/card-art-v3-controls/wands-10-ten-staff-fan-v1.png",
+      sha256:
+        "a9490bc20ff775fc2e60e1874120cce390a34d0e13cdd59a7c2c1c3e9a3c2572",
+    });
+    expect(record.referenced_image_paths).toEqual([
+      resolve(repositoryRoot, record.editSource.path),
+      resolve(repositoryRoot, record.controlReference.path),
+    ]);
+    expect(record.referenceSha256).toEqual({
+      "wands-10-attempt-005": record.editSource.sha256,
+      "wands-10-ten-staff-fan-v1": record.controlReference.sha256,
+    });
+    expect(record.effectivePrompt).toContain(
+      "second supplied image is a geometry control",
+    );
+  });
+
+  it("rejects a byte-valid control file that is not in the independent control registry", async () => {
+    const files = loadCardArtV3Files(repositoryRoot);
+    const sourceArtifactPath = resolve(
+      repositoryRoot,
+      "art/card-art-v3-retry-constraints/wands-10-attempt-009.json",
+    );
+    const forgedArtifactPath = resolve(
+      repositoryRoot,
+      "art/card-art-v3-retry-constraints/wands-10-attempt-999.json",
+    );
+    const forgedControlPath = resolve(
+      repositoryRoot,
+      "art/card-art-v3-controls/wands-10-unreviewed-v1.png",
+    );
+    temporaryFiles.push(forgedArtifactPath, forgedControlPath);
+    const approvedControl = await readFile(
+      resolve(
+        repositoryRoot,
+        "art/card-art-v3-controls/wands-10-ten-staff-fan-v1.png",
+      ),
+    );
+    await writeFile(forgedControlPath, approvedControl, { flag: "wx" });
+    const artifact = JSON.parse(await readFile(sourceArtifactPath, "utf8"));
+    artifact.attemptNumber = 999;
+    artifact.previousAttemptId = "wands-10-attempt-998";
+    artifact.controlReferenceId = "wands-10-unreviewed-v1";
+    artifact.controlReferencePath =
+      "art/card-art-v3-controls/wands-10-unreviewed-v1.png";
+    artifact.controlReferenceSha256 = createHash("sha256")
+      .update(approvedControl)
+      .digest("hex");
+    await writeFile(
+      forgedArtifactPath,
+      `${JSON.stringify(artifact, null, 2)}\n`,
+      { flag: "wx" },
+    );
+
+    expect(() =>
+      getCardArtV3ReviewedAttemptRecord(
+        files,
+        "wands-10",
+        "art/card-art-v3-retry-constraints/wands-10-attempt-999.json",
+        repositoryRoot,
+      ),
+    ).toThrow(/invalid immutable control reference/i);
+  });
+
+  it("re-renders the registered SVG to the exact reviewed control PNG bytes", async () => {
+    const rendered = await sharp(
+      resolve(
+        repositoryRoot,
+        "art/card-art-v3-controls/wands-10-ten-staff-fan-v1.svg",
+      ),
+    )
+      .png()
+      .toBuffer();
+    expect(createHash("sha256").update(rendered).digest("hex")).toBe(
+      "a9490bc20ff775fc2e60e1874120cce390a34d0e13cdd59a7c2c1c3e9a3c2572",
+    );
   });
 
   it("opens pilots after both retouches and keeps post-pilot prompts closed", () => {
@@ -348,7 +473,7 @@ describe("card art v3 preflight", () => {
       ).sha256,
     };
     expect(() => validateCardArtV3System(files, repositoryRoot)).toThrow(
-      /exactly match the frozen prompt record references/i,
+      /exactly match the actual frozen generation inputs/i,
     );
   });
 
@@ -386,6 +511,51 @@ describe("card art v3 preflight", () => {
     expect(() =>
       validateCardArtV3System(firstAttemptRetry, repositoryRoot),
     ).toThrow(/first attempt cannot use a retry constraint/i);
+
+    const selfEditSource = structuredClone(files);
+    const precisionEdit = selfEditSource.generationRecords.records.find(
+      ({ id }) => id === "wands-10-attempt-007",
+    );
+    precisionEdit.editSource = {
+      attemptId: precisionEdit.id,
+      path: precisionEdit.rawOutputPath,
+      sha256: precisionEdit.rawOutputSha256,
+    };
+    precisionEdit.referenceSha256 = {
+      [precisionEdit.id]: precisionEdit.rawOutputSha256,
+    };
+    expect(() =>
+      validateCardArtV3System(selfEditSource, repositoryRoot),
+    ).toThrow(/independently approved constraint|frozen generation inputs/i);
+
+    const generatedBeforeReview = structuredClone(files);
+    generatedBeforeReview.generationRecords.records.find(
+      ({ id }) => id === "wands-10-attempt-007",
+    ).generatedAt = "2020-01-01T00:00:00.000Z";
+    expect(() =>
+      validateCardArtV3System(generatedBeforeReview, repositoryRoot),
+    ).toThrow(/time order|after its preceding attempt/i);
+
+    const predecessorAtReview = structuredClone(files);
+    predecessorAtReview.generationRecords.records.find(
+      ({ id }) => id === "wands-10-attempt-006",
+    ).generatedAt = "2026-08-04T16:33:28.000Z";
+    expect(() =>
+      validateCardArtV3System(predecessorAtReview, repositoryRoot),
+    ).toThrow(/time order/i);
+
+    const editSourceAtReview = structuredClone(files);
+    editSourceAtReview.generationRecords.records.find(
+      ({ id }) => id === "wands-10-attempt-004",
+    ).generatedAt = "2026-08-04T16:33:28.000Z";
+    expect(() =>
+      getCardArtV3ReviewedAttemptRecord(
+        editSourceAtReview,
+        "wands-10",
+        "art/card-art-v3-retry-constraints/wands-10-attempt-007.json",
+        repositoryRoot,
+      ),
+    ).toThrow(/precision edit source/i);
   });
 });
 

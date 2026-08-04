@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-10",
+  "attemptNumber": 5,
+  "previousAttemptId": "wands-10-attempt-004",
+  "constraint": "Preserve the nearby plain stone store doorway, otherwise empty yard, strained worker, tied carried bundle, and second person's empty offered helping hand. The bundle must contain exactly ten and only ten straight staffs. Arrange them in a clean, shallow fan with no overlap that hides or invents an endpoint: exactly ten isolated top ends, exactly ten continuously traceable shafts, and exactly ten isolated bottom ends, each top-shaft-bottom forming one unbroken one-to-one staff. Do not add a short central stub, a partially hidden shaft, split/forked wood, loose stick, or extra staff behind the bundle. The bundle is the only elongated wooden material anywhere. Show no stored wood, racks, fences, posts, poles, tools, stakes, tents, flags, canopies, beams, branches, tool handles, or lumber.",
+  "reason": "Independent full-size review rejected attempt 004 because it showed eleven top ends and did not preserve a one-to-one correspondence between ten top ends, ten shafts, and ten bottom ends.",
+  "result": "approved",
+  "reviewedAt": "2026-08-04T16:19:51.000Z",
+  "reviewer": "Planck (independent tarot content retry audit)"
+}

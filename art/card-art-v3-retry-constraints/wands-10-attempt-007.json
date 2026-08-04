@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-10",
+  "attemptNumber": 7,
+  "previousAttemptId": "wands-10-attempt-006",
+  "editSourceAttemptId": "wands-10-attempt-004",
+  "editSourcePath": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-004-rejected.png",
+  "editSourceSha256": "c2cdf54ef8dbfcdc8642722659b85fe448e9c80f7533fc0fc6deb9de73f0d4eb",
+  "constraint": "Precision-edit the supplied attempt-004 source image only. Remove only the unmatched partial wooden segment whose rounded endpoint is both the farthest-left and the lowest of the eleven visible top endpoints—the outer-left diagonal stub immediately above the carrier's raised hand. Remove that rounded endpoint and only its exposed shaft down to the point where it disappears behind the neighboring complete staffs; it has no corresponding visible bottom endpoint. Reconstruct only the small vacated sky/background area. After the edit, the tied bundle must contain exactly ten complete staffs total: exactly ten visible top ends, ten distinct continuously corresponding shafts, and ten visible bottom ends, with one-to-one top–shaft–bottom correspondence. Preserve every complete remaining staff, both people, every hand and finger, the rope, clothing, stone doorway, landscape, crop, palette, linework, gouache texture, lighting, and all other pixels as closely as possible. Do not alter anything inside or below the rope binding while removing the unmatched upper stub. Do not add, move, lengthen, split, fork, duplicate, or redraw any remaining staff. Add no text or new object.",
+  "reason": "Full regeneration attempts 005 and 006 undercounted the bundle, while attempt 004 already passed scene, anatomy, meaning, and style review and requires removal of only one unmatched upper staff segment.",
+  "result": "approved",
+  "reviewedAt": "2026-08-04T16:33:28.000Z",
+  "reviewer": "Planck (independent tarot content precision-edit audit)"
+}
