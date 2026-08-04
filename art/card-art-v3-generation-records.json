@@ -193,6 +193,338 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "wands-10-attempt-004",
+      "attemptNumber": 4,
+      "batchId": "pilot-wands",
+      "cardId": "wands-10",
+      "cardSpecSha256": "7e827d502328555db13cb3eee32d0803a00b16e7d16dfbce977b6caf2d291c12",
+      "effectivePromptSha256": "067e373b096cf7339a7b35000c75fc1b2efd03cf828b3d584387d75a81506814",
+      "generatedAt": "2026-08-04T16:06:46.678Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": "wands-10-attempt-003",
+      "promptSha256": "63d7722a8d85b8cf752f653aaf4282ed86e7b6a57516cf61eae6388284a613d1",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-004-rejected.png",
+      "rawOutputSha256": "c2cdf54ef8dbfcdc8642722659b85fe448e9c80f7533fc0fc6deb9de73f0d4eb",
+      "referenceSha256": {
+        "the-fool": "98c44ed92620968fef950f40b3b33c634f6dac5762de02c267eccf6edbdd78f8",
+        "strength": "200272b5c855b8fb9f35426c7bdee43ad5fabb9fab0cce4b591957760a466776"
+      },
+      "regenerationReason": "Three base-prompt attempts were rejected because the visible store yard repeatedly introduced stored staffs, poles, lumber, flags, and ambiguous bundle counts.",
+      "retryConstraint": "Render the destination as a nearby plain stone store doorway at the edge of an otherwise empty yard. Show no stored wood, racks, fences, posts, poles, tools, stakes, tents, flags, canopies, beams, branches, tool handles, or lumber. The carried tied bundle must be the only elongated wooden material anywhere and must contain exactly ten straight staffs, individually distinguishable within the binding, with all ten top ends, all ten shafts, and all ten bottom ends visibly countable. Preserve the second person's offered empty helping hand.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/wands-10-attempt-004.json",
+        "artifactSha256": "fff16d1e8f850b629397419c8f661306e642334a3959a0cac804507c425230e4",
+        "result": "approved",
+        "reviewedAt": "2026-08-04T16:00:08.000Z",
+        "reviewer": "Planck (independent tarot content static audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
+    },
+    {
+      "id": "wands-10-attempt-005",
+      "attemptNumber": 5,
+      "batchId": "pilot-wands",
+      "cardId": "wands-10",
+      "cardSpecSha256": "7e827d502328555db13cb3eee32d0803a00b16e7d16dfbce977b6caf2d291c12",
+      "effectivePromptSha256": "119686dd259a5f438d052437e3f396626041a8d0c04163564a056b5ab9bf2e95",
+      "generatedAt": "2026-08-04T16:23:34.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": "wands-10-attempt-004",
+      "promptSha256": "63d7722a8d85b8cf752f653aaf4282ed86e7b6a57516cf61eae6388284a613d1",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-005-rejected.png",
+      "rawOutputSha256": "e8fdd2224a638561d41b2403785c2ad07df55157b38a196778c67baf324539ef",
+      "referenceSha256": {
+        "the-fool": "98c44ed92620968fef950f40b3b33c634f6dac5762de02c267eccf6edbdd78f8",
+        "strength": "200272b5c855b8fb9f35426c7bdee43ad5fabb9fab0cce4b591957760a466776"
+      },
+      "regenerationReason": "Independent full-size review rejected attempt 004 because it showed eleven top ends and did not preserve a one-to-one correspondence between ten top ends, ten shafts, and ten bottom ends.",
+      "retryConstraint": "Preserve the nearby plain stone store doorway, otherwise empty yard, strained worker, tied carried bundle, and second person's empty offered helping hand. The bundle must contain exactly ten and only ten straight staffs. Arrange them in a clean, shallow fan with no overlap that hides or invents an endpoint: exactly ten isolated top ends, exactly ten continuously traceable shafts, and exactly ten isolated bottom ends, each top-shaft-bottom forming one unbroken one-to-one staff. Do not add a short central stub, a partially hidden shaft, split/forked wood, loose stick, or extra staff behind the bundle. The bundle is the only elongated wooden material anywhere. Show no stored wood, racks, fences, posts, poles, tools, stakes, tents, flags, canopies, beams, branches, tool handles, or lumber.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/wands-10-attempt-005.json",
+        "artifactSha256": "386dbd28a40851c1b9447c268729b6a05b9cb885ff89efc087c931eb3ec78813",
+        "result": "approved",
+        "reviewedAt": "2026-08-04T16:19:51.000Z",
+        "reviewer": "Planck (independent tarot content retry audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
+    },
+    {
+      "id": "wands-ace-attempt-001",
+      "attemptNumber": 1,
+      "batchId": "pilot-wands",
+      "cardId": "wands-ace",
+      "cardSpecSha256": "3f2e244a40282674f1539f1e499879ec3355e071a17ea1da8968655716e06320",
+      "effectivePromptSha256": "42b78e7990d6c327365a218fb1b5b6877a4e1cc40c7d88d1890350868601330e",
+      "generatedAt": "2026-08-04T15:21:20.039Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 267440,
+        "assetPath": "public/cards/v3/wands-ace.jpg",
+        "assetSha256": "06ec809794cf36619af12a1a785dba5c7ae66cc179a0418d73fd5b468f66efcc",
+        "cropPosition": "attention",
+        "inputSha256": "c4b00da974c03a9cb2237492e5078699e9262a4d2e1e983bc78c8a612cf6a9c0",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": null,
+      "promptSha256": "42b78e7990d6c327365a218fb1b5b6877a4e1cc40c7d88d1890350868601330e",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-wands/wands-ace-candidate-001.png",
+      "rawOutputSha256": "c4b00da974c03a9cb2237492e5078699e9262a4d2e1e983bc78c8a612cf6a9c0",
+      "referenceSha256": {
+        "the-fool": "98c44ed92620968fef950f40b3b33c634f6dac5762de02c267eccf6edbdd78f8",
+        "strength": "200272b5c855b8fb9f35426c7bdee43ad5fabb9fab0cce4b591957760a466776"
+      },
+      "regenerationReason": null,
+      "retryConstraint": null,
+      "retryReview": null,
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
+    },
+    {
+      "id": "wands-5-attempt-001",
+      "attemptNumber": 1,
+      "batchId": "pilot-wands",
+      "cardId": "wands-5",
+      "cardSpecSha256": "4e6df8523a63616b73c881ac0ba5e97815ec8867eac201ef67d33873d6f968f4",
+      "effectivePromptSha256": "710b2414f72a204765bc0f76524a361e8e2538f9ec7a45e66e9d9629ccb52a95",
+      "generatedAt": "2026-08-04T15:24:19.074Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": null,
+      "promptSha256": "710b2414f72a204765bc0f76524a361e8e2538f9ec7a45e66e9d9629ccb52a95",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-wands/wands-5-candidate-001-rejected.png",
+      "rawOutputSha256": "f0e8a398614a38648ca92b520189c921d41dd177811e544aa2e775ca14791a6c",
+      "referenceSha256": {
+        "strength": "200272b5c855b8fb9f35426c7bdee43ad5fabb9fab0cce4b591957760a466776",
+        "the-lovers": "a7d13cc70299827e4972d67aeb57d768d441a709e468ff5f0a2703a57618e488"
+      },
+      "regenerationReason": null,
+      "retryConstraint": null,
+      "retryReview": null,
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
+    },
+    {
+      "id": "wands-5-attempt-002",
+      "attemptNumber": 2,
+      "batchId": "pilot-wands",
+      "cardId": "wands-5",
+      "cardSpecSha256": "4e6df8523a63616b73c881ac0ba5e97815ec8867eac201ef67d33873d6f968f4",
+      "effectivePromptSha256": "710b2414f72a204765bc0f76524a361e8e2538f9ec7a45e66e9d9629ccb52a95",
+      "generatedAt": "2026-08-04T15:36:22.088Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 292862,
+        "assetPath": "public/cards/v3/wands-5.jpg",
+        "assetSha256": "7700a9f1efaf218e3ed79c2ccc4cc1ed5a6d3436770291b8af390b35ea1150a9",
+        "cropPosition": "attention",
+        "inputSha256": "f4fa4b2c132e917fa77c38eefd0655f923fca36da8531e662a6f3596178f713e",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": "wands-5-attempt-001",
+      "promptSha256": "710b2414f72a204765bc0f76524a361e8e2538f9ec7a45e66e9d9629ccb52a95",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-wands/wands-5-candidate-002.png",
+      "rawOutputSha256": "f4fa4b2c132e917fa77c38eefd0655f923fca36da8531e662a6f3596178f713e",
+      "referenceSha256": {
+        "strength": "200272b5c855b8fb9f35426c7bdee43ad5fabb9fab0cce4b591957760a466776",
+        "the-lovers": "a7d13cc70299827e4972d67aeb57d768d441a709e468ff5f0a2703a57618e488"
+      },
+      "regenerationReason": "The first attempt introduced background banner and canopy poles that made the five-staff count ambiguous.",
+      "retryConstraint": null,
+      "retryReview": null,
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
+    },
+    {
+      "id": "wands-page-attempt-002",
+      "attemptNumber": 2,
+      "batchId": "pilot-wands",
+      "cardId": "wands-page",
+      "cardSpecSha256": "fa22041232cb180011b989b17fbf56956a0addcbcecf41d6e861c98395c2335f",
+      "effectivePromptSha256": "d7250a9fd7cca3fac24a1cf3aaa8f4ab06ac8c9ae5e8fd4dba4a91cc8538b8dd",
+      "generatedAt": "2026-08-04T16:10:15.086Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 245180,
+        "assetPath": "public/cards/v3/wands-page.jpg",
+        "assetSha256": "f42030969f53ef0f2ef2f72f5814e44b0b9102ae5d0e8a1d71d3d1c5222435e1",
+        "cropPosition": "attention",
+        "inputSha256": "b8bb75a60b9b0d968ba27267e6f33c83b508ab10548bdf73207f5cd446d6fdb2",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": "wands-page-attempt-001",
+      "promptSha256": "bb99bc14d5e9ee318eb9dfd873bb8306bc058c67c40c2e3277b9339cdd206767",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-wands/wands-page-candidate-002.png",
+      "rawOutputSha256": "b8bb75a60b9b0d968ba27267e6f33c83b508ab10548bdf73207f5cd446d6fdb2",
+      "referenceSha256": {
+        "the-fool": "98c44ed92620968fef950f40b3b33c634f6dac5762de02c267eccf6edbdd78f8",
+        "strength": "200272b5c855b8fb9f35426c7bdee43ad5fabb9fab0cce4b591957760a466776"
+      },
+      "regenerationReason": "The base-prompt attempt was rejected because a tent and multiple support poles made the one-staff count ambiguous.",
+      "retryConstraint": "Place the kneeling traveler on a bare stone practice terrace with open sky. The single finished staff being tested must be the only wooden, branch-like, or pole-like object anywhere. Show no tent, canopy, tree, rack, fence, post, stake, table, training equipment, or background pole; keep only the blank practice cloth and one loose leather wrap.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/wands-page-attempt-002.json",
+        "artifactSha256": "4f3b2f71f1061ce4cd812dea9e6a3b1d1a0b4a9589949b446987689af2d44eca",
+        "result": "approved",
+        "reviewedAt": "2026-08-04T16:00:08.000Z",
+        "reviewer": "Planck (independent tarot content static audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
+    },
+    {
+      "id": "wands-10-attempt-006",
+      "attemptNumber": 6,
+      "batchId": "pilot-wands",
+      "cardId": "wands-10",
+      "cardSpecSha256": "7e827d502328555db13cb3eee32d0803a00b16e7d16dfbce977b6caf2d291c12",
+      "effectivePromptSha256": "8a2f7c9b1c00006cc25c9c3f9ecbd148c1c93b61921e4924d7ff150f9a2909ce",
+      "generatedAt": "2026-08-04T16:28:48.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": "wands-10-attempt-005",
+      "promptSha256": "63d7722a8d85b8cf752f653aaf4282ed86e7b6a57516cf61eae6388284a613d1",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-006-rejected.png",
+      "rawOutputSha256": "668e2259695562fd33086a0698389164625160f5bad7c9302add6d771f6e2529",
+      "referenceSha256": {
+        "the-fool": "98c44ed92620968fef950f40b3b33c634f6dac5762de02c267eccf6edbdd78f8",
+        "strength": "200272b5c855b8fb9f35426c7bdee43ad5fabb9fab0cce4b591957760a466776"
+      },
+      "regenerationReason": "Attempt 005 was rejected because the bundle contained only eight visible, traceable staffs instead of the required ten.",
+      "retryConstraint": "Preserve the nearby plain stone store doorway, otherwise empty yard, strained worker, one tied carried bundle, and second person's empty offered helping hand. Construct the one bundle as two visually separated parallel subgroups held together by one broad rope binding: exactly five straight staffs on the viewer's left plus exactly five straight staffs on the viewer's right, for exactly ten total. Leave a narrow strip of daylight between the two five-staff subgroups above and below the binding. Within each subgroup show exactly five isolated top ends, five continuously traceable non-overlapping shafts, and five isolated bottom ends. Every staff must run unbroken from one visible top to one visible bottom; show no hidden, cropped, forked, split, short, or extra wood. The ten bundle staffs are the only elongated wooden material anywhere. Show no stored wood, racks, fences, posts, poles, tools, stakes, tents, flags, canopies, beams, branches, tool handles, or lumber. Do not add labels, numerals, colored markers, or decorative ties.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/wands-10-attempt-006.json",
+        "artifactSha256": "81a1f49025286446d2a65639c1b98522fd06b3f7775e01066f3ff01ecc2f17cb",
+        "result": "approved",
+        "reviewedAt": "2026-08-04T16:26:32.000Z",
+        "reviewer": "Planck (independent tarot content retry audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
+    },
+    {
+      "id": "wands-10-attempt-007",
+      "attemptNumber": 7,
+      "batchId": "pilot-wands",
+      "cardId": "wands-10",
+      "cardSpecSha256": "7e827d502328555db13cb3eee32d0803a00b16e7d16dfbce977b6caf2d291c12",
+      "editSource": {
+        "attemptId": "wands-10-attempt-004",
+        "path": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-004-rejected.png",
+        "sha256": "c2cdf54ef8dbfcdc8642722659b85fe448e9c80f7533fc0fc6deb9de73f0d4eb"
+      },
+      "effectivePromptSha256": "8623f75494cd0fc7068fcf760280fa009ba84f8596afd143ef01bcf748ed5ef6",
+      "generatedAt": "2026-08-04T16:36:52.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": "wands-10-attempt-006",
+      "promptSha256": "63d7722a8d85b8cf752f653aaf4282ed86e7b6a57516cf61eae6388284a613d1",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-007-rejected.png",
+      "rawOutputSha256": "303d832869a169ab92f73bb1a019f41b0c1aab407e6b7fa82acfcd8832c24039",
+      "referenceSha256": {
+        "wands-10-attempt-004": "c2cdf54ef8dbfcdc8642722659b85fe448e9c80f7533fc0fc6deb9de73f0d4eb"
+      },
+      "regenerationReason": "Full regeneration attempts 005 and 006 undercounted the bundle, while attempt 004 already passed scene, anatomy, meaning, and style review and requires removal of only one unmatched upper staff segment.",
+      "retryConstraint": "Precision-edit the supplied attempt-004 source image only. Remove only the unmatched partial wooden segment whose rounded endpoint is both the farthest-left and the lowest of the eleven visible top endpoints—the outer-left diagonal stub immediately above the carrier's raised hand. Remove that rounded endpoint and only its exposed shaft down to the point where it disappears behind the neighboring complete staffs; it has no corresponding visible bottom endpoint. Reconstruct only the small vacated sky/background area. After the edit, the tied bundle must contain exactly ten complete staffs total: exactly ten visible top ends, ten distinct continuously corresponding shafts, and ten visible bottom ends, with one-to-one top–shaft–bottom correspondence. Preserve every complete remaining staff, both people, every hand and finger, the rope, clothing, stone doorway, landscape, crop, palette, linework, gouache texture, lighting, and all other pixels as closely as possible. Do not alter anything inside or below the rope binding while removing the unmatched upper stub. Do not add, move, lengthen, split, fork, duplicate, or redraw any remaining staff. Add no text or new object.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/wands-10-attempt-007.json",
+        "artifactSha256": "1a90d5e8e324d532207415dd2d7bc48b7a270f336e05af33208c428364102c9f",
+        "result": "approved",
+        "reviewedAt": "2026-08-04T16:33:28.000Z",
+        "reviewer": "Planck (independent tarot content precision-edit audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
+    },
+    {
+      "id": "wands-10-attempt-008",
+      "attemptNumber": 8,
+      "batchId": "pilot-wands",
+      "cardId": "wands-10",
+      "cardSpecSha256": "7e827d502328555db13cb3eee32d0803a00b16e7d16dfbce977b6caf2d291c12",
+      "editSource": {
+        "attemptId": "wands-10-attempt-005",
+        "path": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-005-rejected.png",
+        "sha256": "e8fdd2224a638561d41b2403785c2ad07df55157b38a196778c67baf324539ef"
+      },
+      "effectivePromptSha256": "66ad914e2988c570b245f68818e7194f6793fe9db3d56a6f2477108ecb192368",
+      "generatedAt": "2026-08-04T17:05:43.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": "wands-10-attempt-007",
+      "promptSha256": "63d7722a8d85b8cf752f653aaf4282ed86e7b6a57516cf61eae6388284a613d1",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-008-rejected.png",
+      "rawOutputSha256": "d50f8d991446c6b4cf276c375f2c057decd30454f413c53150e0e3d9549b2005",
+      "referenceSha256": {
+        "wands-10-attempt-005": "e8fdd2224a638561d41b2403785c2ad07df55157b38a196778c67baf324539ef"
+      },
+      "regenerationReason": "Full generations repeatedly produced seven, eight, or thirteen visible staff tops, and a single-deletion precision edit could not repair the ambiguous thirteen-top candidate. Attempt 005 is the cleanest coherent source with exactly eight complete traceable staffs, so the reviewed repair adds only two at fixed internal positions.",
+      "retryConstraint": "Precision-edit the supplied attempt-005 source image only. The source bundle contains exactly eight complete straight staffs. Count their existing visible top ends from the viewer's left to right as source staffs 1 through 8. Add exactly two—and only two—new complete straight staffs inside the existing fan: place the first new staff in the gap between source staffs 1 and 2, and the second in the gap between source staffs 7 and 8. Do not place either addition outside the existing leftmost or rightmost staff.\n\nEach new staff must match the existing staff diameter, bark material, perspective, and straight-line direction while remaining visually separate from both neighboring staffs. Give each one a single visible rounded top end and a single visible bottom end. Above and below every occlusion, its shaft segments must remain on the same straight centerline so one top, one shaft, and one bottom correspond unambiguously. Where a new shaft crosses an existing hand, finger, sleeve, or the rope binding, preserve the existing hand, finger, sleeve, and rope pixels in the foreground and show the new shaft only before and after that occlusion. Both new staffs must pass beneath the same existing rope binding so all ten read as one tied carried bundle.\n\nAfter the edit show exactly ten top ends, ten corresponding staffs, and ten bottom ends with one-to-one correspondence. Preserve all eight source staffs, both people, every hand and finger, the rope, clothing, stone doorway, landscape, crop, palette, linework, gouache texture, lighting, and all unrelated content as closely as possible. Do not remove, move, redraw, split, fork, shorten, lengthen, or duplicate an existing staff. Add no other wood, object, text, label, numeral, or marker.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/wands-10-attempt-008.json",
+        "artifactSha256": "eb90e2f474dc527bc23db21b7fee00b13f4e7291fd55ad8b9e5256aa132dd7b8",
+        "result": "approved",
+        "reviewedAt": "2026-08-04T16:57:59.000Z",
+        "reviewer": "Planck (independent tarot content precision-edit audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }

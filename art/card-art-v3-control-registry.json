@@ -1,0 +1,44 @@
+{
+  "systemId": "quiet-celestial-storybook-full-deck",
+  "version": "v3",
+  "schemaVersion": 1,
+  "controls": {
+    "wands-10-ten-staff-fan-v1": {
+      "cardId": "wands-10",
+      "purpose": "Geometry-only count and topology control for exactly ten separate unbroken staffs in one tied fan-shaped bundle.",
+      "status": "approved",
+      "source": {
+        "path": "art/card-art-v3-controls/wands-10-ten-staff-fan-v1.svg",
+        "sha256": "05ec3663948495b156f50d17427a5daa41eddb95573698319361d077f792eb09"
+      },
+      "render": {
+        "path": "art/card-art-v3-controls/wands-10-ten-staff-fan-v1.png",
+        "sha256": "a9490bc20ff775fc2e60e1874120cce390a34d0e13cdd59a7c2c1c3e9a3c2572",
+        "bytes": 165957,
+        "tool": "Sharp",
+        "toolVersion": "0.34.5",
+        "format": "png",
+        "width": 1060,
+        "height": 1484,
+        "renderContract": "Render the byte-identical SVG directly to PNG with Sharp default SVG density and no resize, crop, palette conversion, or post-processing."
+      },
+      "approval": {
+        "recordedAt": "2026-08-04T17:28:06.000Z",
+        "result": "approved",
+        "reviewers": [
+          "Planck (independent tarot content control audit)",
+          "Harvey (independent UX control audit)"
+        ],
+        "checks": {
+          "exactTopCount": true,
+          "exactContinuousShaftCount": true,
+          "exactBottomCount": true,
+          "noMergeSplitOrLoss": true,
+          "singleBundle": true,
+          "noText": true,
+          "thumbnailLegible": true
+        }
+      }
+    }
+  }
+}

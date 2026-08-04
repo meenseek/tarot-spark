@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1060" height="1484" viewBox="0 0 1060 1484">
+  <rect width="1060" height="1484" fill="#f4ead2"/>
+  <g fill="none" stroke-linecap="round">
+    <g stroke="#4a301c" stroke-width="34">
+      <path d="M270 280 L390 1170"/>
+      <path d="M320 255 L420 1170"/>
+      <path d="M370 235 L450 1170"/>
+      <path d="M420 225 L480 1170"/>
+      <path d="M470 220 L510 1170"/>
+      <path d="M520 220 L540 1170"/>
+      <path d="M570 225 L570 1170"/>
+      <path d="M620 235 L600 1170"/>
+      <path d="M670 255 L630 1170"/>
+      <path d="M720 280 L660 1170"/>
+    </g>
+    <g stroke="#a66f32" stroke-width="24">
+      <path d="M270 280 L390 1170"/>
+      <path d="M320 255 L420 1170"/>
+      <path d="M370 235 L450 1170"/>
+      <path d="M420 225 L480 1170"/>
+      <path d="M470 220 L510 1170"/>
+      <path d="M520 220 L540 1170"/>
+      <path d="M570 225 L570 1170"/>
+      <path d="M620 235 L600 1170"/>
+      <path d="M670 255 L630 1170"/>
+      <path d="M720 280 L660 1170"/>
+    </g>
+  </g>
+  <g fill="none" stroke-linecap="round">
+    <path d="M335 680 C430 705 565 705 665 680" stroke="#5b3a1e" stroke-width="54"/>
+    <path d="M335 680 C430 705 565 705 665 680" stroke="#c2904d" stroke-width="38"/>
+    <path d="M342 716 C438 739 563 739 658 716" stroke="#5b3a1e" stroke-width="36"/>
+    <path d="M342 716 C438 739 563 739 658 716" stroke="#c2904d" stroke-width="22"/>
+  </g>
+</svg>
