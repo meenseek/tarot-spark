@@ -67,4 +67,26 @@ describe("share reading metadata", () => {
     expect(String(firstMetadata.openGraph?.url)).not.toContain("source=");
     expect(String(firstMetadata.openGraph?.url)).not.toContain("campaign=");
   });
+
+  it("preserves draw provenance in Open Graph and image URLs", () => {
+    process.env["NEXT_PUBLIC_SITE_URL"] = "https://tarot-spark.example";
+
+    const metadata = getShareReadingMetadata("en", {
+      cards: "the-fool,the-lovers,the-star",
+      drawStyle: "balanced",
+      style: "relational",
+      topic: "relationship-flow",
+    });
+    expect(String(metadata.openGraph?.url)).toContain("drawStyle=balanced");
+    expect(metadata.openGraph).toMatchObject({
+      images: [
+        {
+          url: expect.stringContaining("drawStyle=balanced"),
+        },
+      ],
+    });
+    expect(metadata.twitter).toMatchObject({
+      images: [expect.stringContaining("drawStyle=balanced")],
+    });
+  });
 });

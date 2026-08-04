@@ -25,9 +25,22 @@ describe("share reading state", () => {
       sourceId: "instagram",
     });
     expect(snapshot?.state).toMatchObject({
+      drawStyleId: "relational",
       spreadId: "quick",
       styleId: "relational",
       topicId: "relationship-flow",
+    });
+  });
+
+  it("preserves the original draw style independently from the current style", () => {
+    const snapshot = getShareReadingSnapshot("en", {
+      ...validParams,
+      drawStyle: "balanced",
+    });
+
+    expect(snapshot?.state).toMatchObject({
+      drawStyleId: "balanced",
+      styleId: "relational",
     });
   });
 
@@ -39,6 +52,8 @@ describe("share reading state", () => {
     { ...validParams, context: "private situation" },
     { ...validParams, topic: ["relationship-flow", "love"] },
     { ...validParams, source: ["instagram", "copy"] },
+    { ...validParams, drawStyle: ["balanced", "direct"] },
+    { ...validParams, drawStyle: "unknown" },
   ])("rejects malformed, private, or unknown state", (params) => {
     expect(getShareReadingSnapshot("en", params)).toBeUndefined();
   });

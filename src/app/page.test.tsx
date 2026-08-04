@@ -121,14 +121,14 @@ describe("Home", () => {
       screen
         .getByTestId("situation-context-toggle")
         .compareDocumentPosition(
-          screen.getByRole("button", { name: "Draw cards" }),
+          screen.getByRole("button", { name: /Draw \d cards/ }),
         ) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(
       screen
-        .getByRole("button", { name: "Draw cards" })
+        .getByTestId("reading-preferences-toggle")
         .compareDocumentPosition(
-          screen.getByTestId("reading-preferences-toggle"),
+          screen.getByRole("button", { name: /Draw \d cards/ }),
         ) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(screen.getByTestId("reading-preferences")).not.toHaveAttribute(
@@ -155,7 +155,7 @@ describe("Home", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", {
-        name: "카드 뽑기",
+        name: /카드 \d장 뽑기/,
       }),
     ).toBeInTheDocument();
     expect(
@@ -192,7 +192,7 @@ describe("Home", () => {
         value: "서버로 보내면 안 되는 민감한 개인 상황",
       },
     });
-    fireEvent.click(screen.getByRole("button", { name: "카드 뽑기" }));
+    fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
     fireEvent.click(screen.getByRole("button", { name: "지금 바로 해석하기" }));
 
     await waitFor(() => {
@@ -227,7 +227,7 @@ describe("Home", () => {
 
     render(<TarotExperience locale="ko" />);
 
-    fireEvent.click(screen.getByRole("button", { name: "카드 뽑기" }));
+    fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
     fireEvent.click(screen.getByRole("button", { name: "지금 바로 해석하기" }));
 
     await waitFor(() => {
@@ -255,14 +255,18 @@ describe("Home", () => {
 
     render(<TarotExperience locale="ko" />);
 
-    const drawButton = screen.getByRole("button", { name: "카드 뽑기" });
+    const drawButton = screen.getByRole("button", {
+      name: /카드 \d장 뽑기/,
+    });
     fireEvent.click(drawButton);
     fireEvent.click(screen.getByRole("button", { name: "지금 바로 해석하기" }));
 
     const signal = fetchMock.mock.calls[0]?.[1]?.signal;
     expect(signal?.aborted).toBe(false);
 
-    fireEvent.click(drawButton);
+    fireEvent.click(
+      screen.getByRole("button", { name: "현재 설정으로 다시 뽑기" }),
+    );
 
     expect(signal?.aborted).toBe(true);
     expect(
@@ -277,29 +281,29 @@ describe("Home", () => {
     const context = screen.getByLabelText(/Add your situation/);
     const topicExamples = [
       [
-        "Love 3 cards",
+        "Love",
         "Example: I want to move a new romantic connection forward, but I am unsure whether expressing my feelings first would be healthy.",
       ],
       [
-        "Reunion 3 cards",
+        "Reunion",
         "Example: I am considering contacting an ex again and want to reflect on what must change before the same problems repeat.",
       ],
       [
-        "Feelings 3 cards",
+        "Feelings",
         "Example: Their messages have become less frequent. I want to separate observable behavior from my assumptions and understand my own feelings.",
       ],
       [
-        "Relationship flow 3 cards",
+        "Relationship flow",
         "Example: Conversations with someone close keep going wrong. I want to notice the repeating pattern and what I can change on my side.",
       ],
       [
-        "Career direction 3 cards",
+        "Career direction",
         "Example: I am torn between staying at my current company and preparing for a new opportunity, and I want to clarify my next controllable step.",
       ],
     ] as const;
 
     for (const [topicButtonName, placeholder] of topicExamples) {
-      fireEvent.click(screen.getByRole("button", { name: topicButtonName }));
+      fireEvent.click(screen.getByRole("radio", { name: topicButtonName }));
       expect(context).toHaveAttribute("placeholder", placeholder);
     }
   });
@@ -323,7 +327,7 @@ describe("Home", () => {
       screen
         .getByTestId("situation-context-toggle")
         .compareDocumentPosition(
-          screen.getByRole("button", { name: "Draw cards" }),
+          screen.getByRole("button", { name: /Draw \d cards/ }),
         ) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
   });
@@ -335,7 +339,7 @@ describe("Home", () => {
 
     render(<TarotExperience locale="ko" />);
 
-    fireEvent.click(screen.getByRole("button", { name: "카드 뽑기" }));
+    fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
     openShareOptions();
     fireEvent.click(
       screen.getByRole("button", { name: "Instagram용 링크 복사" }),
@@ -356,7 +360,7 @@ describe("Home", () => {
 
     render(<TarotExperience locale="ko" />);
 
-    fireEvent.click(screen.getByRole("button", { name: "카드 뽑기" }));
+    fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
 
     expect(
       screen.getByText("이번에 눈여겨볼 점: 내가 선택할 수 있는 것", {
@@ -384,7 +388,7 @@ describe("Home", () => {
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Draw cards",
+        name: /Draw \d cards/,
       }),
     );
 
@@ -494,7 +498,7 @@ describe("Home", () => {
         value: scrollIntoView,
       });
 
-      fireEvent.click(screen.getByRole("button", { name: "Draw cards" }), {
+      fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }), {
         detail: 1,
       });
 
@@ -514,7 +518,7 @@ describe("Home", () => {
     expect(screen.getAllByRole("status")).toHaveLength(1);
     expect(drawStatus).toBeEmptyDOMElement();
 
-    fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+    fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
 
     const firstDrawCard = screen.getByTestId("reading-card-0");
     expect(firstDrawCard).toHaveAttribute("data-reveal-order", "1");
@@ -525,7 +529,7 @@ describe("Home", () => {
       expect(drawStatus).toHaveTextContent("3 cards drawn.");
     });
 
-    openReadingPreferences();
+    fireEvent.click(screen.getByText("Customize current prompt"));
     fireEvent.click(
       screen.getByRole("radio", { name: /Direct, not deterministic/ }),
     );
@@ -535,7 +539,9 @@ describe("Home", () => {
     expect(drawStatus).toHaveTextContent("3 cards drawn.");
     expect(drawStatus).toHaveAttribute("data-draw-announcement-sequence", "1");
 
-    fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Redraw with current settings" }),
+    );
 
     const secondDrawCard = screen.getByTestId("reading-card-0");
     expect(secondDrawCard).not.toBe(firstDrawCard);
@@ -553,19 +559,22 @@ describe("Home", () => {
 
     render(<Home />);
 
-    const drawButton = screen.getByRole("button", { name: "Draw cards" });
+    const drawButton = screen.getByRole("button", { name: /Draw \d cards/ });
     const drawStatus = screen.getByRole("status");
     const baselineTimerCount = vi.getTimerCount();
 
     fireEvent.click(drawButton);
     expect(drawStatus).toHaveAttribute("data-draw-announcement-sequence", "1");
     expect(drawStatus).toBeEmptyDOMElement();
-    expect(vi.getTimerCount()).toBe(baselineTimerCount + 1);
+    const firstDrawTimerCount = vi.getTimerCount();
+    expect(firstDrawTimerCount).toBeGreaterThan(baselineTimerCount);
 
-    fireEvent.click(drawButton);
+    fireEvent.click(
+      screen.getByRole("button", { name: "Redraw with current settings" }),
+    );
     expect(drawStatus).toHaveAttribute("data-draw-announcement-sequence", "2");
     expect(drawStatus).toBeEmptyDOMElement();
-    expect(vi.getTimerCount()).toBe(baselineTimerCount + 1);
+    expect(vi.getTimerCount()).toBe(firstDrawTimerCount);
 
     act(() => {
       vi.runOnlyPendingTimers();
@@ -573,6 +582,151 @@ describe("Home", () => {
 
     expect(drawStatus).toHaveTextContent("3 cards drawn.");
     expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("keeps the current result stable while editing and cancelling the next draw", async () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    render(<Home />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
+    const firstCard = screen.getByTestId("reading-card-0");
+    const committedUrl = window.location.href;
+    const editTrigger = screen.getByRole("button", { name: "Edit next draw" });
+
+    fireEvent.click(editTrigger);
+    await waitFor(() => {
+      expect(
+        screen.getByRole("heading", { name: "Set up your next draw" }),
+      ).toHaveFocus();
+    });
+    fireEvent.click(screen.getByRole("radio", { name: "Reunion" }));
+
+    expect(screen.getByTestId("reading-card-0")).toBe(firstCard);
+    expect(window.location.href).toBe(committedUrl);
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "Edit next draw" }),
+      ).toHaveFocus();
+    });
+    expect(screen.queryByRole("radio", { name: "Reunion" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit next draw" }));
+    expect(screen.getByRole("radio", { name: "Love" })).toBeChecked();
+  });
+
+  it("customizes the current prompt without rewriting draw provenance", async () => {
+    const writeText = vi.fn(() => Promise.resolve());
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    render(<Home />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
+    const firstCard = screen.getByTestId("reading-card-0");
+    openShareOptions();
+    fireEvent.click(screen.getByRole("button", { name: "Copy URL" }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "URL copied" })).toBeVisible();
+    });
+
+    fireEvent.click(screen.getByText("Customize current prompt"));
+    fireEvent.click(
+      screen.getByRole("radio", { name: /Direct, not deterministic/ }),
+    );
+
+    expect(screen.getByTestId("reading-card-0")).toBe(firstCard);
+    expect(new URL(window.location.href).searchParams.get("style")).toBe(
+      "direct",
+    );
+    expect(new URL(window.location.href).searchParams.get("drawStyle")).toBe(
+      "balanced",
+    );
+    expect(screen.getByRole("button", { name: "Copy URL" })).toBeVisible();
+    expect(screen.queryByRole("button", { name: "URL copied" })).toBeNull();
+  });
+
+  it("keeps stale prompt-copy analytics but ignores stale UI completion", async () => {
+    let resolveClipboard: (() => void) | undefined;
+    const writeText = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveClipboard = resolve;
+        }),
+    );
+    const events: { readonly name: string; readonly payload: unknown }[] = [];
+    const listener = (event: Event) => {
+      events.push((event as CustomEvent).detail);
+    };
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+    window.addEventListener("tarot_spark_event", listener);
+
+    try {
+      announceAnalyticsReady();
+      renderDrawnReading();
+      fireEvent.click(
+        screen.getByRole("button", { name: "Copy selected prompt" }),
+      );
+      openPromptTypes();
+      fireEvent.click(screen.getByRole("button", { name: /^Action plan/ }));
+
+      await act(async () => {
+        resolveClipboard?.();
+        await Promise.resolve();
+      });
+
+      expect(screen.queryByRole("button", { name: "Copied" })).toBeNull();
+      expect(events.filter(({ name }) => name === "prompt_copy")).toHaveLength(
+        1,
+      );
+    } finally {
+      window.removeEventListener("tarot_spark_event", listener);
+    }
+  });
+
+  it("does not activate analytics consent after a copy has already started", async () => {
+    let resolveClipboard: (() => void) | undefined;
+    const writeText = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveClipboard = resolve;
+        }),
+    );
+    const events: { readonly name: string }[] = [];
+    const listener = (event: Event) => {
+      events.push((event as CustomEvent).detail);
+    };
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+    window.addEventListener("tarot_spark_event", listener);
+
+    try {
+      renderDrawnReading();
+      fireEvent.click(
+        screen.getByRole("button", { name: "Copy selected prompt" }),
+      );
+      announceAnalyticsReady();
+
+      await act(async () => {
+        resolveClipboard?.();
+        await Promise.resolve();
+      });
+
+      expect(screen.getByRole("button", { name: "Copied" })).toBeVisible();
+      expect(events.filter(({ name }) => name === "prompt_copy")).toHaveLength(
+        0,
+      );
+    } finally {
+      window.removeEventListener("tarot_spark_event", listener);
+    }
   });
 
   it("restores a shared reading from URL parameters", async () => {
@@ -589,9 +743,7 @@ describe("Home", () => {
         within(screen.getByTestId("reading-card-0")).getByText("The Fool"),
       ).toBeInTheDocument();
     });
-    expect(
-      screen.getByRole("button", { name: "Reunion 3 cards" }),
-    ).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("Reunion", { selector: "p" })).toBeInTheDocument();
 
     openPromptContent();
 
@@ -638,7 +790,7 @@ describe("Home", () => {
       );
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+    fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
     expect(window.location.search).toContain("source=naver");
     expect(window.location.search).toContain("campaign=topic-guide");
   });
@@ -673,7 +825,7 @@ describe("Home", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Generated prompt")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Draw cards" })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Draw \d cards/ })).toBeNull();
     expect(screen.queryByTestId("reading-preferences")).toBeNull();
 
     const createOwnLink = screen.getByRole("link", {
@@ -736,6 +888,7 @@ describe("Home", () => {
             locale: "en",
             topic_id: "relationship-flow",
             card_count: 3,
+            draw_style_id: "relational",
             spread_id: "quick",
             style_id: "relational",
             source: "instagram",
@@ -789,7 +942,7 @@ describe("Home", () => {
         },
       },
     );
-    fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+    fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
     openPromptContent();
 
     const prompt = screen.getByLabelText(
@@ -826,7 +979,7 @@ describe("Home", () => {
         },
       },
     );
-    fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+    fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
 
     const koreanLink = screen.getByRole("link", { name: "한국어" });
     const koreanHref = koreanLink.getAttribute("href");
@@ -843,7 +996,7 @@ describe("Home", () => {
         <TarotExperience locale="ko" />
       </StrictMode>,
     );
-    openSituationContext();
+    fireEvent.click(screen.getByText("현재 질문 수정"));
 
     await waitFor(() => {
       expect(
@@ -869,14 +1022,14 @@ describe("Home", () => {
     );
     render(<Home />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+    fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
 
     const url = new URL(window.location.href);
     expect([...url.searchParams.keys()].sort()).toEqual(["cards", "topic"]);
     expect(url.hash).toBe("");
   });
 
-  it("emits behavior analytics with stable ids", () => {
+  it("emits behavior analytics with stable ids", async () => {
     const events: {
       readonly name: string;
       readonly payload: Record<string, unknown>;
@@ -891,8 +1044,11 @@ describe("Home", () => {
       announceAnalyticsReady();
       render(<Home />);
 
-      fireEvent.click(screen.getByRole("button", { name: "Reunion 3 cards" }));
-      fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+      fireEvent.click(screen.getByRole("radio", { name: "Reunion" }));
+      fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
+      await waitFor(() => {
+        expect(testIntersectionObservers.size).toBeGreaterThan(0);
+      });
       setReadingResultIntersection(true);
 
       expect(events).toContainEqual({
@@ -904,6 +1060,7 @@ describe("Home", () => {
         payload: {
           locale: "en",
           topic_id: "reunion",
+          draw_style_id: "balanced",
           spread_id: "quick",
           style_id: "balanced",
         },
@@ -915,6 +1072,7 @@ describe("Home", () => {
           topic_id: "reunion",
           position_id: "spark",
           card_id: "the-fool",
+          draw_style_id: "balanced",
           spread_id: "quick",
           style_id: "balanced",
         },
@@ -925,6 +1083,7 @@ describe("Home", () => {
           locale: "en",
           topic_id: "reunion",
           card_count: 3,
+          draw_style_id: "balanced",
           spread_id: "quick",
           style_id: "balanced",
         },
@@ -984,11 +1143,13 @@ describe("Home", () => {
       announceAnalyticsReady();
       render(<Home />);
 
-      fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+      fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
       setReadingResultIntersection(true);
       setReadingResultIntersection(true);
 
-      fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+      fireEvent.click(
+        screen.getByRole("button", { name: "Redraw with current settings" }),
+      );
       setReadingResultIntersection(true);
 
       expect(events.filter(({ name }) => name === "result_view")).toHaveLength(
@@ -1050,8 +1211,9 @@ describe("Home", () => {
     window.addEventListener("tarot_spark_event", listener);
 
     try {
+      announceAnalyticsReady();
       render(<Home />);
-      fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+      fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
       openPromptTypes();
       fireEvent.click(screen.getByRole("button", { name: /^Action plan/ }));
       openPromptContent();
@@ -1076,6 +1238,7 @@ describe("Home", () => {
           locale: "en",
           topic_id: "love",
           card_count: 3,
+          draw_style_id: "balanced",
           spread_id: "quick",
           style_id: "balanced",
           prompt_slot: "action",
@@ -1095,7 +1258,7 @@ describe("Home", () => {
 
     render(<Home />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+    fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
     fireEvent.click(
       screen.getByRole("button", { name: "Copy selected prompt" }),
     );
@@ -1147,6 +1310,7 @@ describe("Home", () => {
       value: share,
     });
 
+    announceAnalyticsReady();
     renderDrawnReading();
     window.addEventListener("tarot_spark_event", listener);
 
@@ -1173,6 +1337,7 @@ describe("Home", () => {
             locale: "en",
             topic_id: "love",
             card_count: 3,
+            draw_style_id: "balanced",
             method: "native",
             outcome: "cancelled",
             spread_id: "quick",
@@ -1185,6 +1350,42 @@ describe("Home", () => {
     }
   });
 
+  it("keeps only the latest share feedback when an older action completes later", async () => {
+    let resolveNativeShare: (() => void) | undefined;
+    const share = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveNativeShare = resolve;
+        }),
+    );
+    const writeText = vi.fn(() => Promise.resolve());
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: share,
+    });
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+
+    renderDrawnReading();
+    openShareOptions();
+    fireEvent.click(screen.getByRole("button", { name: "Share" }));
+    fireEvent.click(screen.getByRole("button", { name: "Copy URL" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "URL copied" })).toBeVisible();
+    });
+
+    await act(async () => {
+      resolveNativeShare?.();
+      await Promise.resolve();
+    });
+
+    expect(screen.getByRole("button", { name: "URL copied" })).toBeVisible();
+    expect(screen.queryByRole("button", { name: "Shared" })).toBeNull();
+  });
+
   it("shows a cause-neutral failure message when native share fails", async () => {
     const share = vi.fn(() =>
       Promise.reject(new DOMException("Share failed", "NotAllowedError")),
@@ -1192,6 +1393,10 @@ describe("Home", () => {
     Object.defineProperty(navigator, "share", {
       configurable: true,
       value: share,
+    });
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: vi.fn(() => Promise.resolve()) },
     });
 
     renderDrawnReading();
@@ -1213,6 +1418,13 @@ describe("Home", () => {
     expect(parsedUrl.searchParams.get("source")).toBe("copy");
     expect(parsedUrl.searchParams.get("campaign")).toBe("vertical-slice");
     expect(parsedUrl.searchParams.has("context")).toBe(false);
+
+    fireEvent.click(screen.getByRole("button", { name: "Copy URL" }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "URL copied" })).toBeVisible();
+    });
+    expect(screen.queryByRole("textbox", { name: "Share URL" })).toBeNull();
+    expect(screen.queryByText(/sharing did not work/i)).toBeNull();
   });
 
   it("uses cause-neutral Korean failure copy", async () => {
@@ -1222,7 +1434,7 @@ describe("Home", () => {
 
     render(<TarotExperience locale="ko" />);
 
-    fireEvent.click(screen.getByRole("button", { name: "카드 뽑기" }));
+    fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
     fireEvent.click(screen.getByRole("button", { name: "이 질문 복사하기" }));
 
     await waitFor(() => {
@@ -1476,7 +1688,7 @@ function renderDrawnReading() {
   vi.spyOn(Math, "random").mockReturnValue(0);
 
   render(<Home />);
-  fireEvent.click(screen.getByRole("button", { name: "Draw cards" }));
+  fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
 }
 
 function openReadingPreferences() {

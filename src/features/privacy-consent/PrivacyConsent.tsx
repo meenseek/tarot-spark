@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   interactiveFocusClassName,
   secondaryButtonClassName,
@@ -44,6 +44,10 @@ export function PrivacyConsent({
   const [advertisingSelected, setAdvertisingSelected] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [hasLoadedAdvertising, setHasLoadedAdvertising] = useState(false);
+  const panelHeadingRef = useRef<HTMLHeadingElement>(null);
+  const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const shouldFocusEditingPanelRef = useRef(false);
+  const shouldRestoreSettingsFocusRef = useRef(false);
   const hasAnalytics = Boolean(analyticsMeasurementId);
   const hasAdvertising = Boolean(advertisingClientId);
   const isAdvertisingEligibleRoute = isAdvertisingEligiblePathname(pathname);
@@ -84,6 +88,24 @@ export function PrivacyConsent({
     }
   }, [mustReloadBeforeAdvertisingExcludedRoute, reloadDocument]);
 
+  useEffect(() => {
+    if (!isEditing || !shouldFocusEditingPanelRef.current) {
+      return;
+    }
+
+    shouldFocusEditingPanelRef.current = false;
+    panelHeadingRef.current?.focus();
+  }, [isEditing]);
+
+  useEffect(() => {
+    if (isEditing || !preferences || !shouldRestoreSettingsFocusRef.current) {
+      return;
+    }
+
+    shouldRestoreSettingsFocusRef.current = false;
+    settingsButtonRef.current?.focus();
+  }, [isEditing, preferences]);
+
   if (!hasAnalytics && !hasAdvertising) {
     return children;
   }
@@ -103,6 +125,7 @@ export function PrivacyConsent({
     setPreferences(nextPreferences);
     setAnalyticsSelected(nextPreferences.analytics);
     setAdvertisingSelected(nextPreferences.advertising);
+    shouldRestoreSettingsFocusRef.current = isEditing && !shouldReload;
     setIsEditing(false);
 
     if (shouldReload) {
@@ -134,8 +157,10 @@ export function PrivacyConsent({
           >
             <div className="grid gap-2">
               <h2
-                className="text-lg font-semibold text-ts-ink"
+                className={`${interactiveFocusClassName} text-lg font-semibold text-ts-ink`}
                 id="privacy-consent-heading"
+                ref={panelHeadingRef}
+                tabIndex={-1}
               >
                 {copy.heading}
               </h2>
@@ -217,7 +242,11 @@ export function PrivacyConsent({
         ) : (
           <button
             className={`${secondaryButtonClassName} fixed bottom-4 right-4 z-40 min-h-11 bg-ts-surface px-3 text-xs`}
-            onClick={() => setIsEditing(true)}
+            onClick={() => {
+              shouldFocusEditingPanelRef.current = true;
+              setIsEditing(true);
+            }}
+            ref={settingsButtonRef}
             type="button"
           >
             {copy.settingsButton}

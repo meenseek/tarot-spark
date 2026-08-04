@@ -55,6 +55,23 @@ describe("share image route", () => {
     );
   });
 
+  it("accepts a valid original draw style and rejects invalid provenance", () => {
+    expect(
+      GET(
+        new Request(
+          "https://tarot-spark.example/api/share-image?v=1&locale=en&topic=relationship-flow&style=relational&drawStyle=balanced&cards=the-fool,the-lovers,the-star",
+        ),
+      ).status,
+    ).toBe(200);
+    expect(
+      GET(
+        new Request(
+          "https://tarot-spark.example/api/share-image?v=1&locale=en&topic=relationship-flow&style=relational&drawStyle=unknown&cards=the-fool,the-lovers,the-star",
+        ),
+      ).status,
+    ).toBe(400);
+  });
+
   it("rejects duplicate or unknown state", () => {
     expect(
       GET(

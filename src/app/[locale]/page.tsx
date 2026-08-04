@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { GeneratorRoute } from "@/app/generator-route";
 import {
-  TarotExperience,
   getTarotReadingMetadata,
+  type ReadingSearchParams,
 } from "@/features/tarot-reading";
 import { isPrefixedLocale, prefixedLocales } from "@/i18n/config";
 
@@ -10,6 +11,7 @@ type LocalePageProps = {
   readonly params: Promise<{
     readonly locale: string;
   }>;
+  readonly searchParams: Promise<ReadingSearchParams>;
 };
 
 export const dynamicParams = false;
@@ -20,7 +22,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({
   params,
-}: LocalePageProps): Promise<Metadata> {
+}: Pick<LocalePageProps, "params">): Promise<Metadata> {
   const { locale: rawLocale } = await params;
 
   if (!isPrefixedLocale(rawLocale)) {
@@ -30,12 +32,21 @@ export async function generateMetadata({
   return getTarotReadingMetadata(rawLocale);
 }
 
-export default async function LocalePage({ params }: LocalePageProps) {
+export default async function LocalePage({
+  params,
+  searchParams,
+}: LocalePageProps) {
   const { locale: rawLocale } = await params;
 
   if (!isPrefixedLocale(rawLocale)) {
     notFound();
   }
 
-  return <TarotExperience key={rawLocale} locale={rawLocale} />;
+  return (
+    <GeneratorRoute
+      key={rawLocale}
+      locale={rawLocale}
+      searchParams={searchParams}
+    />
+  );
 }

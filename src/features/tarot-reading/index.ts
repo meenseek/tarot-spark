@@ -4,8 +4,11 @@ export {
   getLocalizedGeneratorHref,
   getLocalizedShareReadingHref,
   getReadingAttributionFromUrl,
+  getReadingAttributionFromSearchParams,
+  getReadingStateFromSearchParams,
   getReadingStateFromUrl,
   shareCampaignIds,
   shareSourceIds,
   type ReadingUrlAttribution,
+  type ReadingSearchParams,
 } from "./reading-state";

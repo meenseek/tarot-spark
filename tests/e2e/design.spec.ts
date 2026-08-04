@@ -13,8 +13,6 @@ const colors = {
   surface: "rgb(255, 253, 252)",
 } as const;
 
-const previousCardPreviewArea = 80 * 112;
-
 type RectGeometry = {
   readonly bottom: number;
   readonly height: number;
@@ -36,32 +34,6 @@ async function serveCardArtFixture(page: Page, delayMs = 0) {
       status: 200,
     });
   });
-}
-
-async function expectPreparedCardBacks(page: Page) {
-  const cards = page.locator('[data-testid^="reading-card-"]');
-  const cardBacks = cards.locator("[data-card-back]");
-
-  await expect(cards).toHaveCount(3);
-  await expect(cardBacks).toHaveCount(3);
-  await expect(cards.locator("[data-glyph-id]")).toHaveCount(0);
-  await expect(cards.locator("[data-art-id]")).toHaveCount(0);
-  await expect(cards.locator("img")).toHaveCount(0);
-
-  const cardBackIdentity = await cardBacks.evaluateAll((elements) =>
-    elements.map((element) => ({
-      markup: element.innerHTML,
-      pattern: element.getAttribute("data-card-back-pattern"),
-    })),
-  );
-
-  expect(new Set(cardBackIdentity.map(({ markup }) => markup)).size).toBe(1);
-  expect(new Set(cardBackIdentity.map(({ pattern }) => pattern))).toEqual(
-    new Set(["quiet-celestial-medallion"]),
-  );
-  await expectCardArtFrameBorders(cards);
-
-  return expectCardSpreadLayout(page, 3);
 }
 
 async function expectCardSpreadLayout(page: Page, expectedCardCount: number) {
@@ -93,12 +65,10 @@ async function expectCardSpreadLayout(page: Page, expectedCardCount: number) {
 
     return elements.map((card) => {
       const frame = card.querySelector("[data-card-art-frame]");
-      const heading = card.querySelector("h2");
-      const position = card.firstElementChild?.querySelector("span");
-      const tone = card.querySelector("p");
+      const [position, heading] = card.querySelectorAll(":scope > span");
 
-      if (!frame || !heading || !position || !tone) {
-        throw new Error("Card spread layout elements are missing");
+      if (!frame || !heading || !position) {
+        throw new Error("Card overview layout elements are missing");
       }
 
       const frameRect = getRect(frame);
@@ -118,23 +88,15 @@ async function expectCardSpreadLayout(page: Page, expectedCardCount: number) {
         frameContentRatio: frameContentWidth / frameContentHeight,
         heading: getRect(heading),
         position: getRect(position),
-        tone: getRect(tone),
       };
     });
   });
-  const viewportWidth = page.viewportSize()?.width;
-  expect(viewportWidth).toBeDefined();
-  const minimumAreaGain = (viewportWidth ?? 0) < 640 ? 1.4 : 1.2;
 
   for (const [index, geometry] of layout.entries()) {
     expectContained(geometry.card, geometry.frame, `card ${index} frame`);
     expectContained(geometry.card, geometry.position, `card ${index} position`);
     expectContained(geometry.card, geometry.heading, `card ${index} heading`);
-    expectContained(geometry.card, geometry.tone, `card ${index} tone`);
     expect(geometry.frameContentRatio).toBeCloseTo(5 / 7, 2);
-    expect(geometry.frame.width * geometry.frame.height).toBeGreaterThanOrEqual(
-      previousCardPreviewArea * minimumAreaGain - 1,
-    );
     expect(
       rectanglesOverlap(geometry.frame, geometry.position),
       `card ${index} frame and position overlap`,
@@ -142,10 +104,6 @@ async function expectCardSpreadLayout(page: Page, expectedCardCount: number) {
     expect(
       rectanglesOverlap(geometry.frame, geometry.heading),
       `card ${index} frame and heading overlap`,
-    ).toBe(false);
-    expect(
-      rectanglesOverlap(geometry.frame, geometry.tone),
-      `card ${index} frame and tone overlap`,
     ).toBe(false);
   }
 
@@ -186,18 +144,6 @@ function rectanglesOverlap(first: RectGeometry, second: RectGeometry) {
     first.top < second.bottom - tolerance &&
     first.bottom > second.top + tolerance
   );
-}
-
-function expectMatchingFrames(
-  before: readonly RectGeometry[],
-  after: readonly RectGeometry[],
-) {
-  expect(after).toHaveLength(before.length);
-
-  before.forEach((frame, index) => {
-    expect(after[index]?.width).toBeCloseTo(frame.width, 1);
-    expect(after[index]?.height).toBeCloseTo(frame.height, 1);
-  });
 }
 
 async function expectCardArtFrameBorders(cards: Locator) {
@@ -261,14 +207,13 @@ test("locks the semantic token values and primary visual roles", async ({
     "background-color",
     colors.canvas,
   );
-  await expect(page.getByRole("button", { name: "Draw cards" })).toHaveCSS(
+  await expect(page.getByRole("button", { name: "Draw 3 cards" })).toHaveCSS(
     "background-color",
     colors.action,
   );
-  await expect(page.getByRole("button", { name: "Love 3 cards" })).toHaveCSS(
-    "background-color",
-    colors.blush,
-  );
+  await expect(
+    page.getByRole("radio", { name: "Love" }).locator(".."),
+  ).toHaveCSS("background-color", colors.blush);
   await expect(page.getByTestId("reading-workspace")).toHaveCSS(
     "background-color",
     colors.surface,
@@ -289,9 +234,11 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
     exact: true,
     name: "English",
   });
-  const loveTopic = page.getByRole("button", { name: "Love 3 cards" });
-  const reunionTopic = page.getByRole("button", { name: "Reunion 3 cards" });
-  const drawButton = page.getByRole("button", { name: "Draw cards" });
+  const loveRadio = page.getByRole("radio", { name: "Love" });
+  const loveTopic = loveRadio.locator("..");
+  const reunionRadio = page.getByRole("radio", { name: "Reunion" });
+  const reunionTopic = reunionRadio.locator("..");
+  const drawButton = page.getByRole("button", { name: "Draw 3 cards" });
 
   const localeStyle = await englishLocale.evaluate((element) => {
     const style = getComputedStyle(element);
@@ -357,8 +304,8 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
     await page.mouse.up();
   }
 
-  await reunionTopic.click();
-  await expect(reunionTopic).toHaveAttribute("aria-pressed", "true");
+  await reunionRadio.check({ force: true });
+  await expect(reunionRadio).toBeChecked();
   await expect(
     reunionTopic.locator('[data-selected-indicator="reunion"]'),
   ).toHaveCSS("opacity", "1");
@@ -369,7 +316,7 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
   await assertFocusOutline(englishLocale, page);
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
-  await assertFocusOutline(loveTopic, page);
+  await assertFocusOutline(loveTopic, page, loveRadio);
   await tabTo(page, drawButton);
   await assertFocusOutline(drawButton, page);
 
@@ -389,12 +336,13 @@ test("removes decorative motion when reduced motion is requested", async ({
   await page.goto("/");
 
   const duration = await page
-    .getByRole("button", { name: "Reunion 3 cards" })
+    .getByRole("radio", { name: "Reunion" })
+    .locator("..")
     .evaluate((element) => getComputedStyle(element).transitionDuration);
 
   expect(maximumCssSeconds(duration)).toBeLessThanOrEqual(0.001);
 
-  await page.getByRole("button", { name: "Draw cards" }).click();
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
 
   const card = page.getByTestId("reading-card-0");
   const art = card.locator("[data-art-id]");
@@ -420,7 +368,7 @@ test("stages only a user-initiated card reveal with locked timing", async ({
 }) => {
   await serveCardArtFixture(page);
   await page.goto("/");
-  await page.getByRole("button", { name: "Draw cards" }).click();
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
 
   const firstCard = page.getByTestId("reading-card-0");
   const secondCard = page.getByTestId("reading-card-1");
@@ -468,7 +416,9 @@ test("stages only a user-initiated card reveal with locked timing", async ({
   });
   expect(flipKeyframes).toEqual(["rotateY(0deg)", "rotateY(180deg)"]);
 
-  await page.getByRole("button", { name: "Draw cards" }).click();
+  await page
+    .getByRole("button", { name: "Redraw with current settings" })
+    .click();
   await expect(page.getByTestId("reading-card-0")).toHaveAttribute(
     "data-reveal-sequence",
     "2",
@@ -502,7 +452,7 @@ test("keeps the card back visible until delayed card art can reveal", async ({
 }) => {
   await serveCardArtFixture(page, 1_200);
   await page.goto("/");
-  await page.getByRole("button", { name: "Draw cards" }).click();
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
 
   const firstCard = page.getByTestId("reading-card-0");
   const image = firstCard.locator("[data-art-id]");
@@ -554,10 +504,13 @@ for (const width of [320, 360, 390] as const) {
   }) => {
     await page.setViewportSize({ height: 844, width });
     await page.goto("/ko");
-    const preparedFrames = await expectPreparedCardBacks(page);
-    await page.getByRole("button", { name: "카드 뽑기" }).click();
-    const drawnFrames = await expectCardSpreadLayout(page, 3);
-    expectMatchingFrames(preparedFrames, drawnFrames);
+    await expect(page.getByTestId("reading-workspace")).toBeHidden();
+    await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+    await expect(page.getByTestId("card-overview")).toBeVisible();
+    await expect(page.locator('[data-testid^="reading-card-"]')).toHaveCount(3);
+    await expect(
+      page.getByRole("button", { name: "이 질문 복사하기" }),
+    ).toBeVisible();
 
     const interactiveTargets = page.locator(
       "main a:visible, main button:visible, main textarea:visible",
@@ -622,13 +575,68 @@ test("keeps restored and shared card spreads readable across breakpoints", async
   }
 });
 
+test("reflows generated and shared results at the 320px viewport produced by 200 percent zoom", async ({
+  page,
+}) => {
+  const paths = [
+    "/?topic=love&cards=the-fool,the-magician,the-high-priestess",
+    "/ko?topic=love&spread=deep&cards=the-fool,the-magician,the-high-priestess,the-empress,the-emperor,the-lovers",
+    "/share?topic=relationship-flow&cards=the-fool,the-lovers,the-star",
+  ];
+
+  await page.setViewportSize({ height: 844, width: 320 });
+
+  for (const path of paths) {
+    await page.goto(path);
+    await expect(page.getByTestId("card-overview")).toBeVisible();
+
+    const geometry = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      itemBounds: Array.from(
+        document.querySelectorAll('[data-testid^="reading-card-"]'),
+      ).map((element) => {
+        const rect = element.getBoundingClientRect();
+        return { left: rect.left, right: rect.right };
+      }),
+      scrollWidth: document.documentElement.scrollWidth,
+      viewportWidth: innerWidth,
+    }));
+
+    expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.clientWidth + 1);
+    for (const bounds of geometry.itemBounds) {
+      expect(bounds.left).toBeGreaterThanOrEqual(0);
+      expect(bounds.right).toBeLessThanOrEqual(geometry.viewportWidth + 1);
+    }
+  }
+});
+
+test("keeps Korean share success feedback inside a 320px viewport", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 844, width: 320 });
+  await page.goto(
+    "/ko?topic=love&cards=the-fool,the-magician,the-high-priestess",
+  );
+  await page.getByTestId("share-options-disclosure").locator("summary").click();
+  await page.getByRole("button", { name: "Instagram용 링크 복사" }).click();
+  await expect(
+    page.getByRole("button", { name: "Instagram용 링크를 복사했어요" }),
+  ).toBeVisible();
+
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
 test("keeps the quick reading result start in view after a pointer draw", async ({
   page,
 }) => {
   await page.setViewportSize({ height: 844, width: 390 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  await page.getByRole("button", { name: "Draw cards" }).click();
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
 
   const result = page.getByTestId("reading-result-observer");
   await expect(result).toBeVisible();
@@ -831,7 +839,7 @@ test("maps every restored preview card to approved art", async ({ page }) => {
       const art = card.locator(`[data-art-id="${cardId}"]`);
 
       await card.scrollIntoViewIfNeeded();
-      await expect(card.getByRole("heading", { name: cardName })).toBeVisible();
+      await expect(card.getByText(cardName, { exact: true })).toBeVisible();
       try {
         await expect(art).toHaveAttribute("data-art-ready", "true", {
           timeout: 10_000,
@@ -950,8 +958,12 @@ function maximumCssSeconds(value: string) {
     .reduce((maximum, current) => Math.max(maximum, current), 0);
 }
 
-async function assertFocusOutline(locator: Locator, page: Page) {
-  await expect(locator).toBeFocused();
+async function assertFocusOutline(
+  locator: Locator,
+  page: Page,
+  focusedLocator = locator,
+) {
+  await expect(focusedLocator).toBeFocused();
   const style = await locator.evaluate((element) => {
     const computed = getComputedStyle(element);
 

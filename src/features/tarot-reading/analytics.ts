@@ -50,6 +50,7 @@ export type AnalyticsAttributionPayload =
     };
 
 type DrawAnalyticsContext = ReadingAnalyticsContext & {
+  readonly draw_style_id: ReadingStyleId;
   readonly spread_id: SpreadId;
   readonly style_id: ReadingStyleId;
 };
@@ -85,9 +86,15 @@ const analyticsReadyEvent = "tarot_spark_analytics_ready";
 
 declare global {
   interface Window {
+    tarotSparkAnalyticsEpoch?: number;
     tarotSparkAnalyticsReady?: boolean;
   }
 }
+
+export type AnalyticsInvocation = {
+  readonly eligible: boolean;
+  readonly epoch: number;
+};
 
 export function getAnalyticsAttributionPayload(
   attribution: ReadingUrlAttribution | undefined,
@@ -139,11 +146,38 @@ export function runWhenAnalyticsReady(callback: () => void) {
   };
 }
 
+export function captureAnalyticsInvocation(): AnalyticsInvocation {
+  if (typeof window === "undefined") {
+    return { eligible: false, epoch: 0 };
+  }
+
+  return {
+    eligible: Boolean(window.tarotSparkAnalyticsReady),
+    epoch: window.tarotSparkAnalyticsEpoch ?? 0,
+  };
+}
+
+export function isAnalyticsInvocationEligible(invocation: AnalyticsInvocation) {
+  return (
+    invocation.eligible &&
+    Boolean(window.tarotSparkAnalyticsReady) &&
+    invocation.epoch === (window.tarotSparkAnalyticsEpoch ?? 0)
+  );
+}
+
 export function announceAnalyticsReady() {
+  if (!window.tarotSparkAnalyticsReady) {
+    window.tarotSparkAnalyticsEpoch =
+      (window.tarotSparkAnalyticsEpoch ?? 0) + 1;
+  }
   window.tarotSparkAnalyticsReady = true;
   window.dispatchEvent(new Event(analyticsReadyEvent));
 }
 
 export function clearAnalyticsReady() {
+  if (window.tarotSparkAnalyticsReady) {
+    window.tarotSparkAnalyticsEpoch =
+      (window.tarotSparkAnalyticsEpoch ?? 0) + 1;
+  }
   window.tarotSparkAnalyticsReady = false;
 }

@@ -34,9 +34,8 @@ test("uses one true two-sided flip without making cards interactive", async ({
   await expect(firstPreparedCard).toHaveCSS("cursor", "auto");
   await expect(firstPreparedCard.locator("button")).toHaveCount(0);
 
-  const drawButton = page.getByRole("button", { name: "Draw cards" });
+  const drawButton = page.getByRole("button", { name: "Draw 3 cards" });
   await drawButton.focus();
-  const scrollBeforeDraw = await page.evaluate(() => scrollY);
   await drawButton.press("Enter");
 
   const firstCard = page.getByTestId("reading-card-0");
@@ -45,7 +44,7 @@ test("uses one true two-sided flip without making cards interactive", async ({
     "data-art-ready",
     "true",
   );
-  await expect(firstPlane).toHaveClass(/ts-card-plane-flip/);
+  await expect(firstPlane).toHaveClass(/ts-card-plane-(?:flip|complete)/);
   await firstPlane.evaluate((element) => {
     element.getAnimations().forEach((animation) => animation.pause());
   });
@@ -69,9 +68,11 @@ test("uses one true two-sided flip without making cards interactive", async ({
     return effect?.getKeyframes().map(({ transform }) => transform) ?? [];
   });
   expect(keyframeTransforms).toEqual(["rotateY(0deg)", "rotateY(180deg)"]);
-  await expect(drawButton).toBeFocused();
-  await expect(drawButton).toBeInViewport();
-  expect(await page.evaluate(() => scrollY)).toBe(scrollBeforeDraw);
+  const resultHeading = page.getByRole("heading", {
+    name: "Your cards and AI prompt",
+  });
+  await expect(resultHeading).toBeFocused();
+  await expect(resultHeading).toBeInViewport();
 });
 
 test("keeps the back pending and independently reveals delayed art", async ({
@@ -87,7 +88,7 @@ test("keeps the back pending and independently reveals delayed art", async ({
   });
   await page.goto("/");
   await useDeterministicDraw(page);
-  await page.getByRole("button", { name: "Draw cards" }).click();
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
 
   const firstCard = page.getByTestId("reading-card-0");
   const secondCard = page.getByTestId("reading-card-1");
@@ -124,7 +125,7 @@ test("keeps the deep six-card reveal within the locked stagger", async ({
   await useDeterministicDraw(page);
   await page.getByTestId("reading-preferences-toggle").click();
   await page.getByRole("radio", { name: /Deep 6-card/ }).check();
-  await page.getByRole("button", { name: "Draw cards" }).click();
+  await page.getByRole("button", { name: "Draw 6 cards" }).click();
 
   const cards = page.locator('[data-testid^="reading-card-"]');
   const lastCard = page.getByTestId("reading-card-5");
@@ -161,7 +162,7 @@ test("uses the matching glyph face when one approved image fails", async ({
   });
   await page.goto("/");
   await useDeterministicDraw(page);
-  await page.getByRole("button", { name: "Draw cards" }).click();
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
 
   const firstCard = page.getByTestId("reading-card-0");
   await expect(firstCard.locator('[data-glyph-id="the-fool"]')).toBeVisible({
@@ -195,9 +196,8 @@ test("keeps restored and reduced-motion faces static", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await useDeterministicDraw(page);
-  const drawButton = page.getByRole("button", { name: "Draw cards" });
+  const drawButton = page.getByRole("button", { name: "Draw 3 cards" });
   await drawButton.focus();
-  const scrollBeforeDraw = await page.evaluate(() => scrollY);
   await drawButton.press("Enter");
 
   const reducedVisual = page
@@ -207,9 +207,11 @@ test("keeps restored and reduced-motion faces static", async ({ page }) => {
     "data-card-visual-state",
     "front",
   );
-  await expect(drawButton).toBeFocused();
-  await expect(drawButton).toBeInViewport();
-  expect(await page.evaluate(() => scrollY)).toBe(scrollBeforeDraw);
+  const resultHeading = page.getByRole("heading", {
+    name: "Your cards and AI prompt",
+  });
+  await expect(resultHeading).toBeFocused();
+  await expect(resultHeading).toBeInViewport();
 });
 
 test("drops stale motion and announcements on a rapid redraw", async ({
@@ -219,9 +221,11 @@ test("drops stale motion and announcements on a rapid redraw", async ({
   await page.goto("/");
   await useDeterministicDraw(page);
 
-  const drawButton = page.getByRole("button", { name: "Draw cards" });
+  const drawButton = page.getByRole("button", { name: "Draw 3 cards" });
   await drawButton.click();
-  await drawButton.click();
+  await page
+    .getByRole("button", { name: "Redraw with current settings" })
+    .click();
 
   await expect(page.getByTestId("reading-card-0")).toHaveAttribute(
     "data-reveal-sequence",
