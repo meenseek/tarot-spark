@@ -1,0 +1,17 @@
+{
+  "systemId": "quiet-celestial-storybook-full-deck",
+  "version": "v3",
+  "schemaVersion": 1,
+  "normalizationRecipe": {
+    "id": "sharp-cover-v1",
+    "tool": "sharp",
+    "toolVersion": "0.34.5",
+    "width": 700,
+    "height": 980,
+    "fit": "cover",
+    "colorSpace": "sRGB",
+    "jpegQuality": 88,
+    "chromaSubsampling": "4:4:4"
+  },
+  "records": []
+}

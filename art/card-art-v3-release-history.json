@@ -1,0 +1,10 @@
+{
+  "systemId": "quiet-celestial-storybook-full-deck",
+  "rollbackContract": {
+    "preserveLegacyRenderers": ["v1", "v2"],
+    "preserveV3AssetUrlsAfterFirstRelease": true,
+    "preserveV3OgParserAfterFirstRelease": true,
+    "rollbackAction": "Stop new draws or point new sessions to the previous complete deck release; never remove already issued /cards/v3 assets or v3 share-image parsing."
+  },
+  "entries": []
+}

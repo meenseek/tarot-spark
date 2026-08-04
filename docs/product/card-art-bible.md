@@ -2,13 +2,13 @@
 
 ## Direction
 
-Use Quiet Celestial Storybook for the illustrated Major Arcana. The deck should
-feel like one warm, hand-painted world rather than 22 independent fantasy
-posters.
+Use Quiet Celestial Storybook for all 78 cards. The deck should feel like one
+warm, hand-painted world rather than independent fantasy posters or numbered
+object sheets.
 
 - Use soft gouache texture, restrained ink detail, aged paper warmth, and
   natural light.
-- Use a gentle four-and-a-half-head character proportion.
+- Use natural, age-appropriate five-to-six-head character proportions.
 - Keep faces readable and expressive without chibi anatomy, fashion-doll
   anatomy, glossy 3D rendering, or photorealism.
 - Keep celestial marks sparse. Use one dominant tarot symbol and up to two
@@ -52,7 +52,7 @@ authority to one ethnicity or gender across the deck.
 
 ## World And Backgrounds
 
-Build scenes from three connected location families.
+Build scenes from seven connected location families.
 
 1. Open paths and gardens: mountain paths, orchards, flowering thresholds, and
    cultivated fields for movement, choice, and growth.
@@ -60,6 +60,14 @@ Build scenes from three connected location families.
    quiet courtyard for intuition, solitude, and renewal.
 3. Workshop and civic rooms: a warm workshop, council terrace, and sheltered
    interior for skill, structure, exchange, and responsibility.
+4. Wands highlands: dry hills, practice yards, traveler camps, and community
+   gathering grounds.
+5. Cups waterside: homes, shared tables, courtyards, riverbanks, and coast
+   paths.
+6. Swords highlands: windy terraces, sparse rooms, bridges, winter roads, and
+   open plains.
+7. Pentacles lowlands: fields, markets, workshops, home gardens, stores, and
+   civic work sites.
 
 Repeat materials such as pale stone, indigo night, dusty blue cloth, plum
 fabric, ochre leather, small gold stars, white flowers, and winding paths. Vary
@@ -78,74 +86,98 @@ weather and time of day without changing the world.
 - Avoid hearts, glitter, neon magic, candy gradients, crowns on every figure,
   or decorative symbols with no interpretive role.
 
-## Approved Card Assets
+## V3 Deck Status And Legacy Audit
 
-The current 12-card Major Arcana preview is fully illustrated:
+The v3 release is one complete 78-card upright deck. It does not ship a mixture
+of illustrations and typographic card fronts.
 
-- The Fool, The Magician, The High Priestess, The Empress, The Emperor, and
-  The Lovers.
-- The Chariot, Strength, The Hermit, Wheel of Fortune, Temperance, and The
-  Star.
+The twelve files under `public/cards/` are immutable v2 sources. The dated audit
+in `art/card-art-v3-legacy-audit.json` records these decisions:
 
-All approved files live under `public/cards/` as `700 x 980` JPEGs. The original
-pilot files for The Fool, The Lovers, and The Star establish the production crop
-and palette; the remaining cards extend the same recurring cast, locations, and
-symbol grammar. The shared card back covers undrawn and loading states. Existing
-SVG glyphs remain the fail-safe when approved art cannot load. Keep draft future
-cards outside the stable runtime deck until their illustration is approved and
-mapped.
+- Reuse The Fool, The Lovers, The Chariot, Strength, and Wheel of Fortune
+  byte-identically in v3.
+- Retouch The Hermit and Temperance only to remove the large eight-point star;
+  keep their v2 source bytes unchanged.
+- Replace The Magician, The High Priestess, The Empress, The Emperor, and The
+  Star with clearer card-specific compositions.
+
+New and retouched files live only under `public/cards/v3/`. The runtime stays on
+the preceding complete renderer until all 78 v3 files have independent approval
+and one atomic deck release. Loading may show the shared card back. A v3 asset
+failure is an explicit retryable error, not a localized name or glyph front.
+Immutable v1 and v2 share-image renderers remain available for their existing
+URLs.
 
 ## Canonical Prompt System
 
-Treat `art/card-art-manifest.json` as the only source for the ImageGen mode,
-shared prompt, negative prompt, recurring cast, locations, symbol rules,
-card-specific direction, output frame, and approved reference images. Do not
-copy prompt blocks from this document or rewrite them for an individual run.
-
-Add a future card to the manifest with `draft` status before generating it.
-Define its cast, gesture, location, dominant symbol, up to two supporting
-symbols, emotional movement, intended asset path, and one or two approved
-reference cards. A draft may name an asset that does not exist yet. Reference
-cards must already have `approved-pilot` status.
+Treat `art/card-art-v3-manifest.json` as the only source for all 78 card
+directions, ImageGen mode, prompt, exclusions, cast, locations, suit and rank
+rules, exact object counts, frame, generation order, and reference precedence.
+Do not rewrite a prompt for an individual run.
 
 Print the exact prompt with:
 
 ```text
-pnpm run art:prompt -- --card <card-id>
+pnpm run art:v3 -- --card <card-id>
 ```
 
 Print the prompt, fixed `default` mode, version, SHA-256, and absolute
 `referenced_image_paths` values with:
 
 ```text
-pnpm run art:prompt -- --card <card-id> --json
+pnpm run art:v3 -- --card <card-id> --json
 ```
 
-Pass those reference files with the generated prompt. Use references to
-preserve character identity, body proportion, palette, material, line quality,
-and world continuity. Do not ask the generator to copy a prior card's
-composition.
+The JSON record contains the exact prompt SHA, card-spec SHA, manifest SHA, and
+reference ID-to-asset SHA map. Pass its `referenced_image_paths` unchanged.
 
-Run `pnpm run art:check` before and after approving an asset. It validates
-prompt hashes, reference paths, approved JPEG dimensions, asset digests, the
-style fingerprint, visual review evidence, and append-only version history.
+Run `pnpm run art:v3:check` before every generation and approval action. The
+same check also validates the frozen v2 chain. It rejects canonical-deck drift,
+wrong object counts, batches over eight cards, stale prompts or references,
+unapproved stage transitions, rewritten ledgers, invalid dimensions or color
+components, and individual or total deck size violations.
+
+Normalize a selected candidate with an explicit crop decision:
+
+```text
+pnpm run art:v3:normalize -- --input <raw-path> --output <candidate-path> \
+  --position <attention|centre|north|northeast|northwest|south|southeast|southwest>
+```
 
 ## Version And Approval Gate
 
-Keep `art/card-art-style-history.json` append-only.
+Keep the approval, generation, style, and release ledgers append-only. Checks
+compare their committed prefixes with `HEAD` or the explicit base revision.
+The twelve-card legacy audit is an immutable source review only. A retouch's
+full-size review, thumbnail review, final asset SHA, and provenance belong in
+that card's immutable approval record, never back in the source audit.
 
-- Keep the current version when adding or revising a draft card-specific prompt.
-  Review and commit its new prompt SHA-256.
-- Append the next `vN` entry before changing an approved card-specific prompt,
-  its reference assignment, any cast or location it uses, the shared or negative
-  prompt, mode, frame, symbol grammar, reference policy, or bytes of an approved
-  reference asset.
-- Record every approved pilot asset digest in the new entry.
-- Inspect every approved pilot at full size and in the small app frame.
-- Set the dated review evidence to approved only after both inspections pass.
-- Do not edit, delete, reorder, or reuse an earlier history entry. Local checks
-  compare with `HEAD`; CI compares with the pull-request base or pre-push
-  revision.
+The enforced stage order is:
+
+1. Audit the twelve v2 sources.
+2. Retouch and independently approve The Hermit and Temperance. Their original
+   files may be used only as their own edit targets.
+3. Generate and independently approve the sixteen four-suit pilots.
+4. Promote exactly two approved pilot anchors per suit and lock a reviewed
+   style-history entry.
+5. Generate and approve the remaining twelve court cards in two six-card
+   validation batches.
+6. Generate replacement Majors, new Majors, and numbered Minors in batches of
+   at most eight.
+7. Review the full 78-card contact sheet, runtime map, metadata, and OG output;
+   then append one atomic release record and change `releaseState` from
+   `planning` to `released` in the same change.
+
+The pilot style entry stores its own pilot contact-sheet checks. It does not
+count as the final deck review. Every release record must separately bind the
+78-card contact sheet to the exact released asset map, record an independent
+reviewer, time, result, artifact path, and artifact SHA for the contact sheet,
+runtime map, metadata, and OG output, and lock all evidence in one release-gate
+fingerprint. A release entry and `releaseState` cannot exist independently.
+
+Every stage stops on a failed count, anatomy, text, thumbnail identity, scene
+duplication, court-role, safety, or contact-sheet harmony check. A status string
+or an unvalidated style entry cannot open the next stage.
 
 ## Review Gate
 
@@ -161,6 +193,6 @@ Inspect each image at full size and at the small in-app preview.
   frame the card clearly.
 - Confirm the `700 x 980` file dimensions and compressed file size before
   committing.
-- Confirm the shared card back renders for undrawn and loading states.
-- Confirm the matching SVG glyph renders for simulated approved image load
-  failures.
+- Confirm the shared card back renders only for loading states.
+- Confirm a failed v3 image load exposes a retryable error and never substitutes
+  a name or glyph card front.
