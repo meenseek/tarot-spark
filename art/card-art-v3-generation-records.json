@@ -2110,6 +2110,62 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "wands-queen-attempt-002",
+      "attemptNumber": 2,
+      "batchId": "court-validation-a",
+      "cardId": "wands-queen",
+      "cardSpecSha256": "00054c77c0e56e53d981c294592cf320360b2fb418536d726977650034d5088b",
+      "editSource": {
+        "attemptId": "wands-queen-attempt-001",
+        "path": "art/card-art-v3-raw/court-validation-a/wands-queen-candidate-001-rejected.png",
+        "sha256": "ff52609b538bff20b0037688300047110dd6c49086e787b8b18fa6949a3ff7b6"
+      },
+      "effectivePromptSha256": "11819c2840743aa942acaeb787eb8e7919f0f91bffc9ddb213fcc4c293864198",
+      "generatedAt": "2026-08-05T09:16:17.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 276610,
+        "assetPath": "public/cards/v3/wands-queen.jpg",
+        "assetSha256": "25d7084acf088a67bf2f3dad69b54343cc7d1845dac8381c1f78cfa5ce3e59ca",
+        "cropPosition": "attention",
+        "inputSha256": "0af6633b5636f91e9f51ce9132faf0954e2e6fdeee96926e748a466890ced55e",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": "wands-queen-attempt-001",
+      "promptSha256": "a0a693af41516b2c0da95da033cf7668a3131162c253def80e2e235720a84b81",
+      "rawOutputPath": "art/card-art-v3-raw/court-validation-a/wands-queen-candidate-002.png",
+      "rawOutputSha256": "0af6633b5636f91e9f51ce9132faf0954e2e6fdeee96926e748a466890ced55e",
+      "referenceRoute": {
+        "anchorIds": ["wands-ace", "wands-page"],
+        "commonInstruction": "Reference 1 is authoritative only for suit-object geometry and material, suit palette, and global ink-and-gouache rendering. Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition; the target card manifest is authoritative for all of them.",
+        "instruction": "Reference 1 is authoritative only for suit-object geometry and material, suit palette, and global ink-and-gouache rendering. Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition; the target card manifest is authoritative for all of them. Reference 2 demonstrates natural anatomy, rendering and observable court-action legibility grammar only. Never copy the source rank, action, pose, movement, setting, garment or garment color. The target card's rank rule exclusively controls rank identity and action. When cast IDs match, identity means stable face, hair, skin and body traits only; it never includes the source garment, color, pose, action or setting.",
+        "kind": "court",
+        "styleFingerprintSha256": "de14964035492c43fef87c69aec45fca34593fe5398eb4ff1f68284eca86b619",
+        "styleVersion": "pilot-style-v1"
+      },
+      "referenceSha256": {
+        "wands-queen-attempt-001": "ff52609b538bff20b0037688300047110dd6c49086e787b8b18fa6949a3ff7b6"
+      },
+      "regenerationReason": "Attempt 001 passed meaning, cast, anatomy, supporting-symbol, text and style review, but both independent reviewers found that the left canopy supports and right construction timbers repeated the straight wooden staff grammar at mobile size. This background-only edit removes the sole blocker while preserving the approved work-circle scene.",
+      "retryConstraint": "Precision-edit rejected attempt-001 only. Preserve the Queen, her exact one bark-textured staff, open hand, face, braids, clothing, entire seated work circle, every person's pose and anatomy, the one sunflower, separate black cat, blank notebook, ground, mountains, light, palette and gouache-and-ink texture. Edit only the left canopy structure, right construction frame and minimal scenery directly covered or revealed. Remove every exposed long straight wooden support, crossbar, scaffold timber and pole from both background sides. Replace them with low solid pale-stone work walls, compact masonry storage and folded cloth or baskets whose silhouettes are short, broad and non-linear. Keep the sky and distant view open. Add no post, fence, trunk, branch, tool handle, rod, extra staff, sunflower, animal, person, writing or symbol. Do not change the Queen's staff or place any long straight object behind it. The final image contains exactly one long wooden staff-like object anywhere, held by the Queen, and no count ambiguity at 140 pixels.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/wands-queen-attempt-002.json",
+        "artifactSha256": "7a14680c0ba98e0c366eefc4e001e4a1f2fe6a47ae5fd82eb1fca764a96141a0",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T09:14:15.000Z",
+        "reviewer": "Planck and Harvey (independent exact-count and mobile-background precision-edit audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
     }
   ]
 }
