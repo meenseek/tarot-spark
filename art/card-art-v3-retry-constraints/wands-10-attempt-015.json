@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-10",
+  "attemptNumber": 15,
+  "previousAttemptId": "wands-10-attempt-014",
+  "editSourceAttemptId": "wands-10-attempt-014",
+  "editSourcePath": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-014-rejected.png",
+  "editSourceSha256": "f3b8f786790b85bb557af404300ae06f65ad93b004384eb3d588e15141fd7843",
+  "constraint": "Precision-edit only the supplied rejected attempt-014. The source contains exactly thirteen uniformly spaced horizontal wooden staff rows. Count them top to bottom as rows 1 through 13. Remove exactly rows 1, 2, and 3, including each row's rounded left end, full shaft, rounded right end, and only its wood beneath the two foreground rope bands. Preserve rows 4 through 13 pixel-for-pixel in their original positions, spacing, thickness, endpoints, and alignment. Shorten only the exposed upper ends of both rope bands so each rounded rope top begins just above and wraps over the new top row, former row 4. Preserve every rope pixel from that new top row downward, both bands' width, material, x-position, parallel alignment, and the complete rope-to-shoulder harness connection. Reconstruct only the vacated sky strips and leave no horizontal or vertical edge, shadow, seam, trace, or ghost that could be counted as another staff or pole. After the edit show exactly ten distinct left caps, ten corresponding rows, ten distinct right ends, and two coherent rope bands. Preserve both people, faces, hands, clothing, stone building, doorway, landscape, crop, palette, lighting, ink, and gouache. Change no unrelated pixel. Add no other wood, text, marker, or object.",
+  "reason": "Attempt 014 added four rows instead of one and produced thirteen clean, uniformly spaced staffs. Removing only the top three rows leaves the untouched lower ten, while trimming only the newly exposed rope tops keeps the bundle physically coherent without rebuilding the successful scene.",
+  "result": "approved",
+  "reviewedAt": "2026-08-05T03:12:11.000Z",
+  "reviewer": "Planck (independent tarot content delete-three audit)"
+}
