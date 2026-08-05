@@ -605,6 +605,45 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "wands-10-attempt-011",
+      "attemptNumber": 11,
+      "batchId": "pilot-wands",
+      "cardId": "wands-10",
+      "cardSpecSha256": "7e827d502328555db13cb3eee32d0803a00b16e7d16dfbce977b6caf2d291c12",
+      "editSource": {
+        "attemptId": "wands-10-attempt-010",
+        "path": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-010-rejected.png",
+        "sha256": "0dcc144fe9dbee5c9c06fe22acf622f9b741c2456f431db62d10121643b64134"
+      },
+      "effectivePromptSha256": "fe89879295e384e1a9e50cc061b490ae01e952da65f3cbbad851445b93287d3b",
+      "generatedAt": "2026-08-05T02:37:40.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": "wands-10-attempt-010",
+      "promptSha256": "63d7722a8d85b8cf752f653aaf4282ed86e7b6a57516cf61eae6388284a613d1",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-011-rejected.png",
+      "rawOutputSha256": "01ca9b6b523baa1dfd871752bf70f87ac7ef24ec87292cdded36e2d693b5f576",
+      "referenceSha256": {
+        "wands-10-attempt-010": "0dcc144fe9dbee5c9c06fe22acf622f9b741c2456f431db62d10121643b64134"
+      },
+      "regenerationReason": "Attempt 010 achieved the intended burden-and-help scene but contained only nine complete horizontal staffs, allowed lower shaft sections to disappear behind the carrier, and retained wooden roof and doorway elements. The approved minimal edit preserves the successful scene while making all ten staffs fully observable and removing background wood ambiguity.",
+      "retryConstraint": "Precision-edit the supplied rejected attempt-010. Preserve the composition, both people, faces, hands, pose, clothing, landscape, crop, palette, lighting, linework, and gouache texture. Repaint only the bundle inside its existing outer rectangle as exactly ten horizontal, parallel, evenly spaced cylindrical wooden staffs; reduce their diameter and shift the rows upward inside that rectangle if needed. Show exactly ten distinct rounded left ends and ten distinct rounded right ends. Every pair of ends must belong to one straight corresponding shaft, and every part of all ten shafts must stay visible except beneath the two narrow existing rope bands. No staff may pass behind or be erased by hair, head, body, hand, sleeve, or clothing. Keep a visible background gap between neighboring rows on both sides of each rope; no extra, merged, touching, forked, diagonal, or cropped staff. Keep the two vertical rope bands in front and align shaft segments before and after them on one centerline. Convert the roof, eaves, lintel, and door into stone or plaster around one plain shadowed opening, so the ten bundle staffs are the only wooden or staff-like forms. Add no text or new object.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/wands-10-attempt-011.json",
+        "artifactSha256": "1136b422f5e3fe595839c26cc8edeb701b47df95d8be33c045e7bd25d4f9d086",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T02:35:27.000Z",
+        "reviewer": "Planck (independent tarot content precision-edit audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }
