@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "cardId": "cups-10",
+  "attemptNumber": 2,
+  "previousAttemptId": "cups-10-attempt-001",
+  "constraint": "Regenerate the composition from scratch. Show exactly ten cups in the entire scene and zero other vessel or tableware. All ten cups stand fully on one long table in one straight horizontal row on the same baseline, at similar scale, spanning most of the card width, evenly spaced with a visible gap between every neighbor and no overlap. Every handle faces viewer-right and is fully visible. The rightmost cup is the tenth and final cup; one family member's empty fingertips have just released its handle, with a visible air gap between fingertips and cup while the cup remains standing in the row. No person holds any cup. Every cup must be the same deep dusty-blue cylindrical ceramic family with one curved side handle, a thin antique-gold rim and a flat unstemmed base. Show no stem, foot, goblet, chalice or handleless cup. Keep every hand behind or above the row so no cup silhouette is hidden. Show no bowl, plate, vase, jar, bottle, flowerpot, bucket, second table, shelf vessel or background container. Preserve the wide outdoor chosen-family gathering, open waterside home, reciprocal warmth, natural varied ages, exact 5:7 crop and no text.",
+  "reason": "Attempt 001 overgenerated eleven table goblets plus two handheld goblets, used the wrong handleless stemmed family, and included background vessels. The reset makes all ten approved handled cups countable on one unobstructed baseline while preserving final placement and communal completion.",
+  "result": "approved",
+  "reviewedAt": "2026-08-05T04:12:00.000Z",
+  "reviewer": "Planck and Harvey (independent tarot-content and mobile-count audit)"
+}
