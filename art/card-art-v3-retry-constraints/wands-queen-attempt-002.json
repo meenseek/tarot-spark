@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-queen",
+  "attemptNumber": 2,
+  "previousAttemptId": "wands-queen-attempt-001",
+  "editSourceAttemptId": "wands-queen-attempt-001",
+  "editSourcePath": "art/card-art-v3-raw/court-validation-a/wands-queen-candidate-001-rejected.png",
+  "editSourceSha256": "ff52609b538bff20b0037688300047110dd6c49086e787b8b18fa6949a3ff7b6",
+  "constraint": "Precision-edit rejected attempt-001 only. Preserve the Queen, her exact one bark-textured staff, open hand, face, braids, clothing, entire seated work circle, every person's pose and anatomy, the one sunflower, separate black cat, blank notebook, ground, mountains, light, palette and gouache-and-ink texture. Edit only the left canopy structure, right construction frame and minimal scenery directly covered or revealed. Remove every exposed long straight wooden support, crossbar, scaffold timber and pole from both background sides. Replace them with low solid pale-stone work walls, compact masonry storage and folded cloth or baskets whose silhouettes are short, broad and non-linear. Keep the sky and distant view open. Add no post, fence, trunk, branch, tool handle, rod, extra staff, sunflower, animal, person, writing or symbol. Do not change the Queen's staff or place any long straight object behind it. The final image contains exactly one long wooden staff-like object anywhere, held by the Queen, and no count ambiguity at 140 pixels.",
+  "reason": "Attempt 001 passed meaning, cast, anatomy, supporting-symbol, text and style review, but both independent reviewers found that the left canopy supports and right construction timbers repeated the straight wooden staff grammar at mobile size. This background-only edit removes the sole blocker while preserving the approved work-circle scene.",
+  "result": "approved",
+  "reviewedAt": "2026-08-05T09:14:15.000Z",
+  "reviewer": "Planck and Harvey (independent exact-count and mobile-background precision-edit audit)"
+}
