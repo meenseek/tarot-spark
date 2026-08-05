@@ -39,6 +39,43 @@
           "thumbnailLegible": true
         }
       }
+    },
+    "wands-10-ten-horizontal-staffs-v2": {
+      "cardId": "wands-10",
+      "purpose": "Geometry-only count and topology control for exactly ten separate horizontal staffs in one two-band bundle.",
+      "status": "approved",
+      "source": {
+        "path": "art/card-art-v3-controls/wands-10-ten-horizontal-staffs-v2.svg",
+        "sha256": "548748c93b746647087c33ca324da9538ea2232051d75ed83b954fc18d80d264"
+      },
+      "render": {
+        "path": "art/card-art-v3-controls/wands-10-ten-horizontal-staffs-v2.png",
+        "sha256": "f2065460f0be98e47128108983e805502b7383afa458fd6c8f1be5a6f4419bb1",
+        "bytes": 49561,
+        "tool": "Sharp",
+        "toolVersion": "0.34.5",
+        "format": "png",
+        "width": 1060,
+        "height": 1484,
+        "renderContract": "Render the byte-identical SVG directly to PNG with Sharp default SVG density and no resize, crop, palette conversion, or post-processing."
+      },
+      "approval": {
+        "recordedAt": "2026-08-05T02:41:44.000Z",
+        "result": "approved",
+        "reviewers": [
+          "Planck (independent tarot content control audit)",
+          "Harvey (independent UX control audit)"
+        ],
+        "checks": {
+          "exactTopCount": true,
+          "exactContinuousShaftCount": true,
+          "exactBottomCount": true,
+          "noMergeSplitOrLoss": true,
+          "singleBundle": true,
+          "noText": true,
+          "thumbnailLegible": true
+        }
+      }
     }
   }
 }

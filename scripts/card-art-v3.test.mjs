@@ -185,6 +185,32 @@ describe("card art v3 preflight", () => {
     );
   });
 
+  it("binds the approved horizontal ten-row control to attempt 012", () => {
+    const files = loadCardArtV3Files(repositoryRoot);
+    const record = getCardArtV3ReviewedAttemptRecord(
+      files,
+      "wands-10",
+      "art/card-art-v3-retry-constraints/wands-10-attempt-012.json",
+      repositoryRoot,
+    );
+
+    expect(record.editSource?.attemptId).toBe("wands-10-attempt-011");
+    expect(record.controlReference?.id).toBe(
+      "wands-10-ten-horizontal-staffs-v2",
+    );
+    expect(record.referenced_image_paths).toEqual([
+      resolve(repositoryRoot, record.editSource.path),
+      resolve(repositoryRoot, record.controlReference.path),
+    ]);
+    expect(record.referenceSha256).toEqual({
+      "wands-10-attempt-011": record.editSource.sha256,
+      "wands-10-ten-horizontal-staffs-v2": record.controlReference.sha256,
+    });
+    expect(record.effectivePrompt).toContain(
+      "exactly ten separated horizontal rows",
+    );
+  });
+
   it("rejects a byte-valid control file that is not in the independent control registry", async () => {
     const files = loadCardArtV3Files(repositoryRoot);
     const sourceArtifactPath = resolve(
@@ -232,18 +258,17 @@ describe("card art v3 preflight", () => {
     ).toThrow(/invalid immutable control reference/i);
   });
 
-  it("re-renders the registered SVG to the exact reviewed control PNG bytes", async () => {
-    const rendered = await sharp(
-      resolve(
-        repositoryRoot,
-        "art/card-art-v3-controls/wands-10-ten-staff-fan-v1.svg",
-      ),
-    )
-      .png()
-      .toBuffer();
-    expect(createHash("sha256").update(rendered).digest("hex")).toBe(
-      "a9490bc20ff775fc2e60e1874120cce390a34d0e13cdd59a7c2c1c3e9a3c2572",
-    );
+  it("re-renders every registered SVG to its exact reviewed control PNG bytes", async () => {
+    const files = loadCardArtV3Files(repositoryRoot);
+
+    for (const control of Object.values(files.controlRegistry.controls)) {
+      const rendered = await sharp(resolve(repositoryRoot, control.source.path))
+        .png()
+        .toBuffer();
+      expect(createHash("sha256").update(rendered).digest("hex")).toBe(
+        control.render.sha256,
+      );
+    }
   });
 
   it("opens pilots after both retouches and keeps post-pilot prompts closed", () => {
