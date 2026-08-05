@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "swords-10",
+  "attemptNumber": 2,
+  "previousAttemptId": "swords-10-attempt-001",
+  "editSourceAttemptId": "swords-10-attempt-001",
+  "editSourcePath": "art/card-art-v3-raw/pilot-swords/swords-10-candidate-001-rejected.png",
+  "editSourceSha256": "787be8464981fbad807b6d70bedc37e0123d37c3e1008b620afb93cb20d6d41e",
+  "constraint": "Precision-edit only rejected attempt-001. Preserve the resting person, cloak, dawn, mountains, all stonework, tree and exactly ten retained swords. Remove exactly the two planted swords whose pommels are nearest the left frame edge: the far-left sword and the next sword immediately to its right. Remove each complete pommel, grip, crossguard, blade, point, ground contact, shadow and highlight. Reconstruct only their vacated areas as continuous rocky soil and sparse grass matching perspective, light and texture, with no line or shape resembling a blade. Retain the five other swords on the person's left and all five swords on the right. Do not move, redraw, resize, merge, hide, crop or alter any retained sword; keep every retained pommel, grip, crossguard, full blade and point separate and countable. Also remove only the upright wooden construction poles and their horizontal crossbars on the upper-left ruin, reconstructing bare broken stone, distant mountain and sky; preserve the real tree trunk and branches. Add no rack, pole, stake, tool, weapon, person, text or object. The result contains exactly ten swords in two groups of five, none touching the living resting person.",
+  "reason": "Attempt 001 produced twelve complete swords as seven on the resting person's left and five on the right, while upper-left construction poles created extra weapon-shaped silhouettes. The otherwise approved safe resting scene can be retained by deleting the two isolated far-left swords and only the ambiguous construction wood.",
+  "result": "approved",
+  "reviewedAt": "2026-08-05T05:54:34.000Z",
+  "reviewer": "Planck and Harvey (independent exact-count and mobile-silhouette precision-delete audit)"
+}

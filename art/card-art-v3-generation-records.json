@@ -1479,6 +1479,35 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "selected"
+    },
+    {
+      "id": "swords-10-attempt-001",
+      "attemptNumber": 1,
+      "batchId": "pilot-swords",
+      "cardId": "swords-10",
+      "cardSpecSha256": "a44bfa12c84736d05a2134a66835f39328e4830184d2b2fa15fb396fadae51ed",
+      "effectivePromptSha256": "6f129a52d2caf33a195b533094e3a270e8f552c68986f8b1a72957449782764a",
+      "generatedAt": "2026-08-05T05:49:06.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": null,
+      "promptSha256": "6f129a52d2caf33a195b533094e3a270e8f552c68986f8b1a72957449782764a",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-swords/swords-10-candidate-001-rejected.png",
+      "rawOutputSha256": "787be8464981fbad807b6d70bedc37e0123d37c3e1008b620afb93cb20d6d41e",
+      "referenceSha256": {
+        "strength": "200272b5c855b8fb9f35426c7bdee43ad5fabb9fab0cce4b591957760a466776",
+        "the-hermit": "69a98136ac1781cccab0e0bc8ce68b8fc2a0d072d4ae48d89df844bbe0a860bb"
+      },
+      "regenerationReason": null,
+      "retryConstraint": null,
+      "retryReview": null,
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }
