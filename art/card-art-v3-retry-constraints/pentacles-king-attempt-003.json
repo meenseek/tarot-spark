@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "pentacles-king",
+  "attemptNumber": 3,
+  "previousAttemptId": "pentacles-king-attempt-002",
+  "editSourceAttemptId": "pentacles-king-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/pilot-pentacles/pentacles-king-candidate-002-rejected.png",
+  "editSourceSha256": "2277efff0a5f49af61e84967eab32ab63464e2eb89d821478fcda83fe144e69b",
+  "constraint": "Precision-edit rejected attempt-002 only. Preserve the entire image, especially the one wood-and-brass disk, repaired threshold, worker, empty foreground and absence of tools. Edit only the maker's slight head/chin tilt, eyes, empty sleeve, forearm and hand, plus minimal coat or storehouse pixels covered or revealed by that limb. Direct the head and gaze toward the repaired stone surface. Keep the empty elbow naturally beside the waist. Rotate the forearm clearly outward and diagonally toward the threshold's empty viewer-right corner, ending at natural upper- to mid-thigh height; do not reach toward the ground. Redraw exactly one normal five-digit hand with a straight wrist, fingers together and relaxed, palm held on a clearly horizontal plane facing down toward the stone. Leave a continuous background gap between the hand/forearm and green coat so the palm-down silhouette reads at phone size. Do not overlap, touch, point at, direct or loom over the worker. Preserve both legs, the disk-holding arm and all other anatomy unchanged. Add no tool, disk, coin, plate, round prop, throne, crown, text or object. The result clearly shows calm inspection and approval of the durable repair.",
+  "reason": "Attempt 002 corrected the disk material, payment ambiguity and tool display, but left the free arm vertical at the maker's side. This hand-only edit creates the missing mobile-readable palm-down approval silhouette while preserving every successful element.",
+  "result": "approved",
+  "reviewedAt": "2026-08-05T07:45:24.000Z",
+  "reviewer": "Planck and Harvey (independent court-role and mobile-silhouette hand-only audit)"
+}

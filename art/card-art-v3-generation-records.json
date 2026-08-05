@@ -1893,6 +1893,45 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "pentacles-king-attempt-002",
+      "attemptNumber": 2,
+      "batchId": "pilot-pentacles",
+      "cardId": "pentacles-king",
+      "cardSpecSha256": "1b2c42f0efd52ae5d71f1aa2e16765e084530719d223da199f38c4cb7c27b16a",
+      "editSource": {
+        "attemptId": "pentacles-king-attempt-001",
+        "path": "art/card-art-v3-raw/pilot-pentacles/pentacles-king-candidate-001-rejected.png",
+        "sha256": "3f3588adbb59b1fe94fcfde22798a2484105642f4e408e5e8b3fc23e82352de9"
+      },
+      "effectivePromptSha256": "84b1d650c6db65e89fbfa23e13c1d0f0626ff46a57df2e0885b2c29927e60cd1",
+      "generatedAt": "2026-08-05T07:38:05.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": "pentacles-king-attempt-001",
+      "promptSha256": "87d9eb24b0d65f0b67feb3f7b6f46f172159dcac70e461bff02fa532e9ba5aad",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-pentacles/pentacles-king-candidate-002-rejected.png",
+      "rawOutputSha256": "2277efff0a5f49af61e84967eab32ab63464e2eb89d821478fcda83fe144e69b",
+      "referenceSha256": {
+        "pentacles-king-attempt-001": "3f3588adbb59b1fe94fcfde22798a2484105642f4e408e5e8b3fc23e82352de9"
+      },
+      "regenerationReason": "Attempt 001 had a strong shared-storehouse repair scene and exact one-disk count, but the disk read as a metal coin, the foreground tool cluster echoed a Magician display, and the maker's approval action was weak. The edit corrects those three observable blockers while preserving cast identity and repair context.",
+      "retryConstraint": "Edit rejected attempt-001 only. Preserve all else. Change only the disk, maker's head/gaze and empty arm/hand, lower-foreground bucket/tools, and minimal pixels covered or revealed. Make the disk opaque dark walnut with visible grain, one thin antique-brass rim and one thin brass five-point inlay; remove gold fill, rings and coin sheen. Keep it vertical against the maker's chest, never offered toward the worker. Tilt the maker's head and gaze slightly toward the finished threshold with a calm approving expression. Keep the empty elbow near the side; extend the forearm only to natural upper- or mid-thigh height in clear negative space. End in one natural five-digit palm-down hand, fingers together and relaxed, aligned toward the threshold's empty viewer-right corner. Do not reach toward ground or overlap, touch, direct or loom over the worker. Remove the bucket, hammer, mallet, trowel, chisel and every loose tool from the lower foreground; restore plain cobblestones only, with no tool remnant. Add no tool display, second disk, coin, plate, round prop, throne, crown, text or object. The scene contains exactly one wood-and-brass disk and clearly shows responsible repair approval.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/pentacles-king-attempt-002.json",
+        "artifactSha256": "c12aa0195d9c954a34b95cb277dd8fe3bd639bafaae99610d2ffb4e3f076ac0e",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T07:35:45.000Z",
+        "reviewer": "Planck and Harvey (independent court-role and mobile-anatomy precision-edit audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }
