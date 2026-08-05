@@ -1739,6 +1739,54 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "pentacles-5-attempt-002",
+      "attemptNumber": 2,
+      "batchId": "pilot-pentacles",
+      "cardId": "pentacles-5",
+      "cardSpecSha256": "175880ea46cf4079e43626863cbe501b0c6443ce7e24c29623265487c92a2525",
+      "editSource": {
+        "attemptId": "pentacles-5-attempt-001",
+        "path": "art/card-art-v3-raw/pilot-pentacles/pentacles-5-candidate-001-rejected.png",
+        "sha256": "1b41033fb617157a3c4b9ae6675809b124866e3f708da6f8330e6efa8e4fb8bf"
+      },
+      "effectivePromptSha256": "7a5c196c9ae06eba3b39635dc7e0ba23bd10b61a74d9617ff9745dd02fcd9e6a",
+      "generatedAt": "2026-08-05T06:54:21.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 200685,
+        "assetPath": "public/cards/v3/pentacles-5.jpg",
+        "assetSha256": "2dd006c8006ff3a84022d0464711d6fd2aab8f80e80df7758382b8bee4296e81",
+        "cropPosition": "attention",
+        "inputSha256": "86c033824fce784719f59b80420a92223c1df50dfb15aea794cbac2ce6427832",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": "pentacles-5-attempt-001",
+      "promptSha256": "3a81cecd22418e28c9a3fd80f919b41466235bd3cf58c0287432958208328e4c",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-pentacles/pentacles-5-candidate-002.png",
+      "rawOutputSha256": "86c033824fce784719f59b80420a92223c1df50dfb15aea794cbac2ce6427832",
+      "referenceSha256": {
+        "pentacles-5-attempt-001": "1b41033fb617157a3c4b9ae6675809b124866e3f708da6f8330e6efa8e4fb8bf"
+      },
+      "regenerationReason": "Attempt 001 achieved the exact five-emblem layout and open-help narrative, but its emblems read as transparent metal stained glass rather than the Ace's wood-and-brass disk family, while its elderly cane user and child risked encoding hardship through age and disability. The edit corrects both blockers while retaining the approved environment and aid path.",
+      "retryConstraint": "Edit rejected attempt-001 only. Preserve all else. Change only the five emblem areas, both foreground traveler silhouettes and clothes, the cane, and minimal scenery pixels covered or revealed. Remove translucency only inside the five emblems. Make each an opaque dark walnut disk with visible grain, a thin antique-brass rim and one thin brass five-point inlay. Keep all five equal, separate and in their exact 2-1-2 positions; amber panes and light remain around them, never through the wood. Replace the pair with exactly two working-age adults at similar scale, neither child nor elderly. Place them separately with no touching, guiding, supporting, caregiving or dependent pose; each independently notices the open entrance. Show no mobility aid, disability marker, injury or illness. Give both practical worn travel cloaks, upright bodies, empty visible hands and sober cold expressions; do not encode hardship through ethnicity, gender, age or disability. Remove the cane and restore exposed scenery. Keep exactly five required disks and five required inlays. Add no sixth disk, extra star mark, coin, plate, round prop, person, text or object.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/pentacles-5-attempt-002.json",
+        "artifactSha256": "84aed194f93c4e1a8118edfcd88b6fcc5a081e2957965e5cc46f7e4e0ad9bc9e",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T06:52:27.000Z",
+        "reviewer": "Planck and Harvey (independent suit-material and anti-stereotype precision-edit audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
     }
   ]
 }
