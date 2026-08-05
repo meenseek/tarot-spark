@@ -49,7 +49,7 @@ describe("card art v3 preflight", () => {
     expect(validateCardArtV3System(files, repositoryRoot)).toEqual({
       approvedCount: 2,
       cardCount: 78,
-      generationCount: 30,
+      generationCount: 31,
       releaseCount: 0,
     });
   });
