@@ -806,6 +806,81 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "wands-10-attempt-016",
+      "attemptNumber": 16,
+      "batchId": "pilot-wands",
+      "cardId": "wands-10",
+      "cardSpecSha256": "7e827d502328555db13cb3eee32d0803a00b16e7d16dfbce977b6caf2d291c12",
+      "controlReference": null,
+      "editSource": null,
+      "effectivePromptSha256": null,
+      "generatedAt": "2026-08-05T03:37:39.000Z",
+      "generator": {
+        "mode": "deterministic-local-composite",
+        "tool": "Sharp",
+        "toolVersion": "0.34.5"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 221089,
+        "assetPath": "public/cards/v3/wands-10.jpg",
+        "assetSha256": "dd1290b0185788dd0e79e7ad68d257ddae6dbb2933334721d3e29096d3712204",
+        "cropPosition": "attention",
+        "inputSha256": "dd2fb1d89676eac283fb8af17e5fa62196d23bbc917f7c8cf51edfb4adbd2d86",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": "wands-10-attempt-015",
+      "promptSha256": null,
+      "rawOutputPath": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-016.png",
+      "rawOutputSha256": "dd2fb1d89676eac283fb8af17e5fa62196d23bbc917f7c8cf51edfb4adbd2d86",
+      "referenceSha256": {
+        "wands-10-attempt-014": "f3b8f786790b85bb557af404300ae06f65ad93b004384eb3d588e15141fd7843",
+        "wands-10-attempt-013": "53880171902106ce05052346c927875ef452bf6aa3813e6ec45c89d2fb6ffc8a",
+        "wands-10-local-repair-001": "0fb3ff0773cbf443e2032a74689e1177b9ae58ab0669b0b7b522418803aa562f",
+        "wands-10-local-repair-mask-001": "35af6b31c6fdc98b0accaa8988a1c7dc47a944dc41beb01cdd468a30fe6836a0",
+        "wands-10-local-repair-script": "b6961c3f978e91202ab0ef84ae6dac8fdf8a7633f2655ef1cb7e6d8caf0968fc"
+      },
+      "regenerationReason": "Fifteen ImageGen attempts could not preserve an exact ten-staff count. The reviewed deterministic repair removes only the top three rows and exposed rope tops from the clean thirteen-row attempt while preserving the lower ten staffs, scene, anatomy, harness, and every pixel outside the sloped feather mask.",
+      "repair": {
+        "recipe": {
+          "id": "wands-10-local-repair-001",
+          "path": "art/card-art-v3-repair-recipes/wands-10-local-repair-001.json",
+          "sha256": "0fb3ff0773cbf443e2032a74689e1177b9ae58ab0669b0b7b522418803aa562f"
+        },
+        "script": {
+          "path": "scripts/card-art-v3-wands10-repair.mjs",
+          "sha256": "b6961c3f978e91202ab0ef84ae6dac8fdf8a7633f2655ef1cb7e6d8caf0968fc"
+        },
+        "reviewedAt": "2026-08-05T03:29:12.000Z",
+        "base": {
+          "attemptId": "wands-10-attempt-014",
+          "path": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-014-rejected.png",
+          "sha256": "f3b8f786790b85bb557af404300ae06f65ad93b004384eb3d588e15141fd7843"
+        },
+        "donor": {
+          "attemptId": "wands-10-attempt-013",
+          "path": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-013-rejected.png",
+          "sha256": "53880171902106ce05052346c927875ef452bf6aa3813e6ec45c89d2fb6ffc8a"
+        },
+        "mask": {
+          "path": "art/card-art-v3-controls/wands-10-local-repair-mask-001.png",
+          "sha256": "35af6b31c6fdc98b0accaa8988a1c7dc47a944dc41beb01cdd468a30fe6836a0",
+          "width": 1060,
+          "height": 1484
+        },
+        "expectedOutputSha256": "dd2fb1d89676eac283fb8af17e5fa62196d23bbc917f7c8cf51edfb4adbd2d86",
+        "changedInside": 57212,
+        "changedOutside": 0
+      },
+      "retryConstraint": null,
+      "retryReview": null,
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
     }
   ]
 }

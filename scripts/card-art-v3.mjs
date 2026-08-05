@@ -76,6 +76,7 @@ const normalizationRecipeContract = Object.freeze({
   width: 700,
 });
 const promptValidationCache = new WeakMap();
+const deterministicRepairCheckCache = new Map();
 const pilotIds = Object.freeze([
   "wands-ace",
   "wands-5",
@@ -1166,6 +1167,11 @@ export function validateCardArtV3System(
     if (!canonicalTarotCardIds.includes(record.cardId))
       errors.push(`${label}.cardId is not canonical.`);
     const card = manifest.cards?.[record.cardId];
+    const isDeterministicLocalComposite =
+      !card?.needsRetouch &&
+      record.generator?.tool === "Sharp" &&
+      record.generator?.mode === "deterministic-local-composite";
+    let localRepairReferenceSha256 = null;
     if (record.batchId !== card?.batch) {
       errors.push(`${label}.batchId does not match the card manifest.`);
     }
@@ -1180,11 +1186,20 @@ export function validateCardArtV3System(
       ? manifest.retouchGenerator
       : manifest.generator;
     if (
-      record.generator?.tool !== expectedGenerator?.tool ||
-      record.generator?.mode !== expectedGenerator?.mode
+      !isDeterministicLocalComposite &&
+      (record.generator?.tool !== expectedGenerator?.tool ||
+        record.generator?.mode !== expectedGenerator?.mode)
     ) {
       errors.push(
         `${label}.generator must match the applicable manifest tool and mode.`,
+      );
+    }
+    if (
+      isDeterministicLocalComposite &&
+      record.generator?.toolVersion !== "0.34.5"
+    ) {
+      errors.push(
+        `${label}.generator.toolVersion must bind the reviewed Sharp version.`,
       );
     }
     if (!isCanonicalUtcTimestamp(record.generatedAt)) {
@@ -1233,7 +1248,7 @@ export function validateCardArtV3System(
       record.retouchSourceSha256 !== null
     ) {
       errors.push(
-        `${label} retouch provenance must be null for ImageGen cards.`,
+        `${label} retouch provenance must be null for generated cards.`,
       );
     }
     if (!card?.needsRetouch) {
@@ -1296,7 +1311,28 @@ export function validateCardArtV3System(
           `${label}.regenerationReason is required after the first attempt.`,
         );
       }
-      if (record.retryConstraint === null) {
+      if (isDeterministicLocalComposite) {
+        if (
+          record.promptSha256 !== null ||
+          record.effectivePromptSha256 !== null ||
+          record.retryConstraint !== null ||
+          record.retryReview !== null ||
+          record.editSource !== null ||
+          record.controlReference !== null
+        ) {
+          errors.push(
+            `${label} deterministic local repair prompt and retry fields must all be null.`,
+          );
+        }
+        localRepairReferenceSha256 = validateDeterministicLocalComposite({
+          errors,
+          label,
+          previousAttempt,
+          record,
+          repositoryRoot,
+          seenAttemptsById: seenImageGenAttemptsById,
+        });
+      } else if (record.retryConstraint === null) {
         if (record.retryReview !== null) {
           errors.push(
             `${label}.retryReview must be null without a constraint.`,
@@ -1376,29 +1412,33 @@ export function validateCardArtV3System(
       }
       imageGenRawPaths.add(record.rawOutputPath);
       imageGenRawSha256.add(record.rawOutputSha256);
-      if (
-        record.retryConstraint !== null &&
-        typeof record.retryConstraint !== "string"
-      ) {
-        errors.push(`${label}.retryConstraint must be null or a string.`);
-      } else {
-        try {
-          const expectedEffectivePrompt =
-            record.editSource === null || record.editSource === undefined
-              ? buildCardArtV3AttemptPrompt(
-                  buildCardArtV3Prompt(manifest, record.cardId),
-                  record.retryConstraint,
-                )
-              : buildCardArtV3PrecisionEditPrompt(record.retryConstraint);
-          if (
-            record.effectivePromptSha256 !== sha256(expectedEffectivePrompt)
-          ) {
+      if (!isDeterministicLocalComposite) {
+        if (
+          record.retryConstraint !== null &&
+          typeof record.retryConstraint !== "string"
+        ) {
+          errors.push(`${label}.retryConstraint must be null or a string.`);
+        } else {
+          try {
+            const expectedEffectivePrompt =
+              record.editSource === null || record.editSource === undefined
+                ? buildCardArtV3AttemptPrompt(
+                    buildCardArtV3Prompt(manifest, record.cardId),
+                    record.retryConstraint,
+                  )
+                : buildCardArtV3PrecisionEditPrompt(record.retryConstraint);
+            if (
+              record.effectivePromptSha256 !== sha256(expectedEffectivePrompt)
+            ) {
+              errors.push(
+                `${label}.effectivePromptSha256 does not match the exact sent prompt.`,
+              );
+            }
+          } catch (error) {
             errors.push(
-              `${label}.effectivePromptSha256 does not match the exact sent prompt.`,
+              `${label}.retryConstraint is invalid: ${error.message}`,
             );
           }
-        } catch (error) {
-          errors.push(`${label}.retryConstraint is invalid: ${error.message}`);
         }
       }
       if (
@@ -1412,14 +1452,20 @@ export function validateCardArtV3System(
       }
     }
     if (
+      !isDeterministicLocalComposite &&
       record.promptSha256 !==
-      sha256(buildCardArtV3Prompt(manifest, record.cardId))
+        sha256(buildCardArtV3Prompt(manifest, record.cardId))
     ) {
       errors.push(`${label}.promptSha256 does not match the current prompt.`);
     }
     let expectedReferenceSha256 = {};
     try {
-      if (record.editSource !== null && record.editSource !== undefined) {
+      if (isDeterministicLocalComposite) {
+        expectedReferenceSha256 = localRepairReferenceSha256 ?? {};
+      } else if (
+        record.editSource !== null &&
+        record.editSource !== undefined
+      ) {
         const sourceAttempt = seenImageGenAttemptsById.get(
           record.editSource.attemptId,
         );
@@ -1783,6 +1829,212 @@ function validateEnvelope(
   ) {
     errors.push(`${label} must contain its records or entries collection.`);
   }
+}
+
+function validateDeterministicLocalComposite({
+  errors,
+  label,
+  previousAttempt,
+  record,
+  repositoryRoot,
+  seenAttemptsById,
+}) {
+  const repair = record.repair;
+  const expectedRecipeId = `${record.cardId}-local-repair-001`;
+  const expectedRecipePath = `art/card-art-v3-repair-recipes/${expectedRecipeId}.json`;
+  const expectedScriptPath = `scripts/card-art-v3-${record.cardId.replaceAll("-", "")}-repair.mjs`;
+  const expectedMaskPath = `art/card-art-v3-controls/${expectedRecipeId.replace("repair-001", "repair-mask-001")}.png`;
+  if (
+    !repair ||
+    repair.recipe?.id !== expectedRecipeId ||
+    repair.recipe?.path !== expectedRecipePath ||
+    repair.script?.path !== expectedScriptPath ||
+    repair.mask?.path !== expectedMaskPath ||
+    repair.mask?.width !== 1060 ||
+    repair.mask?.height !== 1484 ||
+    repair.expectedOutputSha256 !== record.rawOutputSha256 ||
+    repair.changedInside !== 57212 ||
+    repair.changedOutside !== 0 ||
+    !isCanonicalUtcTimestamp(repair.reviewedAt)
+  ) {
+    errors.push(
+      `${label}.repair must match the reviewed card-specific deterministic repair contract.`,
+    );
+    return {};
+  }
+  for (const [name, entry] of [
+    ["recipe", repair.recipe],
+    ["script", repair.script],
+    ["mask", repair.mask],
+    ["base", repair.base],
+    ["donor", repair.donor],
+  ]) {
+    if (
+      !isProjectRelativePath(entry?.path) ||
+      !/^[a-f0-9]{64}$/.test(entry?.sha256 ?? "")
+    ) {
+      errors.push(
+        `${label}.repair.${name} must bind a project path and SHA-256.`,
+      );
+    }
+  }
+  const sourceEntries = [
+    ["base", repair.base],
+    ["donor", repair.donor],
+  ];
+  for (const [name, source] of sourceEntries) {
+    const sourceAttempt = seenAttemptsById.get(source?.attemptId);
+    if (
+      !sourceAttempt ||
+      sourceAttempt.cardId !== record.cardId ||
+      sourceAttempt.selectionStatus !== "rejected" ||
+      sourceAttempt.attemptNumber >= record.attemptNumber ||
+      sourceAttempt.rawOutputPath !== source.path ||
+      sourceAttempt.rawOutputSha256 !== source.sha256 ||
+      Date.parse(sourceAttempt.generatedAt) >= Date.parse(repair.reviewedAt)
+    ) {
+      errors.push(
+        `${label}.repair.${name} must bind an earlier rejected attempt of the same card.`,
+      );
+    }
+  }
+  if (
+    repair.base?.attemptId === repair.donor?.attemptId ||
+    !previousAttempt ||
+    Date.parse(previousAttempt.generatedAt) >= Date.parse(repair.reviewedAt) ||
+    Date.parse(repair.reviewedAt) >= Date.parse(record.generatedAt)
+  ) {
+    errors.push(
+      `${label}.repair must preserve predecessor generation < independent review < repair generation order.`,
+    );
+  }
+
+  const recipeAbsolutePath = resolve(repositoryRoot, repair.recipe.path);
+  const scriptAbsolutePath = resolve(repositoryRoot, repair.script.path);
+  const maskAbsolutePath = resolve(repositoryRoot, repair.mask.path);
+  let recipe = null;
+  if (
+    !existsSync(recipeAbsolutePath) ||
+    sha256(readFileSync(recipeAbsolutePath)) !== repair.recipe.sha256
+  ) {
+    errors.push(`${label}.repair.recipe does not match its reviewed bytes.`);
+  } else {
+    try {
+      recipe = JSON.parse(readFileSync(recipeAbsolutePath, "utf8"));
+    } catch {
+      errors.push(`${label}.repair.recipe must contain valid JSON.`);
+    }
+  }
+  if (
+    !existsSync(scriptAbsolutePath) ||
+    sha256(readFileSync(scriptAbsolutePath)) !== repair.script.sha256
+  ) {
+    errors.push(`${label}.repair.script does not match its reviewed bytes.`);
+  }
+  if (!existsSync(maskAbsolutePath)) {
+    errors.push(`${label}.repair.mask is missing.`);
+  } else {
+    const maskBytes = readFileSync(maskAbsolutePath);
+    const frame = readPngFrame(maskBytes);
+    if (
+      sha256(maskBytes) !== repair.mask.sha256 ||
+      frame.width !== repair.mask.width ||
+      frame.height !== repair.mask.height
+    ) {
+      errors.push(
+        `${label}.repair.mask does not match its reviewed bytes and frame.`,
+      );
+    }
+  }
+  const repairChecks = [
+    "exactThreeRowRemoval",
+    "preserveRowsFourThroughThirteen",
+    "preserveHarness",
+    "noStaffGhost",
+    "outsideMaskPixelIdentity",
+    "thumbnailCountable",
+  ];
+  if (
+    recipe?.schemaVersion !== 1 ||
+    recipe?.id !== repair.recipe.id ||
+    recipe?.cardId !== record.cardId ||
+    recipe?.tool !== record.generator.tool ||
+    recipe?.toolVersion !== record.generator.toolVersion ||
+    recipe?.mode !== record.generator.mode ||
+    stableStringify(recipe?.script) !== stableStringify(repair.script) ||
+    stableStringify(recipe?.base) !== stableStringify(repair.base) ||
+    stableStringify(recipe?.donor) !== stableStringify(repair.donor) ||
+    recipe?.mask?.path !== repair.mask.path ||
+    recipe?.mask?.sha256 !== repair.mask.sha256 ||
+    recipe?.mask?.width !== repair.mask.width ||
+    recipe?.mask?.height !== repair.mask.height ||
+    recipe?.outputPath !== record.rawOutputPath ||
+    recipe?.expectedOutputSha256 !== record.rawOutputSha256 ||
+    recipe?.review?.result !== "approved" ||
+    recipe?.review?.reviewedAt !== repair.reviewedAt ||
+    !Array.isArray(recipe?.review?.reviewers) ||
+    new Set(recipe.review.reviewers).size < 2 ||
+    recipe.review.reviewers.some(
+      (reviewer) => typeof reviewer !== "string" || reviewer.trim() === "",
+    ) ||
+    JSON.stringify(Object.keys(recipe?.review?.checks ?? {})) !==
+      JSON.stringify(repairChecks) ||
+    repairChecks.some((check) => recipe.review.checks[check] !== true)
+  ) {
+    errors.push(
+      `${label}.repair recipe must exactly bind the independently reviewed inputs, mask, script, output, and checks.`,
+    );
+  }
+
+  if (recipe) {
+    const cacheKey = stableStringify({
+      mask: repair.mask.sha256,
+      output: record.rawOutputSha256,
+      recipe: repair.recipe.sha256,
+      script: repair.script.sha256,
+    });
+    let rendered = deterministicRepairCheckCache.get(cacheKey);
+    if (!rendered) {
+      try {
+        rendered = JSON.parse(
+          execFileSync(process.execPath, [scriptAbsolutePath, "--check"], {
+            cwd: repositoryRoot,
+            encoding: "utf8",
+            stdio: ["ignore", "pipe", "pipe"],
+            timeout: 30000,
+          }),
+        );
+        deterministicRepairCheckCache.set(cacheKey, rendered);
+      } catch (error) {
+        errors.push(
+          `${label}.repair could not reproduce the reviewed output: ${error.message}`,
+        );
+      }
+    }
+    if (
+      rendered &&
+      (rendered.baseSha256 !== repair.base.sha256 ||
+        rendered.donorSha256 !== repair.donor.sha256 ||
+        rendered.maskSha256 !== repair.mask.sha256 ||
+        rendered.outputSha256 !== record.rawOutputSha256 ||
+        rendered.recipeSha256 !== repair.recipe.sha256 ||
+        rendered.toolVersion !== record.generator.toolVersion ||
+        rendered.changedInside !== repair.changedInside ||
+        rendered.changedOutside !== repair.changedOutside)
+    ) {
+      errors.push(
+        `${label}.repair reproduction result does not match its immutable provenance.`,
+      );
+    }
+  }
+
+  return {
+    [repair.base.attemptId]: repair.base.sha256,
+    [repair.donor.attemptId]: repair.donor.sha256,
+    [repair.recipe.id]: repair.recipe.sha256,
+    [`${record.cardId}-local-repair-mask-001`]: repair.mask.sha256,
+    [`${record.cardId}-local-repair-script`]: repair.script.sha256,
+  };
 }
 
 function validateAppendOnlyV3Records(baseline, current, errors) {
