@@ -1095,6 +1095,54 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "cups-10-attempt-003",
+      "attemptNumber": 3,
+      "batchId": "pilot-cups",
+      "cardId": "cups-10",
+      "cardSpecSha256": "2e5b5f8a60896319b6a3dda9e970780540bb8da129df7224fa2cfea0648664e8",
+      "editSource": {
+        "attemptId": "cups-10-attempt-002",
+        "path": "art/card-art-v3-raw/pilot-cups/cups-10-candidate-002-rejected.png",
+        "sha256": "9d1a7cb7c5f53316b8abb0fabc8d5b162ef1fae19bd6c313d792da02211429cd"
+      },
+      "effectivePromptSha256": "d5b10d6791aac6368d1ed995cf7a8bc78143cdf92fc6d3ba4bea49174618183b",
+      "generatedAt": "2026-08-05T04:22:56.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 299382,
+        "assetPath": "public/cards/v3/cups-10.jpg",
+        "assetSha256": "b19bdfa9fbc48008a1052b5c525d83db5ebe64ba0431553983ebcf9a7a1efda1",
+        "cropPosition": "attention",
+        "inputSha256": "78a37289b35a0c17037f9c854e27ac911451ef4e71ecff700e92953809ef58c3",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": "cups-10-attempt-002",
+      "promptSha256": "915028223a265c2aa360f8c986b48c49b8c7ee1e5fb9579ea46b94f98d62a362",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-cups/cups-10-candidate-003.png",
+      "rawOutputSha256": "78a37289b35a0c17037f9c854e27ac911451ef4e71ecff700e92953809ef58c3",
+      "referenceSha256": {
+        "cups-10-attempt-002": "9d1a7cb7c5f53316b8abb0fabc8d5b162ef1fae19bd6c313d792da02211429cd"
+      },
+      "regenerationReason": "Attempt 002 corrected the cup family, spacing and vessel ambiguity but generated eleven cups in the otherwise approved single row. The isolated rightmost cup can be deleted without touching the ten evenly spaced cups or the observable completion gesture.",
+      "retryConstraint": "Precision-edit only the supplied rejected attempt-002. Remove only the rightmost handled cup closest to the right frame edge, the eleventh cup in the row, including its complete blue ceramic body, dark interior, antique-gold rim, curved handle, flat base, contact shadow and any reflection belonging to it. Reconstruct only the vacated tabletop as continuous bare wood with matching grain, plank seams, color, perspective, light and shadow; leave no rim arc, handle fragment, cup-shaped stain or silhouette. Preserve pixel-for-pixel as closely as possible the remaining ten handled cups in their exact positions, identical scale, viewer-right handle direction, gaps and single straight baseline; do not move, resize, redraw, merge, hide or alter any of them. Preserve the red-haired family member's forward lean and empty finishing hand above the row so the completed final placement remains observable, and preserve every person, face, hand, garment, home, water, foliage, crop, linework, gouache texture and lighting. Add no cup, vessel, tableware, text or new object. After the edit the entire scene must contain exactly ten directly countable handled cups and zero other vessels.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/cups-10-attempt-003.json",
+        "artifactSha256": "431260c09bbd148b8e27b9794c4d83093b75484206f164e99ffdbe8524e7b4d0",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T04:20:55.000Z",
+        "reviewer": "Planck and Halley (independent tarot-content and provenance arbitration)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
     }
   ]
 }
