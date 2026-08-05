@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-10",
+  "attemptNumber": 14,
+  "previousAttemptId": "wands-10-attempt-013",
+  "editSourceAttemptId": "wands-10-attempt-013",
+  "editSourcePath": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-013-rejected.png",
+  "editSourceSha256": "53880171902106ce05052346c927875ef452bf6aa3813e6ec45c89d2fb6ffc8a",
+  "constraint": "Precision-edit only the supplied rejected attempt-013. The source bundle contains exactly nine uniformly spaced horizontal staffs. Preserve all nine staffs pixel-for-pixel. Add exactly one new complete staff one existing row pitch above the current top row, parallel to it and with the same left and right endpoints, diameter, rounded caps, perspective, bark material, linework, lighting, and gouache texture. Keep a clear sky gap equal to the existing inter-row gaps. Extend only the upper ends of both existing vertical rope bands upward by one row pitch so both bands cross in front of the new staff and hold all ten as one bundle. Preserve each band's width, material, x-position, lower pixels, parallel alignment, and the existing rope-to-shoulder harness connection. Do not move, resize, redraw, merge, split, or duplicate any source staff. After the edit show exactly ten distinct left caps, ten corresponding horizontal rows, and ten distinct right ends. Reconstruct only minimal sky at the new staff and rope edges. Preserve both people, every face and hand, clothing, stone building, doorway, landscape, crop, palette, lighting, ink, and gouache. Change no unrelated pixel. Add no other wood, text, marker, or object.",
+  "reason": "Attempt 013 removed three rows instead of the requested two and produced a clean, uniformly spaced nine-staff bundle. Adding one isolated top row at the existing pitch, with only the two rope tops extended to secure it, is the smallest observable edit that yields a coherent ten-staff bundle without rebuilding the successful scene.",
+  "result": "approved",
+  "reviewedAt": "2026-08-05T03:07:08.000Z",
+  "reviewer": "Planck (independent tarot content add-one-row audit)"
+}
