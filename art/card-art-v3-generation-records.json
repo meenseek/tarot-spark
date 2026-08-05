@@ -1245,6 +1245,50 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "swords-ace-attempt-002",
+      "attemptNumber": 2,
+      "batchId": "pilot-swords",
+      "cardId": "swords-ace",
+      "cardSpecSha256": "bace3349ebfd3bc8c4ea8d832314a5991d7f7bafd15c9930bfedd0a5fbc1d4ba",
+      "effectivePromptSha256": "fd28b2c11beb8a9a0653cc7da9442707ead205432198892664003f6921a6a1e6",
+      "generatedAt": "2026-08-05T04:59:59.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 212387,
+        "assetPath": "public/cards/v3/swords-ace.jpg",
+        "assetSha256": "35b00a8e89636b3c006c2035d9970ad0e8e52a8c284745316bcf36dfd7ff4625",
+        "cropPosition": "attention",
+        "inputSha256": "39f13852eaec110f97327dd21a5964ff359fa92651780115657db6eeea726413",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": "swords-ace-attempt-001",
+      "promptSha256": "5015d10d10cfec88cb9f2088dd40be119ecab68e6d3487a137961285e6966f59",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-swords/swords-ace-candidate-002.png",
+      "rawOutputSha256": "39f13852eaec110f97327dd21a5964ff359fa92651780115657db6eeea726413",
+      "referenceSha256": {
+        "the-hermit": "69a98136ac1781cccab0e0bc8ce68b8fc2a0d072d4ae48d89df844bbe0a860bb",
+        "wheel-of-fortune": "ff3a219f944a73a2cbf65fd1e1efec2008306031849c2ae26c2a348f3faf6a56"
+      },
+      "regenerationReason": "Attempt 001 showed one sword but hid its point in a round stone plinth; at phone size the square-ended shaft, laurel and observers read as an Excalibur or memorial cross rather than a practical clarity tool. The reset exposes a broad point-up blade in a visible inspection fixture and removes ceremonial staging.",
+      "retryConstraint": "Regenerate from scratch. Show exactly one simple straight steel sword and no other blade, knife, handheld tool, elongated implement, pole or sword-like shadow. A bench-mounted iron inspection vise is the only non-sword metal fixture. Mount the sword point-up in that vise bolted onto a plain rectangular waist-high stone review bench. The jaws hold only a narrow band of the lowest grip or pommel neck below the crossguard, leaving the grip, crossguard and entire steel blade unobstructed. The blade rises above the crossguard and tapers continuously to one unmistakable sharp point against open sky. Make it broad enough that both edges and the point remain readable at phone size. Do not sink any blade into stone. Show no round pedestal, altar, socket, grave marker, observers, halo, sun rays or chosen-one staging. Place one restrained laurel loop flat at one side of the bench, not around the sword. Beyond it show exactly two open paths separating left and right under restrained off-axis first light and a clear horizon. No hand, crown, scales, second blade or text; exact 5:7 crop.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/swords-ace-attempt-002.json",
+        "artifactSha256": "2579e2fb283406ee7893074c51f6714a432925520024693a5c8576a642ba8f31",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T04:55:28.000Z",
+        "reviewer": "Planck and Harvey (independent tarot-content and mobile-silhouette audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
     }
   ]
 }
