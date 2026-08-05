@@ -919,6 +919,35 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "selected"
+    },
+    {
+      "id": "cups-5-attempt-001",
+      "attemptNumber": 1,
+      "batchId": "pilot-cups",
+      "cardId": "cups-5",
+      "cardSpecSha256": "80598e6626c1f189c81be5fbf86ec50fc670569f0cf6617a0b2113645f08fc27",
+      "effectivePromptSha256": "1af914bbbd7bba6448cd8e71e381af805fab681500ddcd0be12f79b346e448e3",
+      "generatedAt": "2026-08-05T03:52:35.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": null,
+      "promptSha256": "1af914bbbd7bba6448cd8e71e381af805fab681500ddcd0be12f79b346e448e3",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-cups/cups-5-candidate-001-rejected.png",
+      "rawOutputSha256": "0374c2ebefeef48ed6dd701887ae1273cc7efbf8cd6762904a29869f090d7cd4",
+      "referenceSha256": {
+        "the-hermit": "69a98136ac1781cccab0e0bc8ce68b8fc2a0d072d4ae48d89df844bbe0a860bb",
+        "the-lovers": "a7d13cc70299827e4972d67aeb57d768d441a709e468ff5f0a2703a57618e488"
+      },
+      "regenerationReason": null,
+      "retryConstraint": null,
+      "retryReview": null,
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }
