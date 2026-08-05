@@ -1816,6 +1816,54 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "pentacles-10-attempt-002",
+      "attemptNumber": 2,
+      "batchId": "pilot-pentacles",
+      "cardId": "pentacles-10",
+      "cardSpecSha256": "34e679b4484cb722768cd67ab18f652a315d648f5666de9e16ccb91bbe6733bc",
+      "editSource": {
+        "attemptId": "pentacles-10-attempt-001",
+        "path": "art/card-art-v3-raw/pilot-pentacles/pentacles-10-candidate-001-rejected.png",
+        "sha256": "bd3056c13875bb7126fe687a39116f59197e54d82ea5afa0d3f3176507ce1cfe"
+      },
+      "effectivePromptSha256": "953614c0c7ce5c0a6212d6049321bad515138eb4ea1c2686a68945182363c29e",
+      "generatedAt": "2026-08-05T07:15:11.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 291774,
+        "assetPath": "public/cards/v3/pentacles-10.jpg",
+        "assetSha256": "8822042ba8e7f0ec027cfb33672718747953c0f7a15c78f7b2915322530c61ff",
+        "cropPosition": "attention",
+        "inputSha256": "b539f74e8e83973824f6c44ca28702cb222b25544608ce0f9da2f16bb93adc88",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": "pentacles-10-attempt-001",
+      "promptSha256": "e8e2e017777d0ab931c9463248a46d47ee7b8c203e75655a05f087248cff18c2",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-pentacles/pentacles-10-candidate-002.png",
+      "rawOutputSha256": "b539f74e8e83973824f6c44ca28702cb222b25544608ce0f9da2f16bb93adc88",
+      "referenceSha256": {
+        "pentacles-10-attempt-001": "bd3056c13875bb7126fe687a39116f59197e54d82ea5afa0d3f3176507ce1cfe"
+      },
+      "regenerationReason": "Attempt 001 correctly showed shared intergenerational resource stewardship and a blank review sheet, but generated six columns by two rows, producing twelve bays and twelve all-metal coin-like disks. Removing the isolated far-right column and correcting the retained ten materials preserves the approved scene while restoring exact count and suit continuity.",
+      "retryConstraint": "Edit rejected attempt-001 only. Preserve all outside the storage shelf and adjacent wall, including every person and the blank sheet. Change only the shelf, adjacent wall and twelve disk areas. Remove the entire far-right sixth column: both bays, two disks, tools, barrel, contents, recess and outer edge. Rebuild that strip as plain matching stone wall with no niche or round mark. Finish the retained shelf with one solid wooden right upright after the fifth column, producing exactly five columns by two rows: ten distinct resource bays. Preserve all contents and geometry of those ten bays. Keep the first five upper and first five lower disks in place; make each an opaque dark walnut disk with visible grain, one thin antique-brass rim and one thin brass five-point inlay. Remove broad gold fill, coin sheen and extra rings. Keep all ten equal, separate and directly countable. Add no eleventh bay or disk, and no star mark beyond the one required inlay on each retained disk. Add no coin, plate, lid, barrel, round prop, letters, numerals, pseudo-writing, person or standalone object. The scene contains exactly ten bays and ten wood-and-brass pentacle disks.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/pentacles-10-attempt-002.json",
+        "artifactSha256": "6e6d127c6d1e9257144db2507d7e7c877e4593de0db5fb4a52bf9f403e341660",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T07:13:06.000Z",
+        "reviewer": "Planck and Harvey (independent exact-grid and mobile-material precision-edit audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
     }
   ]
 }
