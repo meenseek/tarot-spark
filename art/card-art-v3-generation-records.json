@@ -1787,6 +1787,35 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "selected"
+    },
+    {
+      "id": "pentacles-10-attempt-001",
+      "attemptNumber": 1,
+      "batchId": "pilot-pentacles",
+      "cardId": "pentacles-10",
+      "cardSpecSha256": "34e679b4484cb722768cd67ab18f652a315d648f5666de9e16ccb91bbe6733bc",
+      "effectivePromptSha256": "e8e2e017777d0ab931c9463248a46d47ee7b8c203e75655a05f087248cff18c2",
+      "generatedAt": "2026-08-05T07:00:52.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": null,
+      "promptSha256": "e8e2e017777d0ab931c9463248a46d47ee7b8c203e75655a05f087248cff18c2",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-pentacles/pentacles-10-candidate-001-rejected.png",
+      "rawOutputSha256": "bd3056c13875bb7126fe687a39116f59197e54d82ea5afa0d3f3176507ce1cfe",
+      "referenceSha256": {
+        "strength": "200272b5c855b8fb9f35426c7bdee43ad5fabb9fab0cce4b591957760a466776",
+        "the-lovers": "a7d13cc70299827e4972d67aeb57d768d441a709e468ff5f0a2703a57618e488"
+      },
+      "regenerationReason": null,
+      "retryConstraint": null,
+      "retryReview": null,
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }
