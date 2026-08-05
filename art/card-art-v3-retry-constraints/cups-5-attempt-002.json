@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "cardId": "cups-5",
+  "attemptNumber": 2,
+  "previousAttemptId": "cups-5-attempt-001",
+  "constraint": "Regenerate the composition from scratch. Every one of exactly five cups must belong to the same handled ceramic family: a deep dusty-blue cylindrical cup body, one clearly visible curved side handle physically attached to that body, a thin antique-gold rim, and a flat unstemmed base. Show no stem, pedestal, foot, goblet, chalice or handleless cup. Arrange exactly three of these handled cups tipped over in the foreground with spilled water, and exactly two upright behind the grieving figure within sight; keep all five complete silhouettes directly countable at phone size. Add no flowerpot, bowl, vase, jar, bucket or other container-shaped prop anywhere. Preserve the rain-dark courtyard, grieving posture, dry stone bridge toward warm shelter, restrained emotion, 5:7 crop, and no text.",
+  "reason": "Attempt 001 contained the correct three-spilled and two-upright count, but all five suit objects were handleless stemmed goblets rather than the approved handled ceramic cup family, and a flowerpot introduced an extra vessel silhouette.",
+  "result": "approved",
+  "reviewedAt": "2026-08-05T03:55:19.000Z",
+  "reviewer": "Planck (independent tarot content object-continuity audit)"
+}
