@@ -644,6 +644,51 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "wands-10-attempt-012",
+      "attemptNumber": 12,
+      "batchId": "pilot-wands",
+      "cardId": "wands-10",
+      "cardSpecSha256": "7e827d502328555db13cb3eee32d0803a00b16e7d16dfbce977b6caf2d291c12",
+      "controlReference": {
+        "id": "wands-10-ten-horizontal-staffs-v2",
+        "path": "art/card-art-v3-controls/wands-10-ten-horizontal-staffs-v2.png",
+        "sha256": "f2065460f0be98e47128108983e805502b7383afa458fd6c8f1be5a6f4419bb1"
+      },
+      "editSource": {
+        "attemptId": "wands-10-attempt-011",
+        "path": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-011-rejected.png",
+        "sha256": "01ca9b6b523baa1dfd871752bf70f87ac7ef24ec87292cdded36e2d693b5f576"
+      },
+      "effectivePromptSha256": "1e80675c93f9f7ab0dfef51fb7ad20e41c441d4e3a8c5c4b2e1385de7f68b0ce",
+      "generatedAt": "2026-08-05T02:58:46.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": "wands-10-attempt-011",
+      "promptSha256": "63d7722a8d85b8cf752f653aaf4282ed86e7b6a57516cf61eae6388284a613d1",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-012-rejected.png",
+      "rawOutputSha256": "05b1571822c610f3afee5ec1081668b9e471c041701ea38a0a6703496c205a46",
+      "referenceSha256": {
+        "wands-10-attempt-011": "01ca9b6b523baa1dfd871752bf70f87ac7ef24ec87292cdded36e2d693b5f576",
+        "wands-10-ten-horizontal-staffs-v2": "f2065460f0be98e47128108983e805502b7383afa458fd6c8f1be5a6f4419bb1"
+      },
+      "regenerationReason": "Attempt 011 successfully removed background wood and separated the bundle rows, but ImageGen again returned only nine staffs and let lower shafts pass behind the carrier. The independently approved horizontal control fixes the required ten-row topology while the revised edit constraint preserves the load-bearing shoulder connection and clears every staff from the figure.",
+      "retryConstraint": "Precision-edit only the wooden bundle in first input attempt-011. The second input control v2 supplies only exactly ten separated horizontal rows, equal gaps, ten left ends, ten shafts, ten right ends, and two parallel perpendicular bands; never copy its flat style, background, size, or colors. The source has nine rows. Rebuild exactly ten thinner cylindrical staffs inside the same outer width and upper part of the source bundle envelope. Keep the source bundle placement and visible rope-to-shoulder harness contact fixed, while moving the lowest row upward enough to leave clear background between every shaft and the carrier's hair, head, and body. Keep the source rope material; both bands cross all ten staffs, remain parallel, never cross each other, and the harness remains visibly connected to the shoulder. Except beneath the bands, every shaft is visible end-to-end on one centerline. Preserve all people, faces, hands, clothing, stone building, doorway, landscape, crop, palette, lighting, ink, and gouache. Reconstruct only newly exposed background with minimal edge blending. No extra, merged, touching, hidden, split, forked, diagonal, or cropped staff, other wood, text, or new object.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/wands-10-attempt-012.json",
+        "artifactSha256": "f025bc5ff17d83b4d93740a42f108fc55ed638a33c4b33e303a398be5a06cf98",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T02:44:11.000Z",
+        "reviewer": "Planck (independent tarot content control-reference audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }
