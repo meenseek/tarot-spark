@@ -63,6 +63,77 @@ const expectedFinalDeckGateChecks = Object.freeze([
   "exact suit-object counts across the full deck",
   "natural anatomy and safe difficult-card treatment",
 ]);
+const courtRankIds = new Set(["page", "knight", "queen", "king"]);
+const postPilotReferenceInstructions = Object.freeze({
+  common:
+    "Reference 1 is authoritative only for suit-object geometry and material, suit palette, and global ink-and-gouache rendering. Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition; the target card manifest is authoritative for all of them.",
+  numbered:
+    "Reference 2 demonstrates multi-object separation, density and thumbnail legibility only. Never copy its source count, count arrangement, grid, table, group composition, cast, identity, pose, action, setting, lighting layout or incidental objects. The target card's rank rule and exact count lock exclusively control its object count and arrangement.",
+  court:
+    "Reference 2 demonstrates natural anatomy, rendering and observable court-action legibility grammar only. Never copy the source rank, action, pose, movement, setting, garment or garment color. The target card's rank rule exclusively controls rank identity and action. When cast IDs match, identity means stable face, hair, skin and body traits only; it never includes the source garment, color, pose, action or setting.",
+});
+const reviewedPostPilotReferencePairs = Object.freeze({
+  numbered: Object.freeze({
+    wands: Object.freeze(["wands-ace", "wands-5"]),
+    cups: Object.freeze(["cups-ace", "cups-10"]),
+    swords: Object.freeze(["swords-ace", "swords-5"]),
+    pentacles: Object.freeze(["pentacles-ace", "pentacles-10"]),
+  }),
+  court: Object.freeze({
+    wands: Object.freeze(["wands-ace", "wands-page"]),
+    cups: Object.freeze(["cups-ace", "cups-knight"]),
+    swords: Object.freeze(["swords-ace", "swords-queen"]),
+    pentacles: Object.freeze(["pentacles-ace", "pentacles-king"]),
+  }),
+});
+const pilotContactSheetRecipe = Object.freeze({
+  tool: "sharp",
+  toolVersion: "0.34.5",
+  background: "#e8ddc6",
+  columns: 4,
+  rows: 4,
+  order: "pilotIds row-major",
+  tileJpegQuality: 90,
+  outputJpegQuality: 92,
+  full: Object.freeze({
+    width: 890,
+    height: 1246,
+    tileWidth: 210,
+    tileHeight: 294,
+    margin: 10,
+    columnPitch: 220,
+    rowPitch: 304,
+  }),
+  mobile: Object.freeze({
+    width: 590,
+    height: 826,
+    tileWidth: 140,
+    tileHeight: 196,
+    margin: 10,
+    columnPitch: 145,
+    rowPitch: 201,
+  }),
+});
+const reviewedPilotContactSheetContract = Object.freeze({
+  assetMapSha256:
+    "02da3f5bbe5d8c9c637b2e5723cdda1074afbfc1941544a134a3d8527fbe6e14",
+  recipeFingerprintSha256:
+    "dad6d6a7d412c2eddc2cff739ca23b392e92352f1e92da553202fe8210d88f7c",
+  full: Object.freeze({
+    artifactPath: "art/card-art-v3-reviews/pilot-contact-sheet-v1.jpg",
+    artifactSha256:
+      "55517bc20c86b5405e10de4e2ca42b7c10a2fe6a562df4159ea8abd09d56be9c",
+    height: 1246,
+    width: 890,
+  }),
+  mobile: Object.freeze({
+    artifactPath: "art/card-art-v3-reviews/pilot-contact-sheet-mobile-v1.jpg",
+    artifactSha256:
+      "2358327b9c2c1962b9c16ac0311cc3b356121c993248ec69f88a73d6699c0c09",
+    height: 826,
+    width: 590,
+  }),
+});
 const releaseSurfaceReviewIds = Object.freeze(["runtimeMap", "metadata", "og"]);
 const normalizationRecipeContract = Object.freeze({
   chromaSubsampling: "4:4:4",
@@ -162,7 +233,7 @@ export function loadCardArtV3Baseline(
   return baseline;
 }
 
-export function buildCardArtV3Prompt(manifest, cardId) {
+export function buildCardArtV3Prompt(manifest, cardId, referenceRoute = null) {
   const card = getCard(manifest, cardId);
   const castById = new Map(manifest.cast.map((member) => [member.id, member]));
   const locationById = new Map(
@@ -190,6 +261,11 @@ export function buildCardArtV3Prompt(manifest, cardId) {
     rules.push(
       `Count lock: show exactly ${card.suitObjectCount} ${card.suit} suit object${card.suitObjectCount === 1 ? "" : "s"}; zero more and zero fewer.`,
     );
+    if (referenceRoute !== null) {
+      rules.push(
+        `Post-pilot reference role lock: ${referenceRoute.instruction}`,
+      );
+    }
   }
 
   const safety = manifest.difficultCardSafety[cardId];
@@ -267,19 +343,28 @@ export function getCardArtV3PromptRecord(
   const manifest = files.manifest;
   const card = getCard(manifest, cardId);
   assertGenerationStageOpen(files, cardId);
+  const referenceRoute = getCardArtV3PostPilotReferenceRoute(
+    files.styleHistory,
+    card,
+  );
   const referenceRecords = resolveReferenceRecords(
     files,
     cardId,
     repositoryRoot,
+    referenceRoute,
   );
-  const prompt = buildCardArtV3Prompt(manifest, cardId);
+  const prompt = buildCardArtV3Prompt(manifest, cardId, referenceRoute);
   const generator = card.needsRetouch
     ? manifest.retouchGenerator
     : manifest.generator;
 
   return {
     cardId,
-    cardSpecSha256: getCardArtV3CardSpecSha256(manifest, cardId),
+    cardSpecSha256: getCardArtV3CardSpecSha256(
+      manifest,
+      cardId,
+      referenceRoute,
+    ),
     manifestSha256: getCardArtV3ManifestSha256(manifest),
     mode: generator.mode,
     prompt,
@@ -287,6 +372,7 @@ export function getCardArtV3PromptRecord(
     referenceSha256: Object.fromEntries(
       referenceRecords.map(({ id, sha256: hash }) => [id, hash]),
     ),
+    ...(referenceRoute === null ? {} : { referenceRoute }),
     referenced_image_paths: referenceRecords.map(
       ({ absolutePath }) => absolutePath,
     ),
@@ -566,7 +652,12 @@ function validateForPrompt(files, repositoryRoot) {
   promptValidationCache.set(files, fingerprint);
 }
 
-function resolveReferenceRecords(files, cardId, repositoryRoot) {
+function resolveReferenceRecords(
+  files,
+  cardId,
+  repositoryRoot,
+  frozenReferenceRoute = undefined,
+) {
   const { approvals, manifest } = files;
   const card = getCard(manifest, cardId);
   const legacySources = new Map(
@@ -574,11 +665,18 @@ function resolveReferenceRecords(files, cardId, repositoryRoot) {
   );
   const usesPromotedSuitAnchors =
     card.arcana === "minor" && !card.batch.startsWith("pilot-");
+  const referenceRoute = usesPromotedSuitAnchors ? frozenReferenceRoute : null;
   const referenceIds = card.needsRetouch
     ? [cardId]
     : usesPromotedSuitAnchors
-      ? manifest.generationPlan.plannedSuitAnchorIds[card.suit]
+      ? referenceRoute?.anchorIds
       : card.legacySeedReferenceIds;
+
+  if (usesPromotedSuitAnchors && !referenceRoute) {
+    throw new Error(
+      `No independently frozen post-pilot reference route exists for ${cardId}.`,
+    );
+  }
 
   return referenceIds.map((referenceId) => {
     const legacySource = legacySources.get(referenceId);
@@ -687,27 +785,31 @@ export function getCardArtV3ManifestSha256(manifest) {
   );
 }
 
-export function getCardArtV3CardSpecSha256(manifest, cardId) {
+export function getCardArtV3CardSpecSha256(
+  manifest,
+  cardId,
+  referenceRoute = null,
+) {
   const card = getCard(manifest, cardId);
-  return sha256(
-    stableStringify({
-      card,
-      compositionRules: manifest.compositionRules,
-      difficultCardSafety: manifest.difficultCardSafety[cardId] ?? null,
-      frame: manifest.frame,
-      generationPlan: manifest.generationPlan,
-      location: manifest.locations.find(({ id }) => id === card.locationId),
-      prompt: manifest.prompt,
-      rankRule:
-        card.arcana === "minor"
-          ? manifest.rankRules[rankRuleKey(card.rank)]
-          : null,
-      referencePolicy: manifest.referencePolicy,
-      suitRule: card.arcana === "minor" ? manifest.suitRules[card.suit] : null,
-      systemId: manifest.systemId,
-      version: manifest.version,
-    }),
-  );
+  const cardSpec = {
+    card,
+    compositionRules: manifest.compositionRules,
+    difficultCardSafety: manifest.difficultCardSafety[cardId] ?? null,
+    frame: manifest.frame,
+    generationPlan: manifest.generationPlan,
+    location: manifest.locations.find(({ id }) => id === card.locationId),
+    prompt: manifest.prompt,
+    rankRule:
+      card.arcana === "minor"
+        ? manifest.rankRules[rankRuleKey(card.rank)]
+        : null,
+    referencePolicy: manifest.referencePolicy,
+    suitRule: card.arcana === "minor" ? manifest.suitRules[card.suit] : null,
+    systemId: manifest.systemId,
+    version: manifest.version,
+  };
+  if (referenceRoute !== null) cardSpec.referenceRoute = referenceRoute;
+  return sha256(stableStringify(cardSpec));
 }
 
 export function validateCardArtV3System(
@@ -888,6 +990,13 @@ export function validateCardArtV3System(
     }
     for (const id of ids ?? []) plannedSuitAnchorIds.add(id);
   }
+  const frozenPromotedAnchorIds = new Set(
+    (styleHistory.entries?.length ?? 0) === 0
+      ? [...plannedSuitAnchorIds]
+      : styleHistory.entries.flatMap(
+          ({ promotedSuitAnchorIds }) => promotedSuitAnchorIds ?? [],
+        ),
+  );
   const expectedCourtValidationIds = minorArcanaSuitIds.flatMap((suit) =>
     minorArcanaRankIds
       .filter((rank) => ["page", "knight", "queen", "king"].includes(rank))
@@ -1056,6 +1165,7 @@ export function validateCardArtV3System(
   let approvedDeckBytes = 0;
   for (const [cardId, approval] of approvalEntries) {
     const label = `approvals.records.${cardId}`;
+    const generation = generationById.get(approval.generationRecordId);
     if (!canonicalTarotCardIds.includes(cardId))
       errors.push(`${label} is not canonical.`);
     if (approval.status !== "approved")
@@ -1069,11 +1179,37 @@ export function validateCardArtV3System(
     }
     if (
       approval.promotedSuitAnchor === true &&
-      !plannedSuitAnchorIds.has(cardId)
+      !frozenPromotedAnchorIds.has(cardId)
     ) {
       errors.push(`${label} cannot be promoted as an unplanned suit anchor.`);
     }
-    const expectedPromptSha256 = sha256(buildCardArtV3Prompt(manifest, cardId));
+    let approvalReferenceRoute = null;
+    try {
+      const card = manifest.cards?.[cardId];
+      const isPostPilotMinor =
+        card?.arcana === "minor" && !card.batch.startsWith("pilot-");
+      approvalReferenceRoute = getCardArtV3PostPilotReferenceRoute(
+        styleHistory,
+        card,
+        isPostPilotMinor ? approval.referenceRoute?.styleVersion : undefined,
+      );
+      if (
+        isPostPilotMinor &&
+        (stableStringify(approval.referenceRoute) !==
+          stableStringify(approvalReferenceRoute) ||
+          stableStringify(generation?.referenceRoute) !==
+            stableStringify(approvalReferenceRoute))
+      ) {
+        errors.push(
+          `${label}.referenceRoute must match its selected generation and historical style entry.`,
+        );
+      }
+    } catch (error) {
+      errors.push(`${label}.referenceRoute is invalid: ${error.message}`);
+    }
+    const expectedPromptSha256 = sha256(
+      buildCardArtV3Prompt(manifest, cardId, approvalReferenceRoute),
+    );
     if (
       approval.provenance === "generated-v3" &&
       approval.promptSha256 !== expectedPromptSha256
@@ -1103,7 +1239,6 @@ export function validateCardArtV3System(
       );
     }
     if (approval.provenance !== "legacy-v2") {
-      const generation = generationById.get(approval.generationRecordId);
       if (
         !generation ||
         generation.cardId !== cardId ||
@@ -1175,12 +1310,43 @@ export function validateCardArtV3System(
     if (record.batchId !== card?.batch) {
       errors.push(`${label}.batchId does not match the card manifest.`);
     }
+    let recordReferenceRoute = null;
+    try {
+      const isPostPilotMinor =
+        card?.arcana === "minor" && !card.batch.startsWith("pilot-");
+      if (
+        isPostPilotMinor &&
+        typeof record.referenceRoute?.styleVersion !== "string"
+      ) {
+        throw new Error("missing historical styleVersion");
+      }
+      recordReferenceRoute = getCardArtV3PostPilotReferenceRoute(
+        styleHistory,
+        card,
+        isPostPilotMinor ? record.referenceRoute.styleVersion : undefined,
+      );
+    } catch (error) {
+      errors.push(`${label}.referenceRoute is invalid: ${error.message}`);
+    }
     if (
       record.manifestSha256 !== getCardArtV3ManifestSha256(manifest) ||
       record.cardSpecSha256 !==
-        getCardArtV3CardSpecSha256(manifest, record.cardId)
+        getCardArtV3CardSpecSha256(
+          manifest,
+          record.cardId,
+          recordReferenceRoute,
+        )
     ) {
       errors.push(`${label} manifest or card-spec SHA-256 is stale.`);
+    }
+    if (
+      recordReferenceRoute !== null &&
+      stableStringify(record.referenceRoute) !==
+        stableStringify(recordReferenceRoute)
+    ) {
+      errors.push(
+        `${label}.referenceRoute must bind the frozen post-pilot style route.`,
+      );
     }
     const expectedGenerator = card?.needsRetouch
       ? manifest.retouchGenerator
@@ -1423,7 +1589,11 @@ export function validateCardArtV3System(
             const expectedEffectivePrompt =
               record.editSource === null || record.editSource === undefined
                 ? buildCardArtV3AttemptPrompt(
-                    buildCardArtV3Prompt(manifest, record.cardId),
+                    buildCardArtV3Prompt(
+                      manifest,
+                      record.cardId,
+                      recordReferenceRoute,
+                    ),
                     record.retryConstraint,
                   )
                 : buildCardArtV3PrecisionEditPrompt(record.retryConstraint);
@@ -1454,7 +1624,9 @@ export function validateCardArtV3System(
     if (
       !isDeterministicLocalComposite &&
       record.promptSha256 !==
-        sha256(buildCardArtV3Prompt(manifest, record.cardId))
+        sha256(
+          buildCardArtV3Prompt(manifest, record.cardId, recordReferenceRoute),
+        )
     ) {
       errors.push(`${label}.promptSha256 does not match the current prompt.`);
     }
@@ -1513,9 +1685,12 @@ export function validateCardArtV3System(
         }
       } else {
         expectedReferenceSha256 = Object.fromEntries(
-          resolveReferenceRecords(files, record.cardId, repositoryRoot).map(
-            ({ id, sha256: hash }) => [id, hash],
-          ),
+          resolveReferenceRecords(
+            files,
+            record.cardId,
+            repositoryRoot,
+            recordReferenceRoute,
+          ).map(({ id, sha256: hash }) => [id, hash]),
         );
       }
     } catch (error) {
@@ -1626,6 +1801,7 @@ export function validateCardArtV3System(
   }
 
   const styleVersions = new Set();
+  let previousStyleReviewedAt = null;
   for (const [index, entry] of (styleHistory.entries ?? []).entries()) {
     const label = `styleHistory.entries[${index}]`;
     requireString(entry.version, `${label}.version`);
@@ -1635,12 +1811,85 @@ export function validateCardArtV3System(
       errors.push(`${label}.version must be append-only and unique.`);
     }
     styleVersions.add(entry.version);
+    if (!isCanonicalUtcTimestamp(entry.reviewedAt)) {
+      errors.push(`${label}.reviewedAt must be canonical UTC.`);
+    } else if (
+      previousStyleReviewedAt !== null &&
+      Date.parse(entry.reviewedAt) <= Date.parse(previousStyleReviewedAt)
+    ) {
+      errors.push(`${label}.reviewedAt must increase append-only.`);
+    } else {
+      previousStyleReviewedAt = entry.reviewedAt;
+    }
+    const routedIds = new Set();
+    if (
+      entry.referenceRouting?.commonInstruction !==
+      postPilotReferenceInstructions.common
+    ) {
+      errors.push(`${label}.referenceRouting.commonInstruction is invalid.`);
+    }
+    for (const kind of ["numbered", "court"]) {
+      const route = entry.referenceRouting?.[kind];
+      if (route?.instruction !== postPilotReferenceInstructions[kind]) {
+        errors.push(
+          `${label}.referenceRouting.${kind}.instruction is invalid.`,
+        );
+      }
+      if (
+        stableStringify(route?.pairs) !==
+        stableStringify(reviewedPostPilotReferencePairs[kind])
+      ) {
+        errors.push(
+          `${label}.referenceRouting.${kind}.pairs must exactly match the independently reviewed route.`,
+        );
+      }
+      requireExactIds(
+        Object.keys(route?.pairs ?? {}),
+        minorArcanaSuitIds,
+        `${label}.referenceRouting.${kind}.pairs`,
+      );
+      for (const suit of minorArcanaSuitIds) {
+        const ids = route?.pairs?.[suit];
+        if (
+          !Array.isArray(ids) ||
+          ids.length !== 2 ||
+          ids[0] !== `${suit}-ace` ||
+          ids.some(
+            (id) =>
+              !pilotIds.includes(id) || manifest.cards?.[id]?.suit !== suit,
+          ) ||
+          (kind === "numbered" &&
+            !/^\d+$/u.test(manifest.cards?.[ids?.[1]]?.rank ?? "")) ||
+          (kind === "court" &&
+            !courtRankIds.has(manifest.cards?.[ids?.[1]]?.rank))
+        ) {
+          errors.push(
+            `${label}.referenceRouting.${kind}.pairs.${suit} must bind Ace plus one same-suit ${kind} pilot.`,
+          );
+          continue;
+        }
+        for (const id of ids) routedIds.add(id);
+      }
+    }
+    for (const plannedId of plannedSuitAnchorIds) {
+      if (!routedIds.has(plannedId)) {
+        errors.push(
+          `${label}.referenceRouting must preserve planned anchor ${plannedId}.`,
+        );
+      }
+    }
+    const orderedRoutedIds = pilotIds.filter((id) => routedIds.has(id));
     requireExactIds(
       entry.promotedSuitAnchorIds,
-      [...plannedSuitAnchorIds],
+      orderedRoutedIds,
       `${label}.promotedSuitAnchorIds`,
     );
-    for (const cardId of plannedSuitAnchorIds) {
+    requireExactIds(
+      Object.keys(entry.assetSha256 ?? {}),
+      orderedRoutedIds,
+      `${label}.assetSha256`,
+    );
+    for (const cardId of orderedRoutedIds) {
       if (
         entry.assetSha256?.[cardId] !==
           approvals.records?.[cardId]?.assetSha256 ||
@@ -1649,6 +1898,149 @@ export function validateCardArtV3System(
         errors.push(
           `${label}.assetSha256.${cardId} must lock an approved promoted suit anchor.`,
         );
+      }
+    }
+    const expectedPilotAssetSha256 = {};
+    for (const cardId of pilotIds) {
+      const approval = approvals.records?.[cardId];
+      const generation = generationById.get(approval?.generationRecordId);
+      if (
+        approval?.status !== "approved" ||
+        typeof approval.assetSha256 !== "string" ||
+        approval.assetSha256 === "" ||
+        generation?.cardId !== cardId ||
+        generation.selectionStatus !== "selected" ||
+        generation.normalized?.assetSha256 !== approval.assetSha256
+      ) {
+        errors.push(
+          `${label}.pilotContactSheet requires an approved selected asset for ${cardId}.`,
+        );
+      }
+      expectedPilotAssetSha256[cardId] = approval?.assetSha256;
+    }
+    requireExactIds(
+      entry.pilotContactSheet?.cardIds,
+      pilotIds,
+      `${label}.pilotContactSheet.cardIds`,
+    );
+    if (
+      entry.pilotContactSheet?.assetMapSha256 !==
+      sha256(
+        stableStringify({
+          assetSha256: expectedPilotAssetSha256,
+          cardIds: pilotIds,
+        }),
+      )
+    ) {
+      errors.push(
+        `${label}.pilotContactSheet.assetMapSha256 must bind all 16 approved pilots.`,
+      );
+    }
+    if (
+      entry.pilotContactSheet?.assetMapSha256 !==
+      reviewedPilotContactSheetContract.assetMapSha256
+    ) {
+      errors.push(
+        `${label}.pilotContactSheet.assetMapSha256 must match the independently reviewed pilot map.`,
+      );
+    }
+    if (
+      stableStringify(entry.pilotContactSheet?.recipe) !==
+        stableStringify(pilotContactSheetRecipe) ||
+      entry.pilotContactSheet?.recipeFingerprintSha256 !==
+        sha256(stableStringify(pilotContactSheetRecipe)) ||
+      entry.pilotContactSheet?.recipeFingerprintSha256 !==
+        reviewedPilotContactSheetContract.recipeFingerprintSha256
+    ) {
+      errors.push(
+        `${label}.pilotContactSheet recipe must match the reviewed 4x4 and 140-pixel layouts.`,
+      );
+    }
+    for (const artifactId of ["full", "mobile"]) {
+      const artifact = entry.pilotContactSheet?.[artifactId];
+      const contract = reviewedPilotContactSheetContract[artifactId];
+      requireString(
+        artifact?.artifactPath,
+        `${label}.pilotContactSheet.${artifactId}.artifactPath`,
+      );
+      requireString(
+        artifact?.artifactSha256,
+        `${label}.pilotContactSheet.${artifactId}.artifactSha256`,
+      );
+      if (
+        artifact?.artifactPath !== contract.artifactPath ||
+        artifact?.artifactSha256 !== contract.artifactSha256
+      ) {
+        errors.push(
+          `${label}.pilotContactSheet.${artifactId} must match the reviewed artifact contract.`,
+        );
+      }
+      if (!isProjectRelativePath(artifact?.artifactPath)) {
+        errors.push(
+          `${label}.pilotContactSheet.${artifactId}.artifactPath must be project-relative.`,
+        );
+      } else {
+        const artifactPath = resolve(repositoryRoot, artifact.artifactPath);
+        if (!existsSync(artifactPath)) {
+          errors.push(
+            `${label}.pilotContactSheet.${artifactId}.artifactPath is missing.`,
+          );
+        } else if (
+          sha256(readFileSync(artifactPath)) !== artifact.artifactSha256
+        ) {
+          errors.push(
+            `${label}.pilotContactSheet.${artifactId}.artifactSha256 does not match.`,
+          );
+        } else {
+          const image = readJpegMetadata(readFileSync(artifactPath));
+          if (
+            image.width !== contract.width ||
+            image.height !== contract.height ||
+            image.components !== 3
+          ) {
+            errors.push(
+              `${label}.pilotContactSheet.${artifactId} must be the reviewed ${contract.width}x${contract.height} three-component JPEG layout.`,
+            );
+          }
+        }
+      }
+    }
+    if (
+      entry.pilotContactSheet?.full?.artifactPath ===
+      entry.pilotContactSheet?.mobile?.artifactPath
+    ) {
+      errors.push(
+        `${label}.pilotContactSheet full and mobile artifacts must be distinct.`,
+      );
+    }
+    const independentReviews = entry.pilotContactSheet?.independentReviews;
+    if (!Array.isArray(independentReviews) || independentReviews.length !== 3) {
+      errors.push(
+        `${label}.pilotContactSheet.independentReviews must contain exactly three reviews.`,
+      );
+    } else {
+      const reviewers = new Set();
+      for (const [reviewIndex, review] of independentReviews.entries()) {
+        const reviewLabel = `${label}.pilotContactSheet.independentReviews[${reviewIndex}]`;
+        requireString(review.reviewer, `${reviewLabel}.reviewer`);
+        requireString(review.scope, `${reviewLabel}.scope`);
+        if (!isCanonicalUtcTimestamp(review.reviewedAt)) {
+          errors.push(`${reviewLabel}.reviewedAt must be canonical UTC.`);
+        } else if (
+          isCanonicalUtcTimestamp(entry.reviewedAt) &&
+          Date.parse(review.reviewedAt) > Date.parse(entry.reviewedAt)
+        ) {
+          errors.push(
+            `${reviewLabel}.reviewedAt cannot follow the style freeze.`,
+          );
+        }
+        if (review.independent !== true || review.result !== "approved") {
+          errors.push(`${reviewLabel} must be independently approved.`);
+        }
+        if (reviewers.has(review.reviewer)) {
+          errors.push(`${reviewLabel}.reviewer must be unique.`);
+        }
+        reviewers.add(review.reviewer);
       }
     }
     for (const check of manifest.generationPlan.pilotGateChecks) {
@@ -1663,8 +2055,16 @@ export function validateCardArtV3System(
         assetSha256: entry.assetSha256,
         compositionRules: manifest.compositionRules,
         frame: manifest.frame,
+        pilotContactSheet: {
+          assetMapSha256: entry.pilotContactSheet?.assetMapSha256,
+          full: entry.pilotContactSheet?.full,
+          mobile: entry.pilotContactSheet?.mobile,
+          recipeFingerprintSha256:
+            entry.pilotContactSheet?.recipeFingerprintSha256,
+        },
         prompt: manifest.prompt,
         referencePolicy: manifest.referencePolicy,
+        referenceRouting: entry.referenceRouting,
         suitRules: manifest.suitRules,
       }),
     );
@@ -2271,6 +2671,49 @@ function getCard(manifest, cardId) {
   const card = manifest.cards?.[cardId];
   if (!card) throw new Error(`Unknown card id "${cardId}".`);
   return card;
+}
+
+export function getCardArtV3PostPilotReferenceRoute(
+  styleHistory,
+  card,
+  styleVersion = undefined,
+) {
+  if (!card || card.arcana !== "minor" || card.batch.startsWith("pilot-")) {
+    return null;
+  }
+  const entries = styleHistory.entries ?? [];
+  const entry =
+    styleVersion === undefined
+      ? entries.at(-1)
+      : entries.find(({ version }) => version === styleVersion);
+  if (!entry) {
+    if (styleVersion === undefined) return null;
+    throw new Error(`Unknown frozen style version "${styleVersion}".`);
+  }
+  const kind = courtRankIds.has(card.rank) ? "court" : "numbered";
+  const route = entry.referenceRouting?.[kind];
+  const commonInstruction = entry.referenceRouting?.commonInstruction;
+  const anchorIds = route?.pairs?.[card.suit];
+  if (
+    !Array.isArray(anchorIds) ||
+    anchorIds.length !== 2 ||
+    typeof commonInstruction !== "string" ||
+    commonInstruction.trim() === "" ||
+    typeof route?.instruction !== "string" ||
+    route.instruction.trim() === ""
+  ) {
+    throw new Error(
+      `Frozen ${kind} reference route is invalid for ${card.suit}.`,
+    );
+  }
+  return {
+    anchorIds: [...anchorIds],
+    commonInstruction,
+    instruction: `${commonInstruction} ${route.instruction}`,
+    kind,
+    styleFingerprintSha256: entry.styleFingerprintSha256,
+    styleVersion: entry.version,
+  };
 }
 
 function rankRuleKey(rank) {
