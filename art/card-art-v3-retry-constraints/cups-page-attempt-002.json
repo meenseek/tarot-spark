@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "cups-page",
+  "attemptNumber": 2,
+  "previousAttemptId": "cups-page-attempt-001",
+  "editSourceAttemptId": "cups-page-attempt-001",
+  "editSourcePath": "art/card-art-v3-raw/court-validation-a/cups-page-candidate-001-rejected.png",
+  "editSourceSha256": "aab9cbdfbbcfafab5b9cbd883e29c2dea642109bc877d3e38c2a51fb012bf21e",
+  "constraint": "Precision-edit rejected attempt-001 only. Preserve the maker's olive skin, short copper curls, facial identity, amused expression, eye line, green-and-cream clothing, standing pose, neck, shoulders, torso, both arms and legs, non-cup hand, the single natural fish, quiet quay, river, buildings, sky, warm reflected light, palette and gouache-and-ink texture. Make only three bounded corrections. First, replace the held chalice-shaped container with exactly one straight-sided, footless dusty-blue handled ceramic cup from the Cups Ace family, with a flat unstemmed base, one handle and one thin antique-gold rim; preserve its eye-level position, water, fish and the cup-side wrist and forearm, but locally redraw the cup hand as exactly one natural five-digit grip with the thumb at or through the single handle and four fingers supporting the cup body. Second, remove every terracotta pot or planter silhouette from the upper-left wall and lower-left foreground; reconstruct only those small areas as uninterrupted stone, trailing soil-rooted ivy and soil-rooted flowers with no container shape. Third, reduce the head and eyes by approximately fifteen to twenty percent and reconstruct only the newly exposed hair edge and background so the same character reads as a young maker with natural five-to-six-head human proportions, not a child or chibi figure; do not lengthen, shorten or move the neck, shoulders, torso, either arm, either leg or non-cup hand, and preserve face identity, curls, expression, gaze and clothing design. Add no second cup, goblet, bowl, mug, vase, pot, container, fish, person, text, symbol, glow or new prop. In the full image and at 140 pixels, the sole container is the one handled cup in the maker's hand, its flat footless geometry is unambiguous, the cup hand is natural and separate from the vessel, and the figure has natural young-maker proportions.",
+  "reason": "Attempt 001 passed the Page's curiosity, recurring identity, single fish, quay, pose, text and overall style review, but both independent reviewers found that the held stemmed goblet did not match the approved flat, footless Cups vessel family. One reviewer also found the roughly four-head figure too childlike, while the other found the upper-left terracotta planter to be a prohibited second vessel. This precision edit fixes all observable blockers while preserving the successful scene.",
+  "result": "approved",
+  "reviewedAt": "2026-08-05T09:38:22.000Z",
+  "reviewer": "Planck and Harvey (independent cup-family, container-count and anatomy precision-edit audit)"
+}
