@@ -1508,6 +1508,45 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "swords-10-attempt-002",
+      "attemptNumber": 2,
+      "batchId": "pilot-swords",
+      "cardId": "swords-10",
+      "cardSpecSha256": "a44bfa12c84736d05a2134a66835f39328e4830184d2b2fa15fb396fadae51ed",
+      "editSource": {
+        "attemptId": "swords-10-attempt-001",
+        "path": "art/card-art-v3-raw/pilot-swords/swords-10-candidate-001-rejected.png",
+        "sha256": "787be8464981fbad807b6d70bedc37e0123d37c3e1008b620afb93cb20d6d41e"
+      },
+      "effectivePromptSha256": "70f500e9e20be5f48d207bcdf38b0effa20c4d93d92e4280312a08d086e7598e",
+      "generatedAt": "2026-08-05T05:56:05.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": "swords-10-attempt-001",
+      "promptSha256": "6f129a52d2caf33a195b533094e3a270e8f552c68986f8b1a72957449782764a",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-swords/swords-10-candidate-002-rejected.png",
+      "rawOutputSha256": "f2fe69728c7be71b485abb7ec9b2921cad89e2728a65279252e22befe1197820",
+      "referenceSha256": {
+        "swords-10-attempt-001": "787be8464981fbad807b6d70bedc37e0123d37c3e1008b620afb93cb20d6d41e"
+      },
+      "regenerationReason": "Attempt 001 produced twelve complete swords as seven on the resting person's left and five on the right, while upper-left construction poles created extra weapon-shaped silhouettes. The otherwise approved safe resting scene can be retained by deleting the two isolated far-left swords and only the ambiguous construction wood.",
+      "retryConstraint": "Precision-edit only rejected attempt-001. Preserve the resting person, cloak, dawn, mountains, all stonework, tree and exactly ten retained swords. Remove exactly the two planted swords whose pommels are nearest the left frame edge: the far-left sword and the next sword immediately to its right. Remove each complete pommel, grip, crossguard, blade, point, ground contact, shadow and highlight. Reconstruct only their vacated areas as continuous rocky soil and sparse grass matching perspective, light and texture, with no line or shape resembling a blade. Retain the five other swords on the person's left and all five swords on the right. Do not move, redraw, resize, merge, hide, crop or alter any retained sword; keep every retained pommel, grip, crossguard, full blade and point separate and countable. Also remove only the upright wooden construction poles and their horizontal crossbars on the upper-left ruin, reconstructing bare broken stone, distant mountain and sky; preserve the real tree trunk and branches. Add no rack, pole, stake, tool, weapon, person, text or object. The result contains exactly ten swords in two groups of five, none touching the living resting person.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/swords-10-attempt-002.json",
+        "artifactSha256": "3c65b7da59e8d6cb333bafacb092250375d28757997af2f7f7b0eca833314c07",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T05:54:34.000Z",
+        "reviewer": "Planck and Harvey (independent exact-count and mobile-silhouette precision-delete audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }

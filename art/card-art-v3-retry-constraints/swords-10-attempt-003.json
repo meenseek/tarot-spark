@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "swords-10",
+  "attemptNumber": 3,
+  "previousAttemptId": "swords-10-attempt-002",
+  "editSourceAttemptId": "swords-10-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/pilot-swords/swords-10-candidate-002-rejected.png",
+  "editSourceSha256": "f2fe69728c7be71b485abb7ec9b2921cad89e2728a65279252e22befe1197820",
+  "constraint": "Precision-edit only rejected attempt-002. Preserve the resting person, cloak, dawn, tree, cleared upper-left ruin, landscape and all nine existing swords exactly. Add exactly one complete planted sword in the empty ground immediately to viewer-left of the current leftmost sword, continuing the left row with the same baseline, height, scale, plain round pommel, indigo grip, simple crossguard and straight double-edged steel blade. Match the spacing between existing left swords, leaving a continuous background gap around the new sword from pommel to point. Plant its point safely in bare rocky soil, fully outside the cloak and at least one sword width from the person. Do not touch, move, redraw, resize, merge, hide, crop or duplicate any existing sword; preserve every existing pommel, grip, crossguard, blade and point. The new sword must not overlap the tree, logs, ruin or frame. Reconstruct only its tiny ground contact and physically consistent shadow. Add no second sword, weapon, pole, stake, rack, tool, person, wound, text or object. The result contains exactly ten directly countable swords: five on the person's left and five on the right, none touching the living resting person.",
+  "reason": "Attempt 002 removed the ambiguous construction wood and preserved a safe resting scene, but it deleted three left swords instead of two, leaving four on the left and five on the right. Adding one isolated matching sword to the empty left end restores the required five-plus-five count without altering the nine approved swords.",
+  "result": "approved",
+  "reviewedAt": "2026-08-05T06:00:54.000Z",
+  "reviewer": "Planck and Harvey (independent exact-count and mobile-silhouette precision-add audit)"
+}
