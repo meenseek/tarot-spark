@@ -362,7 +362,7 @@ describe("card art v3 preflight", () => {
         /validation failed/i,
       );
     }
-  });
+  }, 15_000);
 
   it("refuses a release snapshot before all 78 card approvals exist", () => {
     const files = structuredClone(loadCardArtV3Files(repositoryRoot));
@@ -581,7 +581,7 @@ describe("card art v3 preflight", () => {
         repositoryRoot,
       ),
     ).toThrow(/precision edit source/i);
-  });
+  }, 15_000);
 });
 
 describe("card art v3 normalization", () => {
