@@ -1357,6 +1357,45 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "swords-5-attempt-003",
+      "attemptNumber": 3,
+      "batchId": "pilot-swords",
+      "cardId": "swords-5",
+      "cardSpecSha256": "dbfe7784e130c43608c173248685c5b84a7fab6418aabb290f92a917e4728fff",
+      "editSource": {
+        "attemptId": "swords-5-attempt-002",
+        "path": "art/card-art-v3-raw/pilot-swords/swords-5-candidate-002-rejected.png",
+        "sha256": "ffc5c90fcad01fa9ce3b25ca5cbed64e35bf0cad6f9abcfd09e86e72bd7a9963"
+      },
+      "effectivePromptSha256": "060b1d580a71d52b5a1019a8047451bcf29287c6dce14cb1eccb5b7bed30e5c6",
+      "generatedAt": "2026-08-05T05:29:03.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": "swords-5-attempt-002",
+      "promptSha256": "4eaf6dea75606990ea1ed851c4504bcd20321f226437bd2fc5599a38c8f72cc3",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-swords/swords-5-candidate-003-rejected.png",
+      "rawOutputSha256": "a8a0f4f04a80395df98ee210440db909db8b7662a0cf2d6b8a9be0497b75f229",
+      "referenceSha256": {
+        "swords-5-attempt-002": "ffc5c90fcad01fa9ce3b25ca5cbed64e35bf0cad6f9abcfd09e86e72bd7a9963"
+      },
+      "regenerationReason": "Attempt 002 fixed the five-sword count, phone-size separation and false belt weapons, but the middle central grip had no visible hand contact and appeared to float. This precision edit changes only the viewer-left hand so it visibly carries the left and middle grips while retaining the otherwise approved composition.",
+      "retryConstraint": "Edit rejected attempt-002 only. Preserve all else. Change only the central participant's viewer-left hand, wrist, sleeve-cuff edge and minimal coat pixels covered or revealed by that hand. Preserve all five swords unchanged. Redraw exactly one anatomically normal hand with one thumb and four fingers total, centered at natural scale between the left and middle central grips. Its single palm spans behind both grips only within the grip zone. The four fingers and thumb secure both grips, with at least one visible digit contacting each; do not create a separate finger set per grip. Both grips visibly enter the fist from above and exit below, proving neither floats. The hand may cover only a short middle grip area. Keep all pommels, upper and lower grip portions, crossguards, blades and points readable, and keep the background gap continuous below the hand to both points. Keep the viewer-right hand unchanged on the rightmost grip. Do not widen the hand or join, move, merge, cross, shorten, duplicate or add a sword. No extra, missing, duplicated or fused digit, detached hand or weapon-shaped prop. Show exactly five swords as three plus one plus one. Add no text or object.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/swords-5-attempt-003.json",
+        "artifactSha256": "5e0e9a967f75927082773f396337c0f72169d5f0b25ed880a7c6a547a5b2aeb8",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T05:26:08.000Z",
+        "reviewer": "Planck and Harvey (independent hand-anatomy and mobile-count constraint audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }

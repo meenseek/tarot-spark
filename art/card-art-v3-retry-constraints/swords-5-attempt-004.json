@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "cardId": "swords-5",
+  "attemptNumber": 4,
+  "previousAttemptId": "swords-5-attempt-003",
+  "constraint": "Regenerate from scratch. Show exactly three people and exactly five matching Swords-Ace-family swords: complete double-edged steel blades, plain crossguards and round pommels. No extra figure, weapon, tool, sheath or sword-like shadow; no wound, blood, injury or aggression. Lower center, place a waist-high wooden table with a dark indigo cloth mat. Exactly three complete swords lie parallel and diagonal across it, at least one blade width apart from pommel to point; none touches, crosses, overlaps, hides or crops another. Pommels face lower left and points upper right. The sober central person gathers these three after a resolved disagreement, never inspecting, selling, forging, displaying or presenting them. One natural hand closes around the middle grip while the table supports all three; the other rests empty on the table edge. In middle distance, one dissatisfied person walks left holding exactly one complete sword down, and one walks right holding exactly one complete sword down. Make all five countable at phone size as three plus one plus one. Use clearing storm, open highlands and no triumph. No rack, bundle, strap, scabbard, container, text or weapon motif; exact 5:7 crop.",
+  "reason": "Attempts 002 and 003 achieved an exact, phone-readable five-sword count but left the middle of three hand-carried swords visibly unsupported. A full reset moves the central three onto a physical table so their support, separation and ownership remain observable without requiring one hand to span multiple grips.",
+  "result": "approved",
+  "reviewedAt": "2026-08-05T05:35:31.000Z",
+  "reviewer": "Planck and Harvey (independent tarot-content and mobile-count reset audit)"
+}
