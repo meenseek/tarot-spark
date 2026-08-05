@@ -41,6 +41,326 @@
       "reviewedAt": "2026-08-04T15:14:05.000Z",
       "reviewer": "Planck (tarot visual) + Harvey (UX); Halley (pipeline)",
       "status": "approved"
+    },
+    "wands-ace": {
+      "assetSha256": "06ec809794cf36619af12a1a785dba5c7ae66cc179a0418d73fd5b468f66efcc",
+      "generationRecordId": "wands-ace-attempt-001",
+      "promotedSuitAnchor": true,
+      "promptSha256": "42b78e7990d6c327365a218fb1b5b6877a4e1cc40c7d88d1890350868601330e",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
+    },
+    "wands-5": {
+      "assetSha256": "7700a9f1efaf218e3ed79c2ccc4cc1ed5a6d3436770291b8af390b35ea1150a9",
+      "generationRecordId": "wands-5-attempt-002",
+      "promotedSuitAnchor": true,
+      "promptSha256": "710b2414f72a204765bc0f76524a361e8e2538f9ec7a45e66e9d9629ccb52a95",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
+    },
+    "wands-10": {
+      "assetSha256": "dd1290b0185788dd0e79e7ad68d257ddae6dbb2933334721d3e29096d3712204",
+      "generationRecordId": "wands-10-attempt-016",
+      "promotedSuitAnchor": false,
+      "promptSha256": "63d7722a8d85b8cf752f653aaf4282ed86e7b6a57516cf61eae6388284a613d1",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
+    },
+    "wands-page": {
+      "assetSha256": "f42030969f53ef0f2ef2f72f5814e44b0b9102ae5d0e8a1d71d3d1c5222435e1",
+      "generationRecordId": "wands-page-attempt-002",
+      "promotedSuitAnchor": true,
+      "promptSha256": "bb99bc14d5e9ee318eb9dfd873bb8306bc058c67c40c2e3277b9339cdd206767",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
+    },
+    "cups-ace": {
+      "assetSha256": "c3d6cdad3718941691d65540c07c2ca26f52ecd0c55a699e1bd6c8c8430d781b",
+      "generationRecordId": "cups-ace-attempt-001",
+      "promotedSuitAnchor": true,
+      "promptSha256": "e5b23941428afd3cc2f3c828e4508656f0284615d1b8768c13351f673182d596",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
+    },
+    "cups-5": {
+      "assetSha256": "b4a85d20bce5d7e14cef5cfed974d7c61c6577311dff61c2bf96f8ac447b31d6",
+      "generationRecordId": "cups-5-attempt-003",
+      "promotedSuitAnchor": false,
+      "promptSha256": "1af914bbbd7bba6448cd8e71e381af805fab681500ddcd0be12f79b346e448e3",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
+    },
+    "cups-10": {
+      "assetSha256": "b19bdfa9fbc48008a1052b5c525d83db5ebe64ba0431553983ebcf9a7a1efda1",
+      "generationRecordId": "cups-10-attempt-003",
+      "promotedSuitAnchor": true,
+      "promptSha256": "915028223a265c2aa360f8c986b48c49b8c7ee1e5fb9579ea46b94f98d62a362",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
+    },
+    "cups-knight": {
+      "assetSha256": "2b43be9e65ae87a76c011956f079db1d96d3d0bbe66c4fc326442ad103a760e1",
+      "generationRecordId": "cups-knight-attempt-002",
+      "promotedSuitAnchor": true,
+      "promptSha256": "b85847b57df96e21bf5ff14bf6a72db717dd1ad662ba6d77cf7eb5934b275d86",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
+    },
+    "swords-ace": {
+      "assetSha256": "35b00a8e89636b3c006c2035d9970ad0e8e52a8c284745316bcf36dfd7ff4625",
+      "generationRecordId": "swords-ace-attempt-002",
+      "promotedSuitAnchor": true,
+      "promptSha256": "5015d10d10cfec88cb9f2088dd40be119ecab68e6d3487a137961285e6966f59",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
+    },
+    "swords-5": {
+      "assetSha256": "78575cff5f86a7f51f6ce835c9eba90aafe3583107d92bdc97bcd5c4dbf279dc",
+      "generationRecordId": "swords-5-attempt-005",
+      "promotedSuitAnchor": true,
+      "promptSha256": "4eaf6dea75606990ea1ed851c4504bcd20321f226437bd2fc5599a38c8f72cc3",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
+    },
+    "swords-10": {
+      "assetSha256": "b462797553579b5a25ff3bb8ccf1d6c90c2eb9987bbd98be1d0c8c5bd51b0955",
+      "generationRecordId": "swords-10-attempt-003",
+      "promotedSuitAnchor": false,
+      "promptSha256": "6f129a52d2caf33a195b533094e3a270e8f552c68986f8b1a72957449782764a",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
+    },
+    "swords-queen": {
+      "assetSha256": "c1851ddb86c99d899115663bf2450a545b5561aa699d1051112f099d4ec032a8",
+      "generationRecordId": "swords-queen-attempt-001",
+      "promotedSuitAnchor": true,
+      "promptSha256": "19121d5169b399a20e13da4232c7d09d995ea7ff503e9a76f91033652b213197",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
+    },
+    "pentacles-ace": {
+      "assetSha256": "12cb7bace8664dd8357152e2684407855638162bffabdbbe3180cefc72bba20c",
+      "generationRecordId": "pentacles-ace-attempt-002",
+      "promotedSuitAnchor": true,
+      "promptSha256": "0d40668b9c47e27ea25f9197fa2608872b4c6b6485e40b0628a79ca4b2f7bfa5",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
+    },
+    "pentacles-5": {
+      "assetSha256": "2dd006c8006ff3a84022d0464711d6fd2aab8f80e80df7758382b8bee4296e81",
+      "generationRecordId": "pentacles-5-attempt-002",
+      "promotedSuitAnchor": false,
+      "promptSha256": "3a81cecd22418e28c9a3fd80f919b41466235bd3cf58c0287432958208328e4c",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
+    },
+    "pentacles-10": {
+      "assetSha256": "8822042ba8e7f0ec027cfb33672718747953c0f7a15c78f7b2915322530c61ff",
+      "generationRecordId": "pentacles-10-attempt-002",
+      "promotedSuitAnchor": true,
+      "promptSha256": "e8e2e017777d0ab931c9463248a46d47ee7b8c203e75655a05f087248cff18c2",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
+    },
+    "pentacles-king": {
+      "assetSha256": "579cf69bc3efd763efa0f04ed32f8715bf719670aa1231cbeaf5ffd64ec4ef67",
+      "generationRecordId": "pentacles-king-attempt-003",
+      "promotedSuitAnchor": true,
+      "promptSha256": "87d9eb24b0d65f0b67feb3f7b6f46f172159dcac70e461bff02fa532e9ba5aad",
+      "provenance": "generated-v3",
+      "qa": {
+        "anatomy": true,
+        "cardMeaning": true,
+        "countAccuracy": true,
+        "deckHarmony": true,
+        "fullSize": true,
+        "noUnintendedText": true,
+        "styleContinuity": true,
+        "thumbnail": true
+      },
+      "reviewedAt": "2026-08-05T08:32:37.000Z",
+      "reviewer": "Planck (tarot/content) + Harvey (mobile UX) + Halley (batch quality)",
+      "status": "approved"
     }
   }
 }

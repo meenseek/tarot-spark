@@ -10,7 +10,9 @@ import {
   buildCardArtV3PrecisionEditPrompt,
   buildCardArtV3Prompt,
   getCardArtV3AttemptRecord,
+  getCardArtV3CardSpecSha256,
   getCardArtV3ManifestSha256,
+  getCardArtV3PostPilotReferenceRoute,
   getCardArtV3PromptRecord,
   getCardArtV3ReviewedAttemptRecord,
   loadCardArtV3Files,
@@ -47,7 +49,7 @@ describe("card art v3 preflight", () => {
     const files = loadCardArtV3Files(repositoryRoot);
 
     expect(validateCardArtV3System(files, repositoryRoot)).toEqual({
-      approvedCount: 2,
+      approvedCount: 18,
       cardCount: 78,
       generationCount: 52,
       releaseCount: 0,
@@ -75,6 +77,163 @@ describe("card art v3 preflight", () => {
     expect(buildCardArtV3Prompt(files.manifest, "wands-ace")).toContain(
       "show exactly 1 wands suit object",
     );
+  });
+
+  it("routes numbered and court generation through distinct frozen two-anchor roles", () => {
+    const files = loadCardArtV3Files(repositoryRoot);
+    const numberedRoute = getCardArtV3PostPilotReferenceRoute(
+      files.styleHistory,
+      files.manifest.cards["wands-2"],
+    );
+    const numberedPrompt = buildCardArtV3Prompt(
+      files.manifest,
+      "wands-2",
+      numberedRoute,
+    );
+    const court = getCardArtV3PromptRecord(
+      files,
+      "swords-page",
+      repositoryRoot,
+    );
+
+    expect(numberedRoute).toMatchObject({
+      anchorIds: ["wands-ace", "wands-5"],
+      kind: "numbered",
+      styleVersion: "pilot-style-v1",
+    });
+    expect(numberedPrompt).toContain(
+      "Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition",
+    );
+    expect(numberedPrompt).toContain(
+      "Never copy its source count, count arrangement, grid, table, group composition",
+    );
+    expect(numberedPrompt).toContain(
+      "show exactly 2 wands suit objects; zero more and zero fewer",
+    );
+
+    expect(court.referenceRoute).toMatchObject({
+      anchorIds: ["swords-ace", "swords-queen"],
+      kind: "court",
+      styleVersion: "pilot-style-v1",
+    });
+    expect(court.referenced_image_paths).toEqual([
+      resolve(repositoryRoot, "public/cards/v3/swords-ace.jpg"),
+      resolve(repositoryRoot, "public/cards/v3/swords-queen.jpg"),
+    ]);
+    expect(court.prompt).toContain(
+      "Never copy the source rank, action, pose, movement, setting, garment or garment color",
+    );
+    expect(court.prompt).toContain(
+      "The target card's rank rule exclusively controls rank identity and action",
+    );
+    expect(court.prompt).toContain(
+      "identity means stable face, hair, skin and body traits only",
+    );
+  });
+
+  it("fails closed without a reviewed style route instead of falling back to planned anchors", () => {
+    const files = loadCardArtV3Files(repositoryRoot);
+    const route = getCardArtV3PostPilotReferenceRoute(
+      { entries: [] },
+      files.manifest.cards["wands-2"],
+    );
+
+    expect(route).toBeNull();
+  });
+
+  it("rejects route, fingerprint, contact-sheet and pilot asset-map drift", () => {
+    const mutations = [
+      (files) => {
+        files.styleHistory.entries[0].referenceRouting.numbered.pairs.wands = [
+          "wands-ace",
+          "wands-10",
+        ];
+      },
+      (files) => {
+        files.styleHistory.entries[0].referenceRouting.commonInstruction +=
+          " drift";
+      },
+      (files) => {
+        files.styleHistory.entries[0].styleFingerprintSha256 = "0".repeat(64);
+      },
+      (files) => {
+        files.styleHistory.entries[0].pilotContactSheet.full.artifactSha256 =
+          "0".repeat(64);
+      },
+      (files) => {
+        files.styleHistory.entries[0].pilotContactSheet.assetMapSha256 =
+          "0".repeat(64);
+      },
+      (files) => {
+        const cardPath = "public/cards/v3/wands-ace.jpg";
+        const cardSha256 = files.approvals.records["wands-ace"].assetSha256;
+        files.styleHistory.entries[0].pilotContactSheet.full = {
+          artifactPath: cardPath,
+          artifactSha256: cardSha256,
+        };
+        files.styleHistory.entries[0].pilotContactSheet.mobile = {
+          artifactPath: cardPath,
+          artifactSha256: cardSha256,
+        };
+      },
+    ];
+
+    for (const mutate of mutations) {
+      const files = structuredClone(loadCardArtV3Files(repositoryRoot));
+      mutate(files);
+      expect(() =>
+        validateCardArtV3System(files, repositoryRoot, null),
+      ).toThrow(/validation failed/i);
+    }
+  });
+
+  it("rejects a style freeze when any of the sixteen pilots lacks approval", () => {
+    const files = structuredClone(loadCardArtV3Files(repositoryRoot));
+    delete files.approvals.records["wands-10"];
+
+    expect(() => validateCardArtV3System(files, repositoryRoot, null)).toThrow(
+      /requires an approved selected asset for wands-10/i,
+    );
+  });
+
+  it("uses the latest style only for new prompts while preserving historical route hashes", () => {
+    const files = structuredClone(loadCardArtV3Files(repositoryRoot));
+    const v1Prompt = getCardArtV3PromptRecord(
+      files,
+      "wands-knight",
+      repositoryRoot,
+    );
+    const v2 = structuredClone(files.styleHistory.entries[0]);
+    v2.version = "pilot-style-v2";
+    v2.reviewedAt = "2026-08-05T08:51:39.000Z";
+    files.styleHistory.entries.push(v2);
+
+    expect(() =>
+      validateCardArtV3System(files, repositoryRoot, null),
+    ).not.toThrow();
+    const latestPrompt = getCardArtV3PromptRecord(
+      files,
+      "wands-knight",
+      repositoryRoot,
+    );
+    const historicalRoute = getCardArtV3PostPilotReferenceRoute(
+      files.styleHistory,
+      files.manifest.cards["wands-knight"],
+      "pilot-style-v1",
+    );
+
+    expect(latestPrompt.referenceRoute.styleVersion).toBe("pilot-style-v2");
+    expect(historicalRoute.styleVersion).toBe("pilot-style-v1");
+    expect(
+      getCardArtV3CardSpecSha256(
+        files.manifest,
+        "wands-knight",
+        historicalRoute,
+      ),
+    ).toBe(v1Prompt.cardSpecSha256);
+    expect(
+      buildCardArtV3Prompt(files.manifest, "wands-knight", historicalRoute),
+    ).toBe(v1Prompt.prompt);
   });
 
   it("binds a retry-only observable constraint to the exact effective prompt", () => {
@@ -367,7 +526,7 @@ describe("card art v3 preflight", () => {
     ).toThrow(/referenceSha256 must exactly match/i);
   }, 15_000);
 
-  it("opens pilots after both retouches and keeps post-pilot prompts closed", () => {
+  it("opens court validation after the reviewed pilot style freeze", () => {
     const files = loadCardArtV3Files(repositoryRoot);
 
     expect(() =>
@@ -375,7 +534,10 @@ describe("card art v3 preflight", () => {
     ).not.toThrow();
     expect(() =>
       getCardArtV3PromptRecord(files, "wands-knight", repositoryRoot),
-    ).toThrow(/all 16 pilots/i);
+    ).not.toThrow();
+    expect(() =>
+      getCardArtV3PromptRecord(files, "wands-2", repositoryRoot),
+    ).toThrow(/all 12 non-pilot court cards/i);
   });
 
   it("keeps every post-pilot generation stage closed until its prior review gate passes", () => {
@@ -383,10 +545,10 @@ describe("card art v3 preflight", () => {
 
     expect(() =>
       getCardArtV3PromptRecord(files, "swords-knight", repositoryRoot),
-    ).toThrow(/until all 16 pilots pass review/i);
+    ).not.toThrow();
     expect(() =>
       getCardArtV3PromptRecord(files, "death", repositoryRoot),
-    ).toThrow(/until all 16 pilots pass review/i);
+    ).toThrow(/until all 12 non-pilot court cards/i);
     expect(() =>
       getCardArtV3PromptRecord(files, "the-fool", repositoryRoot),
     ).toThrow(/must not be regenerated/i);
@@ -395,14 +557,17 @@ describe("card art v3 preflight", () => {
     ).not.toThrow();
   });
 
-  it("opens only retouches and the sixteen pilots at the current gate", () => {
+  it("opens only retouches, pilots and court validation at the current gate", () => {
     const files = loadCardArtV3Files(repositoryRoot);
     const currentlyOpenIds = new Set(
       Object.entries(files.manifest.cards)
         .filter(
           ([, card]) =>
             card.needsRetouch === true ||
-            files.manifest.generationPlan.pilotBatchIds.includes(card.batch),
+            files.manifest.generationPlan.pilotBatchIds.includes(card.batch) ||
+            files.manifest.generationPlan.courtValidationBatchIds.includes(
+              card.batch,
+            ),
         )
         .map(([cardId]) => cardId),
     );

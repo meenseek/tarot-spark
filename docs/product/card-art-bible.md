@@ -199,8 +199,8 @@ The enforced stage order is:
 2. Retouch and independently approve The Hermit and Temperance. Their original
    files may be used only as their own edit targets.
 3. Generate and independently approve the sixteen four-suit pilots.
-4. Promote exactly two approved pilot anchors per suit and lock a reviewed
-   style-history entry.
+4. Promote the independently reviewed pilot reference set and lock its
+   role-specific two-image routes in one style-history entry.
 5. Generate and approve the remaining twelve court cards in two six-card
    validation batches.
 6. Generate replacement Majors, new Majors, and numbered Minors in batches of
@@ -219,6 +219,34 @@ fingerprint. A release entry and `releaseState` cannot exist independently.
 Every stage stops on a failed count, anatomy, text, thumbnail identity, scene
 duplication, court-role, safety, or contact-sheet harmony check. A status string
 or an unvalidated style entry cannot open the next stage.
+
+### Frozen post-pilot reference routes
+
+The manifest's eight `plannedSuitAnchorIds` remain immutable evidence of the
+pre-review plan. The sixteen-card contact-sheet review found that one universal
+pair per suit was less stable than two role-specific pairs, so
+`pilot-style-v1` records the reviewed outcome without rewriting the manifest or
+the 52 earlier generation records.
+
+- Numbered cards use Ace plus a count-legibility pilot: Wands Ace + Five, Cups
+  Ace + Ten, Swords Ace + Five, and Pentacles Ace + Ten.
+- Court cards use Ace plus the suit's pilot court: Wands Page, Cups Knight,
+  Swords Queen, or Pentacles King.
+- Each generation still receives exactly two references. Reference 1 controls
+  only suit-object geometry/material, suit palette, and global rendering.
+  Reference 2 controls only multi-object legibility for numbered cards or
+  anatomy and observable court-action legibility for courts.
+- Neither reference may supply the target count, rank, cast, pose, action,
+  movement, setting, lighting layout, composition, garment, or garment color.
+  A matching recurring cast identity means stable face, hair, skin, and body
+  traits only. The target card manifest remains authoritative.
+
+The style entry binds all twelve promoted asset SHAs, both full-size and
+140-pixel contact sheets, the exact route instructions, three independent
+reviews, and the complete sixteen-pilot asset map. New prompts always use the
+latest style entry. Existing generation and approval records resolve their own
+stored style version, so a future append-only style entry cannot reinterpret
+historical provenance. There is no fallback to the pre-review planned pair.
 
 ## Review Gate
 
