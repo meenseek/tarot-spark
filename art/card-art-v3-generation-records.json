@@ -983,6 +983,54 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "cups-5-attempt-003",
+      "attemptNumber": 3,
+      "batchId": "pilot-cups",
+      "cardId": "cups-5",
+      "cardSpecSha256": "80598e6626c1f189c81be5fbf86ec50fc670569f0cf6617a0b2113645f08fc27",
+      "editSource": {
+        "attemptId": "cups-5-attempt-002",
+        "path": "art/card-art-v3-raw/pilot-cups/cups-5-candidate-002-rejected.png",
+        "sha256": "92ea6db2bdccbac270951e1bb17eadc377f61183d40c6f70d666992417f173ea"
+      },
+      "effectivePromptSha256": "30e8062d46a01e60226a613f7f3aa76ea22cdbd58e837b50ac00daef8223c82d",
+      "generatedAt": "2026-08-05T04:03:00.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 215110,
+        "assetPath": "public/cards/v3/cups-5.jpg",
+        "assetSha256": "b4a85d20bce5d7e14cef5cfed974d7c61c6577311dff61c2bf96f8ac447b31d6",
+        "cropPosition": "attention",
+        "inputSha256": "7b1578b31bff5604faa184a82960b9caf9553f449083bd2f0bafce3682b07af0",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": "cups-5-attempt-002",
+      "promptSha256": "1af914bbbd7bba6448cd8e71e381af805fab681500ddcd0be12f79b346e448e3",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-cups/cups-5-candidate-003.png",
+      "rawOutputSha256": "7b1578b31bff5604faa184a82960b9caf9553f449083bd2f0bafce3682b07af0",
+      "referenceSha256": {
+        "cups-5-attempt-002": "92ea6db2bdccbac270951e1bb17eadc377f61183d40c6f70d666992417f173ea"
+      },
+      "regenerationReason": "Attempt 002 corrected the cup family but overgenerated four spilled cups, producing six cups total. The lower-right spilled cup is isolated from every person and remaining cup, so deleting only it and its attached spill preserves the otherwise approved scene.",
+      "retryConstraint": "Precision-edit only the supplied rejected attempt-002. Remove exactly the spilled handled cup closest to the lower-right frame edge, including its complete blue ceramic body, dark interior, antique-gold rim, curved handle, contact shadow, and the water stream and splash emerging directly from it. Remove the entire continuous bright water trail attributable to that cup until it naturally dissolves into the ambient rain sheen; leave no orphan splash, pouring-shaped stream, gold arc, handle fragment, shadow, or cup-shaped remnant. Reconstruct only the vacated area as continuous rain-dark cobblestones with physically consistent wet reflections and rain. Preserve pixel-for-pixel as closely as possible the two upright handled cups and the other three spilled handled cups, their water, every person, face, hand, garment, the stone bridge, buildings, doorway, rain, lighting, crop, ink linework, and gouache texture. Do not add, move, resize, redraw, merge, hide or alter any remaining cup or introduce any cup-like or container-shaped object. After the edit the complete scene must contain exactly five handled cups: exactly three spilled and exactly two upright, all directly countable at phone size. Add no text or new object.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/cups-5-attempt-003.json",
+        "artifactSha256": "6d3157e04559a719ae399ffea93d239206f797f9827b0f6af6517a03d90d9580",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T04:00:58.000Z",
+        "reviewer": "Planck (independent tarot content precision-delete audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
     }
   ]
 }
