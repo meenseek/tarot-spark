@@ -2345,6 +2345,53 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "cups-queen-attempt-002",
+      "attemptNumber": 2,
+      "batchId": "court-validation-a",
+      "cardId": "cups-queen",
+      "cardSpecSha256": "37c3c1110bc5f07f1a5127c024723b797151989fd59094c0383b247b431aa9f1",
+      "editSource": {
+        "attemptId": "cups-queen-attempt-001",
+        "path": "art/card-art-v3-raw/court-validation-a/cups-queen-candidate-001-rejected.png",
+        "sha256": "f6b5ff442421453a5e871c51fe54b9a3d201012079e8f462f4935b539d4fb6fe"
+      },
+      "effectivePromptSha256": "1c55f4624be34df89fd2b9821ca8ee93b76a311cbf9b97abf981d00b7de5dbc1",
+      "generatedAt": "2026-08-05T09:58:31.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": "cups-queen-attempt-001",
+      "promptSha256": "45ce02649f96c53a9c9116c910b9ac7fb62d4b014b471c1784a1d3e0c79e4b0f",
+      "rawOutputPath": "art/card-art-v3-raw/court-validation-a/cups-queen-candidate-002-rejected.png",
+      "rawOutputSha256": "037e41a3db681c897d6aa4073947fa4c39f6edae7b83a99ba22497e303df5bca",
+      "referenceRoute": {
+        "anchorIds": ["cups-ace", "cups-knight"],
+        "commonInstruction": "Reference 1 is authoritative only for suit-object geometry and material, suit palette, and global ink-and-gouache rendering. Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition; the target card manifest is authoritative for all of them.",
+        "instruction": "Reference 1 is authoritative only for suit-object geometry and material, suit palette, and global ink-and-gouache rendering. Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition; the target card manifest is authoritative for all of them. Reference 2 demonstrates natural anatomy, rendering and observable court-action legibility grammar only. Never copy the source rank, action, pose, movement, setting, garment or garment color. The target card's rank rule exclusively controls rank identity and action. When cast IDs match, identity means stable face, hair, skin and body traits only; it never includes the source garment, color, pose, action or setting.",
+        "kind": "court",
+        "styleFingerprintSha256": "de14964035492c43fef87c69aec45fca34593fe5398eb4ff1f68284eca86b619",
+        "styleVersion": "pilot-style-v1"
+      },
+      "referenceSha256": {
+        "cups-queen-attempt-001": "f6b5ff442421453a5e871c51fe54b9a3d201012079e8f462f4935b539d4fb6fe"
+      },
+      "regenerationReason": "Attempt 001 passed identity, reciprocal listening action, equal seated height, exact container count, tide-pool setting, anatomy, text, symbolism and style review. Both independent reviewers found one blocker: the otherwise successful lidded blue cylinder had no visible loop handle and therefore read as a jar or canister rather than the deck's handled Cups object. This edit adds only the missing handle and necessary local finger contact.",
+      "retryConstraint": "Precision-edit rejected attempt-001 only. Preserve both seated people exactly: faces, hair, identity, expressions, direct eye contact, equal seated height, bodies, clothing except for the minimum adjacent sleeve-edge pixels explicitly allowed below, hands except for the minimum cup-side finger pixels explicitly allowed below, and every limb. Preserve the tide pool, coast, village, sky, small non-dominant sun, light, palette, composition and gouache-and-ink texture. Preserve the existing single dusty-blue cylindrical cup body, flat base, fitted lid, lid knob and thin antique-gold rim. Edit only the cup's viewer-right edge, the minimum adjacent sleeve-edge pixels strictly behind the new handle, the immediately adjacent bright-water gap and the minimum overlapping cup-side finger pixels. Add exactly one open C-loop ceramic handle attached at two points to the viewer-right side of the cup, matching its dusty-blue material and gold restraint, with one clean interior hole large and high-contrast enough to remain visibly open at 140 pixels. Locally move and reconstruct only that sleeve edge a few pixels inward so a continuous bright-water gap is visible through and around the loop; preserve the sleeve silhouette, trim and all other clothing outside this tiny patch. Keep the existing wrist, palm and forearm fixed; redraw only the touching fingers as one natural five-digit hold that supports the cup without fusing into or closing the handle hole. The other supporting hand remains unchanged. Do not alter the cup body, lid or count. Add no second handle, cup, container, prop, person, text, symbol, glow, crown, throne or star chart. In the full image and at 140 pixels, exactly one lidded handled cup is unmistakable, its single open loop is separate from sleeve and fingers, and the attentive reciprocal conversation remains the dominant action.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/cups-queen-attempt-002.json",
+        "artifactSha256": "75d2160d071dfaabdf08c163b2a5fd5d6a74b0aae076e1bf48f13bff387c89d6",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T09:55:58.000Z",
+        "reviewer": "Planck and Harvey (independent handled-cup geometry and mobile negative-space precision-edit audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }
