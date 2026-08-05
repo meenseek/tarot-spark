@@ -1172,6 +1172,50 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "cups-knight-attempt-002",
+      "attemptNumber": 2,
+      "batchId": "pilot-cups",
+      "cardId": "cups-knight",
+      "cardSpecSha256": "26d6dd521e60528dbc576c36db030d36e478e0f68516ad14d3bbcaa1db1e1f7e",
+      "effectivePromptSha256": "4424250b5f8622ff926106e71db8d1e31a10991c4ca201c0be7344977c0de004",
+      "generatedAt": "2026-08-05T04:37:08.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 265442,
+        "assetPath": "public/cards/v3/cups-knight.jpg",
+        "assetSha256": "2b43be9e65ae87a76c011956f079db1d96d3d0bbe66c4fc326442ad103a760e1",
+        "cropPosition": "attention",
+        "inputSha256": "636376c46471dddd590808a08c2b8bcaa1fa95e5bb8c99c9944f6b65d3bec52e",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": "cups-knight-attempt-001",
+      "promptSha256": "b85847b57df96e21bf5ff14bf6a72db717dd1ad662ba6d77cf7eb5934b275d86",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-cups/cups-knight-candidate-002.png",
+      "rawOutputSha256": "636376c46471dddd590808a08c2b8bcaa1fa95e5bb8c99c9944f6b65d3bec52e",
+      "referenceSha256": {
+        "the-chariot": "82705cc6d9127cb857eb16d35c3bfc3c96d26a44b7f2c2725cd0f57a9e834863",
+        "temperance": "0a1fa14508d37f991ef819f1ef077e56929087542ac96baca7f6578672b180f5"
+      },
+      "regenerationReason": "Attempt 001 used a handleless stemmed goblet and copied the Chariot's lighter young-traveler identity instead of the recurring deep-brown braided gardener, while the horse, direction and restrained movement otherwise passed review.",
+      "retryConstraint": "Regenerate the composition from scratch. The rider must be the recurring braided gardener: an adult with deep-brown skin, the same facial structure as the braided adult in The Lovers, and dense black braids reaching the waist with several small antique-gold beads. Dress them in dusty blue and ochre; do not use the Chariot's short curls, lighter skin, youthful face or plum cloak. Show exactly one cup in the entire scene: the approved deep dusty-blue cylindrical ceramic family with one clearly visible curved side handle, a thin antique-gold rim and a flat unstemmed base. Show no stem, foot, goblet, chalice or handleless cup and no other vessel. The gardener carries this one cup level in one hand while the other hand calmly controls simple reins. One pale horse walks carefully from right to left in clear side profile beside the river; use a natural four-legged walking gait, no gallop, chariot, raised staff or rescuer pose. Keep a river crossing ahead, medium distance, unobstructed cup, face and hands, exact 5:7 crop and no text.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/cups-knight-attempt-002.json",
+        "artifactSha256": "e4ae4fdcda0aaba2e656b48bd42405c1e9b7d9a5da8d6d7fa552caab0cef6af3",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T04:33:52.000Z",
+        "reviewer": "Planck and Harvey (independent court-identity and suit-continuity audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
     }
   ]
 }
