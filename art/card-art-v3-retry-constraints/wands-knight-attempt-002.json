@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-knight",
+  "attemptNumber": 2,
+  "previousAttemptId": "wands-knight-attempt-001",
+  "editSourceAttemptId": "wands-knight-attempt-001",
+  "editSourcePath": "art/card-art-v3-raw/court-validation-a/wands-knight-candidate-001-rejected.png",
+  "editSourceSha256": "9e8506608ac7d069ea57be0aae789ec625dc87dd174c25b761acc6e31631b14f",
+  "constraint": "Precision-edit rejected attempt-001 only. Preserve the sky, distant mountains, tiny camp, palette, gouache-and-ink texture, maker identity, clothing, exact one bark staff and single chestnut horse. Recompose the horse and rider as one coherent unit moving unequivocally from viewer-left toward viewer-right: head, chest and forelegs point right and the tail trails left. Rebuild only the necessary ground and path pixels so one sharp bend lies visibly ahead at viewer-right on their trajectory, never behind them. Show controlled deceleration before the turn: shorten and gather the horse's stride, place one forehoof close to the ground, seat the rider slightly back, draw both reins gently taut with one natural rein hand, and turn the rider's head and eyes toward the approaching bend. Reduce the dust plume and cloak flare. Preserve four natural horse legs, correct tack, natural rider limbs and exactly one five-digit staff hand. Keep the staff upright and clearly separate from horse and background. Add no second staff, pole-like prop, horse, chariot, flame, text or symbol. The mobile silhouette clearly reads left-to-right controlled motion and checking speed before a turn.",
+  "reason": "Attempt 001 passed count, cast, anatomy and style review, but both independent reviewers read the horse traveling right-to-left with the bend behind it and a brisk canter rather than the required left-to-right checked approach. This edit changes only observable direction and speed-control cues while preserving every successful element.",
+  "result": "approved",
+  "reviewedAt": "2026-08-05T09:00:06.000Z",
+  "reviewer": "Planck and Harvey (independent motion-contract and mobile-silhouette precision-edit audit)"
+}

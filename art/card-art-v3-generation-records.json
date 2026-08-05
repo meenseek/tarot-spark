@@ -1980,6 +1980,43 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "selected"
+    },
+    {
+      "id": "wands-knight-attempt-001",
+      "attemptNumber": 1,
+      "batchId": "court-validation-a",
+      "cardId": "wands-knight",
+      "cardSpecSha256": "0e9e6df6b22371a803cfa5f82952a6c22094a748d975d493c613c4e2e08afbc8",
+      "effectivePromptSha256": "44aeb694a3afd9eea3e626382abf5722f4f467a87b0abdc73f7c388c8dfed553",
+      "generatedAt": "2026-08-05T08:54:43.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": null,
+      "promptSha256": "44aeb694a3afd9eea3e626382abf5722f4f467a87b0abdc73f7c388c8dfed553",
+      "rawOutputPath": "art/card-art-v3-raw/court-validation-a/wands-knight-candidate-001-rejected.png",
+      "rawOutputSha256": "9e8506608ac7d069ea57be0aae789ec625dc87dd174c25b761acc6e31631b14f",
+      "referenceRoute": {
+        "anchorIds": ["wands-ace", "wands-page"],
+        "commonInstruction": "Reference 1 is authoritative only for suit-object geometry and material, suit palette, and global ink-and-gouache rendering. Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition; the target card manifest is authoritative for all of them.",
+        "instruction": "Reference 1 is authoritative only for suit-object geometry and material, suit palette, and global ink-and-gouache rendering. Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition; the target card manifest is authoritative for all of them. Reference 2 demonstrates natural anatomy, rendering and observable court-action legibility grammar only. Never copy the source rank, action, pose, movement, setting, garment or garment color. The target card's rank rule exclusively controls rank identity and action. When cast IDs match, identity means stable face, hair, skin and body traits only; it never includes the source garment, color, pose, action or setting.",
+        "kind": "court",
+        "styleFingerprintSha256": "de14964035492c43fef87c69aec45fca34593fe5398eb4ff1f68284eca86b619",
+        "styleVersion": "pilot-style-v1"
+      },
+      "referenceSha256": {
+        "wands-ace": "06ec809794cf36619af12a1a785dba5c7ae66cc179a0418d73fd5b468f66efcc",
+        "wands-page": "f42030969f53ef0f2ef2f72f5814e44b0b9102ae5d0e8a1d71d3d1c5222435e1"
+      },
+      "regenerationReason": null,
+      "retryConstraint": null,
+      "retryReview": null,
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }
