@@ -25,6 +25,7 @@ import {
   renderCardArtV3Retouch,
   retouchCardArtV3,
 } from "./card-art-v3-retouch.mjs";
+import { renderWands10LocalRepair } from "./card-art-v3-wands10-repair.mjs";
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
 const temporaryDirectories = [];
@@ -48,7 +49,7 @@ describe("card art v3 preflight", () => {
     expect(validateCardArtV3System(files, repositoryRoot)).toEqual({
       approvedCount: 2,
       cardCount: 78,
-      generationCount: 22,
+      generationCount: 23,
       releaseCount: 0,
     });
   });
@@ -270,6 +271,101 @@ describe("card art v3 preflight", () => {
       );
     }
   });
+
+  it("reproduces the reviewed Wands Ten local composite with zero changes outside its mask", async () => {
+    const rendered = await renderWands10LocalRepair();
+    const [storedMask, storedOutput, base] = await Promise.all([
+      readFile(
+        resolve(
+          repositoryRoot,
+          "art/card-art-v3-controls/wands-10-local-repair-mask-001.png",
+        ),
+      ),
+      readFile(
+        resolve(
+          repositoryRoot,
+          "art/card-art-v3-raw/pilot-wands/wands-10-candidate-016.png",
+        ),
+      ),
+      sharp(
+        resolve(
+          repositoryRoot,
+          "art/card-art-v3-raw/pilot-wands/wands-10-candidate-014-rejected.png",
+        ),
+      )
+        .removeAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true }),
+    ]);
+    expect(rendered.maskPng.equals(storedMask)).toBe(true);
+    expect(rendered.outputPng.equals(storedOutput)).toBe(true);
+    expect(rendered.changedInside).toBe(57212);
+    expect(rendered.changedOutside).toBe(0);
+
+    const [mask, output] = await Promise.all([
+      sharp(storedMask).greyscale().raw().toBuffer({ resolveWithObject: true }),
+      sharp(storedOutput)
+        .removeAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true }),
+    ]);
+    let changedInside = 0;
+    let changedOutside = 0;
+    for (let pixel = 0; pixel < mask.data.length; pixel += 1) {
+      const offset = pixel * 3;
+      const changed = [0, 1, 2].some(
+        (channel) =>
+          base.data[offset + channel] !== output.data[offset + channel],
+      );
+      if (!changed) continue;
+      if (mask.data[pixel] === 0) changedOutside += 1;
+      else changedInside += 1;
+    }
+    expect(changedInside).toBe(57212);
+    expect(changedOutside).toBe(0);
+  }, 15_000);
+
+  it("keeps deterministic local repair provenance separate from ImageGen retries", () => {
+    const files = loadCardArtV3Files(repositoryRoot);
+    const record = files.generationRecords.records.find(
+      ({ id }) => id === "wands-10-attempt-016",
+    );
+    expect(record.generator).toEqual({
+      mode: "deterministic-local-composite",
+      tool: "Sharp",
+      toolVersion: "0.34.5",
+    });
+    expect(record.promptSha256).toBeNull();
+    expect(record.effectivePromptSha256).toBeNull();
+    expect(record.retryConstraint).toBeNull();
+    expect(record.retryReview).toBeNull();
+
+    const forgedMask = structuredClone(files);
+    forgedMask.generationRecords.records.find(
+      ({ id }) => id === "wands-10-attempt-016",
+    ).repair.mask.sha256 = "0".repeat(64);
+    expect(() => validateCardArtV3System(forgedMask, repositoryRoot)).toThrow(
+      /repair\.mask|repair recipe|referenceSha256/i,
+    );
+
+    const forgedPrompt = structuredClone(files);
+    forgedPrompt.generationRecords.records.find(
+      ({ id }) => id === "wands-10-attempt-016",
+    ).promptSha256 = files.generationRecords.records.find(
+      ({ id }) => id === "wands-10-attempt-015",
+    ).promptSha256;
+    expect(() => validateCardArtV3System(forgedPrompt, repositoryRoot)).toThrow(
+      /prompt and retry fields must all be null/i,
+    );
+
+    const missingRecipeReference = structuredClone(files);
+    delete missingRecipeReference.generationRecords.records.find(
+      ({ id }) => id === "wands-10-attempt-016",
+    ).referenceSha256["wands-10-local-repair-001"];
+    expect(() =>
+      validateCardArtV3System(missingRecipeReference, repositoryRoot),
+    ).toThrow(/referenceSha256 must exactly match/i);
+  }, 15_000);
 
   it("opens pilots after both retouches and keeps post-pilot prompts closed", () => {
     const files = loadCardArtV3Files(repositoryRoot);
