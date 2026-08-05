@@ -728,6 +728,45 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "wands-10-attempt-014",
+      "attemptNumber": 14,
+      "batchId": "pilot-wands",
+      "cardId": "wands-10",
+      "cardSpecSha256": "7e827d502328555db13cb3eee32d0803a00b16e7d16dfbce977b6caf2d291c12",
+      "editSource": {
+        "attemptId": "wands-10-attempt-013",
+        "path": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-013-rejected.png",
+        "sha256": "53880171902106ce05052346c927875ef452bf6aa3813e6ec45c89d2fb6ffc8a"
+      },
+      "effectivePromptSha256": "dd4c885cc0e818b5d7620025990992c194e3c1312a4f8e9fdbf45e23c8e38d02",
+      "generatedAt": "2026-08-05T03:10:03.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": "wands-10-attempt-013",
+      "promptSha256": "63d7722a8d85b8cf752f653aaf4282ed86e7b6a57516cf61eae6388284a613d1",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-wands/wands-10-candidate-014-rejected.png",
+      "rawOutputSha256": "f3b8f786790b85bb557af404300ae06f65ad93b004384eb3d588e15141fd7843",
+      "referenceSha256": {
+        "wands-10-attempt-013": "53880171902106ce05052346c927875ef452bf6aa3813e6ec45c89d2fb6ffc8a"
+      },
+      "regenerationReason": "Attempt 013 removed three rows instead of the requested two and produced a clean, uniformly spaced nine-staff bundle. Adding one isolated top row at the existing pitch, with only the two rope tops extended to secure it, is the smallest observable edit that yields a coherent ten-staff bundle without rebuilding the successful scene.",
+      "retryConstraint": "Precision-edit only the supplied rejected attempt-013. The source bundle contains exactly nine uniformly spaced horizontal staffs. Preserve all nine staffs pixel-for-pixel. Add exactly one new complete staff one existing row pitch above the current top row, parallel to it and with the same left and right endpoints, diameter, rounded caps, perspective, bark material, linework, lighting, and gouache texture. Keep a clear sky gap equal to the existing inter-row gaps. Extend only the upper ends of both existing vertical rope bands upward by one row pitch so both bands cross in front of the new staff and hold all ten as one bundle. Preserve each band's width, material, x-position, lower pixels, parallel alignment, and the existing rope-to-shoulder harness connection. Do not move, resize, redraw, merge, split, or duplicate any source staff. After the edit show exactly ten distinct left caps, ten corresponding horizontal rows, and ten distinct right ends. Reconstruct only minimal sky at the new staff and rope edges. Preserve both people, every face and hand, clothing, stone building, doorway, landscape, crop, palette, lighting, ink, and gouache. Change no unrelated pixel. Add no other wood, text, marker, or object.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/wands-10-attempt-014.json",
+        "artifactSha256": "7f75b032c01001eca59646801e67d4b3abbf6aabad74d03d2505b4ca22b7e9fe",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T03:07:08.000Z",
+        "reviewer": "Planck (independent tarot content add-one-row audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }
