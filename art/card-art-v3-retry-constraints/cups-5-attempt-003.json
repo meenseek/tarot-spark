@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "cups-5",
+  "attemptNumber": 3,
+  "previousAttemptId": "cups-5-attempt-002",
+  "editSourceAttemptId": "cups-5-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/pilot-cups/cups-5-candidate-002-rejected.png",
+  "editSourceSha256": "92ea6db2bdccbac270951e1bb17eadc377f61183d40c6f70d666992417f173ea",
+  "constraint": "Precision-edit only the supplied rejected attempt-002. Remove exactly the spilled handled cup closest to the lower-right frame edge, including its complete blue ceramic body, dark interior, antique-gold rim, curved handle, contact shadow, and the water stream and splash emerging directly from it. Remove the entire continuous bright water trail attributable to that cup until it naturally dissolves into the ambient rain sheen; leave no orphan splash, pouring-shaped stream, gold arc, handle fragment, shadow, or cup-shaped remnant. Reconstruct only the vacated area as continuous rain-dark cobblestones with physically consistent wet reflections and rain. Preserve pixel-for-pixel as closely as possible the two upright handled cups and the other three spilled handled cups, their water, every person, face, hand, garment, the stone bridge, buildings, doorway, rain, lighting, crop, ink linework, and gouache texture. Do not add, move, resize, redraw, merge, hide or alter any remaining cup or introduce any cup-like or container-shaped object. After the edit the complete scene must contain exactly five handled cups: exactly three spilled and exactly two upright, all directly countable at phone size. Add no text or new object.",
+  "reason": "Attempt 002 corrected the cup family but overgenerated four spilled cups, producing six cups total. The lower-right spilled cup is isolated from every person and remaining cup, so deleting only it and its attached spill preserves the otherwise approved scene.",
+  "result": "approved",
+  "reviewedAt": "2026-08-05T04:00:58.000Z",
+  "reviewer": "Planck (independent tarot content precision-delete audit)"
+}
