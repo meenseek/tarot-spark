@@ -2392,6 +2392,62 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "cups-queen-attempt-003",
+      "attemptNumber": 3,
+      "batchId": "court-validation-a",
+      "cardId": "cups-queen",
+      "cardSpecSha256": "37c3c1110bc5f07f1a5127c024723b797151989fd59094c0383b247b431aa9f1",
+      "editSource": {
+        "attemptId": "cups-queen-attempt-002",
+        "path": "art/card-art-v3-raw/court-validation-a/cups-queen-candidate-002-rejected.png",
+        "sha256": "037e41a3db681c897d6aa4073947fa4c39f6edae7b83a99ba22497e303df5bca"
+      },
+      "effectivePromptSha256": "74a6237d9010fcfe87233f027e632178b475c11f28665402d83e1d9fd27e5959",
+      "generatedAt": "2026-08-05T10:09:03.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 235082,
+        "assetPath": "public/cards/v3/cups-queen.jpg",
+        "assetSha256": "79cd9bccb358a238af98c362bb75b8f44788e3d1e21767114390467ab44f7f22",
+        "cropPosition": "attention",
+        "inputSha256": "6018f55c1e3d4ade31ca17e3ef1ddc63126548b2e827a9557f52bd90eaba73ca",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": "cups-queen-attempt-002",
+      "promptSha256": "45ce02649f96c53a9c9116c910b9ac7fb62d4b014b471c1784a1d3e0c79e4b0f",
+      "rawOutputPath": "art/card-art-v3-raw/court-validation-a/cups-queen-candidate-003.png",
+      "rawOutputSha256": "6018f55c1e3d4ade31ca17e3ef1ddc63126548b2e827a9557f52bd90eaba73ca",
+      "referenceRoute": {
+        "anchorIds": ["cups-ace", "cups-knight"],
+        "commonInstruction": "Reference 1 is authoritative only for suit-object geometry and material, suit palette, and global ink-and-gouache rendering. Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition; the target card manifest is authoritative for all of them.",
+        "instruction": "Reference 1 is authoritative only for suit-object geometry and material, suit palette, and global ink-and-gouache rendering. Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition; the target card manifest is authoritative for all of them. Reference 2 demonstrates natural anatomy, rendering and observable court-action legibility grammar only. Never copy the source rank, action, pose, movement, setting, garment or garment color. The target card's rank rule exclusively controls rank identity and action. When cast IDs match, identity means stable face, hair, skin and body traits only; it never includes the source garment, color, pose, action or setting.",
+        "kind": "court",
+        "styleFingerprintSha256": "de14964035492c43fef87c69aec45fca34593fe5398eb4ff1f68284eca86b619",
+        "styleVersion": "pilot-style-v1"
+      },
+      "referenceSha256": {
+        "cups-queen-attempt-002": "037e41a3db681c897d6aa4073947fa4c39f6edae7b83a99ba22497e303df5bca"
+      },
+      "regenerationReason": "Attempt 002 added the correct single C-loop and preserved every other approved element, but both independent reviewers found that finger and sleeve pixels still filled the aperture and touched the outer loop. At mobile size the handle collapsed into a dark-gold protrusion or sleeve ornament. This second precision edit preserves the successful handle geometry and clears only the negative space required for unambiguous mobile legibility.",
+      "retryConstraint": "Precision-edit rejected attempt-002 only. Preserve every pixel outside the cup's existing viewer-right handle, the handle aperture, the touching finger edges, the sleeve edge directly behind the handle and the immediately adjacent water. Preserve both people, faces, identity, expressions, eye contact, equal seated height, bodies, all limbs, clothing outside that tiny sleeve-edge patch, tide pool, coast, village, sky, sun, light, palette, composition and texture. Preserve the exact existing single dusty-blue cup body, flat base, fitted lid, lid knob, thin antique-gold rim and single C-loop handle geometry. Do not add, remove, enlarge, duplicate or reshape the cup, lid or handle. Clear the existing handle aperture completely: locally reroute any finger edge that crosses behind or fills the loop so those fingers form a natural five-digit supporting hold on the lower-right cup body below the handle's lower attachment, while keeping the wrist, palm, forearm and opposite supporting hand fixed. Move and reconstruct only the sleeve edge directly behind the loop inward, then paint continuous bright reflected water through the entire open aperture and as a crescent around the loop's viewer-right outer edge. At 140 pixels the water clearance must remain at least two to three pixels thick through the aperture and around the outer-right edge, approximately one full handle-hole width in the source image. The loop must be visibly separate from every finger, sleeve and trim line. Add no second handle, cup, container, prop, text, mark, symbol, glow or person. The final full image and 140-pixel view show exactly one unmistakably open handled lidded cup and preserve the attentive reciprocal conversation unchanged.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/cups-queen-attempt-003.json",
+        "artifactSha256": "e2a7b4012f323ccba8a69aadfb7235c688eafe012d6ebbbe67a32d1e9a4452d5",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T10:06:16.000Z",
+        "reviewer": "Planck and Harvey (independent mobile handle-aperture and hand-clearance precision-edit audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
     }
   ]
 }
