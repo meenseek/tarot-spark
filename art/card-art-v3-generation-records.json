@@ -2017,6 +2017,62 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "wands-knight-attempt-002",
+      "attemptNumber": 2,
+      "batchId": "court-validation-a",
+      "cardId": "wands-knight",
+      "cardSpecSha256": "0e9e6df6b22371a803cfa5f82952a6c22094a748d975d493c613c4e2e08afbc8",
+      "editSource": {
+        "attemptId": "wands-knight-attempt-001",
+        "path": "art/card-art-v3-raw/court-validation-a/wands-knight-candidate-001-rejected.png",
+        "sha256": "9e8506608ac7d069ea57be0aae789ec625dc87dd174c25b761acc6e31631b14f"
+      },
+      "effectivePromptSha256": "7462dda6367983b9d1a30cb50875ae7be7ddf538864dfa0c0478145a38fabbcf",
+      "generatedAt": "2026-08-05T09:01:57.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 283285,
+        "assetPath": "public/cards/v3/wands-knight.jpg",
+        "assetSha256": "8e00a488561923762722d5e67b45b75c7c7cbca459939de9ba379e4fcee3eade",
+        "cropPosition": "attention",
+        "inputSha256": "b826c08479d935868db586a51094ef871980e4baf7c92b7b98b757b547bbbadb",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": "wands-knight-attempt-001",
+      "promptSha256": "44aeb694a3afd9eea3e626382abf5722f4f467a87b0abdc73f7c388c8dfed553",
+      "rawOutputPath": "art/card-art-v3-raw/court-validation-a/wands-knight-candidate-002.png",
+      "rawOutputSha256": "b826c08479d935868db586a51094ef871980e4baf7c92b7b98b757b547bbbadb",
+      "referenceRoute": {
+        "anchorIds": ["wands-ace", "wands-page"],
+        "commonInstruction": "Reference 1 is authoritative only for suit-object geometry and material, suit palette, and global ink-and-gouache rendering. Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition; the target card manifest is authoritative for all of them.",
+        "instruction": "Reference 1 is authoritative only for suit-object geometry and material, suit palette, and global ink-and-gouache rendering. Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition; the target card manifest is authoritative for all of them. Reference 2 demonstrates natural anatomy, rendering and observable court-action legibility grammar only. Never copy the source rank, action, pose, movement, setting, garment or garment color. The target card's rank rule exclusively controls rank identity and action. When cast IDs match, identity means stable face, hair, skin and body traits only; it never includes the source garment, color, pose, action or setting.",
+        "kind": "court",
+        "styleFingerprintSha256": "de14964035492c43fef87c69aec45fca34593fe5398eb4ff1f68284eca86b619",
+        "styleVersion": "pilot-style-v1"
+      },
+      "referenceSha256": {
+        "wands-knight-attempt-001": "9e8506608ac7d069ea57be0aae789ec625dc87dd174c25b761acc6e31631b14f"
+      },
+      "regenerationReason": "Attempt 001 passed count, cast, anatomy and style review, but both independent reviewers read the horse traveling right-to-left with the bend behind it and a brisk canter rather than the required left-to-right checked approach. This edit changes only observable direction and speed-control cues while preserving every successful element.",
+      "retryConstraint": "Precision-edit rejected attempt-001 only. Preserve the sky, distant mountains, tiny camp, palette, gouache-and-ink texture, maker identity, clothing, exact one bark staff and single chestnut horse. Recompose the horse and rider as one coherent unit moving unequivocally from viewer-left toward viewer-right: head, chest and forelegs point right and the tail trails left. Rebuild only the necessary ground and path pixels so one sharp bend lies visibly ahead at viewer-right on their trajectory, never behind them. Show controlled deceleration before the turn: shorten and gather the horse's stride, place one forehoof close to the ground, seat the rider slightly back, draw both reins gently taut with one natural rein hand, and turn the rider's head and eyes toward the approaching bend. Reduce the dust plume and cloak flare. Preserve four natural horse legs, correct tack, natural rider limbs and exactly one five-digit staff hand. Keep the staff upright and clearly separate from horse and background. Add no second staff, pole-like prop, horse, chariot, flame, text or symbol. The mobile silhouette clearly reads left-to-right controlled motion and checking speed before a turn.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/wands-knight-attempt-002.json",
+        "artifactSha256": "c14d3333e23089a5c5acbca76e72231a4c5762f4ba8153a435a0651864530d16",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T09:00:06.000Z",
+        "reviewer": "Planck and Harvey (independent motion-contract and mobile-silhouette precision-edit audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
     }
   ]
 }
