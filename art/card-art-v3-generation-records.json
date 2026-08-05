@@ -1662,6 +1662,54 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "pentacles-ace-attempt-002",
+      "attemptNumber": 2,
+      "batchId": "pilot-pentacles",
+      "cardId": "pentacles-ace",
+      "cardSpecSha256": "32af0ceca18790135bfb7dd94406c921171ea59942122be0b717a8568cbd8767",
+      "editSource": {
+        "attemptId": "pentacles-ace-attempt-001",
+        "path": "art/card-art-v3-raw/pilot-pentacles/pentacles-ace-candidate-001-rejected.png",
+        "sha256": "815cce988da1e9f015ef0e453621ae2189e54f46b3a392402e94f4086aa01fce"
+      },
+      "effectivePromptSha256": "c26984f2f806efc5c8808c4110b9e3acd5e96f57eba4a855e8d8d0e37b99586d",
+      "generatedAt": "2026-08-05T06:35:15.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 258418,
+        "assetPath": "public/cards/v3/pentacles-ace.jpg",
+        "assetSha256": "12cb7bace8664dd8357152e2684407855638162bffabdbbe3180cefc72bba20c",
+        "cropPosition": "attention",
+        "inputSha256": "05739668ab1eba21497cf682eda7cbd9d9a6f449932c22a0d1fe1004b6fe34f6",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": "pentacles-ace-attempt-001",
+      "promptSha256": "0d40668b9c47e27ea25f9197fa2608872b4c6b6485e40b0628a79ca4b2f7bfa5",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-pentacles/pentacles-ace-candidate-002.png",
+      "rawOutputSha256": "05739668ab1eba21497cf682eda7cbd9d9a6f449932c22a0d1fe1004b6fe34f6",
+      "referenceSha256": {
+        "pentacles-ace-attempt-001": "815cce988da1e9f015ef0e453621ae2189e54f46b3a392402e94f4086aa01fce"
+      },
+      "regenerationReason": "Attempt 001 achieved the exact one-disk count, natural placement gesture and garden scene, but the disk read as an all-brass coin, medallion or plate rather than the frozen wood-and-brass suit object. A material-only edit preserves the approved composition while establishing the correct anchor family.",
+      "retryConstraint": "Precision-edit only rejected attempt-001. Preserve every person, hand, finger, garment, garden, soil, gate, ledge, background object, crop, light, ink and gouache. Edit only the single foreground pentacle disk's face, rim and material highlights. Preserve its exact outer diameter, thickness, tilt, position, grounding shadow and both hands' safe edge contact. Replace the all-metal face with one clearly matte warm dark walnut wood field showing visible irregular natural wood grain across the full center. Brass may appear only as one thin outer edge band and one thin flush-inlaid five-point mark centered in the wood. Remove the broad gold center, inner concentric rings, medallion relief, plate lip and coin-like sheen. Keep the wood visibly dominant by area and low-gloss; keep brass narrow, muted and antique. The five-point mark is one continuous simple inlay with no second star, circle, letters, numerals or decoration. Do not add, duplicate, move, resize or crop the disk; add no coin, plate, button, round prop, text or object. The complete scene contains exactly one unmistakable wood-and-brass pentacle craft disk, directly readable at phone size.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/pentacles-ace-attempt-002.json",
+        "artifactSha256": "0cb45abc190bc95e3540754e8c578d2718c396ebdf716132943eea961dc4233e",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T06:33:23.000Z",
+        "reviewer": "Planck and Harvey (independent material-identity and mobile-anchor precision-edit audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
     }
   ]
 }
