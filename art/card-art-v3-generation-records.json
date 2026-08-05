@@ -1396,6 +1396,41 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "swords-5-attempt-004",
+      "attemptNumber": 4,
+      "batchId": "pilot-swords",
+      "cardId": "swords-5",
+      "cardSpecSha256": "dbfe7784e130c43608c173248685c5b84a7fab6418aabb290f92a917e4728fff",
+      "effectivePromptSha256": "90e4951e7dfe852e4933564d4e055674dd53c0bc75ad6682245c9ef37b0266e6",
+      "generatedAt": "2026-08-05T05:37:26.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": "swords-5-attempt-003",
+      "promptSha256": "4eaf6dea75606990ea1ed851c4504bcd20321f226437bd2fc5599a38c8f72cc3",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-swords/swords-5-candidate-004-rejected.png",
+      "rawOutputSha256": "6c6f3daa122e32c1c91ed046d18a16927281ea10ec469bf0be6b8f85cd3e18f7",
+      "referenceSha256": {
+        "strength": "200272b5c855b8fb9f35426c7bdee43ad5fabb9fab0cce4b591957760a466776",
+        "the-chariot": "82705cc6d9127cb857eb16d35c3bfc3c96d26a44b7f2c2725cd0f57a9e834863"
+      },
+      "regenerationReason": "Attempts 002 and 003 achieved an exact, phone-readable five-sword count but left the middle of three hand-carried swords visibly unsupported. A full reset moves the central three onto a physical table so their support, separation and ownership remain observable without requiring one hand to span multiple grips.",
+      "retryConstraint": "Regenerate from scratch. Show exactly three people and exactly five matching Swords-Ace-family swords: complete double-edged steel blades, plain crossguards and round pommels. No extra figure, weapon, tool, sheath or sword-like shadow; no wound, blood, injury or aggression. Lower center, place a waist-high wooden table with a dark indigo cloth mat. Exactly three complete swords lie parallel and diagonal across it, at least one blade width apart from pommel to point; none touches, crosses, overlaps, hides or crops another. Pommels face lower left and points upper right. The sober central person gathers these three after a resolved disagreement, never inspecting, selling, forging, displaying or presenting them. One natural hand closes around the middle grip while the table supports all three; the other rests empty on the table edge. In middle distance, one dissatisfied person walks left holding exactly one complete sword down, and one walks right holding exactly one complete sword down. Make all five countable at phone size as three plus one plus one. Use clearing storm, open highlands and no triumph. No rack, bundle, strap, scabbard, container, text or weapon motif; exact 5:7 crop.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/swords-5-attempt-004.json",
+        "artifactSha256": "efb917f21354d7c955a57111895be503e5533a34ad11c55c364fced76c9ccae2",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T05:35:31.000Z",
+        "reviewer": "Planck and Harvey (independent tarot-content and mobile-count reset audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }
