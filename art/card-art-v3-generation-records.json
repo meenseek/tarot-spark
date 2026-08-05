@@ -948,6 +948,41 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "cups-5-attempt-002",
+      "attemptNumber": 2,
+      "batchId": "pilot-cups",
+      "cardId": "cups-5",
+      "cardSpecSha256": "80598e6626c1f189c81be5fbf86ec50fc670569f0cf6617a0b2113645f08fc27",
+      "effectivePromptSha256": "e30f9a527938e60c4fabaf5fb68e5503bad1a3e86817f51d1b30d084e7c856c9",
+      "generatedAt": "2026-08-05T03:57:40.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": "cups-5-attempt-001",
+      "promptSha256": "1af914bbbd7bba6448cd8e71e381af805fab681500ddcd0be12f79b346e448e3",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-cups/cups-5-candidate-002-rejected.png",
+      "rawOutputSha256": "92ea6db2bdccbac270951e1bb17eadc377f61183d40c6f70d666992417f173ea",
+      "referenceSha256": {
+        "the-hermit": "69a98136ac1781cccab0e0bc8ce68b8fc2a0d072d4ae48d89df844bbe0a860bb",
+        "the-lovers": "a7d13cc70299827e4972d67aeb57d768d441a709e468ff5f0a2703a57618e488"
+      },
+      "regenerationReason": "Attempt 001 contained the correct three-spilled and two-upright count, but all five suit objects were handleless stemmed goblets rather than the approved handled ceramic cup family, and a flowerpot introduced an extra vessel silhouette.",
+      "retryConstraint": "Regenerate the composition from scratch. Every one of exactly five cups must belong to the same handled ceramic family: a deep dusty-blue cylindrical cup body, one clearly visible curved side handle physically attached to that body, a thin antique-gold rim, and a flat unstemmed base. Show no stem, pedestal, foot, goblet, chalice or handleless cup. Arrange exactly three of these handled cups tipped over in the foreground with spilled water, and exactly two upright behind the grieving figure within sight; keep all five complete silhouettes directly countable at phone size. Add no flowerpot, bowl, vase, jar, bucket or other container-shaped prop anywhere. Preserve the rain-dark courtyard, grieving posture, dry stone bridge toward warm shelter, restrained emotion, 5:7 crop, and no text.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/cups-5-attempt-002.json",
+        "artifactSha256": "a8f661e563e8ab02b446e176269c2b65571c3381b4dfc8092a83e602e538af8f",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T03:55:19.000Z",
+        "reviewer": "Planck (independent tarot content object-continuity audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }
