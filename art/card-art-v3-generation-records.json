@@ -2213,6 +2213,44 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "selected"
+    },
+    {
+      "id": "cups-page-attempt-001",
+      "attemptNumber": 1,
+      "batchId": "court-validation-a",
+      "cardId": "cups-page",
+      "cardSpecSha256": "8929dfef123cd2703c41c72fc93e12e749f80883e0875db4d73edc9e8b8f1d1f",
+      "editSource": null,
+      "effectivePromptSha256": "0578900456311d4d32fd16e45fc841ff9c752e9bb17141cde9a73727716c995d",
+      "generatedAt": "2026-08-05T09:28:35.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "previousAttemptId": null,
+      "promptSha256": "0578900456311d4d32fd16e45fc841ff9c752e9bb17141cde9a73727716c995d",
+      "rawOutputPath": "art/card-art-v3-raw/court-validation-a/cups-page-candidate-001-rejected.png",
+      "rawOutputSha256": "aab9cbdfbbcfafab5b9cbd883e29c2dea642109bc877d3e38c2a51fb012bf21e",
+      "referenceRoute": {
+        "anchorIds": ["cups-ace", "cups-knight"],
+        "commonInstruction": "Reference 1 is authoritative only for suit-object geometry and material, suit palette, and global ink-and-gouache rendering. Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition; the target card manifest is authoritative for all of them.",
+        "instruction": "Reference 1 is authoritative only for suit-object geometry and material, suit palette, and global ink-and-gouache rendering. Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition; the target card manifest is authoritative for all of them. Reference 2 demonstrates natural anatomy, rendering and observable court-action legibility grammar only. Never copy the source rank, action, pose, movement, setting, garment or garment color. The target card's rank rule exclusively controls rank identity and action. When cast IDs match, identity means stable face, hair, skin and body traits only; it never includes the source garment, color, pose, action or setting.",
+        "kind": "court",
+        "styleFingerprintSha256": "de14964035492c43fef87c69aec45fca34593fe5398eb4ff1f68284eca86b619",
+        "styleVersion": "pilot-style-v1"
+      },
+      "referenceSha256": {
+        "cups-ace": "c3d6cdad3718941691d65540c07c2ca26f52ecd0c55a699e1bd6c8c8430d781b",
+        "cups-knight": "2b43be9e65ae87a76c011956f079db1d96d3d0bbe66c4fc326442ad103a760e1"
+      },
+      "regenerationReason": null,
+      "retryConstraint": null,
+      "retryReview": null,
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "rejected"
     }
   ]
 }
