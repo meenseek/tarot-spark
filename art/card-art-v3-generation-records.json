@@ -1431,6 +1431,54 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "swords-5-attempt-005",
+      "attemptNumber": 5,
+      "batchId": "pilot-swords",
+      "cardId": "swords-5",
+      "cardSpecSha256": "dbfe7784e130c43608c173248685c5b84a7fab6418aabb290f92a917e4728fff",
+      "editSource": {
+        "attemptId": "swords-5-attempt-004",
+        "path": "art/card-art-v3-raw/pilot-swords/swords-5-candidate-004-rejected.png",
+        "sha256": "6c6f3daa122e32c1c91ed046d18a16927281ea10ec469bf0be6b8f85cd3e18f7"
+      },
+      "effectivePromptSha256": "9365f776c5fee8e2fab6f0a3078a828f244b678f9d357c5ef525dcc337ab9ff5",
+      "generatedAt": "2026-08-05T05:43:47.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 189651,
+        "assetPath": "public/cards/v3/swords-5.jpg",
+        "assetSha256": "78575cff5f86a7f51f6ce835c9eba90aafe3583107d92bdc97bcd5c4dbf279dc",
+        "cropPosition": "attention",
+        "inputSha256": "fc7b1c4e7a419f6a812f969f436bdebf0c094a799f0284b1726e04f636452f25",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": "swords-5-attempt-004",
+      "promptSha256": "4eaf6dea75606990ea1ed851c4504bcd20321f226437bd2fc5599a38c8f72cc3",
+      "rawOutputPath": "art/card-art-v3-raw/pilot-swords/swords-5-candidate-005.png",
+      "rawOutputSha256": "fc7b1c4e7a419f6a812f969f436bdebf0c094a799f0284b1726e04f636452f25",
+      "referenceSha256": {
+        "swords-5-attempt-004": "6c6f3daa122e32c1c91ed046d18a16927281ea10ec469bf0be6b8f85cd3e18f7"
+      },
+      "regenerationReason": "Attempt 004 solved the count, separation, support and mobile composition, but the central viewer-left hand grasped the sharp middle of the left table sword. This precision edit moves only that hand to an empty wooden edge and restores the untouched supported sword geometry.",
+      "retryConstraint": "Precision-edit only rejected attempt-004. Preserve the scene and all five swords exactly. Edit only the central participant's viewer-left forearm, sleeve cuff, hand, and minimal mat or table pixels covered or revealed by them. Remove that hand and every finger from the left table sword's blade. Reconstruct the complete blade underneath as one continuous straight double-edged steel blade matching its untouched sections. Redraw the forearm angled toward viewer-left and exactly one natural five-digit hand resting palm-down on the exposed upper-left wooden table edge outside the indigo mat. Keep the hand, fingers, sleeve and forearm at least one full hand width from all three table swords. No body part or garment may touch, cross, hide or interrupt a sword. The viewer-right hand remains unchanged and empty on the table edge; the table alone supports the three separated swords. Preserve their positions, gaps, pommels, crossguards, full blades and points, both walking participants and their swords, faces, landscape, crop, light, ink and gouache. No extra or fused digit, detached limb, added weapon, text or object. The result still has exactly five swords as three plus one plus one.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/swords-5-attempt-005.json",
+        "artifactSha256": "6e79f53768fdded52a893d0edb46eeb6ea771b011404a2822dd2f042f798c69b",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T05:42:27.000Z",
+        "reviewer": "Planck and Harvey (independent hand-safety and mobile-count precision-edit audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
     }
   ]
 }
