@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import sharp from "sharp";
@@ -23,6 +23,10 @@ import {
   normalizeCardArtV3,
 } from "./card-art-v3-normalize.mjs";
 import {
+  cardArtV3CourtContactSheetRecipe,
+  renderCardArtV3CourtContactSheet,
+} from "./card-art-v3-contact-sheet.mjs";
+import {
   cardArtV3RetouchRecipe,
   renderCardArtV3Retouch,
   retouchCardArtV3,
@@ -33,14 +37,269 @@ const repositoryRoot = resolve(import.meta.dirname, "..");
 const temporaryDirectories = [];
 const temporaryFiles = [];
 
+function loadHistoricalCardArtV3Files() {
+  const files = structuredClone(loadCardArtV3Files(repositoryRoot));
+  files.supersessions.entries = [];
+  files.replacementGates.entries = [];
+  return files;
+}
+
+function stableStringifyForTest(value) {
+  if (Array.isArray(value)) {
+    return `[${value.map(stableStringifyForTest).join(",")}]`;
+  }
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value)
+      .sort()
+      .map(
+        (key) => `${JSON.stringify(key)}:${stableStringifyForTest(value[key])}`,
+      )
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function sha256StableForTest(value) {
+  return createHash("sha256")
+    .update(stableStringifyForTest(value))
+    .digest("hex");
+}
+
+function supersessionDecisionPayload(entry) {
+  return {
+    independentReviews: entry.independentReviews,
+    reason: entry.reason,
+    replacementContract: entry.replacementContract,
+    result: entry.result,
+    reviewEvidence: {
+      assetMapSha256: entry.reviewEvidence.assetMapSha256,
+      blocker: entry.reviewEvidence.blocker,
+      cardIds: entry.reviewEvidence.cardIds,
+      attemptIds: entry.reviewEvidence.attemptIds,
+      full: entry.reviewEvidence.full,
+      mobile: entry.reviewEvidence.mobile,
+      recipeFingerprintSha256: entry.reviewEvidence.recipeFingerprintSha256,
+    },
+    status: entry.status,
+    supersededAt: entry.supersededAt,
+  };
+}
+
+async function appendTemporaryCupsPageReplacement(files) {
+  const existing = files.generationRecords.records.find(
+    ({ id }) => id === "cups-page-attempt-003",
+  );
+  if (existing) return existing;
+  const fixtureLockPath = resolve(
+    repositoryRoot,
+    "art/.cups-page-attempt-003-test.lock",
+  );
+  let locked = false;
+  for (let attempt = 0; attempt < 300; attempt += 1) {
+    try {
+      await mkdir(fixtureLockPath);
+      temporaryDirectories.push(fixtureLockPath);
+      locked = true;
+      break;
+    } catch (error) {
+      if (error.code !== "EEXIST") throw error;
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+    }
+  }
+  if (!locked) {
+    throw new Error("Timed out waiting for the Cups Page ledger fixture lock.");
+  }
+  const rawOutputPath =
+    "art/card-art-v3-raw/court-validation-a/cups-page-candidate-003.png";
+  const normalizedAssetPath =
+    "art/card-art-v3-reviews/.cups-page-attempt-003-test.jpg";
+  const rawAbsolutePath = resolve(repositoryRoot, rawOutputPath);
+  const normalizedAbsolutePath = resolve(repositoryRoot, normalizedAssetPath);
+  temporaryFiles.push(rawAbsolutePath, normalizedAbsolutePath);
+  const sourcePath = resolve(
+    repositoryRoot,
+    "art/card-art-v3-raw/court-validation-a/cups-page-candidate-002.png",
+  );
+  const rawBuffer = await sharp(sourcePath)
+    .modulate({ brightness: 1.002, saturation: 1.01 })
+    .png({ compressionLevel: 9 })
+    .toBuffer();
+  await writeFile(rawAbsolutePath, rawBuffer, { flag: "wx" });
+  const normalized = await normalizeCardArtV3({
+    inputPath: rawAbsolutePath,
+    outputPath: normalizedAbsolutePath,
+  });
+  const factory = getCardArtV3ReviewedAttemptRecord(
+    files,
+    "cups-page",
+    "art/card-art-v3-retry-constraints/cups-page-attempt-003.json",
+    repositoryRoot,
+  );
+  const record = {
+    id: "cups-page-attempt-003",
+    attemptNumber: 3,
+    batchId: "court-validation-a",
+    cardId: "cups-page",
+    cardSpecSha256: factory.cardSpecSha256,
+    controlReference: factory.controlReference,
+    editSource: factory.editSource,
+    effectivePromptSha256: factory.effectivePromptSha256,
+    generatedAt: "2026-08-06T09:40:00.000Z",
+    generator: files.manifest.generator,
+    manifestSha256: factory.manifestSha256,
+    normalized: {
+      assetBytes: normalized.finalBytes,
+      assetPath: normalizedAssetPath,
+      assetSha256: normalized.finalSha256,
+      cropPosition: normalized.cropPosition,
+      inputSha256: normalized.inputSha256,
+      recipeFingerprintSha256: normalized.recipeFingerprintSha256,
+      recipeId: normalized.recipeId,
+    },
+    previousAttemptId: factory.previousAttemptId,
+    promptSha256: factory.promptSha256,
+    rawOutputPath,
+    rawOutputSha256: createHash("sha256").update(rawBuffer).digest("hex"),
+    referenceRoute: factory.referenceRoute,
+    referenceSha256: factory.referenceSha256,
+    regenerationReason: factory.regenerationReason,
+    retryConstraint: factory.retryConstraint,
+    retryReview: factory.retryReview,
+    retouchRecipeDefinitionSha256: null,
+    retouchRecipeSha256: null,
+    retouchSourceSha256: null,
+    selectionStatus: "selected",
+  };
+  files.generationRecords.records.push(record);
+  return record;
+}
+
+async function appendTemporaryPassingReplacementGate(files) {
+  const existing = files.replacementGates.entries.find(
+    ({ id }) => id === "court-validation-a-cups-page-replacement-001",
+  );
+  if (existing) return existing;
+  const cardIds = [
+    "wands-knight",
+    "wands-queen",
+    "wands-king",
+    "cups-page",
+    "cups-queen",
+    "cups-king",
+  ];
+  const attempts = cardIds.map((cardId) =>
+    files.generationRecords.records
+      .filter(
+        (record) =>
+          record.cardId === cardId && record.selectionStatus === "selected",
+      )
+      .at(-1),
+  );
+  const sourcePaths = attempts.map((attempt) =>
+    resolve(repositoryRoot, attempt.normalized.assetPath),
+  );
+  const fullPath = resolve(
+    repositoryRoot,
+    "art/card-art-v3-reviews/court-validation-a-contact-sheet-v2.jpg",
+  );
+  const mobilePath = resolve(
+    repositoryRoot,
+    "art/card-art-v3-reviews/court-validation-a-contact-sheet-mobile-v2.jpg",
+  );
+  temporaryFiles.push(fullPath, mobilePath);
+  const rendered = await renderCardArtV3CourtContactSheet({
+    fullOutputPath: fullPath,
+    mobileOutputPath: mobilePath,
+    sourcePaths,
+    write: true,
+  });
+  const assetSha256 = Object.fromEntries(
+    attempts.map((attempt) => [attempt.cardId, attempt.normalized.assetSha256]),
+  );
+  const attemptIds = attempts.map(({ id }) => id);
+  const reviewEvidence = {
+    cardIds,
+    attemptIds,
+    assetSha256,
+    assetMapSha256: sha256StableForTest({
+      assetSha256,
+      attemptIds,
+      cardIds,
+    }),
+    recipe: cardArtV3CourtContactSheetRecipe,
+    recipeFingerprintSha256: rendered.recipeFingerprintSha256,
+    full: {
+      path: "art/card-art-v3-reviews/court-validation-a-contact-sheet-v2.jpg",
+      sha256: rendered.full.sha256,
+      bytes: rendered.full.bytes,
+      width: rendered.full.width,
+      height: rendered.full.height,
+    },
+    mobile: {
+      path: "art/card-art-v3-reviews/court-validation-a-contact-sheet-mobile-v2.jpg",
+      sha256: rendered.mobile.sha256,
+      bytes: rendered.mobile.bytes,
+      width: rendered.mobile.width,
+      height: rendered.mobile.height,
+    },
+  };
+  const independentReviews = [
+    {
+      reviewerId: "tarot-content-review",
+      reviewer: "Planck",
+      scope: "tarot meaning and recurring-cast correction",
+      independent: true,
+      result: "approved",
+      reviewedAt: "2026-08-06T09:49:00.000Z",
+    },
+    {
+      reviewerId: "ux-test-review",
+      reviewer: "Harvey",
+      scope: "mobile legibility and contact-sheet UX",
+      independent: true,
+      result: "approved",
+      reviewedAt: "2026-08-06T09:49:00.000Z",
+    },
+    {
+      reviewerId: "final-plan-review",
+      reviewer: "Halley",
+      scope: "adversarial batch freeze and expansion readiness",
+      independent: true,
+      result: "approved",
+      reviewedAt: "2026-08-06T09:49:00.000Z",
+    },
+  ];
+  const gate = {
+    id: "court-validation-a-cups-page-replacement-001",
+    supersessionId: "cups-page-attempt-002-batch-supersession-001",
+    replacementAttemptId: "cups-page-attempt-003",
+    status: "passed",
+    result: "approved",
+    reviewedAt: "2026-08-06T09:50:00.000Z",
+    reviewEvidence,
+    independentReviews,
+  };
+  gate.decisionFingerprintSha256 = sha256StableForTest({
+    independentReviews: gate.independentReviews,
+    replacementAttemptId: gate.replacementAttemptId,
+    result: gate.result,
+    reviewEvidence: gate.reviewEvidence,
+    reviewedAt: gate.reviewedAt,
+    status: gate.status,
+    supersessionId: gate.supersessionId,
+  });
+  files.replacementGates.entries.push(gate);
+  return gate;
+}
+
 afterEach(async () => {
+  await Promise.all(
+    temporaryFiles.splice(0).map((path) => rm(path, { force: true })),
+  );
   await Promise.all(
     temporaryDirectories
       .splice(0)
       .map((path) => rm(path, { force: true, recursive: true })),
-  );
-  await Promise.all(
-    temporaryFiles.splice(0).map((path) => rm(path, { force: true })),
   );
 });
 
@@ -57,7 +316,7 @@ describe("card art v3 preflight", () => {
   });
 
   it("builds a deterministic retouch prompt from the reviewed manifest and frozen source", () => {
-    const files = loadCardArtV3Files(repositoryRoot);
+    const files = loadHistoricalCardArtV3Files();
     const first = getCardArtV3PromptRecord(files, "the-hermit", repositoryRoot);
     const second = getCardArtV3PromptRecord(
       files,
@@ -80,7 +339,7 @@ describe("card art v3 preflight", () => {
   });
 
   it("routes numbered and court generation through distinct frozen two-anchor roles", () => {
-    const files = loadCardArtV3Files(repositoryRoot);
+    const files = loadHistoricalCardArtV3Files();
     const numberedRoute = getCardArtV3PostPilotReferenceRoute(
       files.styleHistory,
       files.manifest.cards["wands-2"],
@@ -197,7 +456,7 @@ describe("card art v3 preflight", () => {
   });
 
   it("uses the latest style only for new prompts while preserving historical route hashes", () => {
-    const files = structuredClone(loadCardArtV3Files(repositoryRoot));
+    const files = loadHistoricalCardArtV3Files();
     const v1Prompt = getCardArtV3PromptRecord(
       files,
       "wands-knight",
@@ -237,7 +496,7 @@ describe("card art v3 preflight", () => {
   });
 
   it("binds a retry-only observable constraint to the exact effective prompt", () => {
-    const files = loadCardArtV3Files(repositoryRoot);
+    const files = loadHistoricalCardArtV3Files();
     const base = getCardArtV3AttemptRecord(files, "wands-10");
     const retryConstraint =
       "Keep the store yard distant and closed; show no additional pole-like object anywhere outside the ten carried staffs.";
@@ -258,14 +517,14 @@ describe("card art v3 preflight", () => {
 
   it("prints only the reviewed effective retry prompt through the canonical CLI", () => {
     const artifactPath =
-      "art/card-art-v3-retry-constraints/wands-10-attempt-004.json";
+      "art/card-art-v3-retry-constraints/cups-page-attempt-003.json";
     const output = execFileSync(
       process.execPath,
       [
         "--import=tsx",
         "scripts/card-art-v3.mjs",
         "--card",
-        "wands-10",
+        "cups-page",
         "--retry-constraint-file",
         artifactPath,
         "--json",
@@ -274,21 +533,23 @@ describe("card art v3 preflight", () => {
     );
     const record = JSON.parse(output);
 
-    expect(record.attemptNumber).toBe(4);
-    expect(record.previousAttemptId).toBe("wands-10-attempt-003");
+    expect(record.attemptNumber).toBe(3);
+    expect(record.previousAttemptId).toBe("cups-page-attempt-002");
+    expect(record.editSource?.attemptId).toBe("cups-page-attempt-002");
     expect(record.effectivePrompt).toContain(
-      "RETRY CONSTRAINT — PRESERVE EVERY BASE CONTRACT ABOVE",
+      "Change only the Page character's hair pigment",
     );
     expect(record.effectivePromptSha256).not.toBe(record.promptSha256);
     expect(record.retryReview).toMatchObject({
       artifactPath,
       result: "approved",
-      reviewer: "Planck (independent tarot content static audit)",
+      reviewer:
+        "Planck (independent tarot meaning and recurring-cast correction review)",
     });
   });
 
   it("binds a precision edit to one immutable rejected source and the exact short edit prompt", () => {
-    const files = loadCardArtV3Files(repositoryRoot);
+    const files = loadHistoricalCardArtV3Files();
     const artifactPath =
       "art/card-art-v3-retry-constraints/wands-10-attempt-007.json";
     const record = getCardArtV3ReviewedAttemptRecord(
@@ -318,7 +579,7 @@ describe("card art v3 preflight", () => {
   });
 
   it("binds a reviewed geometry control as the second immutable precision-edit input", () => {
-    const files = loadCardArtV3Files(repositoryRoot);
+    const files = loadHistoricalCardArtV3Files();
     const record = getCardArtV3ReviewedAttemptRecord(
       files,
       "wands-10",
@@ -346,7 +607,7 @@ describe("card art v3 preflight", () => {
   });
 
   it("binds the approved horizontal ten-row control to attempt 012", () => {
-    const files = loadCardArtV3Files(repositoryRoot);
+    const files = loadHistoricalCardArtV3Files();
     const record = getCardArtV3ReviewedAttemptRecord(
       files,
       "wands-10",
@@ -527,7 +788,7 @@ describe("card art v3 preflight", () => {
   }, 15_000);
 
   it("opens court validation after the reviewed pilot style freeze", () => {
-    const files = loadCardArtV3Files(repositoryRoot);
+    const files = loadHistoricalCardArtV3Files();
 
     expect(() =>
       getCardArtV3PromptRecord(files, "wands-ace", repositoryRoot),
@@ -541,7 +802,7 @@ describe("card art v3 preflight", () => {
   });
 
   it("keeps every post-pilot generation stage closed until its prior review gate passes", () => {
-    const files = loadCardArtV3Files(repositoryRoot);
+    const files = loadHistoricalCardArtV3Files();
 
     expect(() =>
       getCardArtV3PromptRecord(files, "swords-knight", repositoryRoot),
@@ -558,7 +819,7 @@ describe("card art v3 preflight", () => {
   });
 
   it("opens only retouches, pilots and court validation at the current gate", () => {
-    const files = loadCardArtV3Files(repositoryRoot);
+    const files = loadHistoricalCardArtV3Files();
     const currentlyOpenIds = new Set(
       Object.entries(files.manifest.cards)
         .filter(
@@ -685,12 +946,291 @@ describe("card art v3 preflight", () => {
       legacyAudit: files.legacyAudit,
       releaseHistory: { entries: [{ version: "frozen-release" }] },
       styleHistory: { entries: [{ version: "frozen-style" }] },
+      supersessions: { entries: [{ id: "frozen-supersession" }] },
     };
 
     expect(() =>
       validateCardArtV3System(files, repositoryRoot, baseline),
     ).toThrow(/immutable baseline|immutable once committed/i);
   });
+
+  it("preserves a selected attempt through a hashed supersession archive and rejected batch gate", () => {
+    const files = loadCardArtV3Files(repositoryRoot);
+    const supersession = files.supersessions.entries[0];
+    const selected = files.generationRecords.records.find(
+      ({ id }) => id === supersession.attemptId,
+    );
+
+    expect(selected.selectionStatus).toBe("selected");
+    expect(supersession).toMatchObject({
+      cardId: "cups-page",
+      result: "rejected",
+      status: "superseded",
+    });
+    expect(supersession.archive.sha256).toBe(selected.normalized.assetSha256);
+    expect(() => validateCardArtV3System(files, repositoryRoot)).not.toThrow();
+  });
+
+  it("rejects supersession archive, contact-sheet, review and approval drift", () => {
+    const mutations = [
+      (files) => {
+        files.supersessions.entries[0].archive.sha256 = "0".repeat(64);
+      },
+      (files) => {
+        files.supersessions.entries[0].reviewEvidence.mobile.sha256 =
+          "0".repeat(64);
+      },
+      (files) => {
+        files.supersessions.entries[0].independentReviews =
+          files.supersessions.entries[0].independentReviews.map((review) => ({
+            ...review,
+            result: "approved",
+          }));
+      },
+      (files) => {
+        files.approvals.records["cups-page"] = {
+          status: "approved",
+        };
+      },
+    ];
+
+    for (const mutate of mutations) {
+      const files = structuredClone(loadCardArtV3Files(repositoryRoot));
+      mutate(files);
+      expect(() =>
+        validateCardArtV3System(files, repositoryRoot, null),
+      ).toThrow(/validation failed/i);
+    }
+  });
+
+  it("closes every unreviewed generation path except the exact bounded replacement", () => {
+    const files = loadCardArtV3Files(repositoryRoot);
+
+    expect(() =>
+      getCardArtV3PromptRecord(files, "cups-page", repositoryRoot),
+    ).toThrow(/unresolved court replacement/i);
+    expect(() =>
+      getCardArtV3PromptRecord(files, "swords-page", repositoryRoot),
+    ).toThrow(/unresolved court replacement/i);
+    expect(() =>
+      getCardArtV3AttemptRecord(files, "cups-page", null, repositoryRoot),
+    ).toThrow(/unresolved court replacement/i);
+    expect(() =>
+      getCardArtV3ReviewedAttemptRecord(
+        files,
+        "wands-10",
+        "art/card-art-v3-retry-constraints/wands-10-attempt-007.json",
+        repositoryRoot,
+      ),
+    ).toThrow(/unresolved court replacement/i);
+    expect(() =>
+      getCardArtV3ReviewedAttemptRecord(
+        files,
+        "cups-page",
+        "art/card-art-v3-retry-constraints/cups-page-attempt-003.json",
+        repositoryRoot,
+      ),
+    ).not.toThrow();
+  });
+
+  it("rejects unrelated sheets, path aliases, normalized duplicate reviewers and late batch assets", () => {
+    const mutations = [
+      (files) => {
+        const evidence = files.supersessions.entries[0].reviewEvidence;
+        evidence.full.path =
+          "art/card-art-v3-reviews/pilot-contact-sheet-v1.jpg";
+        evidence.full.sha256 =
+          "55517bc20c86b5405e10de4e2ca42b7c10a2fe6a562df4159ea8abd09d56be9c";
+        evidence.full.bytes = 700046;
+        evidence.full.width = 890;
+        evidence.full.height = 1246;
+      },
+      (files) => {
+        const evidence = files.supersessions.entries[0].reviewEvidence;
+        evidence.mobile = {
+          ...evidence.full,
+          path: `art/card-art-v3-reviews//${evidence.full.path.split("/").at(-1)}`,
+        };
+      },
+      (files) => {
+        files.supersessions.entries[0].independentReviews = [
+          ...files.supersessions.entries[0].independentReviews,
+        ].map((review, index) => ({
+          ...review,
+          reviewer: ["Planck", "Planck ", "Planck\t"][index],
+        }));
+      },
+      (files) => {
+        files.generationRecords.records.find(
+          ({ id }) => id === "cups-king-attempt-002",
+        ).generatedAt = "2026-08-06T09:14:00.000Z";
+      },
+      (files) => {
+        files.supersessions.entries[0].reason = "Changed after review.";
+      },
+      (files) => {
+        files.supersessions.entries[0].reviewEvidence.blocker =
+          "Changed blocker after review.";
+      },
+      (files) => {
+        const reviews = files.supersessions.entries[0].independentReviews;
+        reviews[0].result = "approved";
+        reviews[1].result = "rejected";
+      },
+    ];
+
+    for (const mutate of mutations) {
+      const files = structuredClone(loadCardArtV3Files(repositoryRoot));
+      mutate(files);
+      expect(() =>
+        validateCardArtV3System(files, repositoryRoot, null),
+      ).toThrow(/validation failed/i);
+    }
+  });
+
+  it("rejects self-repinned review changes and visually duplicate reviewer identities", () => {
+    const files = structuredClone(loadCardArtV3Files(repositoryRoot));
+    const entry = files.supersessions.entries[0];
+    entry.reason = "Repinned full regeneration authorization.";
+    entry.reviewEvidence.blocker = "Repinned blocker.";
+    entry.replacementContract.allowedChange = "Full regeneration is allowed.";
+    entry.independentReviews[0].reviewer = "Planck";
+    entry.independentReviews[1].reviewer = "Planck\u200B";
+    entry.independentReviews[2].reviewer = "Planck\u2060";
+    entry.independentReviews[0].result = "approved";
+    entry.independentReviews[1].result = "rejected";
+    entry.decisionFingerprintSha256 = sha256StableForTest(
+      supersessionDecisionPayload(entry),
+    );
+
+    expect(() => validateCardArtV3System(files, repositoryRoot, null)).toThrow(
+      /externally frozen independent-review contract/i,
+    );
+  });
+
+  it("preserves supersession < retry review chronology and the exact hair-only contract", () => {
+    const files = loadCardArtV3Files(repositoryRoot);
+    const record = getCardArtV3ReviewedAttemptRecord(
+      files,
+      "cups-page",
+      "art/card-art-v3-retry-constraints/cups-page-attempt-003.json",
+      repositoryRoot,
+    );
+
+    expect(record.editSource?.attemptId).toBe("cups-page-attempt-002");
+    expect(record.retryConstraint).toContain(
+      "Change only the Page character's hair pigment",
+    );
+    expect(
+      Date.parse(files.supersessions.entries[0].supersededAt),
+    ).toBeLessThan(Date.parse(record.retryReview.reviewedAt));
+
+    const retroactive = structuredClone(files);
+    retroactive.supersessions.entries[0].supersededAt =
+      "2026-08-06T09:33:00.000Z";
+    expect(() =>
+      validateCardArtV3System(retroactive, repositoryRoot, null),
+    ).toThrow(/replacementContract|decisionFingerprint|validation failed/i);
+  });
+
+  it("keeps attempt-003 rejected-or-atomic while preserving the full precision-edit lineage", async () => {
+    const files = structuredClone(loadCardArtV3Files(repositoryRoot));
+    const replacement = await appendTemporaryCupsPageReplacement(files);
+
+    expect(replacement.editSource?.attemptId).toBe("cups-page-attempt-002");
+    expect(replacement.retryReview.reviewedAt).toBe("2026-08-06T09:32:43.000Z");
+    expect(() => validateCardArtV3System(files, repositoryRoot, null)).toThrow(
+      /committed atomically.*passing contact-sheet gate/i,
+    );
+
+    const rejectedFiles = structuredClone(files);
+    const rejected = rejectedFiles.generationRecords.records.find(
+      ({ id }) => id === replacement.id,
+    );
+    const rejectedRawPath = resolve(
+      repositoryRoot,
+      "art/card-art-v3-raw/court-validation-a/cups-page-candidate-003-rejected.png",
+    );
+    temporaryFiles.push(rejectedRawPath);
+    await writeFile(
+      rejectedRawPath,
+      await readFile(resolve(repositoryRoot, replacement.rawOutputPath)),
+      { flag: "wx" },
+    );
+    rejected.rawOutputPath =
+      "art/card-art-v3-raw/court-validation-a/cups-page-candidate-003-rejected.png";
+    rejected.selectionStatus = "rejected";
+    delete rejected.normalized;
+    expect(() =>
+      validateCardArtV3System(rejectedFiles, repositoryRoot, null),
+    ).not.toThrow();
+
+    const sameNormalizedSha = structuredClone(files);
+    const duplicate = sameNormalizedSha.generationRecords.records.find(
+      ({ id }) => id === replacement.id,
+    );
+    const superseded = sameNormalizedSha.generationRecords.records.find(
+      ({ id }) => id === "cups-page-attempt-002",
+    );
+    duplicate.normalized = {
+      ...superseded.normalized,
+      assetPath: sameNormalizedSha.supersessions.entries[0].archive.path,
+      inputSha256: duplicate.rawOutputSha256,
+    };
+    expect(() =>
+      validateCardArtV3System(sameNormalizedSha, repositoryRoot, null),
+    ).toThrow(/must differ from every superseded selection/i);
+
+    const generatedBeforeReview = structuredClone(files);
+    generatedBeforeReview.generationRecords.records.find(
+      ({ id }) => id === replacement.id,
+    ).generatedAt = "2026-08-06T09:20:00.000Z";
+    expect(() =>
+      validateCardArtV3System(generatedBeforeReview, repositoryRoot, null),
+    ).toThrow(/time order|exact later bounded replacement|validation failed/i);
+
+    const unauthorizedDescendant = structuredClone(files);
+    const forgedFourth = structuredClone(replacement);
+    forgedFourth.id = "cups-page-attempt-004";
+    forgedFourth.attemptNumber = 4;
+    forgedFourth.previousAttemptId = "cups-page-attempt-003";
+    forgedFourth.generatedAt = "2026-08-06T09:50:00.000Z";
+    forgedFourth.rawOutputPath =
+      "art/card-art-v3-raw/court-validation-a/cups-page-candidate-004.png";
+    unauthorizedDescendant.generationRecords.records.push(forgedFourth);
+    expect(() =>
+      validateCardArtV3System(unauthorizedDescendant, repositoryRoot, null),
+    ).toThrow(/unauthorized descendant of supersession/i);
+
+    const prematureApproval = structuredClone(files);
+    const approvalTemplate =
+      prematureApproval.approvals.records["wands-knight"];
+    prematureApproval.approvals.records["cups-page"] = {
+      ...structuredClone(approvalTemplate),
+      assetSha256: replacement.normalized.assetSha256,
+      generationRecordId: replacement.id,
+      promptSha256: replacement.promptSha256,
+      promotedSuitAnchor: false,
+      referenceRoute: replacement.referenceRoute,
+      reviewedAt: "2026-08-06T09:45:00.000Z",
+      reviewer: "Synthetic gate-order regression",
+    };
+    expect(() =>
+      validateCardArtV3System(prematureApproval, repositoryRoot, null),
+    ).toThrow(/requires a passing replacement contact-sheet gate/i);
+
+    await appendTemporaryPassingReplacementGate(files);
+    expect(() => validateCardArtV3System(files, repositoryRoot, null)).toThrow(
+      /externally frozen passing-gate review contract/i,
+    );
+
+    const staleGate = structuredClone(files);
+    staleGate.replacementGates.entries[0].reviewEvidence.attemptIds[3] =
+      "cups-page-attempt-002";
+    expect(() =>
+      validateCardArtV3System(staleGate, repositoryRoot, null),
+    ).toThrow(/latest active selected attempt/i);
+  }, 30_000);
 
   it("makes prompt changes visible in the prompt fingerprint", () => {
     const files = loadCardArtV3Files(repositoryRoot);
@@ -702,7 +1242,7 @@ describe("card art v3 preflight", () => {
   });
 
   it("binds every generation record to the exact resolved reference map", async () => {
-    const files = loadCardArtV3Files(repositoryRoot);
+    const files = loadHistoricalCardArtV3Files();
     const promptRecord = getCardArtV3PromptRecord(
       files,
       "the-hermit",
@@ -772,7 +1312,7 @@ describe("card art v3 preflight", () => {
     );
     secondAttempt.previousAttemptId = "wands-10-attempt-999";
     expect(() => validateCardArtV3System(brokenChain, repositoryRoot)).toThrow(
-      /immediately preceding rejected attempt/i,
+      /immediately preceding rejected or independently superseded selected attempt/i,
     );
 
     const reusedRaw = structuredClone(files);

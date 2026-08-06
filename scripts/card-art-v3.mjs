@@ -14,6 +14,7 @@ import {
   loadCardArtFiles as loadV2CardArtFiles,
   validateCardArtSystem as validateV2CardArtSystem,
 } from "./card-art-prompt.mjs";
+import { cardArtV3CourtContactSheetRecipe } from "./card-art-v3-contact-sheet.mjs";
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const defaultRepositoryRoot = resolve(scriptDirectory, "..");
@@ -23,8 +24,10 @@ const fileNames = Object.freeze({
   generationRecords: "art/card-art-v3-generation-records.json",
   legacyAudit: "art/card-art-v3-legacy-audit.json",
   manifest: "art/card-art-v3-manifest.json",
+  replacementGates: "art/card-art-v3-replacement-gates.json",
   releaseHistory: "art/card-art-v3-release-history.json",
   styleHistory: "art/card-art-v3-style-history.json",
+  supersessions: "art/card-art-v3-supersessions.json",
 });
 const approvalChecks = Object.freeze([
   "anatomy",
@@ -134,6 +137,34 @@ const reviewedPilotContactSheetContract = Object.freeze({
     width: 590,
   }),
 });
+const reviewedSupersessionContracts = Object.freeze({
+  "cups-page-attempt-002-batch-supersession-001": Object.freeze({
+    decisionFingerprintSha256:
+      "32fc34421f00fd315afa34826f209acb339d9da15f0c969510f56b8ca1870682",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+    authorizations: Object.freeze({
+      "cups-page-attempt-003": Object.freeze({
+        attemptNumber: 3,
+        previousAttemptId: "cups-page-attempt-002",
+        retryArtifactPath:
+          "art/card-art-v3-retry-constraints/cups-page-attempt-003.json",
+        retryArtifactSha256:
+          "a0fea152f15ae076c5ec3d94f7989ee285bacc8f00bf5bf4c39c92ca2c374536",
+        editSource: Object.freeze({
+          attemptId: "cups-page-attempt-002",
+          path: "art/card-art-v3-raw/court-validation-a/cups-page-candidate-002.png",
+          sha256:
+            "f492c38bf14b754de6cefe865dca0a191fded8bb7c36567344185be47beb71f5",
+        }),
+      }),
+    }),
+  }),
+});
+const reviewedReplacementGateContracts = Object.freeze({});
 const releaseSurfaceReviewIds = Object.freeze(["runtimeMap", "metadata", "og"]);
 const normalizationRecipeContract = Object.freeze({
   chromaSubsampling: "4:4:4",
@@ -148,6 +179,7 @@ const normalizationRecipeContract = Object.freeze({
 });
 const promptValidationCache = new WeakMap();
 const deterministicRepairCheckCache = new Map();
+const contactSheetCheckCache = new Map();
 const pilotIds = Object.freeze([
   "wands-ace",
   "wands-5",
@@ -212,8 +244,10 @@ export function loadCardArtV3Baseline(
         "controlRegistry",
         "generationRecords",
         "legacyAudit",
+        "replacementGates",
         "releaseHistory",
         "styleHistory",
+        "supersessions",
       ].includes(key)
     ) {
       continue;
@@ -334,15 +368,16 @@ export function buildCardArtV3PrecisionEditPrompt(editInstruction) {
   return editInstruction.trim();
 }
 
-export function getCardArtV3PromptRecord(
+function getCardArtV3PromptRecordInternal(
   files,
   cardId,
   repositoryRoot = defaultRepositoryRoot,
+  stageAuthorization = null,
 ) {
   validateForPrompt(files, repositoryRoot);
   const manifest = files.manifest;
   const card = getCard(manifest, cardId);
-  assertGenerationStageOpen(files, cardId);
+  assertGenerationStageOpen(files, cardId, stageAuthorization);
   const referenceRoute = getCardArtV3PostPilotReferenceRoute(
     files.styleHistory,
     card,
@@ -381,13 +416,27 @@ export function getCardArtV3PromptRecord(
   };
 }
 
-export function getCardArtV3AttemptRecord(
+export function getCardArtV3PromptRecord(
+  files,
+  cardId,
+  repositoryRoot = defaultRepositoryRoot,
+) {
+  return getCardArtV3PromptRecordInternal(files, cardId, repositoryRoot, null);
+}
+
+function getCardArtV3AttemptRecordInternal(
   files,
   cardId,
   retryConstraint = null,
   repositoryRoot = defaultRepositoryRoot,
+  stageAuthorization = null,
 ) {
-  const promptRecord = getCardArtV3PromptRecord(files, cardId, repositoryRoot);
+  const promptRecord = getCardArtV3PromptRecordInternal(
+    files,
+    cardId,
+    repositoryRoot,
+    stageAuthorization,
+  );
   const normalizedRetryConstraint =
     retryConstraint === null ? null : retryConstraint.trim();
   const effectivePrompt = buildCardArtV3AttemptPrompt(
@@ -401,6 +450,21 @@ export function getCardArtV3AttemptRecord(
     editSource: null,
     retryConstraint: normalizedRetryConstraint,
   };
+}
+
+export function getCardArtV3AttemptRecord(
+  files,
+  cardId,
+  retryConstraint = null,
+  repositoryRoot = defaultRepositoryRoot,
+) {
+  return getCardArtV3AttemptRecordInternal(
+    files,
+    cardId,
+    retryConstraint,
+    repositoryRoot,
+    null,
+  );
 }
 
 export function getCardArtV3ReviewedAttemptRecord(
@@ -417,22 +481,46 @@ export function getCardArtV3ReviewedAttemptRecord(
   const previousAttempt = (files.generationRecords.records ?? []).find(
     ({ id }) => id === artifact.previousAttemptId,
   );
+  const previousSupersession = (files.supersessions?.entries ?? []).find(
+    ({ attemptId }) => attemptId === previousAttempt?.id,
+  );
+  const lineageSupersession = getLineageSupersession(
+    files.supersessions?.entries ?? [],
+    cardId,
+    artifact.attemptNumber,
+  );
   if (
     !previousAttempt ||
     previousAttempt.cardId !== cardId ||
     previousAttempt.attemptNumber !== artifact.attemptNumber - 1 ||
-    previousAttempt.selectionStatus !== "rejected"
+    (previousAttempt.selectionStatus !== "rejected" &&
+      !(
+        previousAttempt.selectionStatus === "selected" &&
+        previousSupersession?.status === "superseded" &&
+        previousSupersession?.result === "rejected"
+      ))
   ) {
     throw new Error(
       `Retry constraint must reference the immediately preceding rejected attempt for ${cardId}.`,
     );
   }
+  const stageAuthorization = lineageSupersession
+    ? getReviewedSupersessionRetryAuthorization(
+        lineageSupersession,
+        artifact,
+        cardId,
+      )
+    : null;
   if (
     !isCanonicalUtcTimestamp(previousAttempt.generatedAt) ||
-    Date.parse(previousAttempt.generatedAt) >= Date.parse(artifact.reviewedAt)
+    Date.parse(previousAttempt.generatedAt) >=
+      Date.parse(artifact.reviewedAt) ||
+    (lineageSupersession &&
+      Date.parse(lineageSupersession.supersededAt) >=
+        Date.parse(artifact.reviewedAt))
   ) {
     throw new Error(
-      `Retry review must occur after its preceding attempt for ${cardId}.`,
+      `Retry review must occur after its preceding attempt and supersession decision for ${cardId}.`,
     );
   }
   const editSource = artifact.editSource;
@@ -441,15 +529,27 @@ export function getCardArtV3ReviewedAttemptRecord(
     const sourceAttempt = (files.generationRecords.records ?? []).find(
       ({ id }) => id === editSource.attemptId,
     );
+    const sourceSupersession = (files.supersessions?.entries ?? []).find(
+      ({ attemptId }) => attemptId === sourceAttempt?.id,
+    );
     if (
       !sourceAttempt ||
       sourceAttempt.cardId !== cardId ||
-      sourceAttempt.selectionStatus !== "rejected" ||
+      (sourceAttempt.selectionStatus !== "rejected" &&
+        !(
+          sourceAttempt.selectionStatus === "selected" &&
+          sourceSupersession?.status === "superseded" &&
+          sourceSupersession?.result === "rejected"
+        )) ||
       sourceAttempt.attemptNumber >= artifact.attemptNumber ||
       sourceAttempt.rawOutputPath !== editSource.path ||
       sourceAttempt.rawOutputSha256 !== editSource.sha256 ||
       !isCanonicalUtcTimestamp(sourceAttempt.generatedAt) ||
-      Date.parse(sourceAttempt.generatedAt) >= Date.parse(artifact.reviewedAt)
+      Date.parse(sourceAttempt.generatedAt) >=
+        Date.parse(artifact.reviewedAt) ||
+      (sourceSupersession &&
+        Date.parse(sourceSupersession.supersededAt) >=
+          Date.parse(artifact.reviewedAt))
     ) {
       throw new Error(
         `Precision edit source must bind an immutable rejected attempt for ${cardId}.`,
@@ -458,14 +558,20 @@ export function getCardArtV3ReviewedAttemptRecord(
   }
   const attemptRecord =
     editSource === null
-      ? getCardArtV3AttemptRecord(
+      ? getCardArtV3AttemptRecordInternal(
           files,
           cardId,
           artifact.constraint,
           repositoryRoot,
+          stageAuthorization,
         )
       : {
-          ...getCardArtV3PromptRecord(files, cardId, repositoryRoot),
+          ...getCardArtV3PromptRecordInternal(
+            files,
+            cardId,
+            repositoryRoot,
+            stageAuthorization,
+          ),
           editSource: null,
           retryConstraint: artifact.constraint.trim(),
         };
@@ -584,7 +690,7 @@ function loadRetryConstraintArtifact(
       typeof editSource.path !== "string" ||
       !isProjectRelativePath(editSource.path) ||
       !new RegExp(
-        `^art/card-art-v3-raw/[^/]+/${cardId}-candidate-[0-9]{3}-rejected\\.png$`,
+        `^art/card-art-v3-raw/[^/]+/${cardId}-candidate-[0-9]{3}(?:-rejected)?\\.png$`,
       ).test(editSource.path) ||
       typeof editSource.sha256 !== "string" ||
       !existsSync(editSourcePath) ||
@@ -642,9 +748,11 @@ function validateForPrompt(files, repositoryRoot) {
       generationRecords: files.generationRecords,
       legacyAudit: files.legacyAudit,
       manifest: files.manifest,
+      replacementGates: files.replacementGates,
       releaseHistory: files.releaseHistory,
       repositoryRoot,
       styleHistory: files.styleHistory,
+      supersessions: files.supersessions,
     }),
   );
   if (promptValidationCache.get(files) === fingerprint) return;
@@ -726,9 +834,99 @@ function resolveReferenceRecords(
   });
 }
 
-function assertGenerationStageOpen(files, cardId) {
+function getReviewedSupersessionRetryAuthorization(
+  supersession,
+  artifact,
+  cardId,
+) {
+  const attemptId = `${cardId}-attempt-${String(
+    artifact.attemptNumber,
+  ).padStart(3, "0")}`;
+  const contract =
+    reviewedSupersessionContracts[supersession?.id]?.authorizations?.[
+      attemptId
+    ];
+  const exactArtifactBinding = {
+    attemptNumber: artifact.attemptNumber,
+    editSource: artifact.editSource,
+    previousAttemptId: artifact.previousAttemptId,
+    retryArtifactPath: artifact.projectRelativePath,
+    retryArtifactSha256: artifact.sha256,
+  };
+  const expectedArtifactBinding = {
+    attemptNumber: contract?.attemptNumber,
+    editSource: contract?.editSource,
+    previousAttemptId: contract?.previousAttemptId,
+    retryArtifactPath: contract?.retryArtifactPath,
+    retryArtifactSha256: contract?.retryArtifactSha256,
+  };
+  if (
+    supersession.cardId !== cardId ||
+    stableStringify(exactArtifactBinding) !==
+      stableStringify(expectedArtifactBinding)
+  ) {
+    throw new Error(
+      `Superseded ${cardId} may only use its exact independently reviewed bounded replacement artifact.`,
+    );
+  }
+  return {
+    attemptNumber: artifact.attemptNumber,
+    retryArtifactSha256: artifact.sha256,
+    supersessionId: supersession.id,
+  };
+}
+
+function getLineageSupersession(entries, cardId, attemptNumber) {
+  return entries
+    .filter(
+      (entry) => entry.cardId === cardId && entry.attemptNumber < attemptNumber,
+    )
+    .sort((left, right) => left.attemptNumber - right.attemptNumber)
+    .at(-1);
+}
+
+function getUnresolvedSupersessions(files) {
+  const passingSupersessionIds = new Set(
+    (files.replacementGates?.entries ?? [])
+      .filter(
+        (entry) => entry?.status === "passed" && entry?.result === "approved",
+      )
+      .map((entry) => entry.supersessionId),
+  );
+  return (files.supersessions?.entries ?? []).filter(
+    (entry) => !passingSupersessionIds.has(entry.id),
+  );
+}
+
+function assertGenerationStageOpen(files, cardId, stageAuthorization = null) {
   const { approvals, manifest, styleHistory } = files;
   const card = getCard(manifest, cardId);
+  const unresolvedSupersessions = getUnresolvedSupersessions(files);
+  if (unresolvedSupersessions.length > 0) {
+    const supersession = unresolvedSupersessions.find(
+      (entry) => entry.id === stageAuthorization?.supersessionId,
+    );
+    const attemptId = `${cardId}-attempt-${String(
+      stageAuthorization?.attemptNumber,
+    ).padStart(3, "0")}`;
+    const reviewedAuthorization =
+      reviewedSupersessionContracts[supersession?.id]?.authorizations?.[
+        attemptId
+      ];
+    if (
+      unresolvedSupersessions.length !== 1 ||
+      !supersession ||
+      supersession.cardId !== cardId ||
+      reviewedAuthorization?.attemptNumber !==
+        stageAuthorization.attemptNumber ||
+      reviewedAuthorization?.retryArtifactSha256 !==
+        stageAuthorization.retryArtifactSha256
+    ) {
+      throw new Error(
+        `${cardId} generation is closed until the unresolved court replacement passes its exact reviewed retry and replacement contact-sheet gate.`,
+      );
+    }
+  }
   if (card.disposition === "keep" && card.needsRetouch !== true) {
     throw new Error(
       `${cardId} is approved for byte-identical legacy reuse and must not be regenerated.`,
@@ -823,8 +1021,10 @@ export function validateCardArtV3System(
     generationRecords,
     legacyAudit,
     manifest,
+    replacementGates,
     releaseHistory,
     styleHistory,
+    supersessions,
   } = files;
   const errors = [];
   validateAppendOnlyV3Records(baselineFiles, files, errors);
@@ -1134,8 +1334,10 @@ export function validateCardArtV3System(
 
   validateEnvelope(approvals, manifest, "approvals", errors);
   validateEnvelope(generationRecords, manifest, "generationRecords", errors);
+  validateEnvelope(replacementGates, manifest, "replacementGates", errors);
   validateEnvelope(styleHistory, manifest, "styleHistory", errors, false);
   validateEnvelope(releaseHistory, manifest, "releaseHistory", errors, false);
+  validateEnvelope(supersessions, manifest, "supersessions", errors);
   if (
     releaseHistory.rollbackContract?.preserveV3AssetUrlsAfterFirstRelease !==
       true ||
@@ -1161,6 +1363,29 @@ export function validateCardArtV3System(
   const generationById = new Map(
     (generationRecords.records ?? []).map((record) => [record.id, record]),
   );
+  const supersessionByAttemptId = validateSupersessions({
+    errors,
+    generationById,
+    manifest,
+    repositoryRoot,
+    supersessions,
+  });
+  const replacementGateByAttemptId = validateReplacementGates({
+    errors,
+    generationById,
+    manifest,
+    replacementGates,
+    repositoryRoot,
+    supersessionByAttemptId,
+    supersessions,
+  });
+  const supersededNormalizedShaByCard = new Map();
+  for (const supersession of supersessionByAttemptId.values()) {
+    const hashes =
+      supersededNormalizedShaByCard.get(supersession.cardId) ?? new Set();
+    hashes.add(supersession.archive?.sha256);
+    supersededNormalizedShaByCard.set(supersession.cardId, hashes);
+  }
   const approvalEntries = Object.entries(approvals.records ?? {});
   let approvedDeckBytes = 0;
   for (const [cardId, approval] of approvalEntries) {
@@ -1239,10 +1464,34 @@ export function validateCardArtV3System(
       );
     }
     if (approval.provenance !== "legacy-v2") {
+      const lineageSupersession = getLineageSupersession(
+        supersessions?.entries ?? [],
+        cardId,
+        generation?.attemptNumber,
+      );
+      const replacementGate = replacementGateByAttemptId.get(generation?.id);
+      if (lineageSupersession) {
+        if (!replacementGate) {
+          errors.push(
+            `${label} requires a passing replacement contact-sheet gate for its full supersession lineage.`,
+          );
+        } else if (
+          !isCanonicalUtcTimestamp(approval.reviewedAt) ||
+          Date.parse(generation.generatedAt) >=
+            Date.parse(replacementGate.reviewedAt) ||
+          Date.parse(replacementGate.reviewedAt) >
+            Date.parse(approval.reviewedAt)
+        ) {
+          errors.push(
+            `${label} must preserve replacement generation < passing gate <= approval chronology.`,
+          );
+        }
+      }
       if (
         !generation ||
         generation.cardId !== cardId ||
         generation.selectionStatus !== "selected" ||
+        supersessionByAttemptId.has(generation.id) ||
         generation.normalized?.assetSha256 !== approval.assetSha256
       ) {
         errors.push(`${label} must reference its selected generation record.`);
@@ -1277,6 +1526,9 @@ export function validateCardArtV3System(
         errors.push(`${label}.qa.${check} must be true.`);
     }
     requireString(approval.reviewedAt, `${label}.reviewedAt`);
+    if (!isCanonicalUtcTimestamp(approval.reviewedAt)) {
+      errors.push(`${label}.reviewedAt must be canonical UTC.`);
+    }
     requireString(approval.reviewer, `${label}.reviewer`);
   }
   if (approvedDeckBytes > manifest.frame.maximumDeckBytes) {
@@ -1302,6 +1554,15 @@ export function validateCardArtV3System(
     if (!canonicalTarotCardIds.includes(record.cardId))
       errors.push(`${label}.cardId is not canonical.`);
     const card = manifest.cards?.[record.cardId];
+    const lineageSupersession = getLineageSupersession(
+      supersessions?.entries ?? [],
+      record.cardId,
+      record.attemptNumber,
+    );
+    const reviewedLineageAuthorization =
+      reviewedSupersessionContracts[lineageSupersession?.id]?.authorizations?.[
+        record.id
+      ];
     const isDeterministicLocalComposite =
       !card?.needsRetouch &&
       record.generator?.tool === "Sharp" &&
@@ -1446,6 +1707,20 @@ export function validateCardArtV3System(
         );
       }
       const previousAttempt = latestImageGenAttemptByCard.get(record.cardId);
+      if (lineageSupersession && !reviewedLineageAuthorization) {
+        errors.push(
+          `${label} is an unauthorized descendant of supersession ${lineageSupersession.id}.`,
+        );
+      }
+      if (
+        lineageSupersession &&
+        record.selectionStatus === "selected" &&
+        !replacementGateByAttemptId.has(record.id)
+      ) {
+        errors.push(
+          `${label} replacement selection must be committed atomically with its externally frozen passing contact-sheet gate.`,
+        );
+      }
       if (record.attemptNumber === 1) {
         if (record.previousAttemptId !== null || previousAttempt) {
           errors.push(`${label} first attempt must not have a predecessor.`);
@@ -1457,16 +1732,28 @@ export function validateCardArtV3System(
         !previousAttempt ||
         previousAttempt.id !== record.previousAttemptId ||
         previousAttempt.attemptNumber !== record.attemptNumber - 1 ||
-        previousAttempt.selectionStatus !== "rejected"
+        (previousAttempt.selectionStatus !== "rejected" &&
+          !supersessionByAttemptId.has(previousAttempt.id))
       ) {
         errors.push(
-          `${label} must reference the immediately preceding rejected attempt.`,
+          `${label} must reference the immediately preceding rejected or independently superseded selected attempt.`,
         );
       } else if (
         Date.parse(previousAttempt.generatedAt) >=
         Date.parse(record.generatedAt)
       ) {
         errors.push(`${label} must be generated after its preceding attempt.`);
+      }
+      if (
+        lineageSupersession &&
+        (typeof record.retryConstraint !== "string" ||
+          record.retryConstraint.trim() === "" ||
+          record.retryReview === null ||
+          record.retryReview === undefined)
+      ) {
+        errors.push(
+          `${label} must use an externally frozen bounded retry throughout its supersession lineage.`,
+        );
       }
       if (
         record.attemptNumber > 1 &&
@@ -1550,6 +1837,32 @@ export function validateCardArtV3System(
           ) {
             errors.push(
               `${label} must preserve predecessor generation < retry review < generation time order.`,
+            );
+          }
+          if (
+            lineageSupersession &&
+            (Date.parse(lineageSupersession.supersededAt) >=
+              Date.parse(retryArtifact.reviewedAt) ||
+              stableStringify({
+                attemptNumber: retryArtifact.attemptNumber,
+                editSource: retryArtifact.editSource,
+                previousAttemptId: retryArtifact.previousAttemptId,
+                retryArtifactPath: retryArtifact.projectRelativePath,
+                retryArtifactSha256: retryArtifact.sha256,
+              }) !==
+                stableStringify({
+                  attemptNumber: reviewedLineageAuthorization?.attemptNumber,
+                  editSource: reviewedLineageAuthorization?.editSource,
+                  previousAttemptId:
+                    reviewedLineageAuthorization?.previousAttemptId,
+                  retryArtifactPath:
+                    reviewedLineageAuthorization?.retryArtifactPath,
+                  retryArtifactSha256:
+                    reviewedLineageAuthorization?.retryArtifactSha256,
+                }))
+          ) {
+            errors.push(
+              `${label} must bind the supersession's exact later bounded replacement artifact.`,
             );
           }
           if (retryArtifact.editSource !== null) {
@@ -1641,18 +1954,28 @@ export function validateCardArtV3System(
         const sourceAttempt = seenImageGenAttemptsById.get(
           record.editSource.attemptId,
         );
+        const sourceSupersession = supersessionByAttemptId.get(
+          sourceAttempt?.id,
+        );
         if (
           !sourceAttempt ||
           sourceAttempt.cardId !== record.cardId ||
-          sourceAttempt.selectionStatus !== "rejected" ||
+          (sourceAttempt.selectionStatus !== "rejected" &&
+            !(
+              sourceAttempt.selectionStatus === "selected" && sourceSupersession
+            )) ||
           sourceAttempt.attemptNumber >= record.attemptNumber ||
           sourceAttempt.rawOutputPath !== record.editSource.path ||
           sourceAttempt.rawOutputSha256 !== record.editSource.sha256 ||
           Date.parse(sourceAttempt.generatedAt) >=
-            Date.parse(record.generatedAt)
+            Date.parse(record.generatedAt) ||
+          (sourceSupersession &&
+            (Date.parse(sourceSupersession.supersededAt) >=
+              Date.parse(record.retryReview?.reviewedAt) ||
+              sourceSupersession.id !== lineageSupersession?.id))
         ) {
           throw new Error(
-            "editSource must bind an immutable rejected attempt of the same card",
+            "editSource must bind an immutable rejected or superseded selected attempt of the same card with valid chronology",
           );
         }
         expectedReferenceSha256 = {
@@ -1740,19 +2063,38 @@ export function validateCardArtV3System(
       if (normalized?.recipeId !== generationRecords.normalizationRecipe.id) {
         errors.push(`${label}.normalized.recipeId is invalid.`);
       }
+      const supersession = supersessionByAttemptId.get(record.id);
+      if (
+        !supersession &&
+        supersededNormalizedShaByCard
+          .get(record.cardId)
+          ?.has(normalized?.assetSha256)
+      ) {
+        errors.push(
+          `${label}.normalized.assetSha256 must differ from every superseded selection for the same card.`,
+        );
+      }
       const normalizedAsset = resolve(
         repositoryRoot,
-        normalized?.assetPath ?? "",
+        supersession?.archive?.path ?? normalized?.assetPath ?? "",
       );
       if (!isProjectRelativePath(normalized?.assetPath)) {
         errors.push(`${label}.normalized.assetPath must be project-relative.`);
       }
       if (!existsSync(normalizedAsset)) {
-        errors.push(`${label}.normalized.assetPath is missing.`);
+        errors.push(
+          supersession
+            ? `${label} superseded normalized archive is missing.`
+            : `${label}.normalized.assetPath is missing.`,
+        );
       } else if (
         sha256(readFileSync(normalizedAsset)) !== normalized.assetSha256
       ) {
-        errors.push(`${label}.normalized.assetSha256 does not match.`);
+        errors.push(
+          supersession
+            ? `${label} superseded normalized archive SHA-256 does not match.`
+            : `${label}.normalized.assetSha256 does not match.`,
+        );
       } else {
         const normalizedBuffer = readFileSync(normalizedAsset);
         if (normalized.assetBytes !== normalizedBuffer.length) {
@@ -2439,7 +2781,13 @@ function validateDeterministicLocalComposite({
 
 function validateAppendOnlyV3Records(baseline, current, errors) {
   if (!baseline) return;
-  for (const key of ["generationRecords", "releaseHistory", "styleHistory"]) {
+  for (const key of [
+    "generationRecords",
+    "replacementGates",
+    "releaseHistory",
+    "styleHistory",
+    "supersessions",
+  ]) {
     const priorEntries = baseline[key]?.entries ?? baseline[key]?.records;
     const currentEntries = current[key]?.entries ?? current[key]?.records;
     if (!Array.isArray(priorEntries)) continue;
@@ -2483,6 +2831,542 @@ function validateAppendOnlyV3Records(baseline, current, errors) {
       "controlRegistry must preserve every committed control record unchanged.",
     );
   }
+}
+
+function normalizeReviewerIdentity(value) {
+  return typeof value === "string"
+    ? value.normalize("NFKC").trim().toLocaleLowerCase("en-US")
+    : "";
+}
+
+function getBatchCardIds(manifest, batchId) {
+  return canonicalTarotCardIds.filter(
+    (cardId) => manifest.cards?.[cardId]?.batch === batchId,
+  );
+}
+
+function getReviewSourcePath(generation, supersessionEntries, repositoryRoot) {
+  const supersession = supersessionEntries.find(
+    (entry) => entry.attemptId === generation.id,
+  );
+  return resolve(
+    repositoryRoot,
+    supersession?.archive?.path ?? generation.normalized?.assetPath ?? "",
+  );
+}
+
+function validateIndependentReviews({
+  decisionAt,
+  errors,
+  expectedReviewerIds,
+  label,
+  minimumGeneratedAt,
+  requireAllApproved,
+  reviews,
+}) {
+  const reviewers = new Set();
+  let rejectedReviewCount = 0;
+  if (!Array.isArray(reviews) || reviews.length !== 3) {
+    errors.push(`${label} must contain exactly three reviews.`);
+    return;
+  }
+  for (const [index, review] of reviews.entries()) {
+    const reviewLabel = `${label}[${index}]`;
+    const normalizedReviewer = normalizeReviewerIdentity(review?.reviewer);
+    if (
+      normalizedReviewer === "" ||
+      review?.reviewerId !== expectedReviewerIds?.[index] ||
+      reviewers.has(normalizedReviewer) ||
+      typeof review?.scope !== "string" ||
+      review.scope.trim() === "" ||
+      review.independent !== true ||
+      !["approved", "rejected"].includes(review.result) ||
+      (requireAllApproved && review.result !== "approved") ||
+      !isCanonicalUtcTimestamp(review.reviewedAt) ||
+      Date.parse(review.reviewedAt) <= Date.parse(minimumGeneratedAt) ||
+      Date.parse(review.reviewedAt) > Date.parse(decisionAt)
+    ) {
+      errors.push(
+        `${reviewLabel} must be normalized-unique, independent and chronologically valid.`,
+      );
+    }
+    reviewers.add(normalizedReviewer);
+    if (review?.result === "rejected") rejectedReviewCount += 1;
+  }
+  if (!requireAllApproved && rejectedReviewCount < 1) {
+    errors.push(`${label} requires at least one rejecting review.`);
+  }
+}
+
+function validateCourtContactSheetEvidence({
+  decisionAt,
+  errors,
+  evidence,
+  expectedBatchId,
+  expectedCardIds,
+  expectedFullPath,
+  expectedMobilePath,
+  generationById,
+  label,
+  repositoryRoot,
+  supersessionEntries,
+}) {
+  if (
+    stableStringify(evidence?.cardIds) !== stableStringify(expectedCardIds) ||
+    !Array.isArray(evidence?.attemptIds) ||
+    evidence.attemptIds.length !== expectedCardIds.length
+  ) {
+    errors.push(
+      `${label} must bind the exact batch card order and one attempt per card.`,
+    );
+    return { latestGeneratedAt: decisionAt, sourcePaths: [] };
+  }
+  const expectedAssetSha256 = {};
+  const sourcePaths = [];
+  let latestGeneratedAt = "1970-01-01T00:00:00.000Z";
+  for (const [index, cardId] of expectedCardIds.entries()) {
+    const attemptId = evidence.attemptIds[index];
+    const generation = generationById.get(attemptId);
+    if (
+      !generation ||
+      generation.cardId !== cardId ||
+      generation.batchId !== expectedBatchId ||
+      generation.selectionStatus !== "selected" ||
+      !isCanonicalUtcTimestamp(generation.generatedAt) ||
+      Date.parse(generation.generatedAt) >= Date.parse(decisionAt)
+    ) {
+      errors.push(
+        `${label}.attemptIds[${index}] must bind a selected batch asset generated before review.`,
+      );
+      continue;
+    }
+    if (Date.parse(generation.generatedAt) > Date.parse(latestGeneratedAt)) {
+      latestGeneratedAt = generation.generatedAt;
+    }
+    expectedAssetSha256[cardId] = generation.normalized?.assetSha256;
+    sourcePaths.push(
+      getReviewSourcePath(generation, supersessionEntries, repositoryRoot),
+    );
+  }
+  const expectedAssetMapSha256 = sha256(
+    stableStringify({
+      assetSha256: expectedAssetSha256,
+      attemptIds: evidence.attemptIds,
+      cardIds: expectedCardIds,
+    }),
+  );
+  if (
+    stableStringify(evidence?.assetSha256) !==
+      stableStringify(expectedAssetSha256) ||
+    evidence?.assetMapSha256 !== expectedAssetMapSha256
+  ) {
+    errors.push(
+      `${label}.assetMapSha256 must bind every reviewed card, attempt and normalized asset SHA-256.`,
+    );
+  }
+  if (
+    stableStringify(evidence?.recipe) !==
+      stableStringify(cardArtV3CourtContactSheetRecipe) ||
+    evidence?.recipeFingerprintSha256 !==
+      sha256(stableStringify(cardArtV3CourtContactSheetRecipe))
+  ) {
+    errors.push(`${label}.recipe must match the deterministic 3x2 contract.`);
+  }
+  const fullPath = resolve(repositoryRoot, evidence?.full?.path ?? "");
+  const mobilePath = resolve(repositoryRoot, evidence?.mobile?.path ?? "");
+  if (
+    evidence?.full?.path !== expectedFullPath ||
+    evidence?.mobile?.path !== expectedMobilePath ||
+    fullPath === mobilePath
+  ) {
+    errors.push(`${label} full and mobile paths must be exact and distinct.`);
+  }
+  for (const [kind, absolutePath] of [
+    ["full", fullPath],
+    ["mobile", mobilePath],
+  ]) {
+    const artifact = evidence?.[kind];
+    if (!isProjectRelativePath(artifact?.path) || !existsSync(absolutePath)) {
+      errors.push(`${label}.${kind} artifact is missing or non-canonical.`);
+      continue;
+    }
+    const buffer = readFileSync(absolutePath);
+    const image = readJpegMetadata(buffer);
+    if (
+      sha256(buffer) !== artifact.sha256 ||
+      buffer.length !== artifact.bytes ||
+      image.width !== artifact.width ||
+      image.height !== artifact.height ||
+      image.components !== 3
+    ) {
+      errors.push(`${label}.${kind} bytes or frame do not match.`);
+    }
+  }
+  if (sourcePaths.length === expectedCardIds.length) {
+    const cacheKey = stableStringify({
+      full: evidence.full,
+      mobile: evidence.mobile,
+      sourceSha256: expectedCardIds.map(
+        (cardId) => expectedAssetSha256[cardId],
+      ),
+    });
+    let rendered = contactSheetCheckCache.get(cacheKey);
+    if (!rendered) {
+      const scriptPath = resolve(
+        repositoryRoot,
+        "scripts/card-art-v3-contact-sheet.mjs",
+      );
+      const args = [scriptPath];
+      for (const sourcePath of sourcePaths) {
+        args.push("--source", sourcePath);
+      }
+      args.push("--full", fullPath, "--mobile", mobilePath);
+      try {
+        rendered = JSON.parse(
+          execFileSync(process.execPath, args, {
+            cwd: repositoryRoot,
+            encoding: "utf8",
+            stdio: ["ignore", "pipe", "pipe"],
+            timeout: 30000,
+          }),
+        );
+        contactSheetCheckCache.set(cacheKey, rendered);
+      } catch (error) {
+        errors.push(
+          `${label} could not reproduce its deterministic artifacts: ${error.message}`,
+        );
+      }
+    }
+    if (
+      rendered &&
+      (rendered.recipeFingerprintSha256 !== evidence.recipeFingerprintSha256 ||
+        stableStringify(rendered.sourceSha256) !==
+          stableStringify(
+            expectedCardIds.map((cardId) => expectedAssetSha256[cardId]),
+          ) ||
+        rendered.full.sha256 !== evidence.full?.sha256 ||
+        rendered.full.bytes !== evidence.full?.bytes ||
+        rendered.mobile.sha256 !== evidence.mobile?.sha256 ||
+        rendered.mobile.bytes !== evidence.mobile?.bytes)
+    ) {
+      errors.push(
+        `${label} artifacts must exactly reproduce from the bound six selected assets.`,
+      );
+    }
+  }
+  return { latestGeneratedAt, sourcePaths };
+}
+
+function validateSupersessions({
+  errors,
+  generationById,
+  manifest,
+  repositoryRoot,
+  supersessions,
+}) {
+  const byAttemptId = new Map();
+  const supersessionIds = new Set();
+  const entries = supersessions?.entries ?? [];
+  for (const [index, entry] of entries.entries()) {
+    const label = `supersessions.entries[${index}]`;
+    const generation = generationById.get(entry?.attemptId);
+    if (
+      typeof entry?.id !== "string" ||
+      entry.id !== `${entry.attemptId}-batch-supersession-001` ||
+      supersessionIds.has(entry.id)
+    ) {
+      errors.push(
+        `${label}.id must be the unique attempt-bound supersession id.`,
+      );
+    }
+    supersessionIds.add(entry?.id);
+    if (
+      !generation ||
+      generation.cardId !== entry.cardId ||
+      generation.attemptNumber !== entry.attemptNumber ||
+      generation.batchId !== entry.batchId ||
+      generation.selectionStatus !== "selected" ||
+      entry.status !== "superseded" ||
+      entry.result !== "rejected"
+    ) {
+      errors.push(
+        `${label} must bind one previously selected generation attempt to a rejected batch decision.`,
+      );
+    }
+    if (byAttemptId.has(entry?.attemptId)) {
+      errors.push(`${label}.attemptId must be superseded at most once.`);
+    }
+    byAttemptId.set(entry?.attemptId, entry);
+    if (
+      typeof entry?.reason !== "string" ||
+      entry.reason.trim() === "" ||
+      !isCanonicalUtcTimestamp(entry?.supersededAt) ||
+      (generation &&
+        Date.parse(generation.generatedAt) >= Date.parse(entry.supersededAt))
+    ) {
+      errors.push(`${label} must record a later canonical reasoned decision.`);
+    }
+
+    const archive = entry?.archive;
+    const expectedArchivePath = `art/card-art-v3-superseded/${entry?.attemptId}.jpg`;
+    const archivePath = resolve(repositoryRoot, archive?.path ?? "");
+    if (
+      archive?.path !== expectedArchivePath ||
+      !isProjectRelativePath(archive?.path) ||
+      archive?.sha256 !== generation?.normalized?.assetSha256 ||
+      archive?.bytes !== generation?.normalized?.assetBytes ||
+      !existsSync(archivePath)
+    ) {
+      errors.push(
+        `${label}.archive must preserve the exact normalized selection.`,
+      );
+    } else {
+      const archiveBuffer = readFileSync(archivePath);
+      const image = readJpegMetadata(archiveBuffer);
+      if (
+        sha256(archiveBuffer) !== archive.sha256 ||
+        archiveBuffer.length !== archive.bytes ||
+        image.width !== 700 ||
+        image.height !== 980 ||
+        image.components !== 3
+      ) {
+        errors.push(`${label}.archive bytes or frame do not match.`);
+      }
+    }
+
+    const expectedBatchCardIds = getBatchCardIds(manifest, entry.batchId);
+    const evidence = entry?.reviewEvidence;
+    const { latestGeneratedAt } = validateCourtContactSheetEvidence({
+      decisionAt: entry.supersededAt,
+      errors,
+      evidence,
+      expectedBatchId: entry.batchId,
+      expectedCardIds: expectedBatchCardIds,
+      expectedFullPath: `art/card-art-v3-reviews/${entry.batchId}-contact-sheet-v1.jpg`,
+      expectedMobilePath: `art/card-art-v3-reviews/${entry.batchId}-contact-sheet-mobile-v1.jpg`,
+      generationById,
+      label: `${label}.reviewEvidence`,
+      repositoryRoot,
+      supersessionEntries: entries,
+    });
+    if (
+      typeof evidence?.blocker !== "string" ||
+      evidence.blocker.trim() === ""
+    ) {
+      errors.push(`${label}.reviewEvidence.blocker must be observable.`);
+    }
+    validateIndependentReviews({
+      decisionAt: entry.supersededAt,
+      errors,
+      expectedReviewerIds: reviewedSupersessionContracts[entry.id]?.reviewerIds,
+      label: `${label}.independentReviews`,
+      minimumGeneratedAt: latestGeneratedAt,
+      requireAllApproved: false,
+      reviews: entry.independentReviews,
+    });
+
+    const contract = entry?.replacementContract;
+    let retryArtifact = null;
+    try {
+      retryArtifact = loadRetryConstraintArtifact(
+        contract?.retryArtifactPath,
+        entry.cardId,
+        repositoryRoot,
+      );
+    } catch (error) {
+      errors.push(`${label}.replacementContract is invalid: ${error.message}`);
+    }
+    if (
+      contract?.mode !== "precision-edit-only" ||
+      contract?.selectionPolicy !==
+        "review candidate before ledger append; commit selected only atomically with an externally frozen passing replacement gate, otherwise commit rejected" ||
+      contract?.attemptNumber !== entry.attemptNumber + 1 ||
+      contract?.previousAttemptId !== entry.attemptId ||
+      contract?.retryArtifactSha256 !== retryArtifact?.sha256 ||
+      stableStringify(contract?.editSource) !==
+        stableStringify(retryArtifact?.editSource) ||
+      typeof contract?.allowedChange !== "string" ||
+      contract.allowedChange.trim() === "" ||
+      contract?.requiredGateId !==
+        `${entry.batchId}-${entry.cardId}-replacement-001` ||
+      stableStringify(contract?.requiredBatchCardIds) !==
+        stableStringify(expectedBatchCardIds) ||
+      contract?.requiredFullReviewPath !==
+        `art/card-art-v3-reviews/${entry.batchId}-contact-sheet-v2.jpg` ||
+      contract?.requiredMobileReviewPath !==
+        `art/card-art-v3-reviews/${entry.batchId}-contact-sheet-mobile-v2.jpg` ||
+      (retryArtifact &&
+        Date.parse(entry.supersededAt) >= Date.parse(retryArtifact.reviewedAt))
+    ) {
+      errors.push(
+        `${label}.replacementContract must bind the exact later precision-edit artifact and passing replacement gate.`,
+      );
+    }
+    const expectedDecisionFingerprint = sha256(
+      stableStringify({
+        independentReviews: entry.independentReviews,
+        reason: entry.reason,
+        replacementContract: entry.replacementContract,
+        result: entry.result,
+        reviewEvidence: {
+          assetMapSha256: evidence?.assetMapSha256,
+          blocker: evidence?.blocker,
+          cardIds: evidence?.cardIds,
+          attemptIds: evidence?.attemptIds,
+          full: evidence?.full,
+          mobile: evidence?.mobile,
+          recipeFingerprintSha256: evidence?.recipeFingerprintSha256,
+        },
+        status: entry.status,
+        supersededAt: entry.supersededAt,
+      }),
+    );
+    if (entry?.decisionFingerprintSha256 !== expectedDecisionFingerprint) {
+      errors.push(
+        `${label}.decisionFingerprintSha256 must lock the exact blocker, reviews and bounded replacement contract.`,
+      );
+    }
+    if (
+      !reviewedSupersessionContracts[entry?.id] ||
+      entry?.decisionFingerprintSha256 !==
+        reviewedSupersessionContracts[entry?.id]?.decisionFingerprintSha256
+    ) {
+      errors.push(
+        `${label}.decisionFingerprintSha256 must match the externally frozen independent-review contract.`,
+      );
+    }
+    if (!canonicalTarotCardIds.includes(entry?.cardId)) {
+      errors.push(`${label}.cardId is not canonical.`);
+    }
+    if (manifest.cards?.[entry?.cardId]?.batch !== entry?.batchId) {
+      errors.push(`${label}.batchId does not match the manifest.`);
+    }
+  }
+  return byAttemptId;
+}
+
+function validateReplacementGates({
+  errors,
+  generationById,
+  manifest,
+  replacementGates,
+  repositoryRoot,
+  supersessionByAttemptId,
+  supersessions,
+}) {
+  const byAttemptId = new Map();
+  const supersessionById = new Map(
+    [...supersessionByAttemptId.values()].map((entry) => [entry.id, entry]),
+  );
+  const gateIds = new Set();
+  for (const [index, gate] of (replacementGates?.entries ?? []).entries()) {
+    const label = `replacementGates.entries[${index}]`;
+    const supersession = supersessionById.get(gate?.supersessionId);
+    const contract = supersession?.replacementContract;
+    const replacement = generationById.get(gate?.replacementAttemptId);
+    const reviewedAuthorization =
+      reviewedSupersessionContracts[supersession?.id]?.authorizations?.[
+        replacement?.id
+      ];
+    if (
+      !supersession ||
+      gate?.id !== contract?.requiredGateId ||
+      gateIds.has(gate?.id) ||
+      gate?.status !== "passed" ||
+      gate?.result !== "approved" ||
+      replacement?.cardId !== supersession.cardId ||
+      replacement?.attemptNumber !== reviewedAuthorization?.attemptNumber ||
+      replacement?.previousAttemptId !==
+        reviewedAuthorization?.previousAttemptId ||
+      replacement?.selectionStatus !== "selected" ||
+      supersessionByAttemptId.has(replacement?.id) ||
+      !isCanonicalUtcTimestamp(gate?.reviewedAt) ||
+      Date.parse(replacement?.generatedAt) >= Date.parse(gate?.reviewedAt)
+    ) {
+      errors.push(
+        `${label} must bind one later active selected replacement and a passing gate.`,
+      );
+    }
+    gateIds.add(gate?.id);
+    if (byAttemptId.has(gate?.replacementAttemptId)) {
+      errors.push(`${label}.replacementAttemptId must be unique.`);
+    }
+    byAttemptId.set(gate?.replacementAttemptId, gate);
+    const expectedCardIds = getBatchCardIds(manifest, supersession?.batchId);
+    const expectedActiveAttemptIds = expectedCardIds.map((cardId) => {
+      const selected = [...generationById.values()]
+        .filter(
+          (record) =>
+            record.cardId === cardId &&
+            record.selectionStatus === "selected" &&
+            !supersessionByAttemptId.has(record.id),
+        )
+        .at(-1);
+      return selected?.id;
+    });
+    if (
+      stableStringify(gate?.reviewEvidence?.attemptIds) !==
+        stableStringify(expectedActiveAttemptIds) ||
+      gate?.reviewEvidence?.attemptIds?.[
+        expectedCardIds.indexOf(supersession?.cardId)
+      ] !== replacement?.id
+    ) {
+      errors.push(
+        `${label}.reviewEvidence must use the latest active selected attempt for every batch card.`,
+      );
+    }
+    const { latestGeneratedAt } = validateCourtContactSheetEvidence({
+      decisionAt: gate?.reviewedAt,
+      errors,
+      evidence: gate?.reviewEvidence,
+      expectedBatchId: supersession?.batchId,
+      expectedCardIds,
+      expectedFullPath: contract?.requiredFullReviewPath,
+      expectedMobilePath: contract?.requiredMobileReviewPath,
+      generationById,
+      label: `${label}.reviewEvidence`,
+      repositoryRoot,
+      supersessionEntries: supersessions?.entries ?? [],
+    });
+    validateIndependentReviews({
+      decisionAt: gate?.reviewedAt,
+      errors,
+      expectedReviewerIds: [
+        "tarot-content-review",
+        "ux-test-review",
+        "final-plan-review",
+      ],
+      label: `${label}.independentReviews`,
+      minimumGeneratedAt: latestGeneratedAt,
+      requireAllApproved: true,
+      reviews: gate?.independentReviews,
+    });
+    const expectedFingerprint = sha256(
+      stableStringify({
+        independentReviews: gate?.independentReviews,
+        replacementAttemptId: gate?.replacementAttemptId,
+        result: gate?.result,
+        reviewEvidence: gate?.reviewEvidence,
+        reviewedAt: gate?.reviewedAt,
+        status: gate?.status,
+        supersessionId: gate?.supersessionId,
+      }),
+    );
+    if (gate?.decisionFingerprintSha256 !== expectedFingerprint) {
+      errors.push(
+        `${label}.decisionFingerprintSha256 must lock the passing replacement gate.`,
+      );
+    }
+    if (
+      gate?.decisionFingerprintSha256 !==
+      reviewedReplacementGateContracts[gate?.id]
+    ) {
+      errors.push(
+        `${label}.decisionFingerprintSha256 must match an externally frozen passing-gate review contract.`,
+      );
+    }
+  }
+  return byAttemptId;
 }
 
 function validateControlRegistry(registry, manifest, repositoryRoot, errors) {
