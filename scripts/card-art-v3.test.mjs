@@ -51,7 +51,7 @@ describe("card art v3 preflight", () => {
     expect(validateCardArtV3System(files, repositoryRoot)).toEqual({
       approvedCount: 18,
       cardCount: 78,
-      generationCount: 63,
+      generationCount: 64,
       releaseCount: 0,
     });
   });

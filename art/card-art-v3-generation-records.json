@@ -2486,6 +2486,62 @@
       "retouchRecipeSha256": null,
       "retouchSourceSha256": null,
       "selectionStatus": "rejected"
+    },
+    {
+      "id": "cups-king-attempt-002",
+      "attemptNumber": 2,
+      "batchId": "court-validation-a",
+      "cardId": "cups-king",
+      "cardSpecSha256": "8fe8b645a33bbdc1ab89597ae5ecbf70725f34a17fd3dd7ccda6d53e928e6372",
+      "editSource": {
+        "attemptId": "cups-king-attempt-001",
+        "path": "art/card-art-v3-raw/court-validation-a/cups-king-candidate-001-rejected.png",
+        "sha256": "d6302904581ea8e7a5328f65a7cee78d869fc46da4a0f64d9e538404f72af937"
+      },
+      "effectivePromptSha256": "205dd6c41d9aa7bb28be3c5aee8b0ebe7cdc0ac7f7d8a98520aba033ab72109f",
+      "generatedAt": "2026-08-06T08:50:53.000Z",
+      "generator": {
+        "mode": "default",
+        "tool": "OpenAI ImageGen"
+      },
+      "manifestSha256": "617d46d5a978d0c7c39efaef25e2b54ccfd6c9722226c8788fa125d4677dd603",
+      "normalized": {
+        "assetBytes": 274366,
+        "assetPath": "public/cards/v3/cups-king.jpg",
+        "assetSha256": "a6ddaef1c3e2992d2dbaeddc972b9b818589d19ef2b3d438f978a9f7b0698d98",
+        "cropPosition": "attention",
+        "inputSha256": "e686a44632217f478eb5604a3db0729398d0cf8a74dd939909aefdaa96bb202a",
+        "recipeFingerprintSha256": "854e41e37fb7550975f226939eb2dedb9435b1967aa0d81f2a03d572b053a416",
+        "recipeId": "sharp-cover-v1"
+      },
+      "previousAttemptId": "cups-king-attempt-001",
+      "promptSha256": "c8070034f3d2c0e397e4ed6a0a5cfaa7ec381632b28378febd820d362eac4d58",
+      "rawOutputPath": "art/card-art-v3-raw/court-validation-a/cups-king-candidate-002.png",
+      "rawOutputSha256": "e686a44632217f478eb5604a3db0729398d0cf8a74dd939909aefdaa96bb202a",
+      "referenceRoute": {
+        "anchorIds": ["cups-ace", "cups-knight"],
+        "commonInstruction": "Reference 1 is authoritative only for suit-object geometry and material, suit palette, and global ink-and-gouache rendering. Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition; the target card manifest is authoritative for all of them.",
+        "instruction": "Reference 1 is authoritative only for suit-object geometry and material, suit palette, and global ink-and-gouache rendering. Never copy its source count, rank, cast, identity, pose, action, movement, setting, lighting layout or composition; the target card manifest is authoritative for all of them. Reference 2 demonstrates natural anatomy, rendering and observable court-action legibility grammar only. Never copy the source rank, action, pose, movement, setting, garment or garment color. The target card's rank rule exclusively controls rank identity and action. When cast IDs match, identity means stable face, hair, skin and body traits only; it never includes the source garment, color, pose, action or setting.",
+        "kind": "court",
+        "styleFingerprintSha256": "de14964035492c43fef87c69aec45fca34593fe5398eb4ff1f68284eca86b619",
+        "styleVersion": "pilot-style-v1"
+      },
+      "referenceSha256": {
+        "cups-king-attempt-001": "d6302904581ea8e7a5328f65a7cee78d869fc46da4a0f64d9e538404f72af937"
+      },
+      "regenerationReason": "Attempt 001 passed recurring identity, exact cup count, level hold, observable coordination, platform stability, anatomy, text, regalia and style review. Both independent reviewers found that the high breakers and partially immersed helpers made the scene read as an urgent rescue with an unequal safety hierarchy, contrary to rough-but-non-dangerous routine harbor work. One reviewer also found that the existing cup handle's open hole collapsed at 140 pixels. This precision edit fixes both observable blockers while preserving the successful steward and harbor composition.",
+      "retryConstraint": "Precision-edit rejected attempt-001 only. Preserve the central harbor steward exactly: medium-brown skin, short dark curls, face, open focused expression, plum-and-cream clothing, natural proportions, dry stable stance, outstretched coordinating hand and all limbs. Preserve the dry stone platform geometry, harbor buildings, distant lighthouse, cloud-muted sun, palette, composition and gouache-and-ink texture. Preserve exactly one level dusty-blue ceramic cup, its cylindrical body, flat base and thin antique-gold rim. Make two bounded corrections. First, enlarge and open only the cup's existing viewer-left single loop handle and locally redraw the touching cup-hand fingers so the handle has one clean interior hole at least two to three pixels wide at 140 pixels, visibly separate from hand, sleeve and cup body; keep wrist, palm, forearm and cup position level and fixed, with one natural five-digit grip. Add no second handle or drinkware. Second, rebuild only the water, right-side boat and harbor helpers as calm competent routine work in choppy but non-dangerous conditions. Lower all wave crests and sparse white foam below the platform top, below every person's knees and below the boat gunwale; no wave, splash or spray touches a face, torso or platform surface. Place every helper entirely on dry quay stones or inside the upright level boat, with no body or foot in the water. Moor the boat securely parallel to the platform with one ordinary rope connection; show helpers passing a line and steadying the already-safe boat rather than hauling, rescuing or struggling. Keep their balanced postures, natural limbs and shared agency. Preserve visible water movement but remove towering breakers, engulfing spray, emergency bracing, falling, drowning, rescue or peril cues. Add no second cup, vessel-shaped drinkware, person, text, symbol, crown, throne or dramatic rescue prop. In the full image and at 140 pixels, the steward calmly coordinates safe harbor work while one handled cup remains level and unmistakable.",
+      "retryReview": {
+        "artifactPath": "art/card-art-v3-retry-constraints/cups-king-attempt-002.json",
+        "artifactSha256": "2ca52ee2e5fd48ecc053e8dac02a82780ae8a29775f54f886ab31c86167b028d",
+        "result": "approved",
+        "reviewedAt": "2026-08-05T10:27:16.000Z",
+        "reviewer": "Planck and Harvey (independent safe-harbor meaning and mobile cup-handle precision-edit audit)"
+      },
+      "retouchRecipeDefinitionSha256": null,
+      "retouchRecipeSha256": null,
+      "retouchSourceSha256": null,
+      "selectionStatus": "selected"
     }
   ]
 }
