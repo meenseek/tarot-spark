@@ -204,8 +204,10 @@ src/domain/tarot -> src/i18n
 - Move state to a feature hook or feature module when multiple components in
   the same feature need it.
 - Keep tarot card, spread, topic, prompt, and interpretation data typed.
-- Keep tarot topic, spread position, and card ids in TypeScript as the canonical
-  source of truth; materialize localized arrays from those ids.
+- Keep tarot topic, card-count spread, reading-style, and all 78 card ids in
+  TypeScript as the canonical source of truth; materialize localized arrays
+  from those ids. A spread records only card count and never assigns semantic
+  position names.
 - Keep browser storage, analytics, and clipboard helpers behind small wrapper
   functions in the feature or `src/lib`.
 - Model the reading workflow as a feature-local tagged session with `setup`,
@@ -220,8 +222,19 @@ src/domain/tarot -> src/i18n
   versioned, one-time `sessionStorage` handoff; the same handoff may preserve
   context across a document reload required to stop an already running optional
   service. Reading URLs and analytics payloads must omit the context.
-- Keep spread, spread-position, and reading-style ids in TypeScript. Localize
-  their labels and prompt instructions through the tarot message data.
+- Keep spread and reading-style ids in TypeScript. Localize their labels and
+  prompt instructions through the tarot message data.
+- Build the user-copy prompt from exact localized card names in draw order. Do
+  not serialize card images, visual descriptions, fixed card meanings, internal
+  card ids, prompt variants, or interpretation lenses into that prompt.
+- Build the separate instant-reading provider input from reviewed nonvisual
+  upright meanings in draw order. Do not send card names, card images, internal
+  ids, invented positions, interpretation lenses, or user context. The UI owns
+  exact card names and order and joins them to provider interpretations by
+  validated indexes.
+- Keep instant-reading provider prompts, schemas, generation configuration, and
+  contract fingerprint in the shared domain contract used by production and
+  evaluation. Convert provider card indexes to internal ids only after parsing.
 - Keep both current prompt style and original draw style in public reading URL
   state. This preserves prompt customization without misrepresenting how the
   committed cards were drawn.
