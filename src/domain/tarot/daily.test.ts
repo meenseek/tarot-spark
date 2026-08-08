@@ -16,10 +16,10 @@ describe("daily question tarot selection", () => {
   });
 
   it("keeps the versioned daily mapping deterministic", () => {
-    expect(dailyQuestionAlgorithmVersion).toBe("daily-v1");
-    expect(tarotCardIds).toHaveLength(12);
-    expect(getDailyTarotCardId("2026-07-28")).toBe("temperance");
-    expect(getDailyTarotCardId("2026-07-29")).toBe("the-star");
+    expect(dailyQuestionAlgorithmVersion).toBe("daily-v2");
+    expect(tarotCardIds).toHaveLength(78);
+    expect(getDailyTarotCardId("2026-07-28")).toBe("wands-knight");
+    expect(getDailyTarotCardId("2026-07-29")).toBe("swords-7");
     expect(getDailyTarotCardId("2026-07-28")).toBe(
       getDailyTarotCardId("2026-07-28"),
     );

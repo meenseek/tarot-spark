@@ -30,7 +30,7 @@ async function serveCardArtFixture(page: Page, delayMs = 0) {
 
     await route.fulfill({
       contentType: "image/jpeg",
-      path: "public/cards/the-fool.jpg",
+      path: "public/cards/v3/the-fool.jpg",
       status: 200,
     });
   });
@@ -322,7 +322,7 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
 
   await drawButton.click();
   const copyPromptButton = page.getByRole("button", {
-    name: "Copy selected prompt",
+    name: "Copy prompt",
   });
   await tabTo(page, copyPromptButton);
   await assertFocusOutline(copyPromptButton, page);
@@ -479,7 +479,7 @@ test("keeps the card back visible until delayed card art can reveal", async ({
     await arrivalAnimation.finished;
   });
   await expect(firstCard.locator("[data-card-back]")).toBeVisible();
-  await expect(firstCard.locator("[data-glyph-id]")).toHaveCount(0);
+  await expect(firstCard.locator("[data-card-text-face]")).toHaveCount(0);
   await expect(firstCard.locator("[data-card-visual-state]")).toHaveAttribute(
     "data-card-visual-state",
     "pending",
@@ -509,7 +509,7 @@ for (const width of [320, 360, 390] as const) {
     await expect(page.getByTestId("card-overview")).toBeVisible();
     await expect(page.locator('[data-testid^="reading-card-"]')).toHaveCount(3);
     await expect(
-      page.getByRole("button", { name: "이 질문 복사하기" }),
+      page.getByRole("button", { name: "질문 복사하기" }),
     ).toBeVisible();
 
     const interactiveTargets = page.locator(
@@ -651,14 +651,14 @@ test("keeps the quick reading result start in view after a pointer draw", async 
     .toBe(true);
 });
 
-test("keeps a failed-art glyph centered inside the enlarged frame", async ({
+test("keeps a failed-art name face centered inside the enlarged frame", async ({
   page,
 }) => {
   await page.setViewportSize({ height: 844, width: 320 });
   await page.route("**/_next/image**", async (route) => {
     const optimizedUrl = new URL(route.request().url()).searchParams.get("url");
 
-    if (optimizedUrl === "/cards/the-fool.jpg") {
+    if (optimizedUrl === "/cards/v3/the-fool.jpg") {
       await route.fulfill({
         body: "failed card art",
         contentType: "text/plain",
@@ -669,7 +669,7 @@ test("keeps a failed-art glyph centered inside the enlarged frame", async ({
 
     await route.fulfill({
       contentType: "image/jpeg",
-      path: "public/cards/the-fool.jpg",
+      path: "public/cards/v3/the-fool.jpg",
       status: 200,
     });
   });
@@ -678,20 +678,21 @@ test("keeps a failed-art glyph centered inside the enlarged frame", async ({
   );
 
   const firstCard = page.getByTestId("reading-card-0");
-  const glyph = firstCard.locator('[data-glyph-id="the-fool"]');
-  await expect(glyph).toBeVisible({ timeout: 10_000 });
+  const textFace = firstCard.locator('[data-card-text-face="the-fool"]');
+  await expect(textFace).toBeVisible({ timeout: 10_000 });
+  await expect(textFace).toContainText("The Fool");
   await expectCardSpreadLayout(page, 3);
 
   const geometry = await firstCard.evaluate((card) => {
     const frame = card.querySelector("[data-card-art-frame]");
-    const currentGlyph = card.querySelector('[data-glyph-id="the-fool"]');
+    const currentFace = card.querySelector('[data-card-text-face="the-fool"]');
 
-    if (!frame || !currentGlyph) {
-      throw new Error("Fallback frame or glyph is missing");
+    if (!frame || !currentFace) {
+      throw new Error("Fallback frame or name face is missing");
     }
 
     const frameRect = frame.getBoundingClientRect();
-    const glyphRect = currentGlyph.getBoundingClientRect();
+    const faceRect = currentFace.getBoundingClientRect();
 
     return {
       frame: {
@@ -702,30 +703,30 @@ test("keeps a failed-art glyph centered inside the enlarged frame", async ({
         top: frameRect.top,
         width: frameRect.width,
       },
-      glyph: {
-        bottom: glyphRect.bottom,
-        height: glyphRect.height,
-        left: glyphRect.left,
-        right: glyphRect.right,
-        top: glyphRect.top,
-        width: glyphRect.width,
+      face: {
+        bottom: faceRect.bottom,
+        height: faceRect.height,
+        left: faceRect.left,
+        right: faceRect.right,
+        top: faceRect.top,
+        width: faceRect.width,
       },
     };
   });
 
-  expectContained(geometry.frame, geometry.glyph, "fallback glyph");
+  expectContained(geometry.frame, geometry.face, "fallback name face");
   expect(
     Math.abs(
       geometry.frame.left +
         geometry.frame.width / 2 -
-        (geometry.glyph.left + geometry.glyph.width / 2),
+        (geometry.face.left + geometry.face.width / 2),
     ),
   ).toBeLessThanOrEqual(1);
   expect(
     Math.abs(
       geometry.frame.top +
         geometry.frame.height / 2 -
-        (geometry.glyph.top + geometry.glyph.height / 2),
+        (geometry.face.top + geometry.face.height / 2),
     ),
   ).toBeLessThanOrEqual(1);
 });
@@ -805,7 +806,9 @@ test("reserves the hydrated Daily panel height at mobile widths", async ({
   }
 });
 
-test("maps every restored preview card to approved art", async ({ page }) => {
+test("maps every restored illustrated card to approved art", async ({
+  page,
+}) => {
   test.setTimeout(60_000);
 
   const cardBatches = [
@@ -889,6 +892,33 @@ test("maps every restored preview card to approved art", async ({ page }) => {
       expect(decodedImage.complete).toBe(true);
       expect(decodedImage.naturalWidth).toBeGreaterThan(0);
     }
+  }
+});
+
+test("loads approved v3 art for previously text-only localized cards", async ({
+  page,
+}) => {
+  await page.goto(
+    "/ko?topic=love&spread=deep&cards=wands-queen,swords-3,cups-ace,pentacles-king,the-devil,the-world",
+  );
+
+  for (const [cardId, cardName] of [
+    ["wands-queen", "완드 퀸"],
+    ["swords-3", "소드 3"],
+    ["cups-ace", "컵 에이스"],
+    ["pentacles-king", "펜타클 킹"],
+    ["the-devil", "악마"],
+    ["the-world", "세계"],
+  ] as const) {
+    const card = page.locator(`[data-card-id="${cardId}"]`);
+    await expect(card.getByText(cardName, { exact: true })).toBeVisible();
+    await expect(card.locator(`[data-card-text-face="${cardId}"]`)).toHaveCount(
+      0,
+    );
+    await expect(card.locator(`[data-art-id="${cardId}"]`)).toHaveAttribute(
+      "data-art-ready",
+      "true",
+    );
   }
 });
 

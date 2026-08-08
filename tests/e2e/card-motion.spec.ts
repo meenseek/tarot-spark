@@ -8,7 +8,7 @@ async function fulfillCardArt(route: Route, delayMs = 0) {
 
   await route.fulfill({
     contentType: "image/jpeg",
-    path: "public/cards/the-fool.jpg",
+    path: "public/cards/v3/the-fool.jpg",
     status: 200,
   });
 }
@@ -83,7 +83,7 @@ test("keeps the back pending and independently reveals delayed art", async ({
 
     return fulfillCardArt(
       route,
-      optimizedUrl === "/cards/the-fool.jpg" ? 350 : 0,
+      optimizedUrl === "/cards/v3/the-fool.jpg" ? 350 : 0,
     );
   });
   await page.goto("/");
@@ -143,13 +143,13 @@ test("keeps the deep six-card reveal within the locked stagger", async ({
   await expect(lastPlane).toHaveCSS("animation-delay", "0.52s");
 });
 
-test("uses the matching glyph face when one approved image fails", async ({
+test("uses the exact named face when one approved image fails", async ({
   page,
 }) => {
   await page.route("**/_next/image**", async (route) => {
     const optimizedUrl = new URL(route.request().url()).searchParams.get("url");
 
-    if (optimizedUrl === "/cards/the-fool.jpg") {
+    if (optimizedUrl === "/cards/v3/the-fool.jpg") {
       await route.fulfill({
         body: "failed card art",
         contentType: "text/plain",
@@ -165,9 +165,9 @@ test("uses the matching glyph face when one approved image fails", async ({
   await page.getByRole("button", { name: "Draw 3 cards" }).click();
 
   const firstCard = page.getByTestId("reading-card-0");
-  await expect(firstCard.locator('[data-glyph-id="the-fool"]')).toBeVisible({
-    timeout: 10_000,
-  });
+  const textFace = firstCard.locator('[data-card-text-face="the-fool"]');
+  await expect(textFace).toBeVisible({ timeout: 10_000 });
+  await expect(textFace).toContainText("The Fool");
   await expect(firstCard.locator("[data-card-visual-state]")).toHaveAttribute(
     "data-card-visual-state",
     /^(?:flipping-fallback|fallback)$/,

@@ -28,7 +28,7 @@ test("serves the localized daily question without hydration errors", async ({
     }),
   ).toBeVisible();
   await expect(page.getByTestId("daily-card")).toBeVisible();
-  await expect(page.getByText(/12-card Major Arcana preview/i)).toBeVisible();
+  await expect(page.getByText(/complete 78-card deck/i)).toBeVisible();
   await expect(
     page.getByText(/entertainment and self-reflection only/i),
   ).toBeVisible();

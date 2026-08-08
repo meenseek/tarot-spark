@@ -3,10 +3,8 @@
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import {
-  promptSlotIds,
   readingStyleIds,
   spreadIds,
-  spreadPositionIdsBySpread,
   tarotCardIds,
   topicIds,
 } from "@/domain/tarot";
@@ -31,7 +29,7 @@ const analyticsEventPayloadKeys = {
     "spread_id",
     "style_id",
     "draw_style_id",
-    "position_id",
+    "card_order",
     "card_id",
   ],
   result_view: [
@@ -49,7 +47,6 @@ const analyticsEventPayloadKeys = {
     "style_id",
     "draw_style_id",
     "card_count",
-    "prompt_slot",
     "prompt_version",
     "surface",
   ],
@@ -252,11 +249,9 @@ function isAnalyticsPayload(
   }
 
   if (name === "card_selected") {
-    const spreadId = value["spread_id"];
-
     return (
       isAllowedValue(value["card_id"], tarotCardIds) &&
-      isAllowedValue(value["position_id"], spreadPositionIdsBySpread[spreadId])
+      isCardOrder(value["card_order"], value["spread_id"])
     );
   }
 
@@ -270,8 +265,7 @@ function isAnalyticsPayload(
 
   if (name === "prompt_copy") {
     return (
-      isAllowedValue(value["prompt_slot"], promptSlotIds) &&
-      value["prompt_version"] === "prompt-pack-v2" &&
+      value["prompt_version"] === "tarot-prompt-v3" &&
       value["surface"] === "reading_result"
     );
   }
@@ -284,6 +278,16 @@ function isAnalyticsPayload(
     name === "share_result" &&
     isAllowedValue(value["method"], shareMethods) &&
     isAllowedValue(value["outcome"], shareOutcomes)
+  );
+}
+
+function isCardOrder(value: unknown, spreadId: unknown) {
+  const maximum = spreadId === "quick" ? 3 : spreadId === "deep" ? 6 : 0;
+
+  return (
+    Number.isSafeInteger(value) &&
+    Number(value) >= 1 &&
+    Number(value) <= maximum
   );
 }
 

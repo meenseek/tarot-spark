@@ -1,6 +1,6 @@
-import type { TarotCardId } from "@/domain/tarot";
+import { tarotCardIds, type TarotCardId } from "@/domain/tarot";
 
-export const cardArtSources: Record<TarotCardId, string> = {
+export const legacyCardArtSources: Partial<Record<TarotCardId, string>> = {
   "the-fool": "/cards/the-fool.jpg",
   "the-magician": "/cards/the-magician.jpg",
   "the-high-priestess": "/cards/the-high-priestess.jpg",
@@ -14,3 +14,9 @@ export const cardArtSources: Record<TarotCardId, string> = {
   temperance: "/cards/temperance.jpg",
   "the-star": "/cards/the-star.jpg",
 };
+
+export const cardArtSources = Object.freeze(
+  Object.fromEntries(
+    tarotCardIds.map((cardId) => [cardId, `/cards/v3/${cardId}.jpg`]),
+  ) as Record<TarotCardId, string>,
+);

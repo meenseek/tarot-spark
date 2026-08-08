@@ -20,7 +20,9 @@ describe("TarotCardArt", () => {
   });
 
   it("uses the shared card back before a card is drawn", () => {
-    const { container } = render(<TarotCardArt cardId={undefined} />);
+    const { container } = render(
+      <TarotCardArt cardId={undefined} cardName="Prepared card" />,
+    );
 
     expect(
       container.querySelector('[data-card-visual-state="prepared"]'),
@@ -30,9 +32,14 @@ describe("TarotCardArt", () => {
     expect(container.querySelector("img")).not.toBeInTheDocument();
   });
 
-  it("flips to the matching glyph when approved art fails during a draw", async () => {
+  it("flips to a named text face when approved art fails during a draw", async () => {
     const { container } = render(
-      <TarotCardArt cardId="the-fool" revealSequence={1} shouldReveal />,
+      <TarotCardArt
+        cardId="the-fool"
+        cardName="The Fool"
+        revealSequence={1}
+        shouldReveal
+      />,
     );
     const image = container.querySelector("img");
 
@@ -42,7 +49,7 @@ describe("TarotCardArt", () => {
 
     await waitFor(() => {
       expect(
-        container.querySelector('[data-glyph-id="the-fool"]'),
+        container.querySelector('[data-card-text-face="the-fool"]'),
       ).toBeInTheDocument();
       expect(
         container.querySelector('[data-card-visual-state="flipping-fallback"]'),
@@ -67,11 +74,32 @@ describe("TarotCardArt", () => {
     });
   });
 
+  it("falls back to the exact name when any approved card art fails", async () => {
+    const { container } = render(
+      <TarotCardArt cardId="swords-3" cardName="Three of Swords" />,
+    );
+
+    const image = container.querySelector("img");
+    expect(image).toHaveAttribute("data-art-id", "swords-3");
+    fireEvent.error(image as HTMLImageElement);
+
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-card-text-face="swords-3"]'),
+      ).toHaveTextContent("Three of Swords");
+      expect(
+        container.querySelector('[data-card-visual-state="fallback"]'),
+      ).toBeInTheDocument();
+    });
+  });
+
   it("tries a different approved source after an earlier source failed", () => {
-    const { container, rerender } = render(<TarotCardArt cardId="the-fool" />);
+    const { container, rerender } = render(
+      <TarotCardArt cardId="the-fool" cardName="The Fool" />,
+    );
 
     fireEvent.error(container.querySelector("img") as HTMLImageElement);
-    rerender(<TarotCardArt cardId="the-lovers" />);
+    rerender(<TarotCardArt cardId="the-lovers" cardName="The Lovers" />);
 
     expect(container.querySelector('[data-art-id="the-lovers"]')).toBeVisible();
     expect(container.querySelector("[data-card-back]")).toBeVisible();
@@ -80,7 +108,12 @@ describe("TarotCardArt", () => {
   it("keeps the card back visible until a ready face begins one flip", async () => {
     const { container } = render(
       <div style={{ height: 112, position: "relative", width: 80 }}>
-        <TarotCardArt cardId="the-fool" revealSequence={1} shouldReveal />
+        <TarotCardArt
+          cardId="the-fool"
+          cardName="The Fool"
+          revealSequence={1}
+          shouldReveal
+        />
       </div>,
     );
     const image = container.querySelector("img") as HTMLImageElement;
@@ -130,7 +163,7 @@ describe("TarotCardArt", () => {
   it("keeps static art hidden until ready without replaying the reveal", async () => {
     const { container } = render(
       <div style={{ height: 112, position: "relative", width: 80 }}>
-        <TarotCardArt cardId="the-star" />
+        <TarotCardArt cardId="the-star" cardName="The Star" />
       </div>,
     );
     const image = container.querySelector("img") as HTMLImageElement;
@@ -166,7 +199,9 @@ describe("TarotCardArt", () => {
       get: () => 80,
     });
 
-    const { container } = render(<TarotCardArt cardId="the-hermit" />);
+    const { container } = render(
+      <TarotCardArt cardId="the-hermit" cardName="The Hermit" />,
+    );
 
     await waitFor(() => {
       expect(

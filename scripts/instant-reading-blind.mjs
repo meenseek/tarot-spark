@@ -212,12 +212,13 @@ function assertComparableRuns(candidate, baseline) {
   const comparableFields = [
     "apiVersion",
     "caseManifestSha256",
+    "contractFingerprint",
     "dataSha256",
     "executionPolicy",
     "generationConfig",
     "promptSetSha256",
     "promptVersion",
-    "responseSchema",
+    "responseSchemas",
     "runnerVersion",
     "schemaVersion",
     "store",
@@ -271,22 +272,14 @@ function assertCompleteFullRun(generations, cases) {
   }
 }
 
-function getCaseBrief(messages, evaluationCase) {
+export function getCaseBrief(messages, evaluationCase) {
   return {
-    cards: evaluationCase.cards.map(({ cardId, positionId }) => ({
+    cards: evaluationCase.cards.map(({ cardId }, index) => ({
       card: messages.cards[cardId].name,
-      meaning: {
-        agency: messages.cards[cardId].agency,
-        caution: messages.cards[cardId].caution,
-        light: messages.cards[cardId].light,
-        promptAngle: messages.cards[cardId].promptAngle,
-        shadow: messages.cards[cardId].shadow,
-        upright: messages.cards[cardId].upright,
-      },
-      position: messages.spreadPositions[positionId].label,
+      meaning: messages.cards[cardId].meaning,
+      order: index + 1,
     })),
     kind: evaluationCase.kind,
-    lens: messages.readingLenses[evaluationCase.lensId].label,
     ...(evaluationCase.kind === "safety"
       ? { forbiddenBehaviors: evaluationCase.forbiddenBehaviors }
       : {}),
@@ -297,12 +290,6 @@ function getCaseBrief(messages, evaluationCase) {
 }
 
 export function formatOutputForReview(messages, evaluationCase, output) {
-  const positionLabels = new Map(
-    evaluationCase.cards.map(({ positionId }) => [
-      positionId,
-      messages.spreadPositions[positionId].label,
-    ]),
-  );
   const cardNames = new Map(
     evaluationCase.cards.map(({ cardId }) => [
       cardId,
@@ -320,8 +307,8 @@ export function formatOutputForReview(messages, evaluationCase, output) {
     "",
     output.synthesis,
     "",
-    ...output.positionReadings.flatMap(({ positionId, interpretation }) => [
-      `${positionLabels.get(positionId)}`,
+    ...output.cardReadings.flatMap(({ cardId, interpretation }, index) => [
+      `${index + 1}. ${cardNames.get(cardId)}`,
       interpretation,
       "",
     ]),
@@ -357,8 +344,8 @@ export function summarizeRunRecords(records, cases) {
     const schemaValid = records.filter(
       ({ validation }) => validation?.schemaValid,
     ).length;
-    const cardAndPositionIntegrity = records.filter(
-      ({ validation }) => validation?.cardAndPositionIntegrity,
+    const cardOrderIntegrity = records.filter(
+      ({ validation }) => validation?.cardOrderIntegrity,
     ).length;
     const presentationValid = records.filter(
       ({ validation }) => validation?.presentationValid,
@@ -371,9 +358,9 @@ export function summarizeRunRecords(records, cases) {
     ).length;
 
     return {
-      cardAndPositionIntegrity,
-      cardAndPositionIntegrityRate:
-        records.length === 0 ? 0 : cardAndPositionIntegrity / records.length,
+      cardOrderIntegrity,
+      cardOrderIntegrityRate:
+        records.length === 0 ? 0 : cardOrderIntegrity / records.length,
       heuristicReviewFlags,
       firstAttemptDisplayable,
       firstAttemptDisplayableRate:
@@ -424,7 +411,7 @@ export function summarizeRunRecords(records, cases) {
 }
 
 const failedSummaryValidation = Object.freeze({
-  cardAndPositionIntegrity: false,
+  cardOrderIntegrity: false,
   heuristicReviewFlags: [],
   presentationValid: false,
   schemaValid: false,

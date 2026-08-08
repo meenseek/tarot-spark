@@ -2,7 +2,7 @@ import { tarotCardIds, type TarotCardId } from "./ids";
 import { stableHash } from "./stable-hash";
 import type { TarotCard } from "./types";
 
-export const dailyQuestionAlgorithmVersion = "daily-v1";
+export const dailyQuestionAlgorithmVersion = "daily-v2";
 
 export function getLocalDateKey(date: Date) {
   if (Number.isNaN(date.getTime())) {

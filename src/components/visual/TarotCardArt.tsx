@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, type AnimationEvent } from "react";
-import type { TarotCardId } from "@/domain/tarot";
+import { getTarotCardDefinition, type TarotCardId } from "@/domain/tarot";
 import { TarotCardBack } from "./TarotCardBack";
-import { TarotCardGlyph } from "./TarotCardGlyph";
 import { cardArtSources } from "./tarot-card-art-sources";
 
 type TarotCardArtProps = {
   readonly cardId: TarotCardId | undefined;
+  readonly cardName: string;
   readonly className?: string;
   readonly glyphClassName?: string;
   readonly revealSequence?: number;
@@ -18,6 +18,7 @@ type TarotCardArtProps = {
 
 export function TarotCardArt({
   cardId,
+  cardName,
   className = "object-cover",
   glyphClassName = "h-16 w-16",
   revealSequence = 0,
@@ -46,7 +47,7 @@ export function TarotCardArt({
     }
   }, [artSource]);
 
-  if (!cardId || !artSource) {
+  if (!cardId) {
     return (
       <span className="absolute inset-0" data-card-visual-state="prepared">
         {cardBack}
@@ -54,10 +55,12 @@ export function TarotCardArt({
     );
   }
 
-  const hasArtFailed = failedArtSource === artSource;
+  const hasNoApprovedArt = !artSource;
+  const hasArtFailed = Boolean(artSource && failedArtSource === artSource);
   const isArtReady = readyArtSource === artSource;
-  const isFaceReady = hasArtFailed || isArtReady;
-  const revealKey = `${artSource}:${revealSequence}`;
+  const isTextFallback = hasNoApprovedArt || hasArtFailed;
+  const isFaceReady = isTextFallback || isArtReady;
+  const revealKey = `${cardId}:${artSource ?? "text"}:${revealSequence}`;
   const isRevealComplete = !shouldReveal || completedRevealKey === revealKey;
   const shouldAnimate = isFaceReady && shouldReveal && !isRevealComplete;
   const planeClassName = shouldAnimate
@@ -68,10 +71,10 @@ export function TarotCardArt({
   const visualState = !isFaceReady
     ? "pending"
     : shouldAnimate
-      ? hasArtFailed
+      ? isTextFallback
         ? "flipping-fallback"
         : "flipping"
-      : hasArtFailed
+      : isTextFallback
         ? "fallback"
         : "front";
 
@@ -104,9 +107,10 @@ export function TarotCardArt({
           className="ts-card-face ts-card-face-front bg-ts-canvas text-ts-action"
           data-card-face="front"
         >
-          {hasArtFailed ? (
-            <TarotCardGlyph
+          {isTextFallback ? (
+            <TarotCardTextFace
               cardId={cardId}
+              cardName={cardName}
               className={centeredGlyphClassName}
             />
           ) : (
@@ -129,4 +133,57 @@ export function TarotCardArt({
       </span>
     </span>
   );
+}
+
+function TarotCardTextFace({
+  cardId,
+  cardName,
+  className,
+}: {
+  readonly cardId: TarotCardId;
+  readonly cardName: string;
+  readonly className: string;
+}) {
+  const definition = getTarotCardDefinition(cardId);
+  const mark =
+    definition.arcana === "major"
+      ? definition.number === 0
+        ? "0"
+        : toRomanNumeral(definition.number)
+      : `${definition.suit.slice(0, 1).toUpperCase()} · ${definition.rank.toUpperCase()}`;
+
+  return (
+    <span
+      className={`${className} grid h-auto w-[82%] place-items-center gap-1 text-center`}
+      data-card-text-face={cardId}
+    >
+      <span className="text-[0.55rem] font-semibold tracking-[0.16em] opacity-70">
+        {mark}
+      </span>
+      <span className="break-words font-ts-display text-[0.7rem] font-semibold leading-tight">
+        {cardName}
+      </span>
+    </span>
+  );
+}
+
+function toRomanNumeral(value: number) {
+  const numerals = [
+    [10, "X"],
+    [9, "IX"],
+    [5, "V"],
+    [4, "IV"],
+    [1, "I"],
+  ] as const;
+  let remaining = value;
+  let result = "";
+
+  for (const [amount, numeral] of numerals) {
+    while (remaining >= amount) {
+      result += numeral;
+      remaining -= amount;
+    }
+  }
+
+  return result;
 }

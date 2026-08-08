@@ -1,11 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-  getReadingLens,
-  getSpread,
-  getSpreadPositions,
-  type InstantReadingRequest,
-} from "@/domain/tarot";
-import { getTarotData } from "@/i18n/tarot-data";
+import type { InstantReadingRequest } from "@/domain/tarot";
 import { POST } from "./route";
 
 const originalEnabled = process.env["TAROT_INSTANT_READING_ENABLED"];
@@ -52,7 +46,7 @@ describe("instant reading route", () => {
     process.env["TAROT_READING_MODEL"] = "test-model";
     const readingRequest = createValidRequest();
     const reading = createValidReading(readingRequest);
-    const serializedReading = JSON.stringify(reading);
+    const serializedReading = JSON.stringify(createProviderReading(reading));
     const splitAt = Math.floor(serializedReading.length / 2);
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       Response.json({
@@ -94,6 +88,13 @@ describe("instant reading route", () => {
     expect(providerBody["store"]).toBe(false);
     expect(JSON.stringify(providerBody)).not.toContain("userContext");
     expect(JSON.stringify(providerBody)).not.toContain("민감한 개인 상황");
+    expect(JSON.stringify(providerBody)).not.toContain("wands-queen");
+    expect(JSON.stringify(providerBody)).not.toContain('"cardId"');
+    expect(JSON.stringify(providerBody)).not.toContain('"cardIds"');
+    expect(JSON.stringify(providerBody)).not.toContain("바보");
+    expect(JSON.stringify(providerBody)).not.toContain("완드 퀸");
+    expect(JSON.stringify(providerBody)).not.toContain("소드 3");
+    expect(JSON.stringify(providerBody)).toContain("제공된 정방향 핵심 의미:");
   });
 
   it("hides provider quota failures behind the fallback response", async () => {
@@ -174,6 +175,7 @@ describe("instant reading route", () => {
     enableRoute();
     const readingRequest = createValidRequest();
     const reading = createValidReading(readingRequest);
+    const providerReading = createProviderReading(reading);
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       Response.json({
         steps: [
@@ -181,7 +183,7 @@ describe("instant reading route", () => {
             content: [
               {
                 text: JSON.stringify({
-                  ...reading,
+                  ...providerReading,
                   synthesis: `반드시 3일 안에 연락이 옵니다. ${reading.synthesis}`,
                 }),
                 type: "text",
@@ -208,28 +210,12 @@ function enableRoute() {
 }
 
 function createValidRequest(): InstantReadingRequest {
-  const tarotData = getTarotData("ko");
-  const spread = getSpread(tarotData.spreads, "quick");
-  const positions = getSpreadPositions(spread, tarotData.spreadPositions);
-  const cardIds = ["the-fool", "the-magician", "the-high-priestess"] as const;
-  const cards = positions.map((position, index) => ({
-    cardId: cardIds[index] ?? "the-fool",
-    positionId: position.id,
-  }));
-  const drawnCards = cards.map(({ cardId, positionId }) => ({
-    card:
-      tarotData.cards.find((candidate) => candidate.id === cardId) ??
-      tarotData.cards[0]!,
-    position:
-      tarotData.spreadPositions.find(
-        (candidate) => candidate.id === positionId,
-      ) ?? tarotData.spreadPositions[0]!,
-  }));
-  const lens = getReadingLens(tarotData.readingLenses, "love", drawnCards);
-
   return {
-    cards,
-    lensId: lens.id,
+    cards: [
+      { cardId: "the-fool" },
+      { cardId: "wands-queen" },
+      { cardId: "swords-3" },
+    ],
     spreadId: "quick",
     styleId: "balanced",
     topicId: "love",
@@ -253,10 +239,9 @@ function createValidReading(request: InstantReadingRequest) {
   return {
     headline: "멈춤과 움직임 사이의 선택",
     synthesis: sentence.repeat(3),
-    positionReadings: request.cards.map(({ cardId, positionId }) => ({
+    cardReadings: request.cards.map(({ cardId }) => ({
       cardId,
       interpretation: sentence.repeat(2),
-      positionId,
     })),
     strongestConnection: {
       cardIds: [request.cards[0]!.cardId, request.cards[1]!.cardId],
@@ -266,6 +251,20 @@ function createValidReading(request: InstantReadingRequest) {
     uncertainty: sentence.repeat(2),
     nextStep: sentence,
     reflection: "지금 가장 부담 없이 확인할 수 있는 선택은 무엇인가요?",
+  } as const;
+}
+
+function createProviderReading(reading: ReturnType<typeof createValidReading>) {
+  return {
+    ...reading,
+    cardReadings: reading.cardReadings.map(({ interpretation }) => ({
+      interpretation,
+    })),
+    strongestConnection: {
+      cardIndexes: [1, 2],
+      explanation: reading.strongestConnection.explanation,
+      relationType: reading.strongestConnection.relationType,
+    },
   } as const;
 }
 

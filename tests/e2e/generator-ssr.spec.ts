@@ -10,9 +10,7 @@ test("renders a restored result without JavaScript", async ({ page }) => {
   await expect(page.getByText("The Fool").first()).toBeVisible();
   await expect(page.getByText("The Magician").first()).toBeVisible();
   await expect(page.getByText("The High Priestess").first()).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Copy selected prompt" }),
-  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Copy prompt" })).toBeVisible();
 });
 
 test("renders a localized cardless preset without JavaScript", async ({

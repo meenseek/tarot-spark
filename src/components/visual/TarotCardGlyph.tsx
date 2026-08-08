@@ -4,7 +4,9 @@ export type GlyphDefinition = {
   readonly paths: readonly string[];
 };
 
-export const tarotCardGlyphDefinitions = {
+export const tarotCardGlyphDefinitions: Partial<
+  Record<TarotCardId, GlyphDefinition>
+> = {
   "the-fool": {
     paths: [
       "M18 49c7-16 18-26 34-27M37 18v-8M32.5 13.5l9 9M32.5 22.5l9-9M50 49h7",
@@ -61,7 +63,7 @@ export const tarotCardGlyphDefinitions = {
       "M36 18l3.5 12.5L50 23l-7.5 10.5L55 36l-12.5 2.5L50 49l-10.5-7.5L36 54l-3.5-12.5L22 49l7.5-10.5L17 36l12.5-2.5L22 23l10.5 7.5L36 18Z",
     ],
   },
-} satisfies Record<TarotCardId, GlyphDefinition>;
+};
 
 type TarotCardGlyphProps = {
   readonly cardId: TarotCardId;
@@ -73,6 +75,10 @@ export function TarotCardGlyph({
   className = "",
 }: TarotCardGlyphProps) {
   const definition = tarotCardGlyphDefinitions[cardId];
+
+  if (!definition) {
+    return null;
+  }
 
   return (
     <svg
@@ -98,9 +104,9 @@ export function TarotCardGlyph({
 }
 
 export function getTarotCardGlyphSignature(cardId: TarotCardId) {
-  return tarotCardGlyphDefinitions[cardId].paths.join("|");
+  return tarotCardGlyphDefinitions[cardId]?.paths.join("|");
 }
 
 export function getTarotCardGlyphIds() {
-  return tarotCardIds;
+  return tarotCardIds.filter((cardId) => tarotCardGlyphDefinitions[cardId]);
 }

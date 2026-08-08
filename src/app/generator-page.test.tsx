@@ -18,7 +18,7 @@ describe("generator route server state", () => {
     expect(markup).toContain("The Fool");
     expect(markup).toContain("The Magician");
     expect(markup).toContain("The High Priestess");
-    expect(markup).toContain("Copy selected prompt");
+    expect(markup).toContain("Copy prompt");
   });
 
   it("renders a cardless preset and keeps valid attribution separate from an invalid reading", async () => {

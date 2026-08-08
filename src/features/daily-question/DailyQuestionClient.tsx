@@ -105,11 +105,11 @@ export function DailyQuestionClient({
                     <h2 className="font-ts-display text-3xl font-semibold text-ts-ink">
                       {card.name}
                     </h2>
-                    <p className="text-sm text-ts-action">{card.tone}</p>
                   </div>
                   <div className="relative grid h-28 w-20 place-items-center overflow-hidden rounded-ts-control border border-ts-divider bg-ts-canvas text-ts-action">
                     <TarotCardArt
                       cardId={card.id}
+                      cardName={card.name}
                       className="object-cover"
                       glyphClassName="h-12 w-12"
                       sizes="5rem"
@@ -122,7 +122,7 @@ export function DailyQuestionClient({
                     {copy.meaningLabel}
                   </h3>
                   <p className="text-sm leading-7 text-ts-muted">
-                    {card.upright}
+                    {card.meaning}
                   </p>
                 </div>
 

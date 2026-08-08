@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "Daily Tarot Question | tarot-spark",
-    "description": "Meet one card from tarot-spark's 12-card Major Arcana preview and reflect on one question for today."
+    "description": "Meet one card from tarot-spark's complete 78-card tarot deck and reflect on one question for today."
   },
   "brand": "tarot-spark",
   "eyebrow": "Daily Question",
@@ -11,7 +11,7 @@
   "todayCardLabel": "Today's card",
   "meaningLabel": "A perspective to consider",
   "questionLabel": "Your question for today",
-  "deckNote": "This experiment draws from tarot-spark's current 12-card Major Arcana preview.",
+  "deckNote": "Today's card comes from the complete 78-card deck, including Major Arcana, Wands, Cups, Swords, and Pentacles.",
   "homeLink": "Try the 3-card reading",
   "languageSwitchLabel": "Choose language",
   "disclaimer": "Tarot content is for entertainment and self-reflection only. It is not medical, legal, financial, or mental-health advice."

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { getShareReadingMetadata } from "./metadata";
+import { shareImageVersion } from "./share-image-config";
+import { formatCardTitleSummary, getShareReadingMetadata } from "./metadata";
 
 const originalSiteUrl = process.env["NEXT_PUBLIC_SITE_URL"];
 
@@ -33,7 +34,7 @@ describe("share reading metadata", () => {
           {
             height: 630,
             url: expect.stringContaining(
-              "https://tarot-spark.example/api/share-image?v=1&",
+              `https://tarot-spark.example/api/share-image?v=${shareImageVersion}&`,
             ),
             width: 1200,
           },
@@ -47,6 +48,45 @@ describe("share reading metadata", () => {
     });
     expect(JSON.stringify(metadata)).not.toContain("source=instagram");
     expect(JSON.stringify(metadata)).not.toContain("campaign=vertical-slice");
+  });
+
+  it("keeps six-card titles compact while descriptions retain card order", () => {
+    process.env["NEXT_PUBLIC_SITE_URL"] = "https://tarot-spark.example";
+    const orderedNames = [
+      "Queen of Pentacles",
+      "The High Priestess",
+      "Knight of Wands",
+      "Ten of Swords",
+      "Page of Cups",
+      "Wheel of Fortune",
+    ];
+    const metadata = getShareReadingMetadata("en", {
+      cards:
+        "pentacles-queen,the-high-priestess,wands-knight,swords-10,cups-page,wheel-of-fortune",
+      spread: "deep",
+      topic: "relationship-flow",
+    });
+    const serializedDescription = String(metadata.description);
+
+    expect(metadata.title).toContain(
+      "Queen of Pentacles, The High Priestess, Knight of Wands, and 3 more",
+    );
+    expect(
+      orderedNames.map((name) => serializedDescription.indexOf(name)),
+    ).toEqual(
+      [...orderedNames]
+        .map((name) => serializedDescription.indexOf(name))
+        .sort((left, right) => left - right),
+    );
+    expect(serializedDescription.length).toBeLessThan(300);
+    expect(
+      formatCardTitleSummary("ko", [
+        "펜타클 퀸",
+        "여사제",
+        "완드 나이트",
+        "소드 10",
+      ]),
+    ).toBe("펜타클 퀸, 여사제, 완드 나이트 외 1장");
   });
 
   it("uses a distinct Open Graph object URL for each valid reading", () => {

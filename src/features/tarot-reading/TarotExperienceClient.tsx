@@ -17,24 +17,21 @@ import {
   secondaryButtonClassName,
 } from "@/components/visual/class-names";
 import {
-  buildPromptPack,
+  buildPrompt,
   drawCards,
   getDefaultReadingStyle,
   getDefaultSpread,
   getDefaultTopic,
-  getReadingLens,
   getReadingStyle,
   getSpread,
-  getSpreadPositions,
   getTopic,
   maxUserContextLength,
   parseInstantReading,
   promptVersion,
   type DrawnCard,
   type InstantReadingRequest,
-  type InstantReadingV1,
+  type InstantReadingV2,
   type LocaleTarotData,
-  type PromptSlotId,
   type ReadingStyleId,
   type SpreadId,
   type TopicId,
@@ -176,7 +173,7 @@ export function TarotExperienceClient({
     useState<DrawAnnouncementRequest>();
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const [shareFeedback, setShareFeedback] = useState<ShareFeedback>();
-  const [instantReading, setInstantReading] = useState<InstantReadingV1>();
+  const [instantReading, setInstantReading] = useState<InstantReadingV2>();
   const [instantReadingStatus, setInstantReadingStatus] =
     useState<InstantReadingStatus>("idle");
   const drawSequenceIdRef = useRef(0);
@@ -218,13 +215,8 @@ export function TarotExperienceClient({
   const formInputs =
     session.mode === "result" ? session.current.inputs : session.draft;
   const cards = currentResult?.cards ?? emptyDrawnCards;
-  const selectedPromptSlotId = currentResult?.promptSlot ?? "main";
   const selectedTopic = getTopic(tarotData.topics, formInputs.topicId);
   const selectedSpread = getSpread(tarotData.spreads, formInputs.spreadId);
-  const selectedPositions = useMemo(
-    () => getSpreadPositions(selectedSpread, tarotData.spreadPositions),
-    [selectedSpread, tarotData.spreadPositions],
-  );
   const currentTopic = currentResult
     ? getTopic(tarotData.topics, currentResult.inputs.topicId)
     : undefined;
@@ -234,13 +226,6 @@ export function TarotExperienceClient({
   const currentReadingStyle = currentResult
     ? getReadingStyle(tarotData.readingStyles, currentResult.inputs.styleId)
     : undefined;
-  const readingLens = useMemo(
-    () =>
-      cards.length > 0 && currentTopic
-        ? getReadingLens(tarotData.readingLenses, currentTopic.id, cards)
-        : undefined,
-    [cards, currentTopic, tarotData.readingLenses],
-  );
   const analyticsAttribution =
     getAnalyticsAttributionPayload(readingAttribution);
   const resultViewKey = currentResult
@@ -469,17 +454,12 @@ export function TarotExperienceClient({
     [],
   );
 
-  const promptPack = useMemo(
+  const prompt = useMemo(
     () =>
-      currentResult &&
-      currentTopic &&
-      currentSpread &&
-      currentReadingStyle &&
-      readingLens
-        ? buildPromptPack(
+      currentResult && currentTopic && currentSpread && currentReadingStyle
+        ? buildPrompt(
             {
               cards,
-              lens: readingLens,
               readingStyle: currentReadingStyle,
               spread: currentSpread,
               template: tarotData.promptTemplate,
@@ -488,7 +468,7 @@ export function TarotExperienceClient({
             },
             `${locale} tarot promptTemplate`,
           )
-        : undefined,
+        : "",
     [
       cards,
       currentReadingStyle,
@@ -496,11 +476,9 @@ export function TarotExperienceClient({
       currentSpread,
       currentTopic,
       locale,
-      readingLens,
       tarotData.promptTemplate,
     ],
   );
-  const prompt = promptPack?.[selectedPromptSlotId] ?? "";
   const contextCountLabel = useMemo(
     () =>
       formatTemplateStrict(
@@ -517,10 +495,10 @@ export function TarotExperienceClient({
     () =>
       formatTemplateStrict(
         copy.drawButton,
-        { count: String(selectedPositions.length) },
+        { count: String(selectedSpread.cardCount) },
         `${locale} tarot-reading.drawButton`,
       ),
-    [copy.drawButton, locale, selectedPositions.length],
+    [copy.drawButton, locale, selectedSpread.cardCount],
   );
   const publicReadingState = useMemo<ReadingUrlState>(
     () =>
@@ -738,8 +716,7 @@ export function TarotExperienceClient({
     });
 
     const spread = getSpread(tarotData.spreads, inputs.spreadId);
-    const positions = getSpreadPositions(spread, tarotData.spreadPositions);
-    const drawnCards = drawCards(tarotData.cards, positions);
+    const drawnCards = drawCards(tarotData.cards, spread.cardCount);
     const nextDrawSequenceId = drawSequenceIdRef.current + 1;
     drawSequenceIdRef.current = nextDrawSequenceId;
     setDrawSequenceId(nextDrawSequenceId);
@@ -762,12 +739,12 @@ export function TarotExperienceClient({
       ),
     );
 
-    drawnCards.forEach(({ position, card }) => {
+    drawnCards.forEach(({ card }, index) => {
       trackEvent("card_selected", {
         ...analyticsAttribution,
         locale,
         topic_id: inputs.topicId,
-        position_id: position.id,
+        card_order: index + 1,
         card_id: card.id,
         draw_style_id: inputs.styleId,
         spread_id: inputs.spreadId,
@@ -781,7 +758,6 @@ export function TarotExperienceClient({
       !instantReadingEnabled ||
       locale !== "ko" ||
       cards.length === 0 ||
-      !readingLens ||
       !currentResult
     ) {
       return;
@@ -791,11 +767,7 @@ export function TarotExperienceClient({
     const controller = new AbortController();
     instantReadingRequestRef.current = controller;
     const readingRequest = {
-      cards: cards.map(({ card, position }) => ({
-        cardId: card.id,
-        positionId: position.id,
-      })),
-      lensId: readingLens.id,
+      cards: cards.map(({ card }) => ({ cardId: card.id })),
       spreadId: currentResult.inputs.spreadId,
       styleId: currentResult.inputs.styleId,
       topicId: currentResult.inputs.topicId,
@@ -876,7 +848,6 @@ export function TarotExperienceClient({
       draw_style_id: currentResult.drawStyleId,
       spread_id: currentResult.inputs.spreadId,
       style_id: currentResult.inputs.styleId,
-      prompt_slot: currentResult.promptSlot,
       prompt_version: promptVersion,
       surface: "reading_result",
     } as const;
@@ -909,15 +880,6 @@ export function TarotExperienceClient({
         setCopyState("failed");
       }
     }
-  }
-
-  function choosePromptSlot(promptSlotId: PromptSlotId) {
-    if (!currentResult || currentResult.promptSlot === promptSlotId) {
-      return;
-    }
-
-    dispatchSession({ type: "SET_PROMPT_SLOT", promptSlot: promptSlotId });
-    setCopyState("idle");
   }
 
   async function shareToKakaoTalk() {
@@ -1215,11 +1177,9 @@ export function TarotExperienceClient({
       onInstagramShare={copyInstagramShareUrl}
       onKakaoShare={shareToKakaoTalk}
       onCopyPrompt={copyPrompt}
-      onPromptSlotChange={choosePromptSlot}
       onCopyUrl={copyShareUrl}
       onShareReading={shareReading}
       prompt={prompt}
-      readingLens={readingLens}
       resultActions={
         viewMode === "generator" && session.mode === "result" ? (
           <div
@@ -1244,7 +1204,6 @@ export function TarotExperienceClient({
           </div>
         ) : undefined
       }
-      selectedPromptSlotId={selectedPromptSlotId}
       shareFeedback={shareFeedback}
       shareUrl={manualShareUrl}
     />
@@ -1515,9 +1474,8 @@ export function TarotExperienceClient({
             <CardSpread
               cardMarkLabel={copy.cardMarkLabel}
               cards={[]}
+              cardCount={selectedSpread.cardCount}
               placeholderCardName={copy.placeholderCardName}
-              placeholderCardTone={copy.placeholderCardTone}
-              positions={selectedPositions}
               revealSequence={0}
             />
           </section>
