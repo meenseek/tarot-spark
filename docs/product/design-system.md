@@ -54,16 +54,16 @@ instead of palette utilities or color literals.
 - Present tarot illustrations in one consistent `5:7` portrait frame.
 - Use a warm hand-painted storybook finish with soft gouache texture, restrained
   celestial symbols, and a recurring human cast. Keep characters at roughly a
-  four-and-a-half-head proportion so the deck feels gentle without becoming
-  chibi or toy-like.
+  natural five-to-six-head proportions so the deck feels gentle without
+  becoming chibi or toy-like.
 - Let the scene, gesture, landscape, and one or two card symbols carry the
   meaning. Do not place card names, numerals, captions, logos, or UI text inside
   the illustration.
-- Use the shared full-frame card back for undrawn cards and while approved art
-  loads. Reserve each card's SVG glyph for small icons and degraded-image
-  fallback states. Do not add a stable runtime card ID until its approved
-  illustration mapping exists.
-- Keep the card back identical across spread positions. Fill the `5:7` frame
+- Use the shared full-frame card back only while v3 art loads. Every one of the
+  78 stable card ids maps to one approved `/cards/v3/` illustration in the
+  active release. A load failure exposes retry UI and never substitutes a
+  typographic or glyph card front.
+- Keep the card back identical across cards. Fill the `5:7` frame
   with a bilaterally symmetric outer and inner border plus one central celestial
   medallion that stays legible at the smallest rendered preview.
 - Make card art the visual anchor in main and shared spreads. At narrow widths,
@@ -102,10 +102,11 @@ instead of palette utilities or color literals.
   the next draw must keep the committed cards and prompt visible; cancelling
   must discard the draft and restore focus to the edit trigger.
 - Start each result with a compact three-column card overview containing card
-  art, position, and name. Keep full card meaning in the later details
+  approved card art, neutral draw order, and the exact card name.
+  Keep full card meaning in the later details
   disclosure so three- and six-card results reach the prompt action quickly.
-- Place the generated-prompt copy action before prompt variants, prompt source,
-  card details, sharing options, and shared-reading creation actions.
+- Place the single generated-prompt copy action before prompt source, card
+  details, sharing options, and shared-reading creation actions.
 - Keep current-prompt customization separate from edit-next-draw. Current style
   or private-context changes may update the prompt and share URL, but must not
   redraw cards or rewrite the recorded draw-style provenance.
@@ -117,8 +118,8 @@ instead of palette utilities or color literals.
   restored or shared URL.
 - Move focus to the selectable prompt or manual share URL when a copy or share
   action fails.
-- Use a two-column prompt-variant grid on narrow screens. Switch to four columns
-  only at the `sm` breakpoint or wider.
+- Keep the exact ordered card-name list visible beside the primary prompt-copy
+  action so users can verify what will be sent before opening the full prompt.
 
 ## Card Draw Motion
 
@@ -129,9 +130,8 @@ instead of palette utilities or color literals.
 - Use a 520ms alternating paper-card deal and one 480ms card-back-to-face flip,
   with an 80ms per-card stagger and a 120ms flip offset.
 - Keep the shared card back visible while approved art loads. Start the
-  two-sided flip only after the image is ready, and use the matching SVG glyph as
-  the front face when the image fails. Do not block ready cards behind a slower
-  position.
+  two-sided flip only after the image is ready, and expose a retryable asset
+  error when it fails. Do not block ready cards behind a slower card.
 - Rotate only the `5:7` art plane from zero to 180 degrees so the physical back
   turns away as the front turns in. Do not rotate the article, exceed one
   180-degree flip, or add a shuffle delay, glossy light sweep, or particle

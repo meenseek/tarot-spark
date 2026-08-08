@@ -7,8 +7,9 @@ messages, prediction claims, or personal-data collection. Treat a successful
 `prompt_copy` as activation. Treat `share_click` as intent and `share_result` as
 the terminal share outcome.
 
-Do not expand the current 12-card illustrated preview to all 22 Major Arcana
-until the 200-session gate is reviewed.
+Keep the complete 78-card runtime deck available. Treat v3 as one atomic
+full-deck release; never expose a partial illustrated deck or tie card coverage
+to the 200-session acquisition gate.
 
 Use the [revenue validation plan](revenue-validation-plan.md) for monetization.
 Start its interest test only after its production-integrity and activation
@@ -120,8 +121,8 @@ self-reflection.
 - Stop channels that deliver visits without `result_view`.
 - Keep channels that deliver successful `prompt_copy` without safety or privacy
   complaints.
-- Review the 200-session gate. Continue the 12-card preview if the evidence is
-  still thin; do not fill the deck to create a launch appearance.
+- Review the 200-session gate without changing the complete 78-card art release
+  or substituting name faces.
 
 ## Measurement Contract
 
@@ -135,8 +136,7 @@ Use only the source and campaign values implemented by the product.
 Never add names, account handles, community names, post titles, user questions,
 or personal context to analytics fields or reading URLs.
 
-Review this funnel by locale, source, campaign, topic, spread, style, and prompt
-slot:
+Review this funnel by locale, source, campaign, topic, spread, and style:
 
 `draw_start` -> `result_view` -> `prompt_copy`
 
@@ -151,11 +151,11 @@ Review sharing separately:
 
 ## 200-Session Gate
 
-Proceed to the 22-card illustration rollout only when all conditions are true.
+Proceed to the next illustration rollout only when all conditions are true.
 
 - At least 200 analyzable reading sessions have been observed.
-- Prompt copies occur across more than one prompt slot and are not limited to
-  internal tests.
+- Prompt copies occur across more than one topic and are not limited to internal
+  tests.
 - Share failures are understood and no privacy-bearing URL has been observed.
 - No unresolved high-severity safety, accessibility, or localization defect
   remains.
@@ -171,12 +171,11 @@ If a condition fails, improve the vertical slice and collect another cohort.
 > 타로 카드 뜻을 길게 붙여도 AI 답변이 짧고 비슷해지는 이유는 "무엇을
 > 비교하고 어떻게 답할지"가 빠져 있기 때문이었습니다.
 >
-> 그래서 한 번의 스프레드에서 메인 리딩, 다른 관점, 행동 계획, 감정
-> 정리 프롬프트를 따로 만들었습니다. 특히 상대의 속마음을 단정하지 않고
-> 관찰한 것과 추론한 것을 나누게 했어요.
+> 그래서 뽑힌 순서와 정확한 카드명만 담는 질문 하나로 줄였습니다. 카드
+> 그림이나 임의의 자리 이름을 붙이지 않고, 상대의 속마음을 단정하지
+> 않도록 규칙을 분명히 적었어요.
 >
-> 관계 리딩에서 가장 필요한 건 전체 해석, 행동 계획, 감정 정리 중
-> 무엇인가요?
+> 관계 리딩에서 카드명 외에 꼭 필요하다고 느끼는 정보는 무엇인가요?
 
 Link only in a relevant reply. Add: `제가 만든 무료 도구 tarot-spark의
 관계 흐름 페이지입니다.`
@@ -188,16 +187,16 @@ Title: `관계 타로를 AI에 물을 때 답변이 뻔해지지 않는 프롬�
 Opening:
 
 > "이 카드가 연애에서 무슨 뜻인가요?"만 입력하면 카드별 일반 의미가
-> 반복되기 쉽습니다. 관계 흐름을 살펴보려면 현재 상황, 나의 관점, 외부
-> 흐름, 긴장, 내가 바꿀 수 있는 것, 다음 행동을 나누고 카드 사이의
-> 관계를 요청하는 편이 낫습니다.
+> 반복되기 쉽습니다. 관계 흐름을 살펴볼 때는 뽑힌 카드명을 정확한 순서로
+> 적고, 확인한 사실과 아직 모르는 부분을 구분해 달라고 요청하는 편이
+> 낫습니다.
 
 Body order:
 
 1. Short prompt and detailed prompt comparison.
-2. Six positions and why each exists.
+2. Why card numbers mean draw order only.
 3. Observation, interpretation, and uncertainty example.
-4. Prompt Pack four-slot screenshot.
+4. One prompt with exact card names and the no-image rule.
 5. Maker disclosure, relationship-flow link, and disclaimer.
 
 ### Korean Naver Cafe: Value-First Discussion
@@ -229,20 +228,18 @@ claims.
 
 ### English Reddit: Native Text Case Study
 
-Title: `I split one tarot spread into four AI prompts to reduce generic card summaries`
+Title: `I reduced a tarot prompt to exact card names and one clear contract`
 
 > I was getting the same pattern from AI tarot prompts: three isolated card
 > definitions, a vague conclusion, and no distinction between evidence and
 > projection.
 >
-> I changed the structure so every prompt must use each position, name the
-> strongest relationship among the cards, give two plausible alternatives, and
-> separate user agency from another person's unknown response. The same spread
-> can then become a main reading, counter-reading, action plan, or emotion
-> check-in.
+> I changed the structure so the prompt sends exact card names in draw order,
+> states that no images or position meanings are attached, connects all cards,
+> and separates user agency from another person's unknown response.
 >
 > I built the free prototype, tarot-spark. I am looking for feedback on whether
-> the four outputs feel meaningfully different, not for predictive accuracy.
+> the simpler output is easier to understand, not for predictive accuracy.
 
 Include the link only if the community rule allows it. Otherwise offer the
 prompt structure in the post and let interested users request the project name
