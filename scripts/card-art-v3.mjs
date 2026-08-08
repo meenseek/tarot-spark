@@ -1015,8 +1015,9 @@ function getCardArtV3PromptRecordInternal(
   repositoryRoot = defaultRepositoryRoot,
   stageAuthorization = null,
   auditOnly = false,
+  baselineFiles = undefined,
 ) {
-  validateForPrompt(files, repositoryRoot);
+  validateForPrompt(files, repositoryRoot, auditOnly ? null : baselineFiles);
   const manifest = files.manifest;
   const card = getCard(manifest, cardId);
   if (!auditOnly) {
@@ -1064,8 +1065,16 @@ export function getCardArtV3PromptRecord(
   files,
   cardId,
   repositoryRoot = defaultRepositoryRoot,
+  validationOptions = {},
 ) {
-  return getCardArtV3PromptRecordInternal(files, cardId, repositoryRoot, null);
+  return getCardArtV3PromptRecordInternal(
+    files,
+    cardId,
+    repositoryRoot,
+    null,
+    false,
+    validationOptions.baselineFiles,
+  );
 }
 
 export function getCardArtV3PromptAuditRecord(
@@ -1563,7 +1572,13 @@ function loadRetryConstraintArtifact(
   };
 }
 
-function validateForPrompt(files, repositoryRoot) {
+function validateForPrompt(files, repositoryRoot, baselineFiles = undefined) {
+  const baselineFingerprint =
+    baselineFiles === null
+      ? "disabled"
+      : baselineFiles === undefined
+        ? "repository-head"
+        : sha256(stableStringify(baselineFiles));
   const fingerprint = sha256(
     stableStringify({
       approvals: files.approvals,
@@ -1579,10 +1594,11 @@ function validateForPrompt(files, repositoryRoot) {
       repositoryRoot,
       styleHistory: files.styleHistory,
       supersessions: files.supersessions,
+      validationBaseline: baselineFingerprint,
     }),
   );
   if (promptValidationCache.get(files) === fingerprint) return;
-  validateCardArtV3System(files, repositoryRoot);
+  validateCardArtV3System(files, repositoryRoot, baselineFiles);
   promptValidationCache.set(files, fingerprint);
 }
 
