@@ -105,11 +105,7 @@ describe("Home", () => {
         name: "Turn your situation and a tarot spread into a stronger AI prompt.",
       }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        /current deck: 12-card illustrated Major Arcana preview/i,
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/complete 78-card deck/i)).toBeInTheDocument();
     expect(
       screen.getByText(/entertainment and self-reflection only/i),
     ).toBeInTheDocument();
@@ -158,9 +154,7 @@ describe("Home", () => {
         name: /카드 \d장 뽑기/,
       }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/지금은 그림이 완성된 메이저 아르카나 12장/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/78장 전체 덱/)).toBeInTheDocument();
     expect(screen.getByText(/의료·법률·재정/i)).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -212,7 +206,7 @@ describe("Home", () => {
     const [, request] = fetchMock.mock.calls[0] ?? [];
     const body = JSON.parse(String(request?.body)) as Record<string, unknown>;
     expect(Object.keys(body).sort()).toEqual(
-      ["cards", "lensId", "spreadId", "styleId", "topicId"].sort(),
+      ["cards", "spreadId", "styleId", "topicId"].sort(),
     );
     expect(JSON.stringify(body)).not.toContain("민감한 개인 상황");
     expect(JSON.stringify(body)).not.toContain("userContext");
@@ -242,7 +236,7 @@ describe("Home", () => {
     ).toBeInTheDocument();
     expect(screen.getByLabelText("AI에 붙여 넣을 질문")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "이 질문 복사하기" }),
+      screen.getByRole("button", { name: "질문 복사하기" }),
     ).toBeInTheDocument();
   });
 
@@ -282,23 +276,23 @@ describe("Home", () => {
     const topicExamples = [
       [
         "Love",
-        "Example: I want to move a new romantic connection forward, but I am unsure whether expressing my feelings first would be healthy.",
+        "Example: I want to move a connection forward, but I am unsure whether expressing my feelings first would be healthy.",
       ],
       [
         "Reunion",
-        "Example: I am considering contacting an ex again and want to reflect on what must change before the same problems repeat.",
+        "Example: I am considering contacting an ex and want to reflect on what must change before old problems repeat.",
       ],
       [
         "Feelings",
-        "Example: Their messages have become less frequent. I want to separate observable behavior from my assumptions and understand my own feelings.",
+        "Example: Their messages have become less frequent. I want to separate observable behavior from my assumptions.",
       ],
       [
         "Relationship flow",
-        "Example: Conversations with someone close keep going wrong. I want to notice the repeating pattern and what I can change on my side.",
+        "Example: Conversations with someone close keep going wrong. I want to notice the pattern and what I can change.",
       ],
       [
         "Career direction",
-        "Example: I am torn between staying at my current company and preparing for a new opportunity, and I want to clarify my next controllable step.",
+        "Example: I am torn between staying at my company and preparing for a new opportunity. I want one next step.",
       ],
     ] as const;
 
@@ -355,18 +349,17 @@ describe("Home", () => {
     expect(document.execCommand).toHaveBeenCalledWith("copy");
   });
 
-  it("shows the localized deterministic interpretation lens in Korean", () => {
+  it("shows exact card names in order without invented position meanings", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
 
     render(<TarotExperience locale="ko" />);
 
     fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
 
-    expect(
-      screen.getByText("이번에 눈여겨볼 점: 내가 선택할 수 있는 것", {
-        selector: "p",
-      }),
-    ).toBeInTheDocument();
+    const ready = screen.getByTestId("prompt-ready");
+    expect(within(ready).getByText("1. 바보")).toBeInTheDocument();
+    expect(within(ready).getByText("2. 마법사")).toBeInTheDocument();
+    expect(within(ready).getByText("3. 여사제")).toBeInTheDocument();
 
     openPromptContent();
 
@@ -374,11 +367,11 @@ describe("Home", () => {
       "AI에 붙여 넣을 질문",
     ) as HTMLTextAreaElement;
 
-    expect(prompt.value).toContain(
-      "이번에 눈여겨볼 점: 내가 선택할 수 있는 것",
-    );
-    expect(prompt.value).toContain("이 자리에서 읽을 방향:");
-    expect(prompt.value).toContain("3. 카드가 이어지는 방식:");
+    expect(prompt.value).toContain("카드 이미지는 첨부되지 않았습니다");
+    expect(prompt.value).toContain("1. 바보\n");
+    expect(prompt.value).toContain("2. 마법사\n");
+    expect(prompt.value).toContain("3. 여사제\n");
+    expect(prompt.value).not.toMatch(/불씨|그림자|다음 걸음/);
   });
 
   it("draws cards and generates a copyable prompt", () => {
@@ -414,13 +407,6 @@ describe("Home", () => {
     expect(screen.getByTestId("share-options-disclosure")).not.toHaveAttribute(
       "open",
     );
-    expect(
-      screen
-        .getByTestId("prompt-ready")
-        .compareDocumentPosition(screen.getByTestId("prompt-type-disclosure")) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-
     openPromptContent();
 
     const prompt = screen.getByLabelText(
@@ -428,18 +414,16 @@ describe("Home", () => {
     ) as HTMLTextAreaElement;
 
     expect(prompt.value).toContain("Topic: Love");
-    expect(prompt.value).toContain("Act as a reflective tarot writing partner");
-    expect(prompt.value).toContain("Card-specific angle:");
-    expect(prompt.value).toContain("Interpretation lens:");
-    expect(prompt.value).toContain("3. Connected spread:");
-    expect(
-      screen.getByText("Interpretation lens: Choice and agency", {
-        selector: "p",
-      }),
-    ).toBeInTheDocument();
+    expect(prompt.value).toContain("Act as a calm tarot writing partner");
+    expect(prompt.value).toContain("No card images are attached");
+    expect(prompt.value).toContain("1. The Fool\n");
+    expect(prompt.value).toContain("2. The Magician\n");
+    expect(prompt.value).toContain("3. The High Priestess\n");
+    expect(prompt.value).toContain("They do not mean past, present, future");
+    expect(prompt.value).not.toMatch(/Interpretation lens|Card-specific angle/);
     expect(
       screen.getByRole("button", {
-        name: "Copy selected prompt",
+        name: "Copy prompt",
       }),
     ).toBeInTheDocument();
 
@@ -670,11 +654,11 @@ describe("Home", () => {
     try {
       announceAnalyticsReady();
       renderDrawnReading();
+      fireEvent.click(screen.getByRole("button", { name: "Copy prompt" }));
+      fireEvent.click(screen.getByText("Customize current prompt"));
       fireEvent.click(
-        screen.getByRole("button", { name: "Copy selected prompt" }),
+        screen.getByRole("radio", { name: /Direct, not deterministic/ }),
       );
-      openPromptTypes();
-      fireEvent.click(screen.getByRole("button", { name: /^Action plan/ }));
 
       await act(async () => {
         resolveClipboard?.();
@@ -710,9 +694,7 @@ describe("Home", () => {
 
     try {
       renderDrawnReading();
-      fireEvent.click(
-        screen.getByRole("button", { name: "Copy selected prompt" }),
-      );
+      fireEvent.click(screen.getByRole("button", { name: "Copy prompt" }));
       announceAnalyticsReady();
 
       await act(async () => {
@@ -752,13 +734,8 @@ describe("Home", () => {
     ) as HTMLTextAreaElement;
     expect(prompt.value).toContain("Topic: Reunion");
     expect(prompt.value).toContain("The High Priestess");
-    const interpretationLens = prompt.value.match(
-      /Interpretation lens: (.+)/,
-    )?.[1];
-    expect(interpretationLens).toBeTruthy();
-    expect(
-      screen.getByText(`Interpretation lens: ${interpretationLens}`),
-    ).toBeInTheDocument();
+    expect(prompt.value).toContain("No card images are attached");
+    expect(prompt.value).not.toMatch(/Interpretation lens|spark|shadow/i);
     expect(screen.getByTestId("reading-card-0")).not.toHaveClass(
       "ts-card-arrive",
     );
@@ -897,9 +874,7 @@ describe("Home", () => {
         },
       ]);
 
-      fireEvent.click(
-        screen.getByRole("button", { name: "Copy selected prompt" }),
-      );
+      fireEvent.click(screen.getByRole("button", { name: "Copy prompt" }));
       await waitFor(() => {
         expect(writeText).toHaveBeenCalled();
       });
@@ -948,12 +923,12 @@ describe("Home", () => {
     const prompt = screen.getByLabelText(
       "Generated prompt",
     ) as HTMLTextAreaElement;
-    expect(prompt.value).toContain("Deep six-card spread");
-    expect(prompt.value).toContain("Reading style: Direct, not deterministic");
+    expect(prompt.value).toContain("Drawn cards (6-card reading)");
+    expect(prompt.value).toContain("Tone: Direct, not deterministic");
     expect(prompt.value).toContain(
       '"My relationship with my manager is exhausting. Should I stay at this company?"',
     );
-    expect(prompt.value).toContain("untrusted reference data");
+    expect(prompt.value).toContain("untrusted quoted data");
     expect(screen.getAllByTestId(/reading-card-/)).toHaveLength(6);
 
     const url = new URL(window.location.href);
@@ -1070,7 +1045,7 @@ describe("Home", () => {
         payload: {
           locale: "en",
           topic_id: "reunion",
-          position_id: "spark",
+          card_order: 1,
           card_id: "the-fool",
           draw_style_id: "balanced",
           spread_id: "quick",
@@ -1194,7 +1169,7 @@ describe("Home", () => {
     }
   });
 
-  it("copies an independently useful Prompt Pack slot as activation", async () => {
+  it("copies the single deterministic prompt as activation", async () => {
     const events: {
       readonly name: string;
       readonly payload: Record<string, unknown>;
@@ -1214,20 +1189,16 @@ describe("Home", () => {
       announceAnalyticsReady();
       render(<Home />);
       fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
-      openPromptTypes();
-      fireEvent.click(screen.getByRole("button", { name: /^Action plan/ }));
       openPromptContent();
 
       const prompt = screen.getByLabelText(
         "Generated prompt",
       ) as HTMLTextAreaElement;
-      expect(prompt.value).toContain(
-        "three options with benefits, costs, and warning signs",
-      );
+      expect(prompt.value).toContain("No card images are attached");
+      expect(prompt.value).toContain("1. The Fool\n");
+      expect(prompt.value).not.toMatch(/past, present, future\s*$/im);
 
-      fireEvent.click(
-        screen.getByRole("button", { name: "Copy selected prompt" }),
-      );
+      fireEvent.click(screen.getByRole("button", { name: "Copy prompt" }));
 
       await waitFor(() => {
         expect(writeText).toHaveBeenCalledWith(prompt.value);
@@ -1241,8 +1212,7 @@ describe("Home", () => {
           draw_style_id: "balanced",
           spread_id: "quick",
           style_id: "balanced",
-          prompt_slot: "action",
-          prompt_version: "prompt-pack-v2",
+          prompt_version: "tarot-prompt-v3",
           surface: "reading_result",
         },
       });
@@ -1259,9 +1229,7 @@ describe("Home", () => {
     render(<Home />);
 
     fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
-    fireEvent.click(
-      screen.getByRole("button", { name: "Copy selected prompt" }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "Copy prompt" }));
 
     await waitFor(() => {
       const failureMessage = screen.getByText(/copying did not work/i);
@@ -1278,12 +1246,12 @@ describe("Home", () => {
       "prompt-copy-failure",
     );
     expect(
-      screen.getByRole("button", { name: "Copy selected prompt" }),
+      screen.getByRole("button", { name: "Copy prompt" }),
     ).toBeInTheDocument();
     expect(screen.queryByRole("textbox", { name: "Share URL" })).toBeNull();
 
     const copyButton = screen.getByRole("button", {
-      name: "Copy selected prompt",
+      name: "Copy prompt",
     });
     copyButton.focus();
     fireEvent.click(copyButton);
@@ -1435,7 +1403,7 @@ describe("Home", () => {
     render(<TarotExperience locale="ko" />);
 
     fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
-    fireEvent.click(screen.getByRole("button", { name: "이 질문 복사하기" }));
+    fireEvent.click(screen.getByRole("button", { name: "질문 복사하기" }));
 
     await waitFor(() => {
       const failureMessage = screen.getByText(/질문을 복사하지 못했어요/);
@@ -1699,14 +1667,6 @@ function openSituationContext() {
   fireEvent.click(screen.getByTestId("situation-context-toggle"));
 }
 
-function openPromptTypes() {
-  fireEvent.click(
-    within(screen.getByTestId("prompt-type-disclosure")).getByText(
-      "Change prompt type",
-    ),
-  );
-}
-
 function openPromptContent() {
   fireEvent.click(
     within(screen.getByTestId("prompt-content-disclosure")).getByText(
@@ -1792,21 +1752,18 @@ function createValidInstantReading() {
   return {
     headline: "멈춤과 움직임 사이의 선택",
     synthesis: sentence.repeat(3),
-    positionReadings: [
+    cardReadings: [
       {
         cardId: "the-fool",
         interpretation: sentence.repeat(2),
-        positionId: "spark",
       },
       {
         cardId: "the-magician",
         interpretation: sentence.repeat(2),
-        positionId: "shadow",
       },
       {
         cardId: "the-high-priestess",
         interpretation: sentence.repeat(2),
-        positionId: "next-step",
       },
     ],
     strongestConnection: {

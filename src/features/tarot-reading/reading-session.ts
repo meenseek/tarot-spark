@@ -1,6 +1,5 @@
 import type {
   DrawnCard,
-  PromptSlotId,
   ReadingStyleId,
   SpreadId,
   TopicId,
@@ -20,7 +19,6 @@ export type CurrentResult = {
   readonly cardInstanceId: number;
   readonly publicStateRevision: number;
   readonly promptRevision: number;
-  readonly promptSlot: PromptSlotId;
 };
 
 export type Session =
@@ -48,8 +46,7 @@ export type SessionAction =
   | {
       readonly type: "SET_CURRENT_PRIVATE_CONTEXT";
       readonly privateContext: string;
-    }
-  | { readonly type: "SET_PROMPT_SLOT"; readonly promptSlot: PromptSlotId };
+    };
 
 export type ResultSessionSeed = {
   readonly inputs: ReadingInputs;
@@ -71,7 +68,6 @@ export function createResultSession(seed: ResultSessionSeed): Session {
       cardInstanceId: 1,
       publicStateRevision: 1,
       promptRevision: 1,
-      promptSlot: "main",
     },
   };
 }
@@ -151,22 +147,6 @@ export function readingSessionReducer(
           promptRevision: session.current.promptRevision + 1,
         },
       };
-    case "SET_PROMPT_SLOT":
-      if (
-        session.mode === "setup" ||
-        session.current.promptSlot === action.promptSlot
-      ) {
-        return session;
-      }
-
-      return {
-        ...session,
-        current: {
-          ...session.current,
-          promptSlot: action.promptSlot,
-          promptRevision: session.current.promptRevision + 1,
-        },
-      };
   }
 }
 
@@ -199,7 +179,6 @@ function commitDraw(
       cardInstanceId: (previous?.cardInstanceId ?? 0) + 1,
       publicStateRevision: (previous?.publicStateRevision ?? 0) + 1,
       promptRevision: (previous?.promptRevision ?? 0) + 1,
-      promptSlot: "main",
     },
   };
 }

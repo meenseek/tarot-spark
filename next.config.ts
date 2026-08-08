@@ -3,7 +3,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1"],
   outputFileTracingIncludes: {
-    "/api/share-image": ["./public/cards/*.jpg"],
+    "/api/share-image": [
+      "./public/cards/*.jpg",
+      "./node_modules/@fontsource/noto-sans-kr/files/noto-sans-kr-korean-600-normal.woff",
+    ],
   },
 };
 

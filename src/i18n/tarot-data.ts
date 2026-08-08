@@ -3,26 +3,21 @@ import "server-only";
 import type { Locale } from "@/i18n/config";
 import enTarotMessages from "@/messages/en/tarot-domain.json";
 import koTarotMessages from "@/messages/ko/tarot-domain.json";
+import enCards from "@/messages/en/tarot-cards.json";
+import koCards from "@/messages/ko/tarot-cards.json";
 import {
-  readingLensIds,
   readingStyleIds,
   spreadIds,
-  spreadPositionIds,
-  spreadPositionIdsBySpread,
   tarotCardIds,
   topicIds,
 } from "@/domain/tarot";
 import type {
   LocaleTarotData,
   PromptTemplate,
-  ReadingLens,
-  ReadingLensId,
   ReadingStyle,
   ReadingStyleId,
   Spread,
   SpreadId,
-  SpreadPosition,
-  SpreadPositionId,
   TarotCard,
   TarotCardId,
   Topic,
@@ -32,27 +27,33 @@ import type {
 type RawLocaleTarotMessages = {
   readonly promptTemplate: PromptTemplate;
   readonly topics: Record<TopicId, Omit<Topic, "id">>;
-  readonly readingLenses: Record<ReadingLensId, Omit<ReadingLens, "id">>;
   readonly readingStyles: Record<ReadingStyleId, Omit<ReadingStyle, "id">>;
-  readonly spreads: Record<SpreadId, Omit<Spread, "id" | "positionIds">>;
-  readonly spreadPositions: Record<
-    SpreadPositionId,
-    Omit<SpreadPosition, "id">
-  >;
-  readonly cards: Record<TarotCardId, Omit<TarotCard, "id">>;
+  readonly spreads: Record<SpreadId, Omit<Spread, "id" | "cardCount">>;
 };
 
 const rawMessagesByLocale = {
   en: enTarotMessages,
   ko: koTarotMessages,
 } satisfies Record<Locale, RawLocaleTarotMessages>;
+const rawCardsByLocale = {
+  en: enCards,
+  ko: koCards,
+} satisfies Record<Locale, Record<TarotCardId, Omit<TarotCard, "id">>>;
+const cardCountBySpread = {
+  deep: 6,
+  quick: 3,
+} as const satisfies Record<SpreadId, Spread["cardCount"]>;
 
 export function getTarotData(locale: Locale): LocaleTarotData {
-  return normalizeLocaleMessages(rawMessagesByLocale[locale]);
+  return normalizeLocaleMessages(
+    rawMessagesByLocale[locale],
+    rawCardsByLocale[locale],
+  );
 }
 
 function normalizeLocaleMessages(
   messages: RawLocaleTarotMessages,
+  cards: Record<TarotCardId, Omit<TarotCard, "id">>,
 ): LocaleTarotData {
   return {
     promptTemplate: messages.promptTemplate,
@@ -63,23 +64,15 @@ function normalizeLocaleMessages(
     spreads: spreadIds.map((id) => ({
       id,
       ...messages.spreads[id],
-      positionIds: spreadPositionIdsBySpread[id],
-    })),
-    readingLenses: readingLensIds.map((id) => ({
-      id,
-      ...messages.readingLenses[id],
+      cardCount: cardCountBySpread[id],
     })),
     readingStyles: readingStyleIds.map((id) => ({
       id,
       ...messages.readingStyles[id],
     })),
-    spreadPositions: spreadPositionIds.map((id) => ({
-      id,
-      ...messages.spreadPositions[id],
-    })),
     cards: tarotCardIds.map((id) => ({
       id,
-      ...messages.cards[id],
+      ...cards[id],
     })),
   };
 }

@@ -46,6 +46,10 @@ export function getShareReadingMetadata(
   }
 
   const cardNames = snapshot.cards.map(({ card }) => card.name).join(", ");
+  const cardTitleSummary = formatCardTitleSummary(
+    locale,
+    snapshot.cards.map(({ card }) => card.name),
+  );
   const description = formatTemplateStrict(
     copy.shareText,
     {
@@ -54,7 +58,7 @@ export function getShareReadingMetadata(
     },
     `${locale} share metadata`,
   );
-  const title = `${snapshot.topic.label}: ${cardNames} | ${copy.shareTitle}`;
+  const title = `${snapshot.topic.label}: ${cardTitleSummary} | ${copy.shareTitle}`;
   const imageUrl = getShareImageUrl(locale, snapshot);
   const openGraphUrl = getAbsoluteSiteUrl(
     getLocalizedShareReadingHref(locale, snapshot.state),
@@ -91,6 +95,22 @@ export function getShareReadingMetadata(
       title,
     },
   };
+}
+
+export function formatCardTitleSummary(
+  locale: Locale,
+  cardNames: readonly string[],
+) {
+  const visibleNames = cardNames.slice(0, 3).join(", ");
+  const hiddenCount = Math.max(0, cardNames.length - 3);
+
+  if (hiddenCount === 0) {
+    return visibleNames;
+  }
+
+  return locale === "ko"
+    ? `${visibleNames} 외 ${hiddenCount}장`
+    : `${visibleNames}, and ${hiddenCount} more`;
 }
 
 function getShareImageUrl(

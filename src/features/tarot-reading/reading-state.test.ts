@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { getSpreadPositions } from "@/domain/tarot";
 import { getTarotData } from "@/i18n/tarot-data";
 import {
   buildReadingUrl,
@@ -217,7 +216,7 @@ describe("reading URL state", () => {
 
   it("builds a locale link without private or unrelated state", () => {
     expect(getLocalizedReadingHref("ko", createState("deep", "direct"))).toBe(
-      "/ko?topic=love&spread=deep&style=direct&cards=the-fool%2Cthe-magician%2Cthe-high-priestess%2Cthe-empress%2Cthe-emperor%2Cthe-lovers",
+      "/ko?topic=love&spread=deep&style=direct&cards=the-fool%2Cthe-magician%2Cthe-high-priestess%2Cthe-empress%2Cthe-emperor%2Cthe-hierophant",
     );
   });
 
@@ -288,17 +287,15 @@ describe("reading URL state", () => {
     }
 
     return {
-      cards: getSpreadPositions(spread, tarotData.spreadPositions).map(
-        (position, index) => {
-          const card = tarotData.cards[index];
+      cards: Array.from({ length: spread.cardCount }, (_, index) => {
+        const card = tarotData.cards[index];
 
-          if (!card) {
-            throw new Error(`Missing test card at index ${index}`);
-          }
+        if (!card) {
+          throw new Error(`Missing test card at index ${index}`);
+        }
 
-          return { card, position };
-        },
-      ),
+        return { card };
+      }),
       drawStyleId,
       spreadId,
       styleId,

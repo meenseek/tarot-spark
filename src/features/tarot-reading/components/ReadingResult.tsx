@@ -6,13 +6,7 @@ import {
   primaryButtonClassName,
   secondaryButtonClassName,
 } from "@/components/visual/class-names";
-import {
-  promptSlotIds,
-  type DrawnCard,
-  type InstantReadingV1,
-  type PromptSlotId,
-  type ReadingLens,
-} from "@/domain/tarot";
+import type { DrawnCard, InstantReadingV2 } from "@/domain/tarot";
 import type { TarotReadingCopy } from "../i18n";
 import type { CopyState, ShareFeedback } from "../types";
 import {
@@ -28,20 +22,17 @@ type ReadingResultProps = {
   readonly currentCustomization?: ReactNode;
   readonly hasKakaoShare: boolean;
   readonly hasUserContext: boolean;
-  readonly instantReading: InstantReadingV1 | undefined;
+  readonly instantReading: InstantReadingV2 | undefined;
   readonly instantReadingEnabled: boolean;
   readonly instantReadingStatus: InstantReadingStatus;
   readonly prompt: string;
-  readonly readingLens: ReadingLens | undefined;
   readonly resultActions?: ReactNode;
-  readonly selectedPromptSlotId: PromptSlotId;
   readonly shareFeedback: ShareFeedback | undefined;
   readonly shareUrl: string;
   readonly onInstagramShare: () => void;
   readonly onGenerateInstantReading: () => void;
   readonly onKakaoShare: () => void;
   readonly onCopyPrompt: () => void;
-  readonly onPromptSlotChange: (promptSlotId: PromptSlotId) => void;
   readonly onCopyUrl: () => void;
   readonly onShareReading: () => void;
 };
@@ -58,16 +49,13 @@ export function ReadingResult({
   instantReadingEnabled,
   instantReadingStatus,
   prompt,
-  readingLens,
   resultActions,
-  selectedPromptSlotId,
   shareFeedback,
   shareUrl,
   onInstagramShare,
   onGenerateInstantReading,
   onKakaoShare,
   onCopyPrompt,
-  onPromptSlotChange,
   onCopyUrl,
   onShareReading,
 }: ReadingResultProps) {
@@ -78,7 +66,6 @@ export function ReadingResult({
   const actionGridClassName =
     "grid gap-2 sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]";
   const hasShareFailure = shareFeedback?.status === "failed";
-  const selectedPromptSlot = copy.promptPack.slots[selectedPromptSlotId];
 
   useEffect(() => {
     if (copyState !== "failed") {
@@ -114,9 +101,6 @@ export function ReadingResult({
             data-testid="prompt-ready"
           >
             <div className="grid gap-1">
-              <p className="text-xs font-semibold text-ts-action">
-                {selectedPromptSlot.label}
-              </p>
               <h2
                 className="font-ts-display text-xl font-semibold text-ts-ink"
                 id="prompt-ready-heading"
@@ -128,6 +112,13 @@ export function ReadingResult({
                   {copy.promptContextIncluded}
                 </p>
               )}
+              <ol className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold text-ts-action">
+                {cards.map(({ card }, index) => (
+                  <li key={card.id}>
+                    {index + 1}. {card.name}
+                  </li>
+                ))}
+              </ol>
             </div>
             <button
               className={`${primaryButtonClassName} min-h-11 shrink-0 px-4 py-2 leading-5`}
@@ -174,63 +165,7 @@ export function ReadingResult({
             />
           )}
 
-          {readingLens && (
-            <p className="text-sm font-semibold text-ts-action">
-              {copy.interpretationLensLabel}: {readingLens.label}
-            </p>
-          )}
-
           {currentCustomization}
-
-          <details
-            className="group rounded-ts-control border border-ts-divider bg-ts-surface"
-            data-testid="prompt-type-disclosure"
-            suppressHydrationWarning
-          >
-            <summary className={disclosureSummaryClassName}>
-              <span className="font-semibold text-ts-ink">
-                {copy.promptPack.heading}
-              </span>
-              <span className="flex items-center gap-2 text-xs leading-5 text-ts-muted">
-                <span>{selectedPromptSlot.label}</span>
-                <DisclosureChevron />
-              </span>
-            </summary>
-            <div className="grid gap-3 border-t border-ts-divider p-4">
-              <p className="text-sm leading-6 text-ts-muted">
-                {copy.promptPack.intro}
-              </p>
-              <div
-                aria-label={copy.promptPack.selectorLabel}
-                className="grid grid-cols-2 gap-2 sm:grid-cols-4"
-                role="group"
-              >
-                {promptSlotIds.map((promptSlotId) => {
-                  const slot = copy.promptPack.slots[promptSlotId];
-                  const isSelected = promptSlotId === selectedPromptSlotId;
-
-                  return (
-                    <button
-                      aria-pressed={isSelected}
-                      className={`min-h-11 rounded-full border-2 px-2 py-2 text-center text-xs font-semibold leading-4 transition-colors duration-[var(--ts-motion-fast)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action ${
-                        isSelected
-                          ? "border-ts-action bg-ts-blush text-ts-ink"
-                          : "border-ts-border bg-ts-surface text-ts-ink hover:border-ts-action hover:bg-ts-blush"
-                      }`}
-                      key={promptSlotId}
-                      onClick={() => onPromptSlotChange(promptSlotId)}
-                      type="button"
-                    >
-                      {slot.label}
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="text-xs leading-5 text-ts-muted">
-                {selectedPromptSlot.description}
-              </p>
-            </div>
-          </details>
 
           <details
             className="group rounded-ts-control border border-ts-divider bg-ts-surface"
@@ -251,7 +186,7 @@ export function ReadingResult({
             </summary>
             <div className="border-t border-ts-divider p-4">
               <label className="grid gap-2 text-sm font-semibold text-ts-ink">
-                {copy.generatedPromptLabel}: {selectedPromptSlot.label}
+                {copy.generatedPromptLabel}
                 <textarea
                   aria-describedby={
                     copyState === "failed" ? "prompt-copy-failure" : undefined
@@ -284,50 +219,24 @@ export function ReadingResult({
               className="grid gap-3 border-t border-ts-divider p-4"
               data-testid="card-detail-list"
             >
-              {cards.map(({ position, card }) => (
+              {cards.map(({ card }, index) => (
                 <article
                   className="grid gap-4 rounded-ts-control border border-ts-divider bg-ts-canvas p-4"
-                  key={`${position.id}-${card.id}`}
+                  key={card.id}
                 >
                   <div className="grid gap-1 border-b border-ts-divider pb-3">
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ts-action">
-                      {position.label}
+                      {String(index + 1).padStart(2, "0")}
                     </p>
                     <h3 className="font-ts-display text-xl font-semibold text-ts-ink">
                       {card.name}
                     </h3>
-                    <p className="text-sm text-ts-muted">
-                      {copy.cardDetails.archetype}: {card.archetype}
-                    </p>
-                  </div>
-
-                  <div className="grid gap-4 text-sm sm:grid-cols-2">
-                    <CardDetail
-                      label={copy.cardDetails.keywords}
-                      value={card.keywords.join(" · ")}
-                    />
-                    <CardDetail
-                      label={copy.cardDetails.symbols}
-                      value={card.symbols.join(" · ")}
-                    />
-                    <CardDetail
-                      label={copy.cardDetails.light}
-                      value={card.light}
-                    />
-                    <CardDetail
-                      label={copy.cardDetails.shadow}
-                      value={card.shadow}
-                    />
                   </div>
 
                   <div className="grid gap-3 rounded-ts-inset border border-ts-divider bg-ts-surface p-4">
                     <CardDetail
-                      label={copy.cardDetails.agency}
-                      value={card.agency}
-                    />
-                    <CardDetail
-                      label={copy.cardDetails.caution}
-                      value={card.caution}
+                      label={copy.cardDetails.meaning}
+                      value={card.meaning}
                     />
                     <CardDetail
                       label={copy.cardDetails.reflection}

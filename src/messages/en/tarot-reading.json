@@ -6,7 +6,7 @@
   "brand": "tarot-spark",
   "heading": "Turn your situation and a tarot spread into a stronger AI prompt.",
   "intro": "Choose a topic and draw right away, or add a little context to make the prompt more specific.",
-  "deckPreviewNote": "Current deck: {count}-card illustrated Major Arcana preview.",
+  "deckPreviewNote": "A complete {count}-card deck with every Major Arcana, Wand, Cup, Sword, and Pentacle, all using one coherent illustration system.",
   "personalizationHeading": "Card count and reading style",
   "personalizationIntro": "Choose how much detail you want and the tone of the answer. Tarot does not prove the future or another person's thoughts.",
   "spreadSelectorLabel": "Choose reading depth",
@@ -36,7 +36,7 @@
   "cardMarkLabel": "Decorative tarot card mark",
   "sharedReading": {
     "heading": "A tarot-spark reading was shared with you.",
-    "intro": "Explore the drawn cards and Prompt Pack first. You can copy a prompt or create a separate reading of your own.",
+    "intro": "Explore the drawn cards and AI prompt first. You can copy the prompt or create a separate reading of your own.",
     "createOwn": "Create your own reading"
   },
   "instantReading": {
@@ -59,29 +59,6 @@
       "integration": "Integrating"
     }
   },
-  "promptPack": {
-    "heading": "Change prompt type",
-    "intro": "Choose another way to explore the same cards.",
-    "selectorLabel": "Prompt Pack",
-    "slots": {
-      "main": {
-        "label": "Main reading",
-        "description": "A detailed connected interpretation with alternatives and next steps."
-      },
-      "other-view": {
-        "label": "Other perspective",
-        "description": "Challenges the first interpretation and tests overlooked assumptions."
-      },
-      "action": {
-        "label": "Action plan",
-        "description": "Turns the spread into options, tradeoffs, and small reversible steps."
-      },
-      "emotion": {
-        "label": "Emotion check-in",
-        "description": "Separates feelings, evidence, needs, and boundaries without diagnosing."
-      }
-    }
-  },
   "promptReady": "Your prompt for an AI tool is ready.",
   "promptContextIncluded": "Your situation is included in the prompt.",
   "promptCopySuccess": "Copied. Paste it into the AI tool you use to get the reading.",
@@ -90,18 +67,11 @@
   "cardDetailsDisclosure": "View card meanings",
   "shareOptionsDisclosure": "View sharing options",
   "cardDetails": {
-    "archetype": "Archetype",
-    "keywords": "Keywords",
-    "symbols": "Symbols to notice",
-    "light": "Light expression",
-    "shadow": "Shadow expression",
-    "agency": "What you can influence",
-    "caution": "Keep in mind",
+    "meaning": "Core meaning",
     "reflection": "Reflection question"
   },
   "generatedPromptLabel": "Generated prompt",
-  "interpretationLensLabel": "Interpretation lens",
-  "copyPrompt": "Copy selected prompt",
+  "copyPrompt": "Copy prompt",
   "copied": "Copied",
   "copyUrl": "Copy URL",
   "copiedUrl": "URL copied",
@@ -123,6 +93,5 @@
   "socialImageAlt": "tarot-spark editorial preview with three celestial tarot cards",
   "shareTitle": "tarot-spark reading",
   "shareText": "{topicLabel} tarot prompt: {cardNames}",
-  "placeholderCardName": "Ready",
-  "placeholderCardTone": "Use Draw cards to reveal"
+  "placeholderCardName": "Ready"
 }

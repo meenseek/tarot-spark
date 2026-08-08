@@ -1,17 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { tarotCardIds } from "@/domain/tarot/ids";
 import {
   getTarotCardGlyphSignature,
+  getTarotCardGlyphIds,
   tarotCardGlyphDefinitions,
 } from "./TarotCardGlyph";
 
 describe("TarotCardGlyph", () => {
-  it("defines one unique glyph for every stable tarot card id", () => {
+  it("keeps the legacy glyph set unique for the twelve approved art cards", () => {
     const definitionIds = Object.keys(tarotCardGlyphDefinitions);
-    const signatures = tarotCardIds.map(getTarotCardGlyphSignature);
+    const glyphIds = getTarotCardGlyphIds();
+    const signatures = glyphIds.map(getTarotCardGlyphSignature);
 
-    expect(definitionIds).toEqual(tarotCardIds);
-    expect(new Set(signatures).size).toBe(tarotCardIds.length);
-    expect(signatures.every((signature) => signature.length > 0)).toBe(true);
+    expect(definitionIds).toEqual(glyphIds);
+    expect(glyphIds).toHaveLength(12);
+    expect(new Set(signatures).size).toBe(glyphIds.length);
+    expect(signatures.every((signature) => Boolean(signature?.length))).toBe(
+      true,
+    );
   });
 });

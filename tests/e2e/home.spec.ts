@@ -15,9 +15,7 @@ test("loads the app shell", async ({ page }) => {
       name: "Turn your situation and a tarot spread into a stronger AI prompt.",
     }),
   ).toBeVisible();
-  await expect(
-    page.getByText(/current deck: 12-card illustrated Major Arcana preview/i),
-  ).toBeVisible();
+  await expect(page.getByText(/complete 78-card deck/i)).toBeVisible();
 });
 
 test("loads Korean localized content", async ({ page }) => {
@@ -33,9 +31,7 @@ test("loads Korean localized content", async ({ page }) => {
   await expect(
     page.getByRole("button", { name: "카드 3장 뽑기" }),
   ).toBeVisible();
-  await expect(
-    page.getByText(/지금은 그림이 완성된 메이저 아르카나 12장/),
-  ).toBeVisible();
+  await expect(page.getByText(/78장 전체 덱/)).toBeVisible();
 });
 
 test("keeps optional situation context discoverable before drawing", async ({
@@ -97,7 +93,7 @@ for (const width of [320, 390]) {
     await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
 
     const copyButton = page.getByRole("button", {
-      name: "이 질문 복사하기",
+      name: "질문 복사하기",
     });
     await expect(copyButton).toBeVisible();
     expect(
@@ -116,13 +112,13 @@ for (const width of [320, 390]) {
 
 for (const readingCase of [
   {
-    copyAction: "Copy selected prompt",
+    copyAction: "Copy prompt",
     drawAction: "Draw 3 cards",
     localePath: "/",
     spread: "quick",
   },
   {
-    copyAction: "이 질문 복사하기",
+    copyAction: "질문 복사하기",
     drawAction: "카드 6장 뽑기",
     localePath: "/ko",
     spread: "deep",
@@ -223,9 +219,6 @@ test("keeps the primary draw and prompt actions ahead of optional detail", async
       const promptReady = document.querySelector(
         '[data-testid="prompt-ready"]',
       );
-      const promptTypes = document.querySelector(
-        '[data-testid="prompt-type-disclosure"]',
-      );
       const promptContent = document.querySelector(
         '[data-testid="prompt-content-disclosure"]',
       );
@@ -235,11 +228,8 @@ test("keeps the primary draw and prompt actions ahead of optional detail", async
 
       return Boolean(
         promptReady &&
-        promptTypes &&
         promptContent &&
         cardDetails &&
-        promptReady.compareDocumentPosition(promptTypes) &
-          Node.DOCUMENT_POSITION_FOLLOWING &&
         promptReady.compareDocumentPosition(promptContent) &
           Node.DOCUMENT_POSITION_FOLLOWING &&
         promptReady.compareDocumentPosition(cardDetails) &
@@ -264,23 +254,23 @@ test("keeps every localized context example visible at 320px", async ({
       topicExamples: [
         [
           "Love",
-          "Example: I want to move a new romantic connection forward, but I am unsure whether expressing my feelings first would be healthy.",
+          "Example: I want to move a connection forward, but I am unsure whether expressing my feelings first would be healthy.",
         ],
         [
           "Reunion",
-          "Example: I am considering contacting an ex again and want to reflect on what must change before the same problems repeat.",
+          "Example: I am considering contacting an ex and want to reflect on what must change before old problems repeat.",
         ],
         [
           "Feelings",
-          "Example: Their messages have become less frequent. I want to separate observable behavior from my assumptions and understand my own feelings.",
+          "Example: Their messages have become less frequent. I want to separate observable behavior from my assumptions.",
         ],
         [
           "Relationship flow",
-          "Example: Conversations with someone close keep going wrong. I want to notice the repeating pattern and what I can change on my side.",
+          "Example: Conversations with someone close keep going wrong. I want to notice the pattern and what I can change.",
         ],
         [
           "Career direction",
-          "Example: I am torn between staying at my current company and preparing for a new opportunity, and I want to clarify my next controllable step.",
+          "Example: I am torn between staying at my company and preparing for a new opportunity. I want one next step.",
         ],
       ],
     },
@@ -290,23 +280,23 @@ test("keeps every localized context example visible at 320px", async ({
       topicExamples: [
         [
           "연애",
-          "예: 서로 호감은 있는 것 같은데 관계가 좀처럼 앞으로 가지 않아요. 제가 먼저 마음을 표현해도 괜찮을지 고민돼요.",
+          "예: 관계를 조금 더 발전시키고 싶은데 먼저 마음을 표현해도 될지 고민돼요.",
         ],
         [
           "재회",
-          "예: 헤어진 사람에게 다시 연락해볼까 고민돼요. 예전과 같은 문제가 반복되지 않으려면 무엇이 달라져야 할지 알고 싶어요.",
+          "예: 헤어진 사람에게 다시 연락할지, 같은 문제가 반복되지 않으려면 무엇이 달라져야 할지 고민돼요.",
         ],
         [
           "상대의 마음",
-          "예: 요즘 상대의 연락이 줄어서 혼란스러워요. 실제로 달라진 행동과 제 불안에서 나온 추측을 나눠보고 싶어요.",
+          "예: 상대의 연락이 줄어서 혼란스러워요. 보이는 행동과 제 추측을 나눠보고 싶어요.",
         ],
         [
           "관계 흐름",
-          "예: 가까운 사람과 대화가 자꾸 어긋나요. 늘 비슷하게 꼬이는 이유와 제가 다르게 해볼 수 있는 일을 알고 싶어요.",
+          "예: 가까운 사람과 대화가 자꾸 어긋나요. 반복되는 방식과 제가 바꿀 수 있는 일을 알고 싶어요.",
         ],
         [
           "커리어 방향",
-          "예: 지금 회사에 남을지 새로운 일을 준비할지 고민돼요. 당장 제가 해볼 수 있는 일부터 정리하고 싶어요.",
+          "예: 지금 회사에 남을지 새로운 일을 준비할지 고민돼요. 당장 해볼 일부터 정리하고 싶어요.",
         ],
       ],
     },
@@ -551,10 +541,10 @@ test("creates a direct six-card prompt while keeping context private", async ({
 
   await expect(page.locator('[data-testid^="reading-card-"]')).toHaveCount(6);
   await expect(page.getByLabel("Generated prompt")).toContainText(
-    "Deep six-card spread",
+    "Drawn cards (6-card reading)",
   );
   await expect(page.getByLabel("Generated prompt")).toContainText(
-    "Reading style: Direct, not deterministic",
+    "Tone: Direct, not deterministic",
   );
   await expect(page.getByLabel("Generated prompt")).toContainText(
     "Should I stay at this company?",
@@ -570,10 +560,7 @@ test("shows an instant Korean reading without sending private context", async ({
   let providerRequest: Record<string, unknown> | undefined;
   await page.route("**/api/reading", async (route) => {
     providerRequest = route.request().postDataJSON() as Record<string, unknown>;
-    const cards = providerRequest["cards"] as {
-      cardId: string;
-      positionId: string;
-    }[];
+    const cards = providerRequest["cards"] as { cardId: string }[];
 
     await route.fulfill({
       body: JSON.stringify({
@@ -599,7 +586,7 @@ test("shows an instant Korean reading without sending private context", async ({
   await openPromptContent(page);
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toBeVisible();
   expect(Object.keys(providerRequest ?? {}).sort()).toEqual(
-    ["cards", "lensId", "spreadId", "styleId", "topicId"].sort(),
+    ["cards", "spreadId", "styleId", "topicId"].sort(),
   );
   expect(JSON.stringify(providerRequest)).not.toContain("민감한 개인 상황");
   expect(JSON.stringify(providerRequest)).not.toContain("userContext");
@@ -616,17 +603,21 @@ test("draws tarot cards and copies the generated prompt", async ({ page }) => {
     "Topic: Reunion",
   );
   await expect(page.getByLabel("Generated prompt")).toContainText(
-    "Card-specific angle:",
+    "No card images are attached",
   );
+  const firstCardName = await page
+    .getByTestId("reading-card-0")
+    .locator(":scope > span")
+    .last()
+    .innerText();
   await expect(page.getByLabel("Generated prompt")).toContainText(
-    "3. Connected spread:",
+    `1. ${firstCardName}`,
   );
-  await expect(page.getByText(/^Interpretation lens: /)).toBeVisible();
   await expect(
     page.getByText(/Tarot content is for entertainment/),
   ).toBeVisible();
 
-  await page.getByRole("button", { name: "Copy selected prompt" }).click();
+  await page.getByRole("button", { name: "Copy prompt" }).click();
 
   await expect(page.getByRole("button", { name: "Copied" })).toBeVisible();
   await expect(
@@ -717,7 +708,7 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
     "/api/share-image",
   );
   const localImageUrl = new URL(imageUrl ?? "http://localhost/api/share-image");
-  expect(localImageUrl.searchParams.get("v")).toBe("1");
+  expect(localImageUrl.searchParams.get("v")).toBe("3");
   const imageResponse = await request.get(
     `${localImageUrl.pathname}${localImageUrl.search}`,
   );
@@ -738,6 +729,22 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
   ]);
   expect(deepImageBody.readUInt32BE(16)).toBe(1200);
   expect(deepImageBody.readUInt32BE(20)).toBe(630);
+
+  for (const locale of ["en", "ko"] as const) {
+    const completeDeckImageResponse = await request.get(
+      `/api/share-image?v=2&locale=${locale}&topic=relationship-flow&spread=deep&style=relational&cards=pentacles-queen,the-high-priestess,wands-knight,swords-10,cups-page,wheel-of-fortune`,
+    );
+    const completeDeckImageBody = await completeDeckImageResponse.body();
+    expect(completeDeckImageResponse.ok()).toBe(true);
+    expect(completeDeckImageResponse.headers()["content-type"]).toContain(
+      "image/png",
+    );
+    expect(Array.from(completeDeckImageBody.subarray(0, 8))).toEqual([
+      137, 80, 78, 71, 13, 10, 26, 10,
+    ]);
+    expect(completeDeckImageBody.readUInt32BE(16)).toBe(1200);
+    expect(completeDeckImageBody.readUInt32BE(20)).toBe(630);
+  }
 
   const koreanImageResponse = await request.get(
     "/api/share-image?locale=ko&topic=relationship-flow&spread=quick&style=relational&cards=the-fool,the-lovers,the-star",
@@ -866,19 +873,16 @@ function getSitemapLocPathnames(sitemapXml: string) {
   );
 }
 
-function createValidInstantReading(
-  cards: readonly { cardId: string; positionId: string }[],
-) {
+function createValidInstantReading(cards: readonly { cardId: string }[]) {
   const sentence =
     "서두르기보다 지금 확인할 수 있는 선택과 경계를 차분히 살펴보는 흐름입니다. ";
 
   return {
     headline: "멈춤과 움직임 사이의 선택",
     synthesis: sentence.repeat(3),
-    positionReadings: cards.map(({ cardId, positionId }) => ({
+    cardReadings: cards.map(({ cardId }) => ({
       cardId,
       interpretation: sentence.repeat(2),
-      positionId,
     })),
     strongestConnection: {
       cardIds: [cards[0]?.cardId, cards[1]?.cardId],

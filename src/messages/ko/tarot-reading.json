@@ -6,7 +6,7 @@
   "brand": "tarot-spark",
   "heading": "지금 고민을 카드로 펼쳐보고, AI에 물어볼 질문까지 만들어보세요.",
   "intro": "주제를 고른 뒤 바로 카드를 뽑아도 돼요. 상황을 덧붙이면 AI에 물어볼 질문을 더 구체적으로 만들 수 있어요.",
-  "deckPreviewNote": "지금은 그림이 완성된 메이저 아르카나 {count}장으로 카드를 뽑습니다.",
+  "deckPreviewNote": "메이저·완드·컵·소드·펜타클을 빠짐없이 포함한 {count}장 전체 덱이며, 모든 카드에 통일된 일러스트를 사용합니다.",
   "personalizationHeading": "카드 수와 답변 분위기",
   "personalizationIntro": "원하는 만큼 자세히 보고, 편한 분위기의 답을 받을 수 있어요. 미래나 상대의 마음을 맞히는 방식은 아니에요.",
   "spreadSelectorLabel": "카드 수",
@@ -33,10 +33,10 @@
   "redrawCurrent": "현재 설정으로 다시 뽑기",
   "drawNext": "새 설정으로 뽑기",
   "workspaceLabel": "뽑은 카드와 AI 질문",
-  "cardMarkLabel": "타로 카드 그림",
+  "cardMarkLabel": "타로 카드 앞면",
   "sharedReading": {
     "heading": "누군가 tarot-spark 리딩을 공유했어요.",
-    "intro": "뽑힌 카드와 AI 질문을 먼저 살펴보세요. 질문을 복사하거나, 별도의 내 리딩을 새로 만들 수 있어요.",
+    "intro": "뽑힌 카드와 AI 질문을 먼저 살펴보세요. 질문을 복사하거나 별도의 내 리딩을 만들 수 있어요.",
     "createOwn": "내 카드도 뽑기"
   },
   "instantReading": {
@@ -50,36 +50,13 @@
     "disclosure": "생성형 AI를 활용해 작성한 해석입니다.",
     "strongestConnection": "가장 강한 연결",
     "uncertainty": "직접 확인할 점",
-    "nextStep": "작은 다음 걸음",
+    "nextStep": "작은 행동",
     "reflection": "나에게 묻기",
     "relationLabels": {
       "reinforcement": "서로 힘을 보태는 흐름",
       "tension": "서로 부딪히는 흐름",
       "progression": "차례로 이어지는 흐름",
       "integration": "하나로 모이는 흐름"
-    }
-  },
-  "promptPack": {
-    "heading": "질문 종류 바꾸기",
-    "intro": "같은 카드를 다른 방식으로 살펴보고 싶을 때 골라보세요.",
-    "selectorLabel": "질문 종류",
-    "slots": {
-      "main": {
-        "label": "전체 리딩",
-        "description": "카드가 어떻게 이어지는지, 어떤 해석이 가능한지, 다음에는 무엇을 할 수 있는지 차근차근 짚습니다."
-      },
-      "other-view": {
-        "label": "다르게 보기",
-        "description": "처음 떠오른 해석에서 놓친 점과 다른 가능성을 확인합니다."
-      },
-      "action": {
-        "label": "다음 행동",
-        "description": "지금 할 수 있는 선택과 장단점, 부담이 적은 첫걸음을 정리합니다."
-      },
-      "emotion": {
-        "label": "마음 정리",
-        "description": "느낌과 확인된 사실을 구분하고, 내가 바라는 것과 지켜야 할 선을 돌아봅니다."
-      }
     }
   },
   "promptReady": "AI에 물어볼 질문이 준비됐어요.",
@@ -90,18 +67,11 @@
   "cardDetailsDisclosure": "카드 뜻 자세히 보기",
   "shareOptionsDisclosure": "공유 방법 보기",
   "cardDetails": {
-    "archetype": "이 카드의 모습",
-    "keywords": "핵심 단어",
-    "symbols": "눈여겨볼 상징",
-    "light": "힘이 되는 면",
-    "shadow": "조심할 면",
-    "agency": "지금 내가 할 수 있는 것",
-    "caution": "섣불리 단정하지 말 것",
+    "meaning": "핵심 의미",
     "reflection": "나에게 묻기"
   },
   "generatedPromptLabel": "AI에 붙여 넣을 질문",
-  "interpretationLensLabel": "이번에 눈여겨볼 점",
-  "copyPrompt": "이 질문 복사하기",
+  "copyPrompt": "질문 복사하기",
   "copied": "복사했어요",
   "copyUrl": "URL 복사",
   "copiedUrl": "URL을 복사했어요",
@@ -123,6 +93,5 @@
   "socialImageAlt": "별빛 무늬 타로 카드 세 장이 놓인 tarot-spark 이미지",
   "shareTitle": "tarot-spark 리딩",
   "shareText": "{topicLabel} 타로 질문: {cardNames}",
-  "placeholderCardName": "카드를 기다리는 중",
-  "placeholderCardTone": "뽑으면 카드가 열려요"
+  "placeholderCardName": "카드를 기다리는 중"
 }

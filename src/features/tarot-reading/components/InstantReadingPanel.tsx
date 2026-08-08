@@ -2,7 +2,7 @@ import {
   primaryButtonClassName,
   secondaryButtonClassName,
 } from "@/components/visual/class-names";
-import type { DrawnCard, InstantReadingV1, TarotCardId } from "@/domain/tarot";
+import type { DrawnCard, InstantReadingV2, TarotCardId } from "@/domain/tarot";
 import type { TarotReadingCopy } from "../i18n";
 
 export type InstantReadingStatus =
@@ -14,7 +14,7 @@ export type InstantReadingStatus =
 type InstantReadingPanelProps = {
   readonly cards: readonly DrawnCard[];
   readonly copy: TarotReadingCopy["instantReading"];
-  readonly reading: InstantReadingV1 | undefined;
+  readonly reading: InstantReadingV2 | undefined;
   readonly status: InstantReadingStatus;
   readonly onGenerate: () => void;
 };
@@ -82,7 +82,7 @@ export function InstantReadingPanel({
 
 function getStatusAnnouncement(
   copy: TarotReadingCopy["instantReading"],
-  reading: InstantReadingV1 | undefined,
+  reading: InstantReadingV2 | undefined,
   status: InstantReadingStatus,
 ) {
   if (status === "loading") {
@@ -103,7 +103,7 @@ function InstantReadingResult({
 }: {
   readonly cards: readonly DrawnCard[];
   readonly copy: TarotReadingCopy["instantReading"];
-  readonly reading: InstantReadingV1;
+  readonly reading: InstantReadingV2;
 }) {
   return (
     <article className="grid gap-5" data-testid="instant-reading-result">
@@ -115,11 +115,9 @@ function InstantReadingResult({
       </div>
 
       <div className="grid gap-3">
-        {reading.positionReadings.map((positionReading) => {
+        {reading.cardReadings.map((cardReading, index) => {
           const drawnCard = cards.find(
-            ({ card, position }) =>
-              card.id === positionReading.cardId &&
-              position.id === positionReading.positionId,
+            ({ card }) => card.id === cardReading.cardId,
           );
 
           if (!drawnCard) {
@@ -129,13 +127,13 @@ function InstantReadingResult({
           return (
             <section
               className="grid gap-1 border-l-2 border-ts-gold pl-3"
-              key={`${positionReading.positionId}-${positionReading.cardId}`}
+              key={cardReading.cardId}
             >
               <p className="text-xs font-semibold text-ts-action">
-                {drawnCard.position.label} · {drawnCard.card.name}
+                {index + 1}. {drawnCard.card.name}
               </p>
               <p className="text-sm leading-6 text-ts-ink">
-                {positionReading.interpretation}
+                {cardReading.interpretation}
               </p>
             </section>
           );

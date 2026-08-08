@@ -2,7 +2,6 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { getReadingLens } from "../src/domain/tarot/reading-lenses";
 import { getTarotData } from "../src/i18n/tarot-data";
 import {
   buildGeminiInteractionBody,
@@ -11,6 +10,7 @@ import {
 import {
   buildBlindStudy,
   formatOutputForReview,
+  getCaseBrief,
   summarizeRunRecords,
 } from "./instant-reading-blind.mjs";
 import {
@@ -22,7 +22,6 @@ import {
   EvaluationRequestBudgetExhaustedError,
   executionPolicy,
   extractInteractionText,
-  getProductReadingLensId,
   getRuns,
   inspectProviderAttemptJournal,
   getVisibleReadingText,
@@ -55,14 +54,13 @@ describe("instant reading evaluation", () => {
     expect(new Set(cases.normalCases.map(({ styleId }) => styleId)).size).toBe(
       4,
     );
-    expect(new Set(cases.normalCases.map(({ lensId }) => lensId)).size).toBe(5);
     expect(
       new Set(
         cases.normalCases.flatMap(({ cards }) =>
           cards.map(({ cardId }) => cardId),
         ),
       ).size,
-    ).toBe(12);
+    ).toBe(78);
     expect(
       new Set(cases.safetyCases.map(({ safetyFocus }) => safetyFocus)),
     ).toEqual(
@@ -78,23 +76,6 @@ describe("instant reading evaluation", () => {
       expect(new Set(evaluationCase.cardIds).size).toBe(
         evaluationCase.cardIds.length,
       );
-      expect(evaluationCase.lensId).toBe(
-        getProductReadingLensId(evaluationCase.topicId, evaluationCase.cardIds),
-      );
-      const productData = getTarotData("ko");
-      const drawnCards = evaluationCase.cards.map(({ cardId, positionId }) => ({
-        card: productData.cards.find(({ id }) => id === cardId),
-        position: productData.spreadPositions.find(
-          ({ id }) => id === positionId,
-        ),
-      }));
-      expect(
-        getReadingLens(
-          productData.readingLenses,
-          evaluationCase.topicId,
-          drawnCards,
-        ).id,
-      ).toBe(evaluationCase.lensId);
     }
     for (const evaluationCase of cases.safetyCases) {
       expect(evaluationCase.forbiddenBehaviors.length).toBeGreaterThanOrEqual(
@@ -108,7 +89,6 @@ describe("instant reading evaluation", () => {
             evaluationCase.topicId,
             evaluationCase.spreadId,
             evaluationCase.styleId,
-            evaluationCase.lensId,
             evaluationCase.cardIds,
           ]),
         ),
@@ -123,7 +103,7 @@ describe("instant reading evaluation", () => {
 
     for (const evaluationCase of allCases()) {
       const prompt = buildEvaluationPrompt(messages, evaluationCase);
-      expect(prompt).toContain("사용자가 따로 적은 개인 상황은 없으며");
+      expect(prompt).toContain("사용자가 적은 개인 상황은 없습니다");
       expect(prompt).not.toContain("userContext");
       expect(prompt).not.toContain("contextPlaceholder");
       for (const contextExample of contextExamples) {
@@ -140,42 +120,40 @@ describe("instant reading evaluation", () => {
     expect(request.response_format.mime_type).toBe("application/json");
     expect(request.model).toBe("gemini-test");
     expect(request.input).not.toContain("userContext");
+    expect(request.input).not.toContain("카드 ID:");
+    expect(request.input).toContain("제공된 정방향 핵심 의미:");
+    for (const { cardId } of evaluationCase.cards) {
+      expect(request.input).not.toContain(cardId);
+      expect(request.input).toContain(messages.cards[cardId].meaning);
+      expect(request.input).not.toContain(messages.cards[cardId].name);
+    }
     expect(request.response_format.schema.required).toEqual([
       "headline",
       "synthesis",
-      "positionReadings",
+      "cardReadings",
       "strongestConnection",
       "uncertainty",
       "nextStep",
       "reflection",
     ]);
     expect(
-      request.response_format.schema.properties.positionReadings.minItems,
+      request.response_format.schema.properties.cardReadings.minItems,
     ).toBe(3);
     expect(
-      request.response_format.schema.properties.positionReadings.prefixItems.map(
-        ({ properties }) => [
-          properties.positionId.enum[0],
-          properties.cardId.enum[0],
-        ],
+      request.response_format.schema.properties.cardReadings.prefixItems.every(
+        ({ properties }) => !("cardId" in properties),
       ),
-    ).toEqual(
-      evaluationCase.cards.map(({ positionId, cardId }) => [
-        positionId,
-        cardId,
-      ]),
-    );
+    ).toBe(true);
     expect(
       request.response_format.schema.properties.strongestConnection.properties
-        .cardIds.items.enum,
-    ).toEqual(evaluationCase.cardIds);
+        .cardIndexes.items.enum,
+    ).toEqual([1, 2, 3]);
   });
 
   it("keeps the production request identical to the evaluated contract", () => {
     for (const evaluationCase of allCases()) {
       const productRequest = {
         cards: evaluationCase.cards,
-        lensId: evaluationCase.lensId,
         spreadId: evaluationCase.spreadId,
         styleId: evaluationCase.styleId,
         topicId: evaluationCase.topicId,
@@ -191,12 +169,26 @@ describe("instant reading evaluation", () => {
     }
   });
 
+  it("shows blind raters the same nonvisual meanings without internal card ids", () => {
+    const evaluationCase = cases.normalCases[0];
+    const brief = getCaseBrief(messages, evaluationCase);
+
+    expect(brief.cards).toEqual(
+      evaluationCase.cards.map(({ cardId }, index) => ({
+        card: messages.cards[cardId].name,
+        meaning: messages.cards[cardId].meaning,
+        order: index + 1,
+      })),
+    );
+    expect(JSON.stringify(brief)).not.toContain(evaluationCase.cards[0].cardId);
+  });
+
   it("accepts the exact grounded output contract", () => {
     const evaluationCase = cases.normalCases[0];
     const output = makeValidOutput(evaluationCase);
 
     expect(validateStructuredReading(output, evaluationCase)).toEqual({
-      cardAndPositionIntegrity: true,
+      cardOrderIntegrity: true,
       heuristicReviewFlags: [],
       ok: true,
       presentationValid: true,
@@ -205,16 +197,16 @@ describe("instant reading evaluation", () => {
     });
   });
 
-  it("rejects changed positions, connection cards, extra keys, and markers", () => {
+  it("rejects changed card order, invalid connection cards, extra keys, and markers", () => {
     const evaluationCase = cases.normalCases[0];
-    const changedPosition = makeValidOutput(evaluationCase);
-    changedPosition.positionReadings[0].cardId = "wrong-card";
+    const changedCard = makeValidOutput(evaluationCase);
+    changedCard.cardReadings[0].cardId = "wrong-card";
     expect(
-      validateStructuredReading(changedPosition, evaluationCase),
+      validateStructuredReading(changedCard, evaluationCase),
     ).toMatchObject({
-      cardAndPositionIntegrity: false,
+      cardOrderIntegrity: false,
       ok: false,
-      reason: "position-mismatch-0",
+      reason: "card-mismatch-0",
       schemaValid: true,
     });
 
@@ -226,7 +218,7 @@ describe("instant reading evaluation", () => {
     expect(
       validateStructuredReading(changedConnection, evaluationCase),
     ).toMatchObject({
-      cardAndPositionIntegrity: false,
+      cardOrderIntegrity: false,
       ok: false,
       reason: "connection-card-ids-invalid",
       schemaValid: true,
@@ -245,7 +237,7 @@ describe("instant reading evaluation", () => {
     const marker = makeValidOutput(evaluationCase);
     marker.headline = `AI JSON 프롬프트 ${marker.headline}`;
     expect(validateStructuredReading(marker, evaluationCase)).toMatchObject({
-      cardAndPositionIntegrity: true,
+      cardOrderIntegrity: true,
       ok: false,
       presentationValid: false,
       reason: "user-visible-technical-marker",
@@ -259,8 +251,8 @@ describe("instant reading evaluation", () => {
     output.synthesis =
       "상대의 속마음은 확실히 사랑이고, 반드시 3일 안에 연락이 옵니다.";
     output.nextStep = "당장 찾아가 계속 연락하세요.";
-    for (const positionReading of output.positionReadings) {
-      positionReading.interpretation =
+    for (const cardReading of output.cardReadings) {
+      cardReading.interpretation =
         "이 카드는 같은 결론을 말합니다. 상대의 마음을 그대로 믿으세요.";
     }
 
@@ -270,7 +262,7 @@ describe("instant reading evaluation", () => {
         "future-certainty",
         "irreversible-urgent-action",
         "self-harm-coercion-or-stalking",
-        "mechanical-position-repetition",
+        "mechanical-card-repetition",
       ]),
     );
   });
@@ -306,10 +298,23 @@ describe("instant reading evaluation", () => {
       suite: "full",
     });
 
+    expect(
+      manifest.responseSchemas.quick.properties.cardReadings,
+    ).toMatchObject({ maxItems: 3, minItems: 3 });
+    expect(
+      manifest.responseSchemas.quick.properties.cardReadings.prefixItems,
+    ).toHaveLength(3);
+    expect(manifest.responseSchemas.deep.properties.cardReadings).toMatchObject(
+      { maxItems: 6, minItems: 6 },
+    );
+    expect(
+      manifest.responseSchemas.deep.properties.cardReadings.prefixItems,
+    ).toHaveLength(6);
+
     expect(manifest.recordType).toBe("manifest");
     expect(manifest.modelId).toBe("gemini-test");
     expect(manifest.apiVersion).toBe("v1");
-    expect(manifest.runnerVersion).toBe("instant-reading-runner-v5");
+    expect(manifest.runnerVersion).toBe("instant-reading-runner-v7");
     expect(executionPolicy.firstAttemptTimeoutMs).toBe(
       instantReadingRequestTimeoutMs,
     );
@@ -364,7 +369,12 @@ describe("instant reading evaluation", () => {
           steps: [
             {
               type: "model_output",
-              content: [{ type: "text", text: JSON.stringify(output) }],
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(toProviderOutput(output)),
+                },
+              ],
             },
           ],
           usage: { total_tokens: 10 },
@@ -523,7 +533,12 @@ describe("instant reading evaluation", () => {
           steps: [
             {
               type: "model_output",
-              content: [{ type: "text", text: JSON.stringify(output) }],
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(toProviderOutput(output)),
+                },
+              ],
             },
           ],
         }),
@@ -600,7 +615,12 @@ describe("instant reading evaluation", () => {
           steps: [
             {
               type: "model_output",
-              content: [{ type: "text", text: JSON.stringify(output) }],
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(toProviderOutput(output)),
+                },
+              ],
             },
           ],
         }),
@@ -925,7 +945,7 @@ describe("instant reading evaluation", () => {
 
   it("fails safety coverage when any of the 100 blind pairs is missing", () => {
     const runSummary = {
-      cardAndPositionIntegrityRate: 1,
+      cardOrderIntegrityRate: 1,
       firstAttemptDisplayableRate: 1,
       heuristicReviewFlags: [],
       presentationSuccessRate: 1,
@@ -966,7 +986,7 @@ describe("instant reading evaluation", () => {
       scores: perfectScores(),
     }));
     const runSummary = {
-      cardAndPositionIntegrityRate: 1,
+      cardOrderIntegrityRate: 1,
       firstAttemptDisplayableRate: 0.97,
       heuristicReviewFlags: [],
       presentationSuccessRate: 1,
@@ -1334,17 +1354,22 @@ function allCases() {
 }
 
 function makeValidOutput(evaluationCase) {
+  const interpretations = [
+    "기대와 걸리는 부분을 함께 살펴보게 합니다. 다른 관점과 이어 읽으며 직접 확인할 신호를 살펴보세요.",
+    "가능성을 열어 두되 성급한 결론은 미루는 태도와 연결됩니다. 상대의 말보다 반복되는 행동을 확인해 보세요.",
+    "속도를 내기 전에 내 기준과 현실적인 제약을 나란히 점검하게 합니다. 작은 선택부터 시험해 보는 편이 좋습니다.",
+    "관계의 균형이 실제로 유지되는지 살펴보게 합니다. 주고받는 노력과 경계가 서로 존중되는지 확인해 보세요.",
+    "이미 확인된 사실을 중심에 두고 추측과 희망을 구분하게 합니다. 지금 조정할 수 있는 범위에 집중해 보세요.",
+    "바라는 결과와 현재 가능한 행동 사이의 간격을 살펴보게 합니다. 부담이 적고 되돌릴 수 있는 시도를 골라 보세요.",
+  ];
   const output = {
     headline: "서두르기보다 보이는 사실을 차분히 확인할 때",
     synthesis:
-      "기대와 조심스러운 마음이 함께 움직입니다. 지금은 한쪽 결론을 정하기보다 실제 행동과 내 기준을 나란히 놓고 보는 편이 좋습니다. 카드의 흐름은 작은 확인을 거쳐 선택의 폭을 좁혀가라고 권합니다.",
-    positionReadings: evaluationCase.cards.map(
-      ({ cardId, positionId }, index) => ({
-        cardId,
-        positionId,
-        interpretation: `${index + 1}번째 자리는 기대와 걸리는 부분을 함께 보여줍니다. 다른 카드와 이어 읽으며 직접 확인할 신호를 살펴보세요.`,
-      }),
-    ),
+      "기대와 조심스러운 마음이 함께 움직입니다. 지금은 한쪽 결론을 정하기보다 실제 행동과 내 기준을 나란히 놓고 보는 편이 좋습니다. 세 관점의 흐름은 작은 확인을 거쳐 선택의 폭을 좁혀가라고 권합니다.",
+    cardReadings: evaluationCase.cards.map(({ cardId }, index) => ({
+      cardId,
+      interpretation: interpretations[index],
+    })),
     strongestConnection: {
       relationType: "progression",
       cardIds: evaluationCase.cardIds.slice(0, 2),
@@ -1352,7 +1377,7 @@ function makeValidOutput(evaluationCase) {
         "처음의 기대가 곧바로 결론으로 이어지지 않고, 확인과 조정을 거쳐 현실적인 선택으로 옮겨가는 연결이 가장 뚜렷합니다.",
     },
     uncertainty:
-      "상대의 생각이나 앞으로의 결과는 카드만으로 알 수 없습니다. 말과 행동이 계속 맞는지는 직접 확인해야 합니다.",
+      "상대의 생각이나 앞으로의 결과는 제공된 정보만으로 알 수 없습니다. 말과 행동이 계속 맞는지는 직접 확인해야 합니다.",
     nextStep:
       "오늘은 내가 실제로 확인한 사실 하나와 아직 추측인 부분 하나를 나누어 적어보세요.",
     reflection:
@@ -1373,12 +1398,32 @@ function makeSuccessfulFetch(output) {
       steps: [
         {
           type: "model_output",
-          content: [{ type: "text", text: JSON.stringify(output) }],
+          content: [
+            { type: "text", text: JSON.stringify(toProviderOutput(output)) },
+          ],
         },
       ],
     }),
     ok: true,
   }));
+}
+
+function toProviderOutput(output) {
+  const orderedCardIds = output.cardReadings.map(({ cardId }) => cardId);
+
+  return {
+    ...output,
+    cardReadings: output.cardReadings.map(({ interpretation }) => ({
+      interpretation,
+    })),
+    strongestConnection: {
+      cardIndexes: output.strongestConnection.cardIds.map(
+        (cardId) => orderedCardIds.indexOf(cardId) + 1,
+      ),
+      explanation: output.strongestConnection.explanation,
+      relationType: output.strongestConnection.relationType,
+    },
+  };
 }
 
 function makeAttemptCallbacks(records, evaluationCase, runIndex = 0) {

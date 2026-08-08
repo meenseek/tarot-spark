@@ -49,14 +49,14 @@ describe("DailyQuestion", () => {
 
     expect(screen.getByTestId("daily-card")).toHaveAttribute(
       "data-card-id",
-      "temperance",
+      "wands-knight",
     );
     expect(
-      screen.getByRole("heading", { name: "Temperance" }),
+      screen.getByRole("heading", { name: "Knight of Wands" }),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        "What would become easier if you gave it a slower rhythm?",
+        "Where should you slow down without losing your enthusiasm?",
       ),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "한국어" })).toHaveAttribute(
@@ -74,11 +74,15 @@ describe("DailyQuestion", () => {
 
     expect(screen.getByTestId("daily-card")).toHaveAttribute(
       "data-card-id",
-      "temperance",
+      "wands-knight",
     );
-    expect(screen.getByRole("heading", { name: "절제" })).toBeInTheDocument();
     expect(
-      screen.getByText("조금 더 천천히 해도 된다면 무엇이 수월해질까요?"),
+      screen.getByRole("heading", { name: "완드 나이트" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "열정을 잃지 않으면서 속도를 늦춰야 할 부분은 무엇인가요?",
+      ),
     ).toBeInTheDocument();
     expect(screen.getByText(/재정·투자·정신 건강/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "English" })).toHaveAttribute(
@@ -93,7 +97,7 @@ describe("DailyQuestion", () => {
 
     expect(screen.getByTestId("daily-card")).toHaveAttribute(
       "data-card-id",
-      "temperance",
+      "wands-knight",
     );
 
     act(() => {
@@ -102,10 +106,12 @@ describe("DailyQuestion", () => {
 
     expect(screen.getByTestId("daily-card")).toHaveAttribute(
       "data-card-id",
-      "the-star",
+      "swords-7",
     );
     expect(
-      screen.getByText("What small sign of renewal is worth protecting?"),
+      screen.getByText(
+        "Where is the line between being strategic and avoiding what is necessary?",
+      ),
     ).toBeInTheDocument();
   });
 

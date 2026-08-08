@@ -1,0 +1,396 @@
+{
+  "the-fool": {
+    "name": "The Fool",
+    "meaning": "It points to a new beginning, openness, and a first step amid uncertainty.",
+    "reflection": "What could you start small without waiting for certainty?"
+  },
+  "the-magician": {
+    "name": "The Magician",
+    "meaning": "It points to using available skills and resources to turn intention into action.",
+    "reflection": "How could you use a skill or resource you already have?"
+  },
+  "the-high-priestess": {
+    "name": "The High Priestess",
+    "meaning": "It points to intuition, discernment, and listening before deciding.",
+    "reflection": "What deserves more listening or checking before you decide?"
+  },
+  "the-empress": {
+    "name": "The Empress",
+    "meaning": "It points to care, creativity, and room for healthy growth.",
+    "reflection": "What could you nurture while also respecting your own needs?"
+  },
+  "the-emperor": {
+    "name": "The Emperor",
+    "meaning": "It points to clear standards, boundaries, and responsibility.",
+    "reflection": "What responsibility or boundary needs your consistent attention?"
+  },
+  "the-hierophant": {
+    "name": "The Hierophant",
+    "meaning": "It points to tradition, shared values, and trusted learning or guidance.",
+    "reflection": "Which principle is worth following, and which convention deserves review?"
+  },
+  "the-lovers": {
+    "name": "The Lovers",
+    "meaning": "It points to connection, aligned values, and a responsible choice.",
+    "reflection": "How well does this choice align with what matters to you?"
+  },
+  "the-chariot": {
+    "name": "The Chariot",
+    "meaning": "It points to choosing a direction and moving with focused discipline.",
+    "reflection": "What single direction deserves your focused effort now?"
+  },
+  "strength": {
+    "name": "Strength",
+    "meaning": "It points to courage, patience, and steady emotional self-control.",
+    "reflection": "What could you handle calmly instead of forcing it?"
+  },
+  "the-hermit": {
+    "name": "The Hermit",
+    "meaning": "It points to stepping back and reflecting on your own guidance.",
+    "reflection": "What thought or standard deserves quiet reflection?"
+  },
+  "wheel-of-fortune": {
+    "name": "Wheel of Fortune",
+    "meaning": "It points to changing cycles and the flexibility to respond to them.",
+    "reflection": "What change could you meet with flexibility rather than control?"
+  },
+  "justice": {
+    "name": "Justice",
+    "meaning": "It points to fair judgment, accountability, and the consequences of choice.",
+    "reflection": "Are you considering the effects of your choice fairly for everyone involved?"
+  },
+  "the-hanged-man": {
+    "name": "The Hanged Man",
+    "meaning": "It points to pausing, releasing control, and changing perspective.",
+    "reflection": "What might you understand differently if you paused?"
+  },
+  "death": {
+    "name": "Death",
+    "meaning": "It points to ending, release, and transition into a new phase, not a prediction of physical death.",
+    "reflection": "What needs to end or be released before you move forward?"
+  },
+  "temperance": {
+    "name": "Temperance",
+    "meaning": "It points to patiently balancing and integrating different needs.",
+    "reflection": "How could you balance two different needs without forcing either?"
+  },
+  "the-devil": {
+    "name": "The Devil",
+    "meaning": "It points to attachment, temptation, and patterns that restrict choice, not a literal supernatural claim.",
+    "reflection": "What are you repeating from genuine desire, and what from habit?"
+  },
+  "the-tower": {
+    "name": "The Tower",
+    "meaning": "It points to disruption that exposes assumptions and requires an honest reset, not a prediction of disaster.",
+    "reflection": "What truth still needs to be acknowledged when circumstances are unsettled?"
+  },
+  "the-star": {
+    "name": "The Star",
+    "meaning": "It points to renewed hope, recovery, and honest trust after difficulty.",
+    "reflection": "What small and realistic reason helps you trust again?"
+  },
+  "the-moon": {
+    "name": "The Moon",
+    "meaning": "It points to uncertainty and the need to separate intuition, fear, fact, and assumption.",
+    "reflection": "How can you separate what you know from what anxiety is adding?"
+  },
+  "the-sun": {
+    "name": "The Sun",
+    "meaning": "It points to clarity, vitality, joy, and open confidence.",
+    "reflection": "What joy or strength can you acknowledge without minimizing it?"
+  },
+  "judgement": {
+    "name": "Judgement",
+    "meaning": "It points to honest review, accountability, and answering a renewed direction.",
+    "reflection": "How could you apply what you learned from an earlier choice differently now?"
+  },
+  "the-world": {
+    "name": "The World",
+    "meaning": "It points to completion, integration, and meaningful closure.",
+    "reflection": "What are you ready to recognize as complete?"
+  },
+
+  "wands-ace": {
+    "name": "Ace of Wands",
+    "meaning": "It points to new motivation, inspiration, and the will to begin.",
+    "reflection": "How could you make a small start on the idea that energizes you most?"
+  },
+  "wands-2": {
+    "name": "Two of Wands",
+    "meaning": "It points to planning and choosing a direction for what comes next.",
+    "reflection": "What matters most when choosing among possible directions?"
+  },
+  "wands-3": {
+    "name": "Three of Wands",
+    "meaning": "It points to expansion, progress, and reviewing how effort is developing.",
+    "reflection": "What progress should you confirm before expanding further?"
+  },
+  "wands-4": {
+    "name": "Four of Wands",
+    "meaning": "It points to stability, shared joy, and the completion of a stage.",
+    "reflection": "What achievement would you like to acknowledge and share?"
+  },
+  "wands-5": {
+    "name": "Five of Wands",
+    "meaning": "It points to competition, disagreement, and friction between priorities.",
+    "reflection": "How can you distinguish useful challenge from conflict that only drains you?"
+  },
+  "wands-6": {
+    "name": "Six of Wands",
+    "meaning": "It points to recognition, confidence, and meaningful progress.",
+    "reflection": "What progress can you acknowledge without depending on others' approval?"
+  },
+  "wands-7": {
+    "name": "Seven of Wands",
+    "meaning": "It points to persistence in defending an important position or boundary.",
+    "reflection": "Which boundary deserves protection, and which defense could be released?"
+  },
+  "wands-8": {
+    "name": "Eight of Wands",
+    "meaning": "It points to rapid development, momentum, and timely communication.",
+    "reflection": "What needs a prompt response and one careful check?"
+  },
+  "wands-9": {
+    "name": "Nine of Wands",
+    "meaning": "It points to resilience and cautious persistence despite fatigue.",
+    "reflection": "What support would make continued effort sustainable?"
+  },
+  "wands-10": {
+    "name": "Ten of Wands",
+    "meaning": "It points to excessive responsibility, burden, and the need to reprioritize.",
+    "reflection": "What responsibility could you release or share?"
+  },
+  "wands-page": {
+    "name": "Page of Wands",
+    "meaning": "It points to curiosity and enthusiasm for learning through a new experiment.",
+    "reflection": "What idea could you test with low stakes?"
+  },
+  "wands-knight": {
+    "name": "Knight of Wands",
+    "meaning": "It points to bold momentum and action that benefits from impulse control.",
+    "reflection": "Where should you slow down without losing your enthusiasm?"
+  },
+  "wands-queen": {
+    "name": "Queen of Wands",
+    "meaning": "It points to confidence, warmth, and independent initiative.",
+    "reflection": "How could you lead confidently without carrying everything yourself?"
+  },
+  "wands-king": {
+    "name": "King of Wands",
+    "meaning": "It points to vision, leadership, and sustained action toward a direction.",
+    "reflection": "What concrete action would support your longer-term direction?"
+  },
+
+  "cups-ace": {
+    "name": "Ace of Cups",
+    "meaning": "It points to emotional openness, new feeling, and compassion.",
+    "reflection": "What feeling could you acknowledge before judging it?"
+  },
+  "cups-2": {
+    "name": "Two of Cups",
+    "meaning": "It points to mutual respect, reciprocity, and partnership.",
+    "reflection": "What observable sign would show that effort is mutual?"
+  },
+  "cups-3": {
+    "name": "Three of Cups",
+    "meaning": "It points to friendship, community, shared joy, and support.",
+    "reflection": "Which connection could you nurture or receive support from now?"
+  },
+  "cups-4": {
+    "name": "Four of Cups",
+    "meaning": "It points to disengagement or stagnation that calls for reevaluating your needs.",
+    "reflection": "What need or option might you be overlooking because you feel drained?"
+  },
+  "cups-5": {
+    "name": "Five of Cups",
+    "meaning": "It points to acknowledging loss and working through disappointment.",
+    "reflection": "What disappointment deserves acknowledgment without rushing past it?"
+  },
+  "cups-6": {
+    "name": "Six of Cups",
+    "meaning": "It points to the influence of memory and familiarity on present feelings.",
+    "reflection": "What lesson from the past should continue, and what habit should not?"
+  },
+  "cups-7": {
+    "name": "Seven of Cups",
+    "meaning": "It points to many possibilities that require practical discernment.",
+    "reflection": "What criterion can separate an appealing option from a suitable one?"
+  },
+  "cups-8": {
+    "name": "Eight of Cups",
+    "meaning": "It points to leaving what no longer fulfills you in favor of deeper alignment.",
+    "reflection": "What could you release to make room for something more aligned?"
+  },
+  "cups-9": {
+    "name": "Nine of Cups",
+    "meaning": "It points to satisfaction, gratitude, and recognizing what is enough.",
+    "reflection": "What is already enough before you ask for more?"
+  },
+  "cups-10": {
+    "name": "Ten of Cups",
+    "meaning": "It points to emotional harmony, belonging, and shared fulfillment.",
+    "reflection": "What everyday action would strengthen a sense of belonging?"
+  },
+  "cups-page": {
+    "name": "Page of Cups",
+    "meaning": "It points to emotional curiosity, sensitivity, and sincere expression.",
+    "reflection": "What feeling could you express honestly without adding assumptions?"
+  },
+  "cups-knight": {
+    "name": "Knight of Cups",
+    "meaning": "It points to following heartfelt ideals and expressing care sincerely.",
+    "reflection": "How could you express care while respecting another person's boundaries?"
+  },
+  "cups-queen": {
+    "name": "Queen of Cups",
+    "meaning": "It points to empathy and emotional understanding with healthy receptivity.",
+    "reflection": "How could you listen with empathy without absorbing every emotion?"
+  },
+  "cups-king": {
+    "name": "King of Cups",
+    "meaning": "It points to emotional steadiness, compassion, and a measured response.",
+    "reflection": "What would help you respond calmly without dismissing your feelings?"
+  },
+
+  "swords-ace": {
+    "name": "Ace of Swords",
+    "meaning": "It points to clarity, truth, and precise judgment.",
+    "reflection": "What fact matters most to your decision now?"
+  },
+  "swords-2": {
+    "name": "Two of Swords",
+    "meaning": "It points to indecision caused by missing information or unclear criteria.",
+    "reflection": "What information or criterion would help you decide?"
+  },
+  "swords-3": {
+    "name": "Three of Swords",
+    "meaning": "It points to emotional pain, grief, and accepting a difficult truth.",
+    "reflection": "What truth needs acknowledgment before you rush toward recovery?"
+  },
+  "swords-4": {
+    "name": "Four of Swords",
+    "meaning": "It points to rest, recovery, and mental space before further action.",
+    "reflection": "What should pause so that you can make a better decision?"
+  },
+  "swords-5": {
+    "name": "Five of Swords",
+    "meaning": "It points to conflict, self-interest, and the possible cost of winning.",
+    "reflection": "What matters more than proving that you are right?"
+  },
+  "swords-6": {
+    "name": "Six of Swords",
+    "meaning": "It points to transition, distance from difficulty, and gradual recovery.",
+    "reflection": "What small change could reduce the strain you are carrying?"
+  },
+  "swords-7": {
+    "name": "Seven of Swords",
+    "meaning": "It points to careful strategy, discretion, and accountability for avoidance.",
+    "reflection": "Where is the line between being strategic and avoiding what is necessary?"
+  },
+  "swords-8": {
+    "name": "Eight of Swords",
+    "meaning": "It points to felt restriction, self-doubt, and options not yet considered.",
+    "reflection": "What assumption may be narrowing your choices more than necessary?"
+  },
+  "swords-9": {
+    "name": "Nine of Swords",
+    "meaning": "It points to worry and rumination narrowing perspective under stress.",
+    "reflection": "Which worry can be checked, and which needs to be set down for now?"
+  },
+  "swords-10": {
+    "name": "Ten of Swords",
+    "meaning": "It points to a painful ending, exhaustion, and the need to release what is over.",
+    "reflection": "What needs to be accepted as over or met with a firm limit?"
+  },
+  "swords-page": {
+    "name": "Page of Swords",
+    "meaning": "It points to alert curiosity, careful inquiry, and honest communication.",
+    "reflection": "What question should you check before reaching a conclusion?"
+  },
+  "swords-knight": {
+    "name": "Knight of Swords",
+    "meaning": "It points to swift judgment and direct action that require pacing.",
+    "reflection": "What judgment deserves one more check before you act?"
+  },
+  "swords-queen": {
+    "name": "Queen of Swords",
+    "meaning": "It points to discernment, independence, and clear honest boundaries.",
+    "reflection": "What truth needs to be stated clearly and respectfully?"
+  },
+  "swords-king": {
+    "name": "King of Swords",
+    "meaning": "It points to logic, fairness, and responsible strategic judgment.",
+    "reflection": "What decision remains when you apply the same standard to everyone?"
+  },
+
+  "pentacles-ace": {
+    "name": "Ace of Pentacles",
+    "meaning": "It points to a practical opportunity, a stable start, and available resources.",
+    "reflection": "What practical opportunity could you begin with resources already available?"
+  },
+  "pentacles-2": {
+    "name": "Two of Pentacles",
+    "meaning": "It points to balancing priorities and resources through flexible adjustment.",
+    "reflection": "What should you adjust first instead of trying to hold everything at once?"
+  },
+  "pentacles-3": {
+    "name": "Three of Pentacles",
+    "meaning": "It points to skill, collaboration, and improving quality through learning.",
+    "reflection": "What feedback or collaboration could improve the result?"
+  },
+  "pentacles-4": {
+    "name": "Four of Pentacles",
+    "meaning": "It points to the desire for security, control, and the risk of holding too tightly.",
+    "reflection": "What are you protecting, and what is the cost of protecting it this way?"
+  },
+  "pentacles-5": {
+    "name": "Five of Pentacles",
+    "meaning": "It points to practical hardship, exclusion, and the need to seek support.",
+    "reflection": "What support or resource could you safely ask for now?"
+  },
+  "pentacles-6": {
+    "name": "Six of Pentacles",
+    "meaning": "It points to fairness and balance in giving and receiving support.",
+    "reflection": "Is the balance between what you give and receive sustainable?"
+  },
+  "pentacles-7": {
+    "name": "Seven of Pentacles",
+    "meaning": "It points to patience and reviewing progress in a long-term effort.",
+    "reflection": "Based on the results so far, what should continue and what should change?"
+  },
+  "pentacles-8": {
+    "name": "Eight of Pentacles",
+    "meaning": "It points to diligence and improving skill through consistent practice.",
+    "reflection": "Which skill would improve most through steady practice?"
+  },
+  "pentacles-9": {
+    "name": "Nine of Pentacles",
+    "meaning": "It points to self-reliance, earned comfort, and recognizing your progress.",
+    "reflection": "What achievement can you enjoy without neglecting your responsibilities?"
+  },
+  "pentacles-10": {
+    "name": "Ten of Pentacles",
+    "meaning": "It points to lasting stability, a shared foundation, and enduring responsibility.",
+    "reflection": "Which decision now would best support lasting stability?"
+  },
+  "pentacles-page": {
+    "name": "Page of Pentacles",
+    "meaning": "It points to practical learning, preparation, and a steady beginning.",
+    "reflection": "What could you learn or prepare before making a larger commitment?"
+  },
+  "pentacles-knight": {
+    "name": "Knight of Pentacles",
+    "meaning": "It points to reliability, methodical effort, and practical progress.",
+    "reflection": "What small concrete task could you repeat consistently?"
+  },
+  "pentacles-queen": {
+    "name": "Queen of Pentacles",
+    "meaning": "It points to practical care, resourcefulness, and creating stability.",
+    "reflection": "How could you care for real needs without depleting yourself?"
+  },
+  "pentacles-king": {
+    "name": "King of Pentacles",
+    "meaning": "It points to responsible stewardship and building sustainable stability.",
+    "reflection": "How could you manage your responsibilities and resources more sustainably?"
+  }
+}

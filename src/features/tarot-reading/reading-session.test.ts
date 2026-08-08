@@ -39,7 +39,6 @@ describe("reading session reducer", () => {
         cardInstanceId: 1,
         publicStateRevision: 1,
         promptRevision: 1,
-        promptSlot: "main",
       },
     });
     expect(restored.mode === "result" && restored.current.inputs).not.toBe(
@@ -121,7 +120,6 @@ describe("reading session reducer", () => {
         cardInstanceId: 1,
         publicStateRevision: 1,
         promptRevision: 1,
-        promptSlot: "main",
       },
     });
   });
@@ -156,19 +154,17 @@ describe("reading session reducer", () => {
         cardInstanceId: 2,
         publicStateRevision: 2,
         promptRevision: 2,
-        promptSlot: "main",
       },
     });
   });
 
-  it("redraws with committed inputs and resets the prompt slot", () => {
+  it("redraws with committed inputs", () => {
     const changed = reduce(createResult(), [
       { type: "SET_CURRENT_STYLE", styleId: "relational" },
       {
         type: "SET_CURRENT_PRIVATE_CONTEXT",
         privateContext: "Updated current context",
       },
-      { type: "SET_PROMPT_SLOT", promptSlot: "emotion" },
     ]);
     const redrawn = readingSessionReducer(changed, {
       type: "REDRAW_CURRENT",
@@ -192,7 +188,6 @@ describe("reading session reducer", () => {
     expect(redrawn.current.promptRevision).toBe(
       changed.current.promptRevision + 1,
     );
-    expect(redrawn.current.promptSlot).toBe("main");
   });
 
   it("changes current style while preserving the draw snapshot identity", () => {
@@ -217,63 +212,30 @@ describe("reading session reducer", () => {
     expect(changed.current.promptRevision).toBe(
       result.current.promptRevision + 1,
     );
-    expect(changed.current.promptSlot).toBe("main");
   });
 
-  it("changes current context and prompt slot with prompt-only revisions", () => {
+  it("changes current context with a prompt-only revision", () => {
     const result = createResult();
     const contextChanged = readingSessionReducer(result, {
       type: "SET_CURRENT_PRIVATE_CONTEXT",
       privateContext: "Updated current context",
     });
-    const slotChanged = readingSessionReducer(contextChanged, {
-      type: "SET_PROMPT_SLOT",
-      promptSlot: "action",
-    });
-
-    expect(slotChanged.mode).toBe("result");
-    if (slotChanged.mode !== "result" || result.mode !== "result") {
+    expect(contextChanged.mode).toBe("result");
+    if (contextChanged.mode !== "result" || result.mode !== "result") {
       throw new Error("Expected a current result");
     }
 
-    expect(slotChanged.current.inputs.privateContext).toBe(
+    expect(contextChanged.current.inputs.privateContext).toBe(
       "Updated current context",
     );
-    expect(slotChanged.current.promptSlot).toBe("action");
-    expect(slotChanged.current.cardInstanceId).toBe(
+    expect(contextChanged.current.cardInstanceId).toBe(
       result.current.cardInstanceId,
     );
-    expect(slotChanged.current.publicStateRevision).toBe(
+    expect(contextChanged.current.publicStateRevision).toBe(
       result.current.publicStateRevision,
     );
-    expect(slotChanged.current.promptRevision).toBe(
-      result.current.promptRevision + 2,
-    );
-  });
-
-  it("changes only the current prompt slot while editing the next draw", () => {
-    const result = createResult();
-    const editing = readingSessionReducer(result, { type: "ENTER_EDIT" });
-    const changed = readingSessionReducer(editing, {
-      type: "SET_PROMPT_SLOT",
-      promptSlot: "action",
-    });
-
-    expect(changed.mode).toBe("edit-next-draw");
-    if (
-      editing.mode !== "edit-next-draw" ||
-      changed.mode !== "edit-next-draw"
-    ) {
-      throw new Error("Expected an edit-next-draw session");
-    }
-
-    expect(changed.draft).toBe(editing.draft);
-    expect(changed.current.promptSlot).toBe("action");
-    expect(changed.current.promptRevision).toBe(
-      editing.current.promptRevision + 1,
-    );
-    expect(changed.current.publicStateRevision).toBe(
-      editing.current.publicStateRevision,
+    expect(contextChanged.current.promptRevision).toBe(
+      result.current.promptRevision + 1,
     );
   });
 
@@ -304,7 +266,6 @@ describe("reading session reducer", () => {
         privateContext: "A private situation",
       },
     ],
-    [{ type: "SET_PROMPT_SLOT", promptSlot: "main" }],
   ] satisfies readonly [SessionAction][])(
     "returns the identical result session for an unchanged current action %#",
     (action) => {
@@ -361,21 +322,11 @@ function createDrawnCard(
   name: string,
 ): DrawnCard {
   return {
-    position: { id: "spark", label: "Spark" },
     card: {
       id: cardId,
       name,
-      tone: "neutral",
-      archetype: "test archetype",
-      keywords: ["test"],
-      symbols: ["test"],
-      upright: "test upright",
-      light: "test light",
-      shadow: "test shadow",
-      agency: "test agency",
-      caution: "test caution",
+      meaning: "test meaning",
       reflection: "test reflection",
-      promptAngle: "test prompt angle",
     },
   };
 }

@@ -3,11 +3,8 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   instantReadingRelationTypes,
-  promptSlotIds,
-  readingLensIds,
   readingStyleIds,
   spreadIds,
-  spreadPositionIds,
   tarotCardIds,
   topicIds,
 } from "@/domain/tarot";
@@ -180,15 +177,6 @@ const uiCopySchema = {
     reflection: "string",
     relationLabels: exactRecordSchema(instantReadingRelationTypes, "string"),
   },
-  promptPack: {
-    heading: "string",
-    intro: "string",
-    selectorLabel: "string",
-    slots: exactRecordSchema(promptSlotIds, {
-      label: "string",
-      description: "string",
-    }),
-  },
   promptReady: "string",
   promptContextIncluded: "string",
   promptCopySuccess: "string",
@@ -197,17 +185,10 @@ const uiCopySchema = {
   cardDetailsDisclosure: "string",
   shareOptionsDisclosure: "string",
   cardDetails: {
-    archetype: "string",
-    keywords: "string",
-    symbols: "string",
-    light: "string",
-    shadow: "string",
-    agency: "string",
-    caution: "string",
+    meaning: "string",
     reflection: "string",
   },
   generatedPromptLabel: "string",
-  interpretationLensLabel: "string",
   copyPrompt: "string",
   copied: "string",
   copyUrl: "string",
@@ -231,26 +212,19 @@ const uiCopySchema = {
   shareTitle: "string",
   shareText: "string",
   placeholderCardName: "string",
-  placeholderCardTone: "string",
 } as const satisfies JsonSchema;
 
 const tarotMessagesSchema = {
   promptTemplate: {
-    spreadLine: "string",
+    cardLine: "string",
     userContextBlock: "string",
-    emptyUserContext: "string",
     lines: ["string"],
-    slotInstructions: exactRecordSchema(promptSlotIds, ["string"]),
   },
   spreads: exactRecordSchema(spreadIds, {
     label: "string",
     description: "string",
     promptLabel: "string",
     outputLengthInstruction: "string",
-  }),
-  readingLenses: exactRecordSchema(readingLensIds, {
-    label: "string",
-    instruction: "string",
   }),
   readingStyles: exactRecordSchema(readingStyleIds, {
     label: "string",
@@ -262,23 +236,6 @@ const tarotMessagesSchema = {
     contextPlaceholder: "string",
     promptLead: "string",
     resultFrame: "string",
-  }),
-  spreadPositions: exactRecordSchema(spreadPositionIds, {
-    label: "string",
-  }),
-  cards: exactRecordSchema(tarotCardIds, {
-    name: "string",
-    tone: "string",
-    archetype: "string",
-    keywords: ["string"],
-    symbols: ["string"],
-    upright: "string",
-    light: "string",
-    shadow: "string",
-    agency: "string",
-    caution: "string",
-    reflection: "string",
-    promptAngle: "string",
   }),
 } satisfies JsonSchema;
 
@@ -479,17 +436,9 @@ describe("i18n integrity", () => {
         `topic order for ${locale}`,
       ).toEqual(topicIds);
       expect(
-        data.spreadPositions.map((position) => position.id),
-        `spread position order for ${locale}`,
-      ).toEqual(spreadPositionIds);
-      expect(
         data.spreads.map((spread) => spread.id),
         `spread order for ${locale}`,
       ).toEqual(spreadIds);
-      expect(
-        data.readingLenses.map((lens) => lens.id),
-        `reading lens order for ${locale}`,
-      ).toEqual(readingLensIds);
       expect(
         data.readingStyles.map((style) => style.id),
         `reading style order for ${locale}`,
@@ -528,23 +477,9 @@ describe("i18n integrity", () => {
           ["cardNames", "topicLabel"],
         ),
         ...collectTemplatePlaceholderErrors(
-          `${locale} tarot promptTemplate.spreadLine`,
-          tarotMessages.promptTemplate.spreadLine,
-          [
-            "agency",
-            "archetype",
-            "cardName",
-            "cardTone",
-            "caution",
-            "keywords",
-            "light",
-            "positionLabel",
-            "promptAngle",
-            "reflection",
-            "shadow",
-            "symbols",
-            "upright",
-          ],
+          `${locale} tarot promptTemplate.cardLine`,
+          tarotMessages.promptTemplate.cardLine,
+          ["cardIndex", "cardName"],
         ),
         ...collectTemplatePlaceholderErrors(
           `${locale} tarot promptTemplate.userContextBlock`,
@@ -555,24 +490,15 @@ describe("i18n integrity", () => {
           `${locale} tarot promptTemplate.lines`,
           tarotMessages.promptTemplate.lines.join("\n"),
           [
-            "lensInstruction",
-            "lensLabel",
+            "cards",
             "outputLengthInstruction",
             "promptLead",
             "readingStyleInstruction",
             "readingStyleLabel",
-            "spread",
             "spreadLabel",
             "topicLabel",
             "userContextBlock",
           ],
-        ),
-        ...promptSlotIds.flatMap((slotId) =>
-          collectTemplatePlaceholderErrors(
-            `${locale} tarot promptTemplate.slotInstructions.${slotId}`,
-            tarotMessages.promptTemplate.slotInstructions[slotId].join("\n"),
-            [],
-          ),
         ),
       ];
     });

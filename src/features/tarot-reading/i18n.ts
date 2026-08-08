@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { Metadata } from "next";
-import type { InstantReadingRelationType, PromptSlotId } from "@/domain/tarot";
+import type { InstantReadingRelationType } from "@/domain/tarot";
 import type { Locale } from "@/i18n/config";
 import { getAbsoluteSiteUrl, withLocalizedAlternates } from "@/i18n/seo";
 import enCopy from "@/messages/en/tarot-reading.json";
@@ -65,20 +65,6 @@ export type TarotReadingMessages = {
       Record<InstantReadingRelationType, string>
     >;
   };
-  readonly promptPack: {
-    readonly heading: string;
-    readonly intro: string;
-    readonly selectorLabel: string;
-    readonly slots: Readonly<
-      Record<
-        PromptSlotId,
-        {
-          readonly label: string;
-          readonly description: string;
-        }
-      >
-    >;
-  };
   readonly promptReady: string;
   readonly promptContextIncluded: string;
   readonly promptCopySuccess: string;
@@ -87,17 +73,10 @@ export type TarotReadingMessages = {
   readonly cardDetailsDisclosure: string;
   readonly shareOptionsDisclosure: string;
   readonly cardDetails: {
-    readonly archetype: string;
-    readonly keywords: string;
-    readonly symbols: string;
-    readonly light: string;
-    readonly shadow: string;
-    readonly agency: string;
-    readonly caution: string;
+    readonly meaning: string;
     readonly reflection: string;
   };
   readonly generatedPromptLabel: string;
-  readonly interpretationLensLabel: string;
   readonly copyPrompt: string;
   readonly copied: string;
   readonly copyUrl: string;
@@ -121,7 +100,6 @@ export type TarotReadingMessages = {
   readonly shareTitle: string;
   readonly shareText: string;
   readonly placeholderCardName: string;
-  readonly placeholderCardTone: string;
 };
 
 export type TarotReadingCopy = Omit<TarotReadingMessages, "metadata">;
@@ -167,7 +145,6 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     emptyHeading: copy.emptyHeading,
     generatedPromptLabel: copy.generatedPromptLabel,
     heading: copy.heading,
-    interpretationLensLabel: copy.interpretationLensLabel,
     instagramCopied: copy.instagramCopied,
     instagramShare: copy.instagramShare,
     instantReading: copy.instantReading,
@@ -179,8 +156,6 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     personalizationHeading: copy.personalizationHeading,
     personalizationIntro: copy.personalizationIntro,
     placeholderCardName: copy.placeholderCardName,
-    placeholderCardTone: copy.placeholderCardTone,
-    promptPack: copy.promptPack,
     promptReady: copy.promptReady,
     promptContextIncluded: copy.promptContextIncluded,
     promptCopySuccess: copy.promptCopySuccess,

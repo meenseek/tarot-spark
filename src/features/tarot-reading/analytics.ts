@@ -1,10 +1,8 @@
 "use client";
 
 import type {
-  PromptSlotId,
   ReadingStyleId,
   SpreadId,
-  SpreadPositionId,
   TarotCardId,
   TopicId,
 } from "@/domain/tarot";
@@ -59,7 +57,7 @@ type AnalyticsEventPayloads = {
   readonly topic_click: ReadingAnalyticsContext;
   readonly draw_start: DrawAnalyticsContext;
   readonly card_selected: DrawAnalyticsContext & {
-    readonly position_id: SpreadPositionId;
+    readonly card_order: number;
     readonly card_id: TarotCardId;
   };
   readonly result_view: DrawAnalyticsContext & {
@@ -67,8 +65,7 @@ type AnalyticsEventPayloads = {
   };
   readonly prompt_copy: DrawAnalyticsContext & {
     readonly card_count: number;
-    readonly prompt_slot: PromptSlotId;
-    readonly prompt_version: "prompt-pack-v2";
+    readonly prompt_version: "tarot-prompt-v3";
     readonly surface: "reading_result";
   };
   readonly share_click: DrawAnalyticsContext & {

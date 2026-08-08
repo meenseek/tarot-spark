@@ -1,7 +1,6 @@
 import { getLocalePath, type Locale } from "@/i18n/config";
 import { shareReadingPathSegment } from "@/i18n/routing";
 import {
-  getSpreadPositions,
   normalizeUserContext,
   type DrawnCard,
   type LocaleTarotData,
@@ -305,10 +304,8 @@ export function getReadingStateFromSearchParams(
   }
 
   const cardIds = cardsParam.split(",");
-  const positions = getSpreadPositions(spread, tarotData.spreadPositions);
-
   if (
-    cardIds.length !== positions.length ||
+    cardIds.length !== spread.cardCount ||
     new Set(cardIds).size !== cardIds.length
   ) {
     return undefined;
@@ -316,15 +313,14 @@ export function getReadingStateFromSearchParams(
 
   const cards: DrawnCard[] = [];
 
-  for (const [index, cardId] of cardIds.entries()) {
-    const position = positions[index];
+  for (const cardId of cardIds) {
     const card = tarotData.cards.find((candidate) => candidate.id === cardId);
 
-    if (!position || !card) {
+    if (!card) {
       return undefined;
     }
 
-    cards.push({ position, card });
+    cards.push({ card });
   }
 
   return {

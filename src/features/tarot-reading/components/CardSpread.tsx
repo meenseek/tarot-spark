@@ -1,44 +1,36 @@
 import { TarotCardArt } from "@/components/visual/TarotCardArt";
-import type { DrawnCard, SpreadPosition, TarotCardId } from "@/domain/tarot";
+import type { DrawnCard, TarotCardId } from "@/domain/tarot";
 import type { CSSProperties } from "react";
 
 type DisplayCard = {
-  readonly positionLabel: string;
   readonly cardName: string;
-  readonly cardTone: string;
   readonly cardId?: TarotCardId;
 };
 
 type CardSpreadProps = {
   readonly cards: readonly DrawnCard[];
+  readonly cardCount: number;
   readonly cardMarkLabel: string;
   readonly placeholderCardName: string;
-  readonly placeholderCardTone: string;
-  readonly positions: readonly SpreadPosition[];
   readonly revealSequence: number;
 };
 
 export function CardSpread({
   cards,
+  cardCount,
   cardMarkLabel,
   placeholderCardName,
-  placeholderCardTone,
-  positions,
   revealSequence,
 }: CardSpreadProps) {
   const shouldReveal = cards.length > 0 && revealSequence > 0;
   const displayCards: readonly DisplayCard[] =
     cards.length > 0
-      ? cards.map(({ position, card }) => ({
-          positionLabel: position.label,
+      ? cards.map(({ card }) => ({
           cardName: card.name,
-          cardTone: card.tone,
           cardId: card.id,
         }))
-      : positions.map((position) => ({
-          positionLabel: position.label,
+      : Array.from({ length: cardCount }, () => ({
           cardName: placeholderCardName,
-          cardTone: placeholderCardTone,
         }));
 
   return (
@@ -60,11 +52,10 @@ export function CardSpread({
             data-reveal-order={shouldReveal ? index + 1 : undefined}
             data-reveal-sequence={shouldReveal ? revealSequence : undefined}
             data-testid={`reading-card-${index}`}
-            key={`${displayCard.positionLabel}:${displayCard.cardId ?? "placeholder"}:${shouldReveal ? revealSequence : "static"}`}
+            key={`${index}:${displayCard.cardId ?? "placeholder"}:${shouldReveal ? revealSequence : "static"}`}
             style={revealStyle}
           >
             <div className="col-start-2 row-start-1 flex min-w-0 items-start justify-between gap-3 text-xs font-semibold text-ts-muted sm:col-start-1">
-              <span>{displayCard.positionLabel}</span>
               <span>{String(index + 1).padStart(2, "0")}</span>
             </div>
             <div className="col-start-1 row-span-2 row-start-1 flex items-center justify-center sm:col-start-1 sm:row-span-1 sm:row-start-2">
@@ -74,6 +65,7 @@ export function CardSpread({
               >
                 <TarotCardArt
                   cardId={displayCard.cardId}
+                  cardName={displayCard.cardName}
                   className="object-cover"
                   glyphClassName="h-20 w-20 sm:h-18 sm:w-18"
                   revealSequence={revealSequence}
@@ -92,9 +84,6 @@ export function CardSpread({
               <h2 className="font-ts-display text-xl font-semibold">
                 {displayCard.cardName}
               </h2>
-              <p className="mt-1 text-sm text-ts-muted">
-                {displayCard.cardTone}
-              </p>
             </div>
           </article>
         );
