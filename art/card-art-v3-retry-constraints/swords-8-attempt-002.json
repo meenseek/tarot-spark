@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "swords-8",
+  "attemptNumber": 2,
+  "previousAttemptId": "swords-8-attempt-001",
+  "editSourceAttemptId": "swords-8-attempt-001",
+  "editSourcePath": "art/card-art-v3-raw/swords-b/swords-8-candidate-001-rejected.png",
+  "editSourceSha256": "95c3ad0d93a2911ab4c01d8cb3c1bbf9cd7a6c48a7b7382e2adb73f8d4feb5f6",
+  "constraint": "Precision-edit only one bounded mask covering the complete viewer-right three-sword cluster and its ground footprint in rejected Swords-8 attempt-001; whole-canvas resampling is allowed. Preserve exactly one grounded fully clothed adult, face, hair, loose removable eye cloth, two visible open natural five-digit hands, completely unbound body, hesitant guarded stance, feet, clothing, anatomy, stable ground, mountain basin, light, crop, palette and rendering. Freeze the four complete viewer-left closed scabbards and their four wide stone sockets. Preserve the broad obvious exit corridor behind the person and every existing clean background gap on the left. Inside the right-cluster mask remove all three existing right swords, sockets and shadows and reconstruct matching ground with no ghost. Rebuild exactly four matching complete upright closed steel scabbards in four matching wide stone sockets as four evenly separated viewer-right lanes wholly within approximately 72–99 percent of frame width. Each lane has one distinct hilt, one uninterrupted opaque sheath, one capped lower tip and one full socket contact, all inside the frame. Keep at least 48 source pixels of clean background between the leftmost rebuilt right sword or socket and every hand, garment, limb or human shadow. Keep visible full/mobile background gaps between all four rebuilt lanes and preserve the central exit corridor. Final full-size and 140 by 196 views independently show exactly four separated swords on viewer-left plus exactly four separated swords on viewer-right, with eight hilts, eight sheaths and eight occupied sockets, never seven or nine. Add no crossing, body contact, rope, cord, binding, prison wall, exposed blade, injury, animal, text, mark or sword-like shadow ghost.",
+  "reason": "Attempt-001 preserves the one unbound person, hesitant meaning, broad visible exit and four left swords, but contains only three swords on viewer-right. Attempt-002 freezes every passing element and rebuilds only the failed right cluster as four separated closed scabbards and sockets with a measurable person gap.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T19:35:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Eight of Swords right-fourth addition, exact-eight, safety and full/mobile review)"
+}

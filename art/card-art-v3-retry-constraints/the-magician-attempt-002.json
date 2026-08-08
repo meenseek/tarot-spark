@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "the-magician",
+  "attemptNumber": 2,
+  "previousAttemptId": "the-magician-attempt-001",
+  "editSourceAttemptId": "the-magician-attempt-001",
+  "editSourcePath": "art/card-art-v3-raw/major-replacements/the-magician-candidate-001-rejected.png",
+  "editSourceSha256": "8287f1efd678bce15c4aa8798f25fe37ded51424eddb5cdd9b22daac9d766213",
+  "constraint": "Precision-edit only the supplied rejected attempt-001. Preserve the maker's identity, face, hair, body, clothing, exact pose, natural hands, sole raised brass wand, downward pointing gesture, physical infinity ribbon, sparse table, white flowers, exactly one table cup, exactly one sword and exactly one pentacle, crop, palette, lighting and ink-and-gouache texture. Edit only the left and right background shelves, niches and side plant containers. Remove every background jar, vase, bottle, pot, planter, cup, bowl, plate, disk, tool and container, including the large left vase, small left pottery and right flower pot. Restore those areas as plain aged stone and wood with container-free trailing green vines; the white flowers may remain rooted directly in unseen off-frame ground, never in a vessel. Do not alter or duplicate the allowed table cup or any suit object. Final scene: exactly four suit objects total—the held wand plus one cup, one sword and one pentacle on the table—and no other vessel, rod, blade, disk, round token, plate or tool anywhere. Add no text, mark, person, animal, sun, wheel, road or water.",
+  "reason": "Three independent output reviews found that attempt-001 otherwise passed its four central suit objects, gesture, anatomy, text-free contract and mobile hierarchy, but multiple background jars, vases and a planter created forbidden extra vessels. Attempt-002 may remove only those background containers while preserving the passing card scene.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T02:42:44.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent bounded-edit tarot count, 140-pixel mobile and provenance review)"
+}

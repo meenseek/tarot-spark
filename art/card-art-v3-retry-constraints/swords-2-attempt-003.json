@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "swords-2",
+  "attemptNumber": 3,
+  "previousAttemptId": "swords-2-attempt-002",
+  "editSourceAttemptId": "swords-2-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/swords-a/swords-2-candidate-002-rejected.png",
+  "editSourceSha256": "72fdd93e765b77bfff83a166458418d8b5ec94007eceb892915cd9a6de5dd704",
+  "constraint": "Precision-edit rejected Swords-2 attempt-002; whole-canvas resampling is allowed. Preserve exactly one seated decision-maker, face, body, two natural hand-to-hilt contacts, loose eye cloth, two distant routes, exactly two closed scabbards, their low broad X, capped chapes, clear body gaps, stone seat, landscape, crop, light and rendering. Repaint the eye cloth, neck fastening and every garment surface as plain uninterrupted indigo, blue-gray and plum fabric with natural folds and simple construction seams only. Remove every embroidered border, repeating motif, gold scroll, patterned cuff, central decorative strip, emblem and symbol ghost. Replace the neck fastening with one short plain rectangular fabric tab with no loop, ring, knot shape or ornament. Make both pommels plain unmarked dark rounded caps without radial lines. Change no sword, hand, route or body geometry. At full size and 140×196 preserve exactly one person, two traceable closed scabbards, one low X and two routes. Add no person, sword, animal, scale, rack, shield, text, mark or symbol.",
+  "reason": "Attempt-002 fixes the count, safety gaps and wheel brooch, but one strict review still finds repeated garment embroidery and an ornamental loop fastening contrary to the featureless-clothing retry. Attempt-003 preserves all passing geometry while flattening every garment and fastening detail into plain unmarked fabric.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T17:35:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Two of Swords featureless-garment, exact-count and full/mobile review)"
+}

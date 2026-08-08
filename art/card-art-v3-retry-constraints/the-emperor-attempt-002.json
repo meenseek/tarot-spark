@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "the-emperor",
+  "attemptNumber": 2,
+  "previousAttemptId": "the-emperor-attempt-001",
+  "editSourceAttemptId": "the-emperor-attempt-001",
+  "editSourcePath": "art/card-art-v3-raw/major-replacements/the-emperor-candidate-001-rejected.png",
+  "editSourceSha256": "9ebff7c9d4d80770398041994a5d1ec7c423d0d329b83e4ba1d080b01ff2a721",
+  "constraint": "Precision-edit only the supplied rejected attempt-001. Preserve the elder's identity, face, hair, body, clothing, exact pose, natural hands, exactly one compact staff of office, one blank unmarked charter, square stone overlook, restrained ram carvings, broad stable civic mountain road, buildings, mountain, crop, palette, lighting and ink-and-gouache texture. Edit only the small upper-left flag, its entire vertical flagpole and the few immediately adjacent building-and-sky pixels needed for natural restoration. Remove both flag and pole completely from base to tip. Restore the vacated strip as continuous original-style roof, stone building, distant tree and sky with no seam or vertical remnant. Keep the compact hand-held office staff unchanged as the only staff, pole, rod, wand or scepter anywhere. Add no banner, flag, antenna, lantern, dome, narrow solitary footpath, wheel, channel, crossing, model, workbench, text, mark, person or animal.",
+  "reason": "Attempt-001 passed the elder, charter, hand-held office staff, civic road, overlook, ram carvings, anatomy, text-free surface and mobile hierarchy, but two independent reviews found an additional upper-left flagpole that violated the no-other-pole lock. Attempt-002 may remove only that flag and pole.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T02:42:44.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent bounded-edit tarot count, 140-pixel mobile and provenance review)"
+}

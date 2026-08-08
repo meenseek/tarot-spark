@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-2",
+  "attemptNumber": 3,
+  "previousAttemptId": "wands-2-attempt-002",
+  "constraint": "Fresh generation from the two approved Wands anchors only; use no rejected input. Preserve exactly one adult and two staffs. Staff 1 stays wholly on the foreground side of the parapet; the right hand is its sole body contact at mid-shaft, and the complete shaft remains visible above and below the grip to a distinct lower tip on paving. Staff 2 stands separately in a low U-shaped open-front stone holder whose center gap exposes the complete lower tip and covers no shaft. The only permitted contacts among hands, staffs, cloth, holder and person are right hand–Staff 1, left hand–cloth and holder–Staff 2; all other pairs have visible gaps. Use one raw-cut, unhemmed, single-layer cloth with a soft pale frayed physical edge. It has no stitched or folded hem, doubled contour, inked outline, dark edge, patterned trim, border, seam, route, boundary line, grid, arrow, compass, writing or mark. Put only three broad soft-edged watercolor washes well inside the raw edge. At 140×196 both staffs show distinct tops, complete shafts and lower tips. No extra elongated object, person or animal.",
+  "reason": "Attempt-002 corrected both complete staffs and lower endpoints, but the independent tarot-content review rejected the cloth's continuous dark doubled hem as a graphic border or decorative seam. Attempt-003 keeps the passing count, hand contacts, holder, endpoints, anatomy and style while replacing the cloth with one explicitly raw-cut unhemmed layer whose three soft color washes stop before an unoutlined edge.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T10:15:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Two of Wands meaning, 140-pixel endpoint and unanimous raw-edge cloth review)"
+}

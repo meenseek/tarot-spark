@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "swords-2",
+  "attemptNumber": 2,
+  "previousAttemptId": "swords-2-attempt-001",
+  "editSourceAttemptId": "swords-2-attempt-001",
+  "editSourcePath": "art/card-art-v3-raw/swords-a/swords-2-candidate-001-rejected.png",
+  "editSourceSha256": "ed579d4f6484a1268727be84aec08a808c1e3020a52cdd530b2de45618b17cce",
+  "constraint": "Perform an honest ImageGen compositional edit of rejected Swords-2 attempt-001; whole-canvas resampling is allowed. Preserve exactly one seated decision-maker, the loose plain eye cloth, two unmarked distant routes, winter terrace, crop, palette and rendering. Recompose the lower body and exactly two fully sheathed swords so one low broad X lies entirely over an unoccupied stone seat face and clear foreground floor, with continuous visible background gaps from robe, knees, legs and both boots. The only body contacts are one natural five-digit hand to its assigned hilt on each side; allow only one small sheath-over-sheath X crossing. Show two opaque closed scabbards with two complete capped blunt chapes, never exposed blades. Replace the spoke-wheel chest brooch with one small plain noncircular cloth fastening; make eye cloth, pommels and clothing featureless, with no wheel, compass, sun, spoke, radial glyph, emblem or symbol ghost. At 140×196 keep exactly one person, two traceable closed scabbards, two hands, the low X and two routes. Add no scale, rack, shield, third sword, animal, text or mark.",
+  "reason": "Independent full and mobile review rejected the radial wheel-like clasp and both scabbards overlapping unrelated robe and boot silhouettes. Attempt-002 preserves the strong two-route decision scene while separating both closed scabbards from the body and removing every decorative symbol.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T17:20:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Two of Swords exact-count, body-clearance, symbol and full/mobile review)"
+}

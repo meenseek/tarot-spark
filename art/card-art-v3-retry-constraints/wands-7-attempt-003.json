@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-7",
+  "attemptNumber": 3,
+  "previousAttemptId": "wands-7-attempt-002",
+  "constraint": "Fresh generation from the two approved Wands anchors only; use no rejected input. Show exactly seven adults total. Adult 1 stands alone on the upper terrace holding the sole horizontal staff, fully separated from two monolithic stone wall ends and their empty opening. On the lower terrace show exactly six complete adults in one shallow arc: exactly three on image-left and exactly three on image-right, with a broad empty central lane. Each lower adult holds exactly one separate upright staff, giving six lower staffs plus the one upper staff, exactly seven total. Show all six lower heads, bodies and pairs of feet; no person hides another. Give all six lower staffs distinct tops, uninterrupted shafts and lower tips, with clear gaps from one another and from the upper opening. The gateway is stone only with zero wood, door, slat, post, rail, beam, hinge or fitting. Use no other elongated object, tree, branch, fence, column, mast, pole, rod or tool handle. At 140×196 the 1+6 people and 1+6 staffs remain countable. Add no eighth person or animal.",
+  "reason": "Attempt-002 successfully removed all wooden gate structure but showed only one upper plus five lower adults and one horizontal plus five lower staffs, leaving both totals at six. Attempt-003 preserves the stone-only opening and explicitly locks the missing lower pair into three-left and three-right groups with six complete bodies and six separate upright staffs while preserving the safe defensive meaning, anatomy and style.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T10:15:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Seven of Wands meaning, 140-pixel 1+6 count and stone-only gate review)"
+}

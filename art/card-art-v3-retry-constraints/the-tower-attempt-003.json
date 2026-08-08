@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "the-tower",
+  "attemptNumber": 3,
+  "previousAttemptId": "the-tower-attempt-002",
+  "editSourceAttemptId": "the-tower-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/major-new-b/the-tower-candidate-002-rejected.png",
+  "editSourceSha256": "2fd62d8596dfeb51b86998f94bb548c0e8437e9565735d2347da424d1806ea67",
+  "constraint": "Precision-edit only the supplied rejected The Tower attempt-002; it is the immutable target scene. Preserve the complete stone tower, single branching lightning strike, splitting false crown, all falling masonry, exactly three and only three lower-right adults, every face, hand, limb, garment and pose belonging to those adults, the cleared unoccupied lower-left rocky slope, broad bottom-right exit route, distant mountains, right-edge farm fence, crop, palette, lighting, ink linework and gouache texture. Edit only a narrow empty middle-ground strip between the tower's debris slope and the three adults. In that strip restore exactly one clearly visible safety cordon: exactly five separate knee-high simple wooden stakes arranged in a shallow arc, connected in order by exactly one continuous thick pale rope that sags naturally between neighboring stakes. The cordon must visibly separate the tower base and all falling-stone ground behind it from the three adults and exit route in front of it. Keep all five stake tops and the connecting rope readable at 140×196; leave clear background gaps around the cordon and never overlap a person, the tower, debris, door, lightning or exit route. The existing right-edge farm fence remains unchanged background architecture and is not part of the five-stake cordon. Add no sixth cordon stake, second cordon, gate, sign, banner, person, face, human-like shape, animal, building, shelter, furniture, tool, flame, smoke, text, letter, numeral, pseudo-writing, symbol or new debris. Do not alter, move, redraw, crop or duplicate any person or existing object. Change no pixel outside the bounded middle-ground cordon strip and its minimal natural edge blending as closely as the edit tool permits.",
+  "reason": "All three independent reviews rejected attempt-002 only because its otherwise successful hut-and-extra-people removal also erased the required safety cordon. Attempt-003 may restore one explicit five-stake, one-rope cordon in the empty middle ground while preserving the passing tower, exact three-person count, cleared slope, exit route, anatomy, text-free scene and deck style.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T08:31:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent tarot safety staging, 140-pixel cordon readability and immutable precision-edit provenance review)"
+}

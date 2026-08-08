@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "swords-6",
+  "attemptNumber": 4,
+  "previousAttemptId": "swords-6-attempt-003",
+  "editSourceAttemptId": "swords-6-attempt-003",
+  "editSourcePath": "art/card-art-v3-raw/swords-a/swords-6-candidate-003-rejected.png",
+  "editSourceSha256": "0f3fefbd00c255d04cd7a749f80010ebd031e3ae9a5de9e817ae4d2860750740",
+  "constraint": "Edit only the bow rack in rejected Swords-6 attempt-003; whole-canvas resampling is allowed. Preserve exactly three people, anatomy, ferry, paddle, village, water, diffuse sky, crop, palette and rendering. The source rack has seven swords. Remove the complete viewer-leftmost sword that overlaps the purple passenger, together with its own first slot, divider and shadow, from pommel through lower contact. Restore empty boat interior and water across that footprint so a continuous gap of at least one full scabbard width separates the passenger cloak from the new leftmost sword; the gap remains at least four pixels at 140×196. Preserve exactly the remaining six closed scabbards and six slots. Replace the sole diamond pommel among those six with the same plain round unmarked pommel used by the other five. Final rack has exactly six identical pommels, six crossguards, six uninterrupted dark opaque sheath bodies, six blunt capped chapes and six lower slots, all separate. Leave no seventh hilt, sheath, slot, divider, shadow or overlap ghost. Add no sword, person, animal, celestial disk, boat, sail, mast, pole, text or mark.",
+  "reason": "Attempt-003 again renders seven swords, but the excess is exactly the viewer-leftmost sword that also causes the passenger overlap. Attempt-004 removes that one complete sword and slot, restores the gap, and normalizes the sole diamond pommel among the six retained identities.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T17:50:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Six of Swords bounded one-removal, exact-six and full/mobile review)"
+}

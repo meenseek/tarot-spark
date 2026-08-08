@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "cardId": "death",
+  "attemptNumber": 2,
+  "previousAttemptId": "death-attempt-001",
+  "constraint": "Create a fresh composition without reusing attempt-001; preserve all base contracts. Show exactly one living armored rider on exactly one calm pale horse, one visible hand on the reins and the other holding exactly one short plain non-weapon banner pole angled downward beside the horse. Keep the entire lowered black banner below the rider's shoulder line, fully inside frame and marked by exactly one plain white rose only. Show exactly one fully sealed old gate. On the distant horizon show exactly two and only two simple stone pillars, widely separated and individually countable at 140×196; no third pillar, column, chimney, tower or pillar-like shape. Between the two pillars use diffuse dawn glow through cloud with no visible sun circle, disk or extra celestial mark. Make the foreground irregular scrub, moss and scattered nonaligned rock with no path, road, track, corridor or route-like opening. Beyond the required rider, horse, banner, pole and white rose, add no person, animal, flag, pole, flower emblem, cart, chariot, wheel, lantern, staff, skull, skeleton, bone, corpse, grave, text or other symbol.",
+  "reason": "Independent full and mobile review rejected attempt-001 because the horizon contained three pillars and a visible sun disk, while the banner read as a raised military standard and the aligned foreground read as a path. A fresh composition is safer than editing the rider, banner, horizon and ground across several disconnected regions.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T03:40:30.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent exact-symbol, nonviolent mobile hierarchy and fresh-retry provenance review)"
+}

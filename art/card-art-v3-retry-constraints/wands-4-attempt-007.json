@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-4",
+  "attemptNumber": 7,
+  "previousAttemptId": "wands-4-attempt-006",
+  "editSourceAttemptId": "wands-4-attempt-006",
+  "editSourcePath": "art/card-art-v3-raw/wands-a/wands-4-candidate-006-rejected.png",
+  "editSourceSha256": "13bc00c1ec1f44a03ac405fb5ba8801557b2359b3782694af04ec544b9911523",
+  "constraint": "Perform a visual-preservation ImageGen edit of rejected attempt-006; whole-canvas resampling is allowed and no pixels are claimed immutable. Preserve its exact four adults, exact four vertical bark staffs, four existing top positions, treeless stone courtyard, crop, palette and Wands rendering. Rebuild the canopy so one plain cream cloth and one restrained garland attach visibly to all four staff tops at four separate soft-rope corner knots in believable perspective. Only each small knot may overlap its staff; the same shaft must reappear immediately above and below that knot, and no cloth, flower or rope may cross it lower down. Repaint those same four adults as complete nonoverlapping figures 20–22% of frame height, wholly inside x=34–66%, arranged as the same two friendly nonromantic greeting pairs with open natural hands, visible feet and background gaps between all people. Place their head centers near x=38%, 46%, 54% and 62%. Reveal both inner shafts below their knots and beside the figures through to separate paving contacts. Every adult, including every head, torso, hand, forearm, garment, leg and foot, stays separated from every shaft by a visible background gap; no person or canopy element touches, crosses or hides a shaft below its top knot or hides a ground endpoint. Keep every paving contact separated from every foot by background. Preserve both full outer shafts. Add no fifth person, fifth staff, tree, text, crossbar, rail, frame, pole or other elongated object beyond the required four staffs. At 140×196 each of the four top ends maps one-to-one along a visibly continuous shaft to its own separate paving contact, while exactly four complete people and one coherent four-corner canopy remain countable.",
+  "reason": "Attempt-006 achieved the exact four people, exact four staff tops, clean courtyard and coherent Wands style, but its inner staffs became disconnected bare stubs above the canopy and vanished behind the outer adults instead of continuing to distinct ground contacts. Attempt-007 keeps the passing scene and count while narrowing the figures into the open center, reconnecting all four canopy corners and exposing both inner shafts and endpoints. It permits honest whole-canvas resampling and requires observable preservation rather than impossible pixel identity.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T11:45:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Four of Wands four-corner topology, centered-pair feasibility, honest resampling provenance and 140-pixel review)"
+}

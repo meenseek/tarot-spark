@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "cardId": "the-devil",
+  "attemptNumber": 4,
+  "previousAttemptId": "the-devil-attempt-003",
+  "controlReferenceId": "the-devil-two-continuous-cords-v1",
+  "controlReferencePath": "art/card-art-v3-controls/the-devil-two-continuous-cords-v1.png",
+  "controlReferenceSha256": "c4684c15884c6665edbf9dd94bfdc8ff5d3d8ffc0bca547ce31b090e2849df4a",
+  "styleReferenceId": "the-lovers",
+  "styleReferencePath": "public/cards/v3/the-lovers.jpg",
+  "styleReferenceSha256": "a7d13cc70299827e4972d67aeb57d768d441a709e468ff5f0a2703a57618e488",
+  "constraint": "Fresh source-free redraw. Image 1 controls only the count, separation, connectivity and endpoints of exactly two loose cords; copy no style, color, placement or room. Each cord is one visible unbroken line from its own statue-base guide, around only its adult's clothed torso as one large slack open U, into that adult's raised hand. At 140×196 both paths stay traceable: no hidden segment, gap, branch, crossing, shared cord, extra tail or loop. Image 2 controls only deck rendering and the Lovers pair's recurring identities and natural proportions; copy no pose, garment, garden or composition. Make a new dim warm workshop with exactly two living clothed adults and one inanimate horned stone statue behind them, with unlit eyes and no carved mark. Each adult lifts their own cord outward with exactly one natural upper hand; the other hand is empty at the hip and touches no cord. No cord closes or tightens around a neck, collar, wrist, hand, ankle or limb. Hierarchy: pair and removable cords > statue > daylight threshold. Add no third person, animal, chain, cuff, shackle, lock, knot, cage, flame, wing, living demon, pentagram, rune, glyph, text, numeral or floating symbol.",
+  "reason": "Attempts 001–003 repeatedly produced disconnected statue-side tails even after two precision edits. Independent review approved a fresh geometry-control route with no rejected Devil image in the inputs, so the control owns only the exact two-cord topology while the approved Lovers card owns style and recurring identity.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T04:17:30.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent tarot meaning, mobile topology and fresh-control provenance review)"
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "cardId": "cups-page",
+  "attemptNumber": 4,
+  "previousAttemptId": "cups-page-attempt-003",
+  "editSourceAttemptId": "cups-page-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/court-validation-a/cups-page-candidate-002.png",
+  "editSourceSha256": "f492c38bf14b754de6cefe865dca0a191fded8bb7c36567344185be47beb71f5",
+  "repairRecipePath": "art/card-art-v3-repair-recipes/cups-page-local-repair-001.json",
+  "repairRecipeSha256": "8883b9ae8ddeba5f3b1bafece3bf805a8947e480afbdb6c62c0daf43ea1b45c9",
+  "constraint": "Run only the independently frozen deterministic Cups Page local color-repair recipe. Copy attempt-002 as the sole RGB base. Change RGB channels only where the reviewed hair mask alpha is greater than zero, recoloring those dark curl pixels to warm copper-auburn while keeping integer luminance within one level. Copy every alpha-zero channel byte-for-byte. Attempt-003 is the rejected immediate predecessor and must not be used as a pixel, color, texture, geometry, or reference input. Do not change the face, ear, eyebrows, skin, expression, anatomy, clothing, cup, fish, architecture, water, background, crop, linework, texture, or any non-hair pixel. Write only the neutral immutable staging output authorized for attempt-004; do not promote it before exact-output independent review.",
+  "reason": "ImageGen attempt-003 achieved the intended copper hair but globally rerendered about half the card and failed the hair-only gate. Attempt-004 therefore uses the approved attempt-002 pixels and an independently reviewed deterministic mask and integer color transform so the Page becomes distinct from the Cups King without altering any non-hair pixel.",
+  "result": "approved",
+  "reviewedAt": "2026-08-06T10:49:00.000Z",
+  "reviewer": "Planck (independent deterministic local-repair retry review)"
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "swords-4",
+  "attemptNumber": 3,
+  "previousAttemptId": "swords-4-attempt-002",
+  "editSourceAttemptId": "swords-4-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/swords-a/swords-4-candidate-002-rejected.png",
+  "editSourceSha256": "e24b2da39550a3e50790ad5e137f186619c248c70b2d38372af9fd84b69e6a85",
+  "constraint": "Precision-edit rejected Swords-4 attempt-002; whole-canvas resampling is allowed. Preserve the single seated traveler, face, body, relaxed empty hands, bench, exactly four existing closed scabbards, cream cloth, mountain setting, crop, light, palette and rendering. Rebuild only the shelter and cloak fastening. Narrow the rear masonry wall to one solid centered wall behind the bench occupying less than forty-five percent of frame width; show uninterrupted open sky and mountain background on both its viewer-left and viewer-right sides, each opening at least twenty percent of frame width. Keep one shallow solid stone overhang cantilevered from that rear wall. Add no side wall, column, pier, post, railing, vertical support or support-shaped shadow. Replace the circular cloak brooch with one small plain horizontal rectangular tab without mark or ornament. Alter no sword, hand or body. At full size and 140×196 retain exactly one person and four separated parallel closed scabbards. Add no fifth sword, animal, bed, tomb, rack, text or mark.",
+  "reason": "Attempt-002 removes freestanding piers and preserves the strong four-scabbard rest scene, but one strict review finds its rear wall too wide and open sky only on one side. Attempt-003 narrows only that wall, opens both sides and flattens the remaining circular clasp.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T17:35:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Four of Swords bilateral-open shelter, exact-count and full/mobile review)"
+}

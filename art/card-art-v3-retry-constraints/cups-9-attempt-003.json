@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "cups-9",
+  "attemptNumber": 3,
+  "previousAttemptId": "cups-9-attempt-002",
+  "editSourceAttemptId": "cups-9-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/cups-b/cups-9-candidate-002-rejected.png",
+  "editSourceSha256": "a585db4ede9f3998aebcf46f26fddd0fd303ce42ab85a8b3995be91afbc3aac5",
+  "constraint": "Perform an honest ImageGen precision edit of rejected Cups-9 attempt-002; whole-canvas resampling is allowed. Preserve the single host's face, hair, body, clothing, grounded feet and relaxed satisfied expression; preserve the room, both empty rectangular tables, windows, waterside view, crop, light, palette and ink-and-gouache rendering. Preserve exactly the three existing circular tiers and exactly the nine existing blue handled cups in the current three-plus-three-plus-three arrangement. Do not move, resize, add, remove, redraw, merge, hide or occlude any cup or tier. Correct only two failed details. First, repaint the host's raised viewer-left forearm, wrist and natural five-digit hand so one continuous arm path ends with two visible fingertips lightly touching the rim and handle-side edge of the existing viewer-right cup on the upper tier—the cup closest to the host. The cup remains motionless with its entire flat base visibly seated on the tier; the fingers approach from above-right and cover neither the cup silhouette nor either neighboring cup. Remove the former hovering hand and every detached finger or contact ghost above the viewer-left and center cups. Second, add or reveal exactly one rear-right wooden leg descending continuously from the bottom tier to a fourth floor contact in the open gap between the stand and the host's feet. Keep the existing left, front-center and right floor contacts; separate all four contacts horizontally with visible stone floor gaps, and ensure each of the exactly four legs is traceable from the bottom tier to its own contact at full size and 140×196. Add no fifth leg, brace, post, vessel, food, person, silhouette, text or mark. Final audit at full size and 140×196: exactly one person, exactly three tiers, exactly nine cups as three-plus-three-plus-three, exactly four distinct legs and floor contacts, and fingertips visibly releasing only the fully seated viewer-right upper cup with no hovering gesture.",
+  "reason": "Attempt-002 passes the canonical nine-cup three-tier composition but the release hand hovers over the wrong gap and only three stand contacts remain countable. Attempt-003 preserves every passing card identity and changes only the forearm-to-nearest-upper-cup contact plus one missing rear-right leg/contact.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T16:17:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Nine of Cups hand-to-cup contact, fourth floor-contact and full/mobile review)"
+}

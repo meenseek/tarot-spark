@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "swords-3",
+  "attemptNumber": 3,
+  "previousAttemptId": "swords-3-attempt-002",
+  "editSourceAttemptId": "swords-3-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/swords-a/swords-3-candidate-002-rejected.png",
+  "editSourceSha256": "de0f56d005754c5b5a2e71af0cd08c9a7cc4efd7d084f945e560fbd0725aa3bf",
+  "constraint": "Perform a structural edit of rejected Swords-3 attempt-002; whole-canvas resampling is allowed. Preserve exactly one grieving adult, face, posture, red shield cloth, sewing frame, room, rain, crop, palette and rendering. Remove the entire fan rack and rebuild exactly three complete closed scabbards high on the wall: one centered vertical scabbard; one upper diagonal and one lower diagonal, both parallel and slanting from upper-left to lower-right across the vertical. Each diagonal crosses only the vertical once at two widely separated heights. Outside those two small crossings, keep at least one full scabbard-width of visible wall between the diagonals; their three capped lower endpoints end at three different x and y positions and never touch, converge, overlap or share a point. Show three plain pommels, opaque sheath bodies and blunt capped chapes independently at 140×196. Replace the chest brooch with one plain rectangular cloth tab. Show exactly one short high-contrast silver sewing needle, its full shaft and eye visible between thumb and index finger, with red thread through the eye to the cloth. Add no exposed blade, heart, blood, fourth sword, second needle, animal, text or mark.",
+  "reason": "Attempt-002 closes all three swords but preserves a common-tip fan and still omits a legible needle. Attempt-003 replaces the entire rack with two parallel nonconverging diagonal lanes across one vertical scabbard and makes the single threaded needle explicitly visible.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T17:35:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Three of Swords nonconverging topology, needle and full/mobile review)"
+}

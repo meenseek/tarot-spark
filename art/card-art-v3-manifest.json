@@ -1,7 +1,7 @@
 {
   "systemId": "quiet-celestial-storybook-full-deck",
   "version": "v3",
-  "releaseState": "planning",
+  "releaseState": "released",
   "generator": {
     "tool": "OpenAI ImageGen",
     "mode": "default",

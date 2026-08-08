@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "death",
+  "attemptNumber": 3,
+  "previousAttemptId": "death-attempt-002",
+  "editSourceAttemptId": "death-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/major-new-a/death-candidate-002-rejected.png",
+  "editSourceSha256": "f0baf330bc22e804c49e27880f1537f961306a7d0d1cbfcb02237973b0b00537",
+  "constraint": "Precision-edit only the supplied rejected attempt-002. Preserve the rider's identity, face, armor, exact pose, both natural hands, reins, pale horse, gate, exactly two horizon pillars, diffuse disk-free dawn sky, irregular path-free ground, crop, palette, lighting and ink-and-gouache texture. Edit only the current black banner cloth, the distal pole segment beyond the rider's grasp, the horse pixels hidden by that cloth, and the exact empty-ground background pixels occupied by the relocated distal pole and banner. Remove the current cloth completely from over the horse and reconstruct a natural complete pale flank, hindquarters, rear legs and tail continuous with the visible horse. Extend the plain pole slightly down and right into empty ground beside and beyond the horse, then hang exactly one compact lowered black banner there, fully inside frame, entirely below the rider's shoulder and with zero pixel overlap on any horse, rider, face, hand, rein, gate or pillar. Preserve exactly one plain white rose on the banner and no other mark; both banner and rose remain distinct at 140×196. Keep the pole blunt and non-weapon-like. Final scene has exactly one rider, horse, banner, pole, rose, sealed gate and two pillars, with no sun disk or path. Beyond the required rider, horse, banner and pole, add no figure, animal, flag or pole; add no text or symbol beyond the required rose.",
+  "reason": "Attempt-002 corrected the pillar count, sun disk, path and raised-banner failures, but two independent output reviews found that its lowered banner cloth covered a large part of the pale horse and violated the explicit non-overlap contract. Attempt-003 may move only the cloth and distal pole while restoring the hidden horse area.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T03:59:30.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent horse-silhouette, 140-pixel banner and precision-edit provenance review)"
+}

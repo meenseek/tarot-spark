@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "the-devil",
+  "attemptNumber": 3,
+  "previousAttemptId": "the-devil-attempt-002",
+  "editSourceAttemptId": "the-devil-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/major-new-a/the-devil-candidate-002-rejected.png",
+  "editSourceSha256": "b61af3183169bce4739f59b42f79fc360760124986f39efeb3d59c9abff2d999",
+  "constraint": "Precision-edit only the supplied rejected attempt-002. Preserve both adults' identities, faces, hair, bodies, clothing outside the narrow cord routes, both upper lifting hands, natural anatomy, the inanimate horned statue, room, daylight doorway, crop, palette, lighting and ink-and-gouache texture. Edit only the two existing cords, both statue-base guide openings, both adults' lower cord-grasping hands, and the exact narrow stone, background and clothing strips required for two continuous routes. Remove every disconnected cord tail and redraw exactly two and only two continuous bright thick cords. Left cord: one uninterrupted line from the left statue-base guide, visibly forward along the left adult's outer lower torso, once around the clothed mid-torso with hand-width slack, then into only the existing raised left hand lifting it outward. Right cord: the same mirrored route from the right guide around only the right clothed torso into only the existing raised right hand. Keep both continuous routes fully visible and traceable at 140×196 with no hidden gap behind a body. Reconstruct both lower hands as relaxed empty natural five-digit hands beside each hip; preserve both upper lifting hands unchanged. No cord touches any lower hand, neck, wrist, ankle or limb. Add no crossing, knot, lock, chain, extra cord, person, animal, text or symbol.",
+  "reason": "Attempt-002 placed two large safe torso loops, but independent full and mobile reviews found each statue-base tail disconnected from its loop, creating four cord fragments; one review also found the right adult grasping the same cord with both hands. Attempt-003 may repair only cord continuity and empty the extra lower grasp.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T03:59:30.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent continuous-cord, one-hand release, mobile and precision-edit provenance review)"
+}

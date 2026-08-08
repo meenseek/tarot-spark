@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "id": "cups-page-local-repair-001",
+  "cardId": "cups-page",
+  "tool": "Sharp",
+  "toolVersion": "0.34.5",
+  "mode": "deterministic-local-color-repair",
+  "script": {
+    "path": "scripts/card-art-v3-cupspage-repair.mjs",
+    "sha256": "84eb5530c5d0e0dc77eb703566d7d63af0256d8dc332f654d30e232aa3045980"
+  },
+  "base": {
+    "attemptId": "cups-page-attempt-002",
+    "path": "art/card-art-v3-raw/court-validation-a/cups-page-candidate-002.png",
+    "sha256": "f492c38bf14b754de6cefe865dca0a191fded8bb7c36567344185be47beb71f5"
+  },
+  "maskSource": {
+    "path": "art/card-art-v3-controls/cups-page-local-repair-mask-001.json",
+    "sha256": "d3249ff495d53cb11ea01a997fb4e24a9e9ed44d028296a89d64e385fa16d39d"
+  },
+  "mask": {
+    "path": "art/card-art-v3-controls/cups-page-local-repair-mask-001.png",
+    "sha256": "37377762eee70d65a4a3963f6c34fc09f0da234aea7211a8e0d9bc9aa1264f30",
+    "width": 1060,
+    "height": 1484,
+    "forbiddenIntersectionCount": 0
+  },
+  "maskReviewOverlay": {
+    "path": "art/card-art-v3-reviews/cups-page-local-repair-mask-overlay-001.png",
+    "sha256": "387cd3ac5d857ee95495774f31d1e480ee564430a8d4b52eab78814311df2330"
+  },
+  "transform": {
+    "colorSpace": "sRGB 8-bit unsigned integer",
+    "inputLuminance": "floor((77*r + 150*g + 29*b + 128) / 256)",
+    "copperChroma": "floor((96*luminance + 2560 + 128) / 256)",
+    "targetRed": "clampByte(luminance + copperChroma)",
+    "targetBlue": "clampByte(luminance - roundDiv(3*copperChroma, 4))",
+    "targetGreen": "clampByte(roundDiv(256*luminance - 77*targetRed - 29*targetBlue, 150))",
+    "clampOrder": "compute and clamp targetRed and targetBlue before solving and clamping targetGreen",
+    "signedRounding": "roundDiv rounds halves away from zero; positive alpha-blend numerators round to nearest integer",
+    "alphaBlend": "roundDiv(target*alpha + base*(255-alpha), 255); alpha=0 copies base channel byte-for-byte",
+    "luminanceTolerance": "pixelLuminance(targetRed,targetGreen,targetBlue) differs from input luminance by at most 1"
+  },
+  "neutralOutputPath": "art/card-art-v3-candidates/cups-page-attempt-004.raw.png",
+  "canonicalOutputPaths": {
+    "selected": "art/card-art-v3-raw/court-validation-a/cups-page-candidate-004.png",
+    "rejected": "art/card-art-v3-raw/court-validation-a/cups-page-candidate-004-rejected.png"
+  },
+  "replacementGate": {
+    "id": "court-validation-a-cups-page-replacement-002",
+    "fullReviewPath": "art/card-art-v3-reviews/court-validation-a-contact-sheet-v3.jpg",
+    "mobileReviewPath": "art/card-art-v3-reviews/court-validation-a-contact-sheet-mobile-v3.jpg"
+  },
+  "intent": "Change only the hair pigment of the superseded Cups Page attempt-002 to warm copper-auburn while preserving its exact geometry, luminance texture, face, ear, eyebrows, cup, garment, background and every alpha-zero RGB channel byte-for-byte. Attempt-003 is lineage evidence only and is not a pixel input."
+}

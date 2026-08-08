@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "systemId": "quiet-celestial-storybook-full-deck",
+  "version": "v3",
+  "entries": [
+    {
+      "id": "cups-page-attempt-004-repair-authorization-001",
+      "status": "authorized",
+      "authorizedAt": "2026-08-06T10:55:00.000Z",
+      "binding": {
+        "attemptId": "cups-page-attempt-004",
+        "base": {
+          "attemptId": "cups-page-attempt-002",
+          "path": "art/card-art-v3-raw/court-validation-a/cups-page-candidate-002.png",
+          "sha256": "f492c38bf14b754de6cefe865dca0a191fded8bb7c36567344185be47beb71f5"
+        },
+        "mask": {
+          "path": "art/card-art-v3-controls/cups-page-local-repair-mask-001.png",
+          "sha256": "37377762eee70d65a4a3963f6c34fc09f0da234aea7211a8e0d9bc9aa1264f30"
+        },
+        "maskSource": {
+          "path": "art/card-art-v3-controls/cups-page-local-repair-mask-001.json",
+          "sha256": "d3249ff495d53cb11ea01a997fb4e24a9e9ed44d028296a89d64e385fa16d39d"
+        },
+        "neutralOutputPath": "art/card-art-v3-candidates/cups-page-attempt-004.raw.png",
+        "recipe": {
+          "path": "art/card-art-v3-repair-recipes/cups-page-local-repair-001.json",
+          "sha256": "8883b9ae8ddeba5f3b1bafece3bf805a8947e480afbdb6c62c0daf43ea1b45c9"
+        },
+        "retryArtifact": {
+          "path": "art/card-art-v3-retry-constraints/cups-page-attempt-004.json",
+          "sha256": "b52f78d69ad9a4ba47d2f75f5984f7a30c08e00de58616b88eb6db8a0ad63bc1"
+        },
+        "script": {
+          "path": "scripts/card-art-v3-cupspage-repair.mjs",
+          "sha256": "84eb5530c5d0e0dc77eb703566d7d63af0256d8dc332f654d30e232aa3045980"
+        }
+      },
+      "independentReviews": [
+        {
+          "reviewerId": "tarot-content-review",
+          "reviewer": "Planck",
+          "scope": "tarot identity, lineage and hair-only repair contract",
+          "independent": true,
+          "result": "approved",
+          "reviewedAt": "2026-08-06T10:54:30.000Z"
+        },
+        {
+          "reviewerId": "ux-test-review",
+          "reviewer": "Harvey",
+          "scope": "mask UX, retry binding and mobile identity separation",
+          "independent": true,
+          "result": "approved",
+          "reviewedAt": "2026-08-06T10:54:30.000Z"
+        },
+        {
+          "reviewerId": "final-plan-review",
+          "reviewer": "Halley",
+          "scope": "adversarial preauthorization and deterministic causality",
+          "independent": true,
+          "result": "approved",
+          "reviewedAt": "2026-08-06T10:54:30.000Z"
+        }
+      ],
+      "decisionFingerprintSha256": "55fc3d953eaadffc0c9a895b622d7138144eaf74f0f1ceb3b71c387e391678d9"
+    }
+  ]
+}

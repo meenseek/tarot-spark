@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "swords-6",
+  "attemptNumber": 5,
+  "previousAttemptId": "swords-6-attempt-004",
+  "editSourceAttemptId": "swords-6-attempt-004",
+  "editSourcePath": "art/card-art-v3-raw/swords-a/swords-6-candidate-004-rejected.png",
+  "editSourceSha256": "a8cca4bd8e4726b868390b205f711b80ab9aa9056bab3bd86ce861d78fe2c0f9",
+  "constraint": "Edit rejected Swords-6 attempt-004; whole-canvas resampling is allowed. Preserve exactly three people, faces, anatomy, ferry, paddle, village, water, diffuse sky, crop, palette and rendering. Preserve exactly six closed scabbards and six slots. Uniformly compress the complete rack horizontally and translate it viewer-right so every rack pixel, including left edge, pommels, guards, sheaths, slots and shadows, stays between 76 and 97 percent of frame width and fully inside the frame. Restore uninterrupted boat interior and water across the old rack footprint. A continuous empty band at least 32 source pixels wide and at least four pixels at 140×196 separates the purple cloak from the new rack left edge from pommel height through floor contacts. No rack pixel or shadow touches or sits behind a person. Repaint all six pommels together as six identical solid matte plain round caps with equal diameter and color and no inner ring, rosette, diamond, spoke, engraving or mark. Retain six identical guards, six dark sheaths, six blunt chapes and six slots in separated lanes. Leave no old rack or pommel ghost and no seventh identity. Add no sword, person, animal, disk, boat, sail, mast, pole, text or mark.",
+  "reason": "Attempt-004 fixes the count at six, but strict mobile review measures only a zero-to-one-pixel passenger gap and sees differing pommel interiors. Attempt-005 bounds a compact rack to the far-right frame region, guarantees a four-pixel mobile gap and repaints all six pommels as one unmarked family.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T18:05:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Six of Swords bounded rack, measurable gap, uniform pommels and full/mobile review)"
+}
