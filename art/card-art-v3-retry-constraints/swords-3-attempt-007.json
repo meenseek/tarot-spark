@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "swords-3",
+  "attemptNumber": 7,
+  "previousAttemptId": "swords-3-attempt-006",
+  "editSourceAttemptId": "swords-3-attempt-006",
+  "editSourcePath": "art/card-art-v3-raw/swords-a/swords-3-candidate-006-rejected.png",
+  "editSourceSha256": "576cd7bd810850d7161005b4a1926f8dc359493c4878d0a73a469748e225e28f",
+  "constraint": "Precision-edit only two disjoint local mask sets in rejected Swords-3 attempt-006: (A) the small throat-fastening patch and (B) one bounded plank-detail mask covering every old bracket or stub erase footprint, the minimal surrounding blend area and exactly six new hook sites, while excluding every sword or sheath edge and the plank outer silhouette. Outside those masks make no intentional or observable change. Freeze the single person, face, hair, shoulders, cloak contour, hands, one silver needle, red thread, cloth, frame, rain window, room, crop, palette and rendering. Freeze exactly three closed scabbards in their existing topology and positions: one vertical plus two mutually parallel diagonals, exactly three pommels, three uninterrupted opaque bodies, two separated vertical-only crossings and three capped chapes, all wholly separated from the person by bare wall. Preserve the broad plain horizontal dark-wood rack plank's outer silhouette, position, size and material everywhere outside B. In A erase the outlined engraved square clasp and every old edge, shadow, highlight, diagonal, X or diamond ghost. Reconstruct matte cloak fabric, then place one flat 4-to-1 horizontal rectangular dark-cloth dash with uniform fill and no outline, border, shadow, highlight, metal, jewel, bevel, line, glyph, engraving or ornament; at 140 by 196 it reads only as a featureless short dash. In B remove all old rack hardware, then create exactly six short identical dark-wood low-profile L-shaped hooks on the plank, two per scabbard, one immediately viewer-left and one immediately viewer-right of each sheath contact. Each hook is noncircular, attached only to the plank, stays behind its sheath and is individually visible at full size without covering, splitting or duplicating a sheath edge. At 140 by 196 the one horizontal plank and six hooks must make all three scabbards read as physically supported by one wall rack, never floating or merely crossing in front. Add no vertical rack element, round stud, fourth sword, blade, second needle, heart, blood, animal, text or mark.",
+  "reason": "Attempt-006 fixes the three-scabbard topology, person clearance and horizontal rack, but strict content review still finds an engraved outlined throat clasp and fewer than the required six independently visible rack hooks. Attempt-007 freezes all successful pixels and corrects only those two bounded details.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T19:00:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Three of Swords tab-only and six-hook precision-edit review)"
+}

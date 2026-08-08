@@ -1,1 +1,6 @@
 public/brand/*.svg
+art/card-art-v3-reviews/*.html
+scripts/card-art-v3-cupspage-repair.mjs
+scripts/card-art-v3-fool-repair.mjs
+scripts/card-art-v3-thedevil-repair.mjs
+art/card-art-v3-repair-recipes/the-devil-local-repair-001.json

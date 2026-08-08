@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "cardId": "the-devil",
+  "attemptNumber": 6,
+  "previousAttemptId": "the-devil-attempt-005",
+  "editSourceAttemptId": "the-devil-attempt-004",
+  "editSourcePath": "art/card-art-v3-raw/major-new-a/the-devil-candidate-004-rejected.png",
+  "editSourceSha256": "97e1880a52603fa1458bbe4db68c11d6c5294903fe40b68d86ca39baa4a7c7eb",
+  "controlReferenceId": "the-devil-two-continuous-cords-v1",
+  "controlReferencePath": "art/card-art-v3-controls/the-devil-two-continuous-cords-v1.png",
+  "controlReferenceSha256": "c4684c15884c6665edbf9dd94bfdc8ff5d3d8ffc0bca547ce31b090e2849df4a",
+  "constraint": "Precision-edit only rejected attempt-004 as image 1. Attempt-005 is the rejected immediate predecessor but is not an image input. Image 2 controls only two separate mirrored continuous cord paths; copy none of its vector style, color, body shapes, scale or placement. Preserve the attempt-004 scene, both adults’ identities, faces, hair, bodies, clothing outside the stated arm zones, the image-left adult’s pose and hands, the unmarked horned stone statue, workshop, doorway, crop, palette, lighting and ink-and-gouache texture. Make one bounded pose correction on the image-right adult: lower the current inner hand and forearm to an empty relaxed position at the inner hip, and raise the current outer hand and forearm to shoulder height to lift that adult’s cord outward. Keep exactly two natural connected arms and two natural five-digit hands on that adult; no duplicate, fused, cropped or residual limb. Remove all current cord pixels and draw exactly two bright thick loose cords plus exactly two distinct small open guide holes on the lower stone plinth. Image-left cord: one fully visible unbroken open path from the image-left guide, outward around only that adult’s clothed mid-torso as one large hand-width-slack U, ending inside the existing outer raised-hand grasp. Image-right cord: the mirrored topology from the image-right guide around only that adult’s clothed mid-torso, ending inside the newly raised outer-hand grasp. Each cord has exactly two endpoints, one guide and one raised grasp. Both paths remain visible and traceable at 140×196, with no segment behind hair, shoulder, body or arm. Edit only the two cord strokes and underlying narrow blend strips, the two guide openings, and the image-right adult’s two forearm/hand/sleeve zones with immediately adjacent background and garment blending. Both inner lower hands are empty and touch no cord. No hidden segment, detached end, branch, crossing, merge, shared guide, extra tail, extra loop, third cord, arm loop, neck loop or limb wrap. Change no face, hair, torso, leg, image-left limb, statue silhouette, doorway, prop or other area. Add no person, animal, chain, cuff, shackle, lock, knot, cage, flame, wing, living demon, mark, text, numeral or symbol.",
+  "reason": "Attempt-005 regressed the image-left lower hand and image-right torso U. Attempt-004 remains the narrowest immutable source because both large loose U shapes and both empty lower hands pass there. Independent review found that swapping only the image-right arm roles resolves the inner-hand geometry conflict and permits two mirrored fully visible guide-to-U-to-outer-hand paths.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T04:36:30.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent mirrored topology, bounded arm-pose and older-source provenance review)"
+}

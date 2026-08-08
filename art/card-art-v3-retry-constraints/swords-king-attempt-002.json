@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "swords-king",
+  "attemptNumber": 2,
+  "previousAttemptId": "swords-king-attempt-001",
+  "editSourceAttemptId": "swords-king-attempt-001",
+  "editSourcePath": "art/card-art-v3-raw/court-validation-b/swords-king-candidate-001-rejected.png",
+  "editSourceSha256": "ebb7b1f7f9a7b2da8258fe1ea270e26e36c482b501838cfcafa5de4ad7dfa3ca",
+  "constraint": "Precision-edit rejected attempt-001 only. Preserve every person, face, hand, pose, blank evidence sheet, table, central one sheathed sword, cloth runner, architecture, landscape, crop, light, palette and gouache-and-ink texture. Edit only all visible exterior cover and spine surfaces of the two closed books on the viewer-left side and the minimum edge-blending pixels. Make both covers and spines completely plain matte dusty-blue with no border, emblem, flourish, corner mark, line, letter, numeral, pseudo-writing or decorative mark; retain their existing rectangular book shapes, positions, thickness and ordinary unmarked page edges. Change no pixel outside the two disjoint bounded book-cover and spine surfaces as closely as the edit tool permits. Do not edit any paper, person, hand, sword, cup, textile or scenery. Add no second sword, book, document, text, mark, symbol or object. At full size and at a 140-pixel-wide thumbnail, every book and document must be visibly unmarked.",
+  "reason": "All three independent reviews rejected attempt 001 because the lower viewer-left book had a gold border and emblem forbidden by the deck-wide blank-book and blank-document rule. Its one-sword count, fair review action, balanced participation, anatomy, composition, mobile hierarchy and style otherwise passed, so only the two existing book exteriors may be cleared.",
+  "result": "approved",
+  "reviewedAt": "2026-08-06T14:22:34.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent blank-document, mobile legibility and adversarial precision-edit review)"
+}

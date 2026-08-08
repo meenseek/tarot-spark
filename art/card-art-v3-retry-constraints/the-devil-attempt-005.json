@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "cardId": "the-devil",
+  "attemptNumber": 5,
+  "previousAttemptId": "the-devil-attempt-004",
+  "editSourceAttemptId": "the-devil-attempt-004",
+  "editSourcePath": "art/card-art-v3-raw/major-new-a/the-devil-candidate-004-rejected.png",
+  "editSourceSha256": "97e1880a52603fa1458bbe4db68c11d6c5294903fe40b68d86ca39baa4a7c7eb",
+  "controlReferenceId": "the-devil-two-continuous-cords-v1",
+  "controlReferencePath": "art/card-art-v3-controls/the-devil-two-continuous-cords-v1.png",
+  "controlReferenceSha256": "c4684c15884c6665edbf9dd94bfdc8ff5d3d8ffc0bca547ce31b090e2849df4a",
+  "constraint": "Precision-edit only the supplied rejected attempt-004 as image 1. Image 2 is authoritative only for exactly two separate continuous cord paths and their endpoint topology; copy none of its vector style, color, shapes, scale or placement. Preserve both adults’ identities, faces, hair, bodies, clothing, poses, both existing raised grasping hands, both empty lower hands, natural anatomy, the inanimate horned stone statue, workshop, daylight threshold, crop, palette, lighting and ink-and-gouache texture. Edit only the two existing cord strokes and their immediately underlying narrow blend strips, two small open guide holes on the lower stone plinth, and one narrow stone/background/clothing connector corridor from each cord’s non-hand end to its own guide. Remove the image-left small arm loop and every cord segment disappearing behind either shoulder, hair or body. Redraw each cord as exactly one unbroken visible open path with exactly two endpoints: endpoint A visibly seated inside one distinct guide on the statue base; endpoint B terminating inside that same adult’s existing raised-hand grasp. Between them, the same stroke passes once around only that adult’s clothed mid-torso as one large hand-width-slack U. Do not merely add a separate tail beside a loop. At 140×196 both complete guide-to-U-to-hand paths must be traceable with no hidden segment, gap, branch, crossing, merge, shared guide, extra tail, extra loop or third cord. Keep the two cords separate and never touching each other. No cord touches or wraps an arm, neck, collar, lower hand, wrist, ankle or limb outside the existing raised grasp. Change no hand, face, body, garment edge, statue silhouette, doorway, prop or other background pixel outside those exact narrow repair corridors. Add no person, animal, chain, cuff, shackle, lock, knot, cage, flame, wing, living demon, mark, text, numeral or symbol.",
+  "reason": "Attempt-004 established the approved recurring adults, statue, safe one-hand release scene and deck style, but both cords ended behind shoulders instead of at visible statue-base guides and the image-left cord formed an extra arm loop. Independent review authorized a bounded precision edit using the approved control only for the two complete endpoint-to-endpoint cord paths.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T04:27:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent cord topology, mobile repair-boundary and precision-edit provenance review)"
+}

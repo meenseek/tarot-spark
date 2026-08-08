@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "cups-9",
+  "attemptNumber": 5,
+  "previousAttemptId": "cups-9-attempt-004",
+  "editSourceAttemptId": "cups-9-attempt-004",
+  "editSourcePath": "art/card-art-v3-raw/cups-b/cups-9-candidate-004-rejected.png",
+  "editSourceSha256": "99ea0c7fdb03d6b8dd72e7eb739500bc493bf65520c646085d8c03cf85b26252",
+  "constraint": "Perform an honest ImageGen precision edit of rejected Cups-9 attempt-004; whole-canvas resampling is allowed. Preserve the host's head, torso, clothing, expression and both hands; preserve the room, empty tables, windows, waterside view, crop, light, palette and ink-and-gouache rendering. Preserve the complete rectangular rack, exactly three shelves, exactly nine cups in the current three-by-three arrangement, every cup silhouette and handle, both withdrawn hands and the three already unobstructed rack legs and contacts. Correct only the lower-body overlap that hides the rack's right-rear leg. Move and anatomically reconstruct the host's rear viewer-left lower leg, ankle and sandal farther viewer-right, next to but clearly separated from the front sandal, and continue the robe hem naturally above it. Restore matching stone floor and shadow where that rear foot previously overlapped the rack. In the newly opened gap, reveal or reconstruct the rack's existing right-rear straight wooden leg as one continuous vertical from the underside of the lowest shelf to its own complete floor contact. Keep that right-rear contact visibly separated by stone-floor gaps from the right-front contact, both left contacts and both host sandals at full size and 140×196. Final rack has exactly four legs and exactly four contacts: left-front, left-rear, right-rear and right-front, all independently traceable; add no fifth leg, center support, brace, post or ghost. Preserve exactly one anatomically grounded host with two natural feet and no fused limb. Add, remove, move, redraw, hide or occlude no cup or shelf. Add no vessel, food, person, text or mark. Final full/mobile audit: one host, three shelves, nine cups, two separated sandals, four complete rack legs and four unobstructed floor contacts.",
+  "reason": "Attempt-004 solves the recurring cup, shelf and hand failures, and two independent reviewers count four rack uprights; however one strict review finds the right-rear leg's terminal floor contact overlapped by the host's rear sandal at full and mobile size. Attempt-005 preserves the approved rack and nine cups while moving only that sandal/lower leg away and completing the newly exposed fourth contact.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T16:36:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Nine of Cups foot-separation, fourth-contact and full/mobile review)"
+}

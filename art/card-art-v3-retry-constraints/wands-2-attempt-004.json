@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-2",
+  "attemptNumber": 4,
+  "previousAttemptId": "wands-2-attempt-003",
+  "editSourceAttemptId": "wands-2-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/wands-a/wands-2-candidate-002-rejected.png",
+  "editSourceSha256": "567e418115719feb0d57647e01b12b5d50efbe815232e0cfd28c643adadf57a1",
+  "constraint": "Precision-edit only the supplied immutable rejected source wands-2-attempt-002 at art/card-art-v3-raw/wands-a/wands-2-candidate-002-rejected.png, SHA-256 567e418115719feb0d57647e01b12b5d50efbe815232e0cfd28c643adadf57a1. Change only cloth pixels. Exclude and preserve pixel-for-pixel the stone parapet, both hands, both staffs, complete person, anatomical right-hand grip on Staff 1, left-hand silhouette above the cloth, both staff shafts/endpoints, holder and every other non-cloth scene pixel. Within the original cloth silhouette, replace only its doubled dark hem and ink perimeter with one raw-cut unhemmed pale edge defined by fabric color variation and a few short pale fibers, never by a drawn outline. Keep exactly three broad soft washes ending well inside that edge. No seam, route, boundary, grid, mark, new object or any other change.",
+  "reason": "Attempt-003 fixed the raw cloth edge but lost the required right-hand grip on Staff 1. The lineage remains immediate from attempt-003, while attempt-002 is the last rejected source with the passing one-person, two-complete-staff, right-hand grip, left-hand cloth contact and open-front holder geometry. Attempt-004 therefore rolls back to that exact immutable source and edits only the cloth pixels that caused attempt-002 to fail.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T10:38:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Two of Wands meaning, cloth-only mask, rollback provenance and 140-pixel grip review)"
+}

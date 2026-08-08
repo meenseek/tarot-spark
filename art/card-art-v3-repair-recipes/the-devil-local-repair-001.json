@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "id": "the-devil-local-repair-001",
+  "cardId": "the-devil",
+  "tool": "Sharp",
+  "toolVersion": "0.34.5",
+  "mode": "deterministic-local-composite",
+  "script": {
+    "path": "scripts/card-art-v3-thedevil-repair.mjs",
+    "sha256": "5bbd6c36a0528188c1da386c34af52cb4b012f77dd3d5d83a6e6c8a12dbaf8fd"
+  },
+  "frame": {
+    "width": 1060,
+    "height": 1484,
+    "channels": 3,
+    "colorSpace": "sRGB",
+    "depth": "8-bit unsigned integer"
+  },
+  "base": {
+    "attemptId": "the-devil-attempt-010",
+    "path": "art/card-art-v3-raw/major-new-a/the-devil-candidate-010-rejected.png",
+    "sha256": "14f2d03bfacebb317bd6d0500db8a124f36b9314ed84eae90b44fb0a0e9a7beb",
+    "width": 1060,
+    "height": 1484
+  },
+  "donors": {
+    "left": {
+      "attemptId": "the-devil-attempt-012",
+      "path": "art/card-art-v3-raw/major-new-a/the-devil-candidate-012-rejected.png",
+      "sha256": "a57c118019803534e5cdf6c5d9c830da849a7946991d609e621d25cacbfc830d",
+      "width": 1061,
+      "height": 1483,
+      "landmarks": [
+        { "source": [0, 0], "target": [0, 0] },
+        { "source": [493, 899], "target": [493, 900] },
+        { "source": [611, 899], "target": [610, 900] },
+        { "source": [1060, 1482], "target": [1059, 1483] }
+      ]
+    },
+    "right": {
+      "attemptId": "the-devil-attempt-013",
+      "path": "art/card-art-v3-raw/major-new-a/the-devil-candidate-013-rejected.png",
+      "sha256": "f9c949f8bb4e6a58bb953f500ecf54bac3a590924979fe3c51df92b1465284d9",
+      "width": 1061,
+      "height": 1483,
+      "landmarks": [
+        { "source": [0, 0], "target": [0, 0] },
+        { "source": [493, 899], "target": [493, 900] },
+        { "source": [611, 899], "target": [610, 900] },
+        { "source": [1060, 1482], "target": [1059, 1483] }
+      ]
+    }
+  },
+  "registration": {
+    "transform": "scale-only affine from donor pixel centers into the base frame",
+    "scaleX": 0.999057492931197,
+    "scaleY": 1.0006743088334458,
+    "matrix": [0.999057492931197, 0, 0, 0, 1.0006743088334458, 0],
+    "fit": "fill",
+    "kernel": "lanczos3",
+    "edgeHandling": "Sharp resize default edge extension; no crop, rotate or translation",
+    "maximumLandmarkResidual": 1
+  },
+  "registeredDonors": {
+    "left": {
+      "path": "art/card-art-v3-candidates/the-devil-left-donor-registered-001.png",
+      "sha256": "838367b969c544f7e2fb5e99bc93b282931bbf16952ee63478fde6e5620f72ea"
+    },
+    "right": {
+      "path": "art/card-art-v3-candidates/the-devil-right-donor-registered-001.png",
+      "sha256": "361b244a45357e3c1026e94f966e9e6aec5608fe7f80966d54a6ec6ea0338d7e"
+    }
+  },
+  "precedence": [
+    "leftErase",
+    "leftNew",
+    "rightErase",
+    "rightConnector",
+    "rightNew"
+  ],
+  "layers": {
+    "leftErase": {
+      "name": "leftErase",
+      "side": "left",
+      "kind": "polygon",
+      "path": "art/card-art-v3-controls/the-devil-local-repair-left-erase-mask-001.png",
+      "sha256": "3c7398032287382392b195a53337a920deb149cd840879fd31d75d050dd02ca7",
+      "polygon": [[365, 720], [440, 720], [455, 760], [450, 810], [435, 855], [415, 900], [375, 915], [335, 900], [320, 865], [330, 825], [345, 790], [345, 750]],
+      "featherPixels": 8,
+      "excludeTube": {
+        "path": [[245, 846], [280, 872], [320, 892], [360, 910], [400, 928], [440, 939], [465, 939], [482, 926], [493, 905]],
+        "innerRadius": 12,
+        "outerRadius": 16
+      }
+    },
+    "leftNew": {
+      "name": "leftNew",
+      "side": "left",
+      "kind": "polygon",
+      "path": "art/card-art-v3-controls/the-devil-local-repair-left-new-mask-001.png",
+      "sha256": "8981dabfac500a47191d2749ec66ef313e5e5d56f35498992822f623ff95431e",
+      "polygon": [[315, 605], [370, 600], [410, 620], [445, 650], [465, 690], [462, 725], [445, 755], [420, 770], [395, 750], [375, 725], [345, 715], [315, 695], [295, 655], [300, 625]],
+      "featherPixels": 8
+    },
+    "rightErase": {
+      "name": "rightErase",
+      "side": "right",
+      "kind": "polygon",
+      "path": "art/card-art-v3-controls/the-devil-local-repair-right-erase-mask-001.png",
+      "sha256": "1de593ea8347a19d191a9aa67d6225613d28d43dffaef89e44ec6db347f744ff",
+      "polygon": [[625, 750], [685, 755], [705, 800], [705, 850], [695, 895], [705, 935], [690, 970], [655, 980], [620, 965], [600, 935], [600, 895], [610, 855], [605, 810]],
+      "featherPixels": 8,
+      "protectCircle": {
+        "center": [610, 900],
+        "innerRadius": 26,
+        "outerRadius": 30
+      },
+      "protectRectangle": {
+        "minX": 480,
+        "maxX": 610,
+        "minY": 875,
+        "maxY": 935
+      }
+    },
+    "rightConnector": {
+      "name": "rightConnector",
+      "side": "right",
+      "kind": "tube",
+      "path": "art/card-art-v3-controls/the-devil-local-repair-right-connector-mask-001.png",
+      "sha256": "c376932f90910dc43a401131966af344fc97df20cd1aab90b05ed76cc807a212",
+      "pathPoints": [[637, 900], [642, 922], [655, 940], [680, 945], [705, 932]],
+      "innerRadius": 9,
+      "outerRadius": 14,
+      "protectCircle": {
+        "center": [610, 900],
+        "innerRadius": 26,
+        "outerRadius": 30
+      },
+      "protectRectangle": {
+        "minX": 480,
+        "maxX": 610,
+        "minY": 875,
+        "maxY": 935
+      }
+    },
+    "rightNew": {
+      "name": "rightNew",
+      "side": "right",
+      "kind": "polygon",
+      "path": "art/card-art-v3-controls/the-devil-local-repair-right-new-mask-001.png",
+      "sha256": "3176a0438ae17e088aabc315df81feeb686c660e7bbf2cd7eac18e80cf9cc4df",
+      "polygon": [[515, 510], [545, 500], [565, 520], [580, 510], [598, 525], [610, 550], [615, 585], [615, 620], [635, 650], [655, 665], [680, 680], [710, 700], [708, 730], [690, 755], [665, 770], [640, 755], [620, 730], [600, 700], [575, 680], [545, 670], [520, 645], [500, 610], [495, 565]],
+      "featherPixels": 8
+    }
+  },
+  "protectedRegions": {
+    "centralBridge": { "minX": 480, "maxX": 610, "minY": 875, "maxY": 935 },
+    "rightGuideCircle": { "center": [610, 900], "radius": 26 }
+  },
+  "maskReviewOverlay": {
+    "path": "art/card-art-v3-reviews/the-devil-local-repair-mask-overlay-001.png",
+    "sha256": "cfcd0160c7a0a96b0e7d4e549f61a4cd27ae179e8d02cbe255d41d40c8799ecd"
+  },
+  "outputPath": "art/card-art-v3-raw/major-new-a/the-devil-candidate-014.png",
+  "expectedOutputSha256": "648c7f38d91294f21b25c99d494818b8894385a0e25b2d5494ac39767df627e2",
+  "intent": "Register the two rejected donor frames into immutable attempt-010 coordinates, replace only the two old lower-limb silhouettes, add only the independently accepted empty-hand limbs and the one hidden right connector segment, and preserve every pixel outside the five reviewed masks. The two guide rims, central guide-to-guide region and every unrelated cord pixel remain byte-identical to attempt-010.",
+  "review": {
+    "result": "approved",
+    "reviewedAt": "2026-08-07T06:50:00.000Z",
+    "reviewers": [
+      "Planck (independent two-loop tarot meaning and four-hand audit)",
+      "Harvey (independent full/mobile mask, anatomy and seam audit)",
+      "Halley (independent registration, byte-identity and provenance audit)"
+    ],
+    "checks": {
+      "exactRegistration": true,
+      "maskBounds": true,
+      "leftRightDisjoint": true,
+      "outsideUnionPixelIdentity": true,
+      "protectedGuideIdentity": true,
+      "centralBridgeAbsent": true,
+      "fourNaturalHands": true,
+      "mobileSeparation": true
+    }
+  }
+}

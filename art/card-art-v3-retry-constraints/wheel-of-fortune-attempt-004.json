@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wheel-of-fortune",
+  "attemptNumber": 4,
+  "previousAttemptId": "wheel-of-fortune-attempt-003",
+  "controlReferenceId": "wheel-of-fortune-four-way-junction-v1",
+  "controlReferencePath": "art/card-art-v3-controls/wheel-of-fortune-four-way-junction-v1.png",
+  "controlReferenceSha256": "0854404db7824dfb62697d332716ab21eb1163d50f34c21a8bbc4ebde3a725ee",
+  "styleReferenceId": "the-fool",
+  "styleReferencePath": "public/cards/v3/the-fool.jpg",
+  "styleReferenceSha256": "d9bf98f82fbd212b1f663590c35482e6d927ac1f7e42f98c717e82c393fa44ef",
+  "constraint": "Fresh high-oblique composition. First image is a geometry control only for exactly 4 continuous dry-road arms and 1 fully exposed center. Copy none of its background, color, vector stroke, position, width or flat style. Second image controls only Quiet Celestial Storybook rendering and the young traveler's identity, proportions and plum/cream palette. No earlier Wheel or recent image is an input. Show 1 huge newly designed working waterwheel upper-left of the junction, never on a road. The waterwheel is the sole wheel or circular mechanism; no additional gear, rosette or circular object. Its narrow channel stays at the far-left edge and never crosses, replaces, merges with, resembles or blocks a road; no bridge. Exactly 4 roads leave the same visible center toward bottom, top, left and right and reach the frame; all connected, separate and unobstructed at 140×196. Exactly 1 person total: the traveler, off all roads and the center. At 140×196: wheel largest, exposed junction second, traveler third. Changing clear-and-rain weather. No animal, table, document, marked sheet/board/plaque, sign, banner, text, numeral, pseudo-writing or floating symbol.",
+  "reason": "Three attempts preserved a three-arm Y junction because either a legacy Wheel composition or a rejected Wheel scene remained in the model inputs. Independent review approved a fresh-control route using only the four-arm topology control and the approved Fool restoration, with no prior Wheel image, so geometry and style authority no longer conflict.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T01:27:30.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent tarot meaning, mobile geometry and fresh-control provenance review)"
+}

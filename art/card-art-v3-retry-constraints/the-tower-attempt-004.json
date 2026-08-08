@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "the-tower",
+  "attemptNumber": 4,
+  "previousAttemptId": "the-tower-attempt-003",
+  "editSourceAttemptId": "the-tower-attempt-003",
+  "editSourcePath": "art/card-art-v3-raw/major-new-b/the-tower-candidate-003-rejected.png",
+  "editSourceSha256": "3b8da7182cfec55db711aafb80eee4de36599a29b689dd815e369228a74b3f1e",
+  "constraint": "Precision-edit only the supplied rejected The Tower attempt-003; it is the immutable target scene. The safety cordon in the source contains exactly six capped stakes. Count those cordon stakes from image-left to image-right as source stakes 1 through 6; the separate farm fence at the far-right edge is not a cordon and is not counted. Edit only source stake 1, the farthest-left capped cordon stake partly hidden among shrubs, and the rope pixels to its left and between source stakes 1 and 2. Remove exactly source stake 1 in full—cap, shaft, base and shadow—and remove the entire rope segment entering from the left side through stake 1 up to, but not including, source stake 2. Restore only that vacated patch as continuous matching shrubs, small flowers, rock and soil with no straight post-like or rope-like remnant. Preserve source stakes 2 through 6 pixel-for-pixel as closely as possible. Preserve the continuous rope beginning with a clean tied endpoint at source stake 2 and connecting source stakes 2–6 in order. Final cordon: exactly five and only five capped stakes, one continuous pale rope, no rope or cordon object left of the new first stake, and all five stakes readable at 140×196. Preserve the complete tower, lightning, false crown, masonry, exactly three adults, every adult face, hand, limb, garment and pose, empty fall zone, exit route, right-edge farm fence, landscape, crop, palette, lighting, ink and gouache texture. Add no stake, post, rope, fence, person, human-like shape, animal, building, object, debris, flame, smoke, sign, text, numeral, pseudo-writing or symbol. Change no pixel outside the bounded removal patch and minimal natural edge blending as closely as the edit tool permits.",
+  "reason": "The first two independent reviews accepted attempt-003, but the final adversarial count found six cordon stakes because the farthest-left stake was partly hidden in shrubs. Attempt-004 removes only that first stake and its two leftmost rope spans, leaving the other five connected stakes, exact three-person safety scene, tower, exit route, anatomy, text-free surface and style unchanged.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T08:42:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent exact-count, 140-pixel cordon topology and immutable precision-edit provenance review)"
+}

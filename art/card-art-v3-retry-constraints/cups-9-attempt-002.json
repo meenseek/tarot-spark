@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "cups-9",
+  "attemptNumber": 2,
+  "previousAttemptId": "cups-9-attempt-001",
+  "editSourceAttemptId": "cups-9-attempt-001",
+  "editSourcePath": "art/card-art-v3-raw/cups-b/cups-9-candidate-001-rejected.png",
+  "editSourceSha256": "c027f494c346afa5a44e9d713fa23f2d3979f400e288b3370b9960d34cce242b",
+  "constraint": "Perform an honest ImageGen edit of rejected Cups-9 attempt-001; whole-canvas resampling is allowed. Preserve the single host, face, body, clothing, room, two bare rectangular tables, windows, waterside view, crop, light, palette, anatomy and ink-and-gouache rendering. The source incorrectly shows ten cups on four circular platforms: one singleton top cup plus three cups on each of three lower platforms. Remove the singleton top cup, its entire small circular top platform and every short support between that platform and the next platform. Restore continuous wall and host garment behind all removed objects, leaving no cup, rim, handle, platform, post, shadow or contact ghost. The three existing lower circular platforms become the only three tiers; preserve their nine existing cups as exactly three complete separated blue handled cups per tier without moving, adding, removing, merging, hiding or redrawing any cup. Rebuild only the host's former touching forearm and natural five-digit hand as needed so the host releases the existing viewer-right cup on the new upper tier with fingertips while that cup's entire flat base remains seated and no cup is hidden. Preserve or reveal exactly four distinct stand legs and four floor contacts, separated at full size and 140×196; add no fifth leg. Keep clear background gaps between the freestanding stand, walls, tables and host. Add no cup, mug, bowl, plate, pitcher, jar, bottle, vase, tableware, circular vessel, food, person, human silhouette, text or mark. At full size and 140×196 require exactly one person, exactly three tiers, exactly three-plus-three-plus-three cups, exactly nine cups total and exactly four floor contacts.",
+  "reason": "Attempt-001 passes the single host, release gesture, bare room, anatomy and Cups style but creates a separate singleton top cup and platform above three complete three-cup shelves, yielding four platforms and ten cups. Attempt-002 removes that entire extra top unit, reroutes the release hand to one preserved upper-tier cup and leaves the existing three-by-three display as the canonical nine-cup freestanding stand.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T16:03:29.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Nine of Cups ten-to-nine platform removal, hand reroute and full/mobile stand review)"
+}

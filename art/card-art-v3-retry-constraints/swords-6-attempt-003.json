@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "swords-6",
+  "attemptNumber": 3,
+  "previousAttemptId": "swords-6-attempt-002",
+  "editSourceAttemptId": "swords-6-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/swords-a/swords-6-candidate-002-rejected.png",
+  "editSourceSha256": "e1adbfb8610c0cc49a9fc5f317413ec8b432396b37b8a93ec2f16210d6ca39a5",
+  "constraint": "Precision-edit rejected Swords-6 attempt-002; whole-canvas resampling is allowed. Preserve exactly three people, faces and anatomy, ferry, broad flat brown paddle, village, water transition, crop, palette, diffuse light and rendering. Preserve exactly six closed scabbards and six slots, but move and rebuild the complete rack farther viewer-right so its leftmost pommel, crossguard, sheath, slot and shadow begin at least one full scabbard width beyond the outer edge of the purple passenger's cloak. From every hilt through every capped chape, show one continuous band of empty boat interior or water between all six swords and both passengers; at 140×196 the gap remains at least four pixels. No sword, rack part or shadow may touch, cross, sit behind or overlap a human. Give all six swords identical plain unmarked round pommels, identical crossguards, dark opaque scabbards, blunt capped chapes and separately traceable lower slots. Remove both diamond pommels and every old-rack ghost. Add no seventh sword or slot, exposed blade, animal, celestial disk, second boat, sail, mast, pole, text or mark.",
+  "reason": "Attempt-002 corrects the count to six and removes the sun disk, but its first sword overlaps the purple passenger and two pommels differ from the suit family. Attempt-003 preserves all passing elements while moving the whole uniform six-slot rack beyond an explicit mobile-safe gap.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T17:35:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Six of Swords passenger gap, uniform six-count and full/mobile review)"
+}

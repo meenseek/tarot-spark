@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "cups-9",
+  "attemptNumber": 4,
+  "previousAttemptId": "cups-9-attempt-003",
+  "editSourceAttemptId": "cups-9-attempt-003",
+  "editSourcePath": "art/card-art-v3-raw/cups-b/cups-9-candidate-003-rejected.png",
+  "editSourceSha256": "8036fd7293f5a94090663c546470cd7ab2a4622baf3fe43523655cb17155488c",
+  "constraint": "Perform an honest ImageGen structural edit of rejected Cups-9 attempt-003; whole-canvas resampling is allowed. Preserve exactly one host with the same face, hair, body, clothing, grounded feet and quietly satisfied expression; preserve the same empty room, two bare rectangular tables, windows, waterside view, crop, light, palette and ink-and-gouache rendering. Replace the entire round three-tier stand with exactly one freestanding near-front-view rectangular wooden rack. The rack has exactly three wide horizontal rectangular shelves and exactly four straight corner legs, with no center leg, pedestal, brace, extra post or circular platform. All four legs descend continuously below the lowest shelf to four separately visible floor contacts arranged left-front, left-rear, right-rear and right-front; use shallow perspective and visible stone-floor gaps so all four complete contacts remain countable at 140×196. Recompose the nine cups into exactly three complete separated blue handled cups per shelf, centered as a strict three-column by three-row grid. Show exactly nine cups total. Every cup has a complete unoccluded gold rim, blue body, flat base and one open handle, with its entire base on its shelf and clear gaps from other cups, rack posts, host and frame. Show the moment immediately after the ninth cup was placed: remove the hand-in-cup contact completely and redraw that arm as one natural open five-digit hand withdrawn beside the host's chest, with a clear air gap from every cup and rack part. The other hand remains lowered and cup-free. Leave no old fingertip, round-stand, circular-tier, third-leg or contact ghost. Add no vessel, food, person, silhouette, text or mark. Final full/mobile audit: one person, one freestanding rack, three rectangular shelves, four traceable legs and floor contacts, nine cups in an exact three-by-three grid, both hands fully separated from all cups.",
+  "reason": "Attempt-003 keeps one host and the exact nine-cup three-tier count, but repeated local edits preserve a round stand that reads as three-legged and turn the release gesture into fingers inside the cup. Attempt-004 removes those structural failure modes by rebuilding only the display as a shallow rectangular four-corner rack and showing the immediately-after-release moment with the open hand clearly withdrawn.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T16:27:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Nine of Cups rectangular-rack, withdrawn-hand and full/mobile review)"
+}

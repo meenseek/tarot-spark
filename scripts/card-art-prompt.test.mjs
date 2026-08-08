@@ -9,7 +9,10 @@ import {
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { cardArtSources } from "../src/components/visual/tarot-card-art-sources";
+import {
+  cardArtSources,
+  legacyCardArtSources,
+} from "../src/components/visual/tarot-card-art-sources";
 import {
   buildCardArtPrompt,
   getCardArtLocks,
@@ -64,7 +67,7 @@ describe("card art prompt system", () => {
     ]);
   });
 
-  it("locks every composed prompt and approved runtime source to the manifest", () => {
+  it("locks every composed prompt and approved legacy source to the manifest", () => {
     const locks = getCardArtLocks(manifest, repositoryRoot);
     const manifestSources = Object.fromEntries(
       manifest.cards
@@ -95,7 +98,12 @@ describe("card art prompt system", () => {
         manifest.cards.map((card) => [card.id, card.promptSha256]),
       ),
     ).toEqual(locks.promptSha256);
-    expect(manifestSources).toEqual(cardArtSources);
+    expect(Object.keys(manifestSources)).toHaveLength(12);
+    expect(manifestSources).toEqual(legacyCardArtSources);
+    expect(Object.keys(cardArtSources)).toHaveLength(78);
+    expect(Object.values(cardArtSources)).toEqual(
+      expect.arrayContaining(["/cards/v3/the-fool.jpg"]),
+    );
 
     for (const path of Object.keys(locks.assetSha256)) {
       expect(readFileSync(resolve(repositoryRoot, path))).not.toHaveLength(0);

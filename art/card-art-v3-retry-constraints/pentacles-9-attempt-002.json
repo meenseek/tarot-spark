@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "pentacles-9",
+  "attemptNumber": 2,
+  "previousAttemptId": "pentacles-9-attempt-001",
+  "editSourceAttemptId": "pentacles-9-attempt-001",
+  "editSourcePath": "art/card-art-v3-raw/pentacles-b/pentacles-9-candidate-001-rejected.png",
+  "editSourceSha256": "6b8417cad5508f10bfc4bda8e0649188ce2d7be42b22ad9a7ecf5c4d43868808",
+  "constraint": "Precision-edit only two small disjoint rear-garden plot-marker masks in rejected Pentacles-9 attempt-001; whole-canvas resampling is allowed. Preserve exactly one elder steward, face, gray hair, blue-and-ochre clothing, natural walking pose, visible empty viewer-left hand, one gloved viewer-right hand, one natural falcon resting safely on that glove, all anatomy, garden path, open gate, mature planted beds, secure stone wall, warm light, crop, palette and ink-and-gouache rendering. Preserve the seven existing complete pentacle disks and their seven separate square stone plot markers exactly as seven immutable identities; add, delete, duplicate, move, resize, cover or alter none of them. Inside the two edit masks create exactly two additional matching low square stone plot markers in the previously empty rear garden, one on far viewer-left and one on far viewer-right at the same depth just inside the wall and behind the existing upper pair. Center exactly one complete round bronze pentacle disk on the flat top of each new marker. Keep both new disks fully visible, mutually separated, separated from all existing seven disks, and clear of the person, clothing, hands, falcon, plants, wall and gate. Match the existing disk material, five-point star geometry, perspective and warm highlights, while keeping both new disks large enough to count at 140 by 196. Reconstruct only the minimally displaced plants around the two new marker bases. Final full-size and 140 by 196 views independently show exactly nine complete pentacle disks on nine separate square garden markers, never seven, eight or ten. Add no other disk, coin, round fruit, decorative star, person, animal, bird, text, number, mark or watermark; the single preserved falcon is the only animal.",
+  "reason": "Attempt-001 preserves the canonical solitary garden stewardship, safe single falcon, secure wall and seven clearly separated plot markers, but contains only seven pentacle disks. Attempt-002 freezes every passing element and adds exactly two matching rear plot markers and disks so the card reaches a mobile-legible total of nine.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T20:16:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Nine of Pentacles exact-nine, bounded rear-pair addition, single canonical falcon and full/mobile review)"
+}

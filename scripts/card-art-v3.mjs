@@ -15,15 +15,20 @@ import {
   validateCardArtSystem as validateV2CardArtSystem,
 } from "./card-art-prompt.mjs";
 import { cardArtV3CourtContactSheetRecipe } from "./card-art-v3-contact-sheet.mjs";
+import { getCardArtV3BatchContactSheetRecipe } from "./card-art-v3-batch-contact-sheet.mjs";
+import { cardArtV3DeckContactSheetRecipe } from "./card-art-v3-deck-contact-sheet.mjs";
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const defaultRepositoryRoot = resolve(scriptDirectory, "..");
 const fileNames = Object.freeze({
   approvals: "art/card-art-v3-approvals.json",
+  batchReviewGates: "art/card-art-v3-batch-review-gates.json",
   controlRegistry: "art/card-art-v3-control-registry.json",
   generationRecords: "art/card-art-v3-generation-records.json",
   legacyAudit: "art/card-art-v3-legacy-audit.json",
+  legacyReviewCorrections: "art/card-art-v3-legacy-review-corrections.json",
   manifest: "art/card-art-v3-manifest.json",
+  repairAuthorizations: "art/card-art-v3-repair-authorizations.json",
   replacementGates: "art/card-art-v3-replacement-gates.json",
   releaseHistory: "art/card-art-v3-release-history.json",
   styleHistory: "art/card-art-v3-style-history.json",
@@ -48,6 +53,18 @@ const expectedStageOrder = Object.freeze([
   "major-and-numbered-batches",
   "deck-harmony",
   "atomic-release",
+]);
+const sequentialProductionBatchIds = Object.freeze([
+  "major-new-a",
+  "major-new-b",
+  "wands-a",
+  "wands-b",
+  "cups-a",
+  "cups-b",
+  "swords-a",
+  "swords-b",
+  "pentacles-a",
+  "pentacles-b",
 ]);
 const expectedPilotGateChecks = Object.freeze([
   "exact suit-object count",
@@ -163,8 +180,482 @@ const reviewedSupersessionContracts = Object.freeze({
       }),
     }),
   }),
+  "wands-3-attempt-001-batch-supersession-001": Object.freeze({
+    decisionFingerprintSha256:
+      "6d97ca3229da523913d9b0329cd2f5a65272b1668d9a978e0ff81ef39a61ed70",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+    authorizations: Object.freeze({
+      "wands-3-attempt-002": Object.freeze({
+        attemptNumber: 2,
+        previousAttemptId: "wands-3-attempt-001",
+        retryArtifactPath:
+          "art/card-art-v3-retry-constraints/wands-3-attempt-002.json",
+        retryArtifactSha256:
+          "9406f1f153c8a026fab1a0ebd480239d6f0d7b3bcf62e9e9df2632a656a58dff",
+        editSource: Object.freeze({
+          attemptId: "wands-3-attempt-001",
+          path: "art/card-art-v3-raw/wands-a/wands-3-candidate-001.png",
+          sha256:
+            "35d22adc07fb6b779c779598563ca3e9930c2c74fb49051ca6f63f13cf30f7cd",
+        }),
+      }),
+      "wands-3-attempt-003": Object.freeze({
+        attemptNumber: 3,
+        previousAttemptId: "wands-3-attempt-002",
+        retryArtifactPath:
+          "art/card-art-v3-retry-constraints/wands-3-attempt-003.json",
+        retryArtifactSha256:
+          "0b0eceabeb2672066d7c10db8222eb76d201748a015f09e6f952280acb572ff6",
+        editSource: Object.freeze({
+          attemptId: "wands-3-attempt-002",
+          path: "art/card-art-v3-raw/wands-a/wands-3-candidate-002-rejected.png",
+          sha256:
+            "24898ee7e63df6542c277d5bbc83fffef5a4a78c229a83301211c13babbd226e",
+        }),
+      }),
+      "wands-3-attempt-004": Object.freeze({
+        attemptNumber: 4,
+        previousAttemptId: "wands-3-attempt-003",
+        retryArtifactPath:
+          "art/card-art-v3-retry-constraints/wands-3-attempt-004.json",
+        retryArtifactSha256:
+          "cfb3ae6bcf1f0f411eb3be77cfd1f3350c579794135d0dee5966e6fef8b278e4",
+        editSource: Object.freeze({
+          attemptId: "wands-3-attempt-003",
+          path: "art/card-art-v3-raw/wands-a/wands-3-candidate-003-rejected.png",
+          sha256:
+            "5b77aaf0fc3eafb2e869a54a65b85a2f7b1375844aff81fa43021192447a5458",
+        }),
+      }),
+      "wands-3-attempt-005": Object.freeze({
+        attemptNumber: 5,
+        previousAttemptId: "wands-3-attempt-004",
+        retryArtifactPath:
+          "art/card-art-v3-retry-constraints/wands-3-attempt-005.json",
+        retryArtifactSha256:
+          "8dc924eb63b9d7eaf97297a16ee2b94d627b5da88b0a1851099d3ab1fd777478",
+        editSource: Object.freeze({
+          attemptId: "wands-3-attempt-004",
+          path: "art/card-art-v3-raw/wands-a/wands-3-candidate-004-rejected.png",
+          sha256:
+            "2fa0c008bcdbde2fe98e2a40c89b2facb4902020f8095a6f1d579e7ef3d790a8",
+        }),
+      }),
+      "wands-3-attempt-006": Object.freeze({
+        attemptNumber: 6,
+        previousAttemptId: "wands-3-attempt-005",
+        retryArtifactPath:
+          "art/card-art-v3-retry-constraints/wands-3-attempt-006.json",
+        retryArtifactSha256:
+          "16cba11a4dbd8dcee428d9bc63786cff0a288430aee7dfd5091833f44306d94d",
+        editSource: null,
+      }),
+    }),
+  }),
 });
-const reviewedReplacementGateContracts = Object.freeze({});
+const reviewedReplacementGateContracts = Object.freeze({
+  "court-validation-a-cups-page-replacement-002":
+    "8f3be269b77e192210ee74d6ab25ed8941a430629843ba5aae31610169343eff",
+  "wands-a-wands-3-replacement-001":
+    "ba4a6561ba9d762a06552e10649ff1b7e606f0ec88bfccb9359b9fc692ef088a",
+});
+const reviewedBatchGateContracts = Object.freeze({
+  "court-validation-b-review-001": Object.freeze({
+    batchId: "court-validation-b",
+    decisionFingerprintSha256:
+      "cec1850d348cec411d54d8b72139d5ab3225ad71077fe90fc3a4e43ab6c46539",
+    fullReviewPath:
+      "art/card-art-v3-reviews/court-validation-b-contact-sheet-v7.jpg",
+    mobileReviewPath:
+      "art/card-art-v3-reviews/court-validation-b-contact-sheet-mobile-v7.jpg",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+  }),
+  "legacy-keep-review-001": Object.freeze({
+    batchId: "legacy-keep",
+    cardIds: Object.freeze([
+      "the-fool",
+      "the-lovers",
+      "the-chariot",
+      "strength",
+      "wheel-of-fortune",
+    ]),
+    legacyReuseCardIds: Object.freeze([
+      "the-lovers",
+      "the-chariot",
+      "strength",
+    ]),
+    decisionFingerprintSha256:
+      "b97da1410675002298bbf351d315258c4aafd1d990d8c24bc1c6e502002d935f",
+    fullReviewPath:
+      "art/card-art-v3-reviews/legacy-keep-final-contact-sheet-v1.jpg",
+    mobileReviewPath:
+      "art/card-art-v3-reviews/legacy-keep-final-contact-sheet-mobile-v1.jpg",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+  }),
+  "major-replacements-review-001": Object.freeze({
+    batchId: "major-replacements",
+    decisionFingerprintSha256:
+      "06473bc4289b767b2b0a7dbf5d6651de4417a6f1689d5d66fdb7c8e3913dc230",
+    fullReviewPath:
+      "art/card-art-v3-reviews/major-replacements-contact-sheet-v3.jpg",
+    mobileReviewPath:
+      "art/card-art-v3-reviews/major-replacements-contact-sheet-mobile-v3.jpg",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+  }),
+  "major-new-a-review-001": Object.freeze({
+    batchId: "major-new-a",
+    decisionFingerprintSha256:
+      "f103a0d358547ce35a030a418c517ac4670132479cea1c25d5fa831b6ca46898",
+    fullReviewPath: "art/card-art-v3-reviews/major-new-a-contact-sheet-v3.jpg",
+    mobileReviewPath:
+      "art/card-art-v3-reviews/major-new-a-contact-sheet-mobile-v3.jpg",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+  }),
+  "major-new-b-review-001": Object.freeze({
+    batchId: "major-new-b",
+    decisionFingerprintSha256:
+      "d39a84b714454bc1f2087033077cca99d8ae7afa94ed8c6afda376765c3ad4a9",
+    fullReviewPath: "art/card-art-v3-reviews/major-new-b-contact-sheet-v1.jpg",
+    mobileReviewPath:
+      "art/card-art-v3-reviews/major-new-b-contact-sheet-mobile-v1.jpg",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+  }),
+  "wands-a-review-001": Object.freeze({
+    batchId: "wands-a",
+    decisionFingerprintSha256:
+      "4a6b2eb4c9455ee3123bb211c5aa41c36364b7f8c3a9ea4168b6915e35244012",
+    fullReviewPath: "art/card-art-v3-reviews/wands-a-contact-sheet-v2.jpg",
+    mobileReviewPath:
+      "art/card-art-v3-reviews/wands-a-contact-sheet-mobile-v2.jpg",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+  }),
+  "wands-b-review-001": Object.freeze({
+    batchId: "wands-b",
+    cardIds: Object.freeze(["wands-8", "wands-9"]),
+    decisionFingerprintSha256:
+      "cee88a886533d106c28e01bcb19cba9ef697f65f8ae1488428a5ab0eec6ad944",
+    fullReviewPath: "art/card-art-v3-reviews/wands-b-contact-sheet-v1.jpg",
+    mobileReviewPath:
+      "art/card-art-v3-reviews/wands-b-contact-sheet-mobile-v1.jpg",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+  }),
+  "cups-a-review-001": Object.freeze({
+    batchId: "cups-a",
+    cardIds: Object.freeze(["cups-2", "cups-3", "cups-4", "cups-6", "cups-7"]),
+    decisionFingerprintSha256:
+      "9f5699e5c7855d44ad14b776b1952fe464fa11291141ae5fba436923c449b6c6",
+    fullReviewPath: "art/card-art-v3-reviews/cups-a-contact-sheet-v1.jpg",
+    mobileReviewPath:
+      "art/card-art-v3-reviews/cups-a-contact-sheet-mobile-v1.jpg",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+  }),
+  "cups-b-review-001": Object.freeze({
+    batchId: "cups-b",
+    cardIds: Object.freeze(["cups-8", "cups-9"]),
+    decisionFingerprintSha256:
+      "27eb62e75e2b1988807e64cbec35e3a5fdfb07c4a3fda6d95b4e566c719e5ac4",
+    fullReviewPath: "art/card-art-v3-reviews/cups-b-contact-sheet-v1.jpg",
+    mobileReviewPath:
+      "art/card-art-v3-reviews/cups-b-contact-sheet-mobile-v1.jpg",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+  }),
+  "swords-a-review-001": Object.freeze({
+    batchId: "swords-a",
+    cardIds: Object.freeze([
+      "swords-2",
+      "swords-3",
+      "swords-4",
+      "swords-6",
+      "swords-7",
+    ]),
+    decisionFingerprintSha256:
+      "a8f3a25970da3fdae6d134a5ab67a36a12f9ecadfdb6bbd281b5f032059306b6",
+    fullReviewPath: "art/card-art-v3-reviews/swords-a-contact-sheet-v1.jpg",
+    mobileReviewPath:
+      "art/card-art-v3-reviews/swords-a-contact-sheet-mobile-v1.jpg",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+  }),
+  "swords-b-review-001": Object.freeze({
+    batchId: "swords-b",
+    cardIds: Object.freeze(["swords-8", "swords-9"]),
+    decisionFingerprintSha256:
+      "00a1b0f8582309d88359016672736121dfde8c8a443009ee5915297853818a96",
+    fullReviewPath: "art/card-art-v3-reviews/swords-b-contact-sheet-v1.jpg",
+    mobileReviewPath:
+      "art/card-art-v3-reviews/swords-b-contact-sheet-mobile-v1.jpg",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+  }),
+  "pentacles-a-review-001": Object.freeze({
+    batchId: "pentacles-a",
+    cardIds: Object.freeze([
+      "pentacles-2",
+      "pentacles-3",
+      "pentacles-4",
+      "pentacles-6",
+      "pentacles-7",
+    ]),
+    decisionFingerprintSha256:
+      "357611b38820ba2e688acee01c29bcb65b2fc0f2581affbde2ca203bdd73f8bb",
+    fullReviewPath: "art/card-art-v3-reviews/pentacles-a-contact-sheet-v1.jpg",
+    mobileReviewPath:
+      "art/card-art-v3-reviews/pentacles-a-contact-sheet-mobile-v1.jpg",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+  }),
+  "pentacles-b-review-001": Object.freeze({
+    batchId: "pentacles-b",
+    cardIds: Object.freeze(["pentacles-8", "pentacles-9"]),
+    decisionFingerprintSha256:
+      "2408766a5a6d2b6a8be28fd1cd2e3849e0d6a51672249c84bdf5c6a5f31ee437",
+    fullReviewPath: "art/card-art-v3-reviews/pentacles-b-contact-sheet-v1.jpg",
+    mobileReviewPath:
+      "art/card-art-v3-reviews/pentacles-b-contact-sheet-mobile-v1.jpg",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+  }),
+});
+const reviewedLegacyCorrectionContracts = Object.freeze({
+  "legacy-source-review-correction-001": Object.freeze({
+    decisionFingerprintSha256:
+      "24dafe26da55e5dd750a6c0d70f7e43bc63f580807bc0f89842e8edf8c699ed5",
+    decisions: Object.freeze({
+      "the-fool": "retouch",
+      "the-lovers": "keep",
+      "the-chariot": "keep",
+      strength: "keep",
+      "wheel-of-fortune": "replace",
+    }),
+    fullReviewPath: "art/card-art-v3-reviews/legacy-keep-contact-sheet-v1.jpg",
+    mobileReviewPath:
+      "art/card-art-v3-reviews/legacy-keep-contact-sheet-mobile-v1.jpg",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+    reviewerResults: Object.freeze(["approved", "rejected", "approved"]),
+  }),
+});
+const reviewedCorrectedLegacyRetouchContracts = Object.freeze({
+  "the-fool": Object.freeze({
+    generationRecordId: "the-fool-retouch-001",
+    generator: Object.freeze({
+      mode: "deterministic-local-restoration",
+      tool: "Sharp",
+      toolVersion: "0.34.5",
+    }),
+    maskPath:
+      "art/card-art-v3-controls/the-fool-local-restoration-mask-001.png",
+    maskSha256:
+      "8c920eb6fdacf5b1adb438eed486e59cb75f6735dcb70fb3a9d8344e8d9e4b96",
+    rawOutputPath:
+      "art/card-art-v3-raw/legacy-retouch/the-fool-candidate-001.png",
+    rawOutputSha256:
+      "337e97f420d51f2ebf852acdd0c839fc6ec171b7a345b1bc75cbfdd0c39c3a28",
+    recipeDefinitionSha256:
+      "edc0e8367eb6e8e32970ed15dea3a9dce0043ce683e5608638efcfff965fe390",
+    scriptPath: "scripts/card-art-v3-fool-repair.mjs",
+    scriptSha256:
+      "dff111ed412939266a404af18231e34fe26460c84d88471a45adbfeaca2866e6",
+    sourcePath: "public/cards/the-fool.jpg",
+    sourceSha256:
+      "98c44ed92620968fef950f40b3b33c634f6dac5762de02c267eccf6edbdd78f8",
+    changedInside: 2511,
+    changedOutside: 0,
+  }),
+});
+const reviewedCardPromptLocks = Object.freeze({
+  "the-magician":
+    "This reviewed lock replaces the Observable scene's ambiguous four-tool wording. The maker stands behind a sparse worktable, raising the sole brass wand in one hand while the other points down toward the remaining three separated suit tools: exactly one cup, one sword and one pentacle. Exactly four suit objects total, all fully visible, unoccluded and distinct at 140×196; no second rod, wand, vessel, blade, coin, disk, plate or tool. Show one plain physical ribbon infinity loop, never text or a floating glyph. Keep the maker, raised hand and downward hand central, with hierarchy maker > gesture > sparse table. Add no second person, bird, sun disk, traveler, giant wheel, water channel or four-way crossing.",
+  "the-high-priestess":
+    "Show exactly one seated person and exactly two full columns, one dark and one pale, with the veil behind them. Keep both natural five-digit hands and one featureless closed book visible centrally at 140×196; no third column and no book clasp, line, seal, letter, numeral or mark. The only crescent sits at the figure's feet. Add no lantern, staff, solitary path, observatory dome, vessel, pouring action, water channel, large sky moon or star field.",
+  "the-empress":
+    "Show exactly twelve and only twelve separated small antique-gold star ornaments in one countable canopy arc at 140×196, visually distinct from flowers and fruit; no other star or star-like ornament. The welcoming gardener is largest, one pomegranate branch is second, and exactly two smaller arriving neighbors share exactly one gathered wheat bundle. Use one discreet non-round Venus-marked shield. Add no crowd, basket, disk, paired meeting pose, bird, sun disk, lion, bandage or stone gate.",
+  "the-emperor":
+    "This reviewed lock replaces the Supporting symbol's word measured; the charter is not measured or marked. Show exactly one plain blank unmarked rectangular civic charter with no line, grid, diagram, border, seal, letter, numeral, pseudo-writing or decorative mark. Show exactly one compact staff of office, not a walking staff or wand; no other pole. Keep the elder and staff hand central at 140×196, with hierarchy square stone overlook > elder steward > charter. Add no lantern, observatory dome, Hermit-style narrow solitary footpath, giant wheel, water channel, four-way crossing, model or workbench; preserve one broad stable civic mountain road.",
+  "the-star":
+    "Show exactly eight stars total: one large eight-point star and seven smaller stars, all fully inside the frame and separately countable at 140×196; no other star, dot-light or star-like ornament. Show exactly two vessels total, one in each visible natural five-digit hand, pouring two simultaneous noncrossing streams that end separately in the pool and bare ground; never vessel-to-vessel, merged or exchanged, and no third cup or bowl. Keep hierarchy large star > figure and both vessels > two stream destinations. Add no lantern, staff, path, observatory, building or large moon.",
+  "the-hierophant":
+    "Use a medium-wide three-quarter side view. Show exactly three people total: one standing elder teacher, largest and central, and exactly two seated learners at visibly different heights and postures. Show exactly two large full crossed keys on one plain low cloth or step, and exactly one shared open book beside but not overlapping the keys, with completely blank featureless pages; no other key, book, paper, document, line, border, seal, letter, numeral, pseudo-writing or decorative mark. Keep the natural teaching hand, teacher, both learners, both keys and book separated and readable at 140×196, with hierarchy teacher > keys and teaching gesture > learners > book. Add no workbench, model, hammer, lantern, staff, solitary path, observatory dome, bird, large sun, wheel, water channel, four-way crossing, throne, worship pose or religious logo.",
+  justice:
+    "Show exactly one seated adjudicator, exactly one level balance scale with exactly two equal empty pans, exactly one straight upright sword and exactly one plain blank decision sheet. Both natural five-digit hands, the scales and the full sword must remain distinct at 140×196. The sheet has no line, border, grid, seal, letter, numeral, pseudo-writing or decorative mark. Add no second person, no additional blade beyond the required single sword, no second scales apparatus, no third pan, and no weight, coin, key, bird, large sun, giant wheel, traveler, road, path, water channel or four-way crossing.",
+  "the-hanged-man":
+    "Create a family-friendly contemplative aerial-yoga scene. Show exactly one medium-size full-body adult in a calm controlled inversion on one low living garden acrobatics frame formed by two rooted leafy uprights and one leafy crossbar. Exactly one ankle is comfortably supported inside one broad soft woven-cloth aerial sling attached to the crossbar; every other part of the body moves freely. Keep both relaxed open natural five-digit hands separated from each other and the head, the free leg visibly bent at the knee and separated from the supported leg, the serene face clear, and the head comfortably above a deep cushion of moss at 140×196. Use only diffuse dawn backlight behind the head, never a literal halo, sun disk, star or glyph. The equipment is visibly stable and recreational. Add no second sling, person, animal, dog, bird, lion, path, water, satchel, cliff, bandage, infinity vine or gate.",
+  death:
+    "Show exactly one living armored human rider on exactly one calm pale horse in a side-profile walking pose. One visible natural hand holds the reins and the other holds exactly one lowered black banner on exactly one pole; keep both hands separate and clear. The fully visible banner carries exactly one plain white rose and no other heraldry, line, letter, numeral, pseudo-writing or mark, and it covers neither face nor horse. Show exactly one fully sealed old gate with no opening or route through it, exactly two distant pillars and diffuse dawn light between them without a sun disk. Keep hierarchy horse, rider and banner > sealed gate > two pillars and dawn at 140×196. Add no other person, horse, animal, flag, pole, additional flower emblem, chariot, cart, wheel, skull, skeleton, bone, corpse, grave, lantern, staff, path, observatory dome, star field, water, weapon attack, text or any symbol beyond the required single plain white rose.",
+  "the-devil":
+    "Show exactly two living clothed adults and exactly one inanimate horned stone statue with unlit stone eyes and no carved mark. Show exactly two bright thick loose cords total, one oversized slack open removable loop around each adult's clothed torso; each loop is larger than a hand and each adult visibly lifts their own cord away with one visible natural five-digit hand. No cord wraps around, restrains or tightens a neck, collar, wrist, hand, ankle or limb; contact with the lifting hand is allowed only at the visible grasp, and no knot or lock blocks removal. Keep hierarchy the pair and both open self-release loops > background statue > daylight threshold, with both actions and slack readable at 140×196. Add no third person, animal, extra cord, rope, chain, cuff, shackle, collar, cage, flame, wing, living demon, pentagram, inverted star, rune, glyph, text, giant wheel, four-way crossing, water, bird, large sun, lion or flowering infinity vine.",
+  "the-tower":
+    "Use a medium-wide oblique view with exactly one tall stone watchtower offset in the upper-left, exactly one branching lightning strike, and exactly three fully clothed living adults already standing together at a clearly safe lower-right foreground distance. The tower's stable lower body remains upright while only one visibly newer false upper addition splits and sheds a small number of empty masonry pieces into an unoccupied cordoned fall zone behind the people. Keep a broad unobstructed ground route leading the three separated adults out through the bottom-right, with hierarchy struck false crown > complete tower > safe group and exit route at 140×196. Every person stays grounded, intact and outside the falling-stone zone. Add no second tower, falling or trapped person, injury, flame, smoke inferno, flood, weapon, animal, giant wheel, four-way crossing, sun, moon, star, sign, banner, letter, numeral, mark or disaster spectacle.",
+  "the-moon":
+    "Show exactly one fully clothed young traveler paused on exactly one continuous winding night road, exactly two full boundary towers, exactly one calm domestic dog on one side and exactly one alert wild wolf on the other. Show exactly one large veiled moon total, fully inside the frame, with no face, text or glyph; add no star or other moon-like disk. Place dog and wolf in opposite lower foreground thirds, fully visible with background gaps; preserve distinct ear, muzzle, tail and four-leg silhouettes, with the road open between them. Neither animal attacks, snarls, merges with the road nor hides the traveler. At 140×196 preserve hierarchy moon > uncertain road and traveler > paired towers > dog and wolf. Add no second person, third animal, observatory, lantern, staff, giant wheel, water channel, four-way crossing, confident forward stride, horror eyes, letter, numeral, pseudo-writing or floating symbol.",
+  "the-sun":
+    "Show exactly two fully clothed children running together in one open sunflower courtyard and exactly one fully clothed adult watching from a clearly separate respectful background position. Show exactly one immense clear sun disk total, fully inside the frame and visually distinct from the flowers; no other sun, star, halo or circular sky ornament. Arrange the two children side-by-side without body overlap across the central lower half. Show exactly four complete arms ending in four natural five-digit hands and four complete running legs and feet, separated by visible background gaps, with at least one grounded foot per child at 140×196. Keep the distant adult small and not directly behind either child; keep ordinary sunflowers at the side edges so they never resemble extra sun disks. Use one low open garden wall. Keep hierarchy single sun > two running children > open wall and distant adult. Add no fourth person, horse, animal, nudity, banner, sign, letter, numeral, pseudo-writing, floating glyph, wheel, road junction or harsh glare that erases faces or hands.",
+  judgement:
+    "Use a medium-wide eye-level view of exactly four fully clothed living adults rising from seated rest together in one open civic square and turning toward exactly one large high bronze bell. Place the bell and its one plain sturdy frame alone in the upper third; it is the sole bell or horn-like sound object, with a visible swing and no supernatural figure. Arrange the four adults as two nonoverlapping pairs across the middle, each with a visible seat and a clear bent-to-standing posture. At 140×196 show every face and at least one unobscured action hand per adult; all other limbs remain anatomically complete. Place exactly two plain open wooden record boxes side-by-side in the lower center, clear of every foot. Boxes may show ordinary wood grain and construction edges but contain no paper, writing line, label, seal, emblem, letter, numeral, pseudo-writing or decorative mark. Keep hierarchy bell > shared turn-and-rise action > two boxes. Add no fifth person, grave, coffin, corpse, skeleton, angel, wing, trumpet, religious insignia, animal, banner, sun disk, text or resurrection spectacle.",
+  "the-world":
+    "Show exactly one fully clothed adult gardener alone in a balanced centered dance inside exactly one complete closed oval living wreath. The dancer holds exactly two short plain cloth ribbons total, one in each visible natural five-digit hand; the ribbons do not join, write, bind or form a glyph. Use exactly four and only four bold high-contrast stone head bas-reliefs, each about 8–12 percent of frame height and physically attached to four separate corner plinths outside the wreath: a human head upper-left, an eagle head and beak upper-right, a bull head and horns lower-left and a lion head and mane lower-right. Keep clear background space between each relief and the wreath. They are inanimate architectural carvings, never living animals, floating icons or a collage, and none overlaps the dancer. Keep the complete wreath, full dancer, both hands, both ribbons and four corner reliefs readable at 140×196, with hierarchy dancer and closed wreath > four guardians > two ribbons. Add no second person, fifth guardian relief, additional animal figure, incomplete wreath, exposed nudity, large star, sun, moon, zodiac mark, letter, numeral, pseudo-writing, border or floating symbol.",
+  "wands-2":
+    "Show exactly one fully clothed adult maker and exactly two and only two straight bark-textured wooden staffs total. The maker stands behind one solid uninterrupted stone parapet with no railing posts. Staff 1 is held upright in the maker's right natural five-digit hand with both endpoints and its full shaft visible. Staff 2 stands separately upright in one low plain open-front stone holder that does not cover its lower tip; both endpoints and its full shaft remain visible. The left natural five-digit hand rests open on exactly one folded route cloth spread on the parapet. The cloth shows only a few broad unmarked terrain color fields and has no route line, border, grid, arrow, compass, seal, letter, numeral, pseudo-writing or decorative mark. Keep a visible background gap between both staffs, every hand, the cloth and the person at 140×196, with hierarchy maker and two staffs > blank cloth > broad horizon. Use treeless distant hills and solid stone architecture. Add no second person, animal, globe, map symbol, path line, branch, tree, fence, railing post, column, mast, pole, rod, tool handle, third staff or other elongated wooden object.",
+  "wands-3":
+    "Show exactly three fully clothed people total: one young traveler large in the foreground and exactly two small distant caravan walkers returning together on one continuous valley road. The two distant walkers lead exactly one calm pack mule carrying only soft cloth bundles with no rigid frame, pole or protruding object. Show exactly three and only three straight bark-textured wooden staffs total, all planted upright beside the foreground traveler; each staff has a separately visible top, full unbroken shaft and ground contact, with background gaps between all three and no hand touching them. Keep hierarchy three planted staffs and waiting traveler > returning caravan > widening valley at 140×196. Use treeless slopes, low stone edges and soft cloth cargo. Add no fourth person, second animal, cart, wagon, wheel, harness shaft, ship, ocean, map, banner, sign, branch, tree, fence, post, column, mast, pole, rod, tool handle, fourth staff or other elongated wooden object.",
+  "wands-4":
+    "Show exactly four fully clothed adults total as two friendly nonromantic neighbor pairs greeting with open natural five-digit hands in one stone harvest courtyard. Show exactly four and only four straight bark-textured vertical staffs as the four distinct support posts of one simple open cream canopy with one restrained flower garland. At 140×196 each post must have its own countable top end or top attachment, independent centerline and substantial visible shaft segment below that attachment. Natural partial occlusion of an inner post by one required adult, canopy perspective or ground scenery is allowed, and its lower endpoint need not be visible; occlusion must never erase a post identity, merge two posts, split one post or create a fifth post. The canopy and garland must read as one coherent four-post structure in believable perspective, never as a wooden crossbar. Keep hierarchy four support-post identities and canopy > shared greeting > open courtyard. Use stone walls and low ground flowers only. Add no fifth person, wedding clothing, bridal veil, arch, paired Lovers path, tree, branch, fence, railing, column, mast, pole, rod, tool handle, fifth staff or other elongated wooden object beyond the required four staffs.",
+  "wands-6":
+    "Use a medium-wide returning-procession view with exactly six fully clothed people total and exactly one calm horse. One rider carries exactly one upright bark-textured wooden staff tied with one small plain laurel sprig; exactly five walking companions each carry exactly one separate upright bark-textured wooden staff, for exactly six and only six staffs total. Arrange all six staffs in a shallow separated fan with six distinct tops and continuously traceable shafts at 140×196; no two staffs merge, cross, hide behind another staff or resemble the horse tack. Keep the rider and horse largest, the laurel-tied lead staff second and the five companions modestly acknowledging completed work without bowing or worship. Use one broad treeless stone road and low stone walls. Add no seventh person, second animal, chariot, cart, wheel, crown, banner, flag, arch, tree, branch, fence post, column, mast, pole, rod, weapon, tool handle, seventh staff or other elongated wooden object.",
+  "wands-7":
+    "Use a medium-wide high-oblique boundary-defense view with exactly seven fully clothed adults total at two safe elevations. One gardener stands balanced on a broad upper stone terrace and braces exactly one horizontal bark-textured wooden staff across a narrow open stone gate without striking anyone. Exactly six adults remain on the lower terrace, each holding exactly one separate upright bark-textured wooden staff below shoulder height; they stand with firm but nonattacking postures and clear space from the gate. Show exactly seven and only seven staffs total, with the single horizontal upper staff separated from six vertical lower staffs; every lower staff has a distinct top and continuously traceable shaft at 140×196, and no staff crosses, touches or hides another. Use solid stone walls and treeless bare ground, with no drop beside any person. Add no eighth person, animal, injury, thrusting weapon pose, cliff edge, fall, tree, branch, fence, railing post, column, mast, pole, rod, tool handle, eighth staff or other elongated wooden object.",
+  "cups-8":
+    "Use a medium-wide rear three-quarter dusk view with exactly one fully clothed young traveler moving away from the cups toward the quiet inland path in a deliberate slowed stride. Honor only the textual young-traveler face, hair, skin and body traits; neither supplied anchor controls identity, and do not recreate The Fool's pose, cliff, satchel, dog, joyful stride or forward-leap silhouette. Show exactly eight and only eight intact blue handled cups on one low stepped stone wall with three shallow ledges: exactly three cups on the lower ledge, exactly three on the middle ledge and exactly two on the upper ledge. Every cup has a complete separately visible gold rim, blue body, flat base and single open handle, with background gaps between all cup silhouettes; no cup nests in, merges with, hides or directly balances on another cup. Keep the traveler, wall, all eight cups and inland path mutually unobstructed at 140×196, with hierarchy eight cups left intact > deliberate departure > calm dusk shoreline and path. Add no second person, animal, ninth cup, spill, bowl, plate, pitcher, jar, bottle, vase, other vessel, tableware, cliff edge, jump, text or mark.",
+  "cups-9":
+    "This reviewed lock overrides the earlier plural Recurring cast wording for this card: show exactly one host who is one adult member of that community; every other community member is off-frame, with no reciprocal partner, guest or background human silhouette. Use a close three-quarter interior view with that one fully clothed grounded host and exactly one freestanding three-tier wooden serving stand. The stand has four visible floor contacts and clear background gaps from every wall, table and person; it is not a wall niche, alcove shelf, cabinet or built-in fixture. Show exactly nine and only nine blue handled cups on the stand: exactly three complete cups per tier. The ninth cup already rests with its entire flat base on the upper tier while the host stands beside the stand and releases only that cup with fingertips; the hand, arm and body hide no cup. Every cup has a complete separately visible gold rim, blue body, flat base and single open handle, with gaps between all nine silhouettes and no nesting, merging or overlap. Use only the target's textual host direction; neither supplied anchor controls identity, cast, group size, pose, feast layout or composition. Keep one or two bare cleared rectangular wooden tables in the background with nothing on them. Beyond the required nine cups add no cup, mug, bowl, plate, pitcher, jar, bottle, vase, tableware, circular vessel, food, second person, crown, text or mark. At 140×196 require all four stand legs, all three tiers and the three-plus-three-plus-three cup arrangement simultaneously countable, with hierarchy nine cups and stand > releasing hand > satisfied host > bare room.",
+  "swords-2":
+    "This reviewed lock overrides the earlier plural Recurring cast wording: show exactly one fully clothed seated decision-maker who is one adult member of that community; every other community member is off-frame, with no second person, guest, reflection or background human silhouette. Show exactly two steel swords total, both fully sheathed for safety. The person holds one hilt in each natural five-digit hand; only each assigned hand-to-hilt contact is allowed. The two complete sheathed swords cross once in a low broad X entirely in front of an empty stone seat base, below the shoulders and away from the face, neck, torso and every unrelated limb. At the single X crossing allow only a small sheath-over-sheath occlusion while both continuous silhouettes and endpoints remain traceable. A loose removable plain cloth covers only the eyes, leaving nose and mouth clear. Keep both complete swords, hilts, sheaths and hands readable at 140×196. Place two distant branching routes beyond the seat without signs or marks. Add no scale, rack, shield, third blade, exposed edge, text or symbol.",
+  "swords-3":
+    "This reviewed lock overrides the earlier plural Recurring cast wording: show exactly one fully clothed grieving adult who is one member of that community; every other community member is off-frame, with no second person, guest, reflection or background human silhouette. The adult mends one plain rain-darkened red shield-shaped cloth emblem on a simple rectangular sewing frame. Exactly three and only three complete sheathed steel swords rest on one separate wall rack behind and above the cloth: one centered vertical sword and two diagonals. The two diagonal swords cross the centered sword at two different heights; the diagonals never cross, touch or hide each other, and all three hilts, sheaths and endpoints remain separately traceable at 140×196. No sword touches, pierces or hides the cloth or person. Show one short visible mending thread joined to one ordinary needle in the person's natural hand. Add no anatomical heart, heart decoration, wound, blood, fourth sword, extra needle, weapon in hand, letter, numeral, mark or text.",
+  "swords-4":
+    "This reviewed lock overrides the earlier plural Recurring cast wording: show exactly one fully clothed traveler who is one adult member of that community; every other community member is off-frame, with no second person, guest, reflection or background human silhouette. Use the required wide afternoon exterior with the traveler sitting upright on one stone bench, eyes closed, both natural hands relaxed and empty. On one low rectangular cream cloth before the bench place exactly four and only four complete sheathed steel swords side by side in one horizontal row, with parallel shafts, four distinct hilts, four distinct tips and gaps between all silhouettes at 140×196. The open shelter is simple stone with no post, decoration or shadow shaped like another sword. Add no lying figure, bed, tomb, rack, planted or wall-mounted blade, fifth sword, injury, text or mark.",
+  "swords-6":
+    "This reviewed lock overrides the earlier plural Recurring cast wording: show exactly the named three fully clothed people in one small ferry—one grounded ferryperson at the stern and exactly two seated passengers; every other community member is off-frame, with no fourth person, guest, reflection or background human silhouette. Keep all three separated and safe. At the bow, exactly six and only six complete sheathed steel swords stand upright in six individual closed rectangular rack slots, arranged as one evenly spaced row with every hilt, sheath and lower slot separately traceable at 140×196; no sword touches or hides a person. The ferryperson uses one broad wooden paddle with a visibly flat paddle blade and brown wood grain, never a sword-like metal object. Show water changing from textured to calm. Add no second boat, sail, mast, pole, seventh sword, exposed blade, panic, funeral cue, text or mark.",
+  "swords-7":
+    "This reviewed lock overrides the earlier plural Recurring cast wording: show exactly one fully clothed cautious planner who is one adult member of that community; every other community member is off-frame, with no second person, guest, reflection or background human silhouette. The planner walks on an unguarded side path and looks back without triumph. Exactly five complete sheathed steel swords are secured to one solid padded rectangular cloth backboard on the person's back; the backboard has no visible rod, pole, slat or shaft-like frame edge. Place the five carried swords in five separated noncrossing lanes with visible cloth gaps from hilt to tip and no sword merging with a limb. Exactly two more complete sheathed swords remain upright in two separated slots of one low camp rack. Together show exactly seven swords in a clear five-plus-two arrangement at 140×196. Keep one small unfinished camp model made only of angular blocks and one blank cloth, with no round object or writing. Add no tent pole, flag, eighth sword, exposed blade, theft caricature, text or mark.",
+  "swords-8":
+    "This reviewed lock overrides the earlier plural Recurring cast wording: show exactly one fully clothed grounded adult who is one member of that community; every other community member is off-frame, with no second person, guest, reflection or background human silhouette. The adult wears one loose removable eye cloth and keeps both natural five-digit hands open, visible and completely unbound. Exactly eight and only eight complete sheathed steel swords stand in eight wide stone sockets as an incomplete boundary: four separated swords on viewer-left and four on viewer-right, with a broad obvious exit gap behind the person. Each sword has a distinct hilt, full sheath and socket contact, and no sword touches, crosses or hides another sword or the body at 140×196. Keep stable level ground. Use a visibly hesitant guarded stance—shoulders drawn and feet paused away from the exit that the eye-clothed adult cannot see, while the broad gap remains fully visible to the viewer—so the scene reads as perceived self-restriction and uncertainty. The body remains unbound and safe. Do not depict serene meditation, voluntary rest, a seat, crossed swords or branching decision routes. Add no rope, cord, binding, prison wall, ninth sword, exposed point, injury, text or mark.",
+  "swords-9":
+    "This reviewed lock overrides the earlier plural Recurring cast wording and replaces the earlier singular repetitive-row wording for this card: show exactly one fully clothed wakeful adult who is one member of that community; every other community member is off-frame, with no second person, guest, reflection or background human silhouette. The adult sits upright on the side of a bed before dawn, both natural hands covering only the lower face while eyes and breathing space remain visible. On the side wall beside—not above—the bed, use only one rectangular rack containing exactly nine and only nine complete sheathed steel swords, each in its own separated horizontal slot, arranged as three distinct rows of three. Every sword has a distinct hilt, sheath and endpoints, with the strict three-by-three grid countable at 140×196 and no sword shadow forming a tenth identity. Keep first light at one plain window and a rumpled but ordinary blanket. Add no monster, ghost, self-harm action, wound, blood, tenth sword, exposed blade, text or mark.",
+  "pentacles-2":
+    "This reviewed lock overrides the cast description's unavailable The Fool facial-structure reference and replaces the earlier infinity-shaped Supporting symbol with one ordinary nonsymbolic connector cord: honor only the explicit medium-brown skin, short dark curls, open expression and plum-and-cream clothing; neither supplied anchor controls identity. Show exactly one fully clothed young traveler with no second person, guest, reflection or background human silhouette, working calmly at one sparse bench with exactly two antique-gold pentacle disks total. One complete disk lies centered on each of two shallow rectangular wooden work trays, with both disks fully visible, separated and equal in size. Exactly one continuous loose cream cord joins the tray handles in one broad non-self-crossing slack U-curve; it never forms an infinity sign, figure eight, floating glyph or other symbol, and touches neither disk nor hand. The traveler shifts the trays with two visible natural hands while changing weather appears only beyond one window. Add no third disk, coin, plate, bowl, circular tool, juggling pose, four-suit table, letter, numeral, text or mark.",
+  "pentacles-3":
+    "This reviewed lock overrides the earlier open-ended Recurring cast wording: show exactly the three named fully clothed collaborators at one stone arch under construction; every other community member is off-frame, with no fourth person, guest, reflection or background human silhouette. Give each collaborator a distinct role and unobstructed face: one aligns a rectangular block, one points with an open natural hand, and one holds a single blank unmarked planning cloth. Integrate exactly three and only three complete antique-gold pentacle disks into three separated square joint recesses across the arch, with background gaps and no disk hidden by hand, person, block or tool at 140×196. Use only angular stone blocks and one plain wooden straightedge. Add no round tool, button, plate, model, workbench clutter, fourth disk, writing, text or mark.",
+  "pentacles-4":
+    "This reviewed lock overrides the earlier open-ended Recurring cast wording and replaces the earlier busy-market wording: show exactly one fully clothed storekeeper with a guarded but humane posture; every other community member is off-frame, with no second person, guest, reflection or background human silhouette. Show exactly four antique-gold pentacle disks total. The storekeeper holds one complete disk flat against the upper chest with both natural hands around its outer edge without hiding its center. Exactly three more complete disks sit separately in three square open-front shelf slots arranged in one horizontal row behind, for a clear one-plus-three count at 140×196. Keep one closed plain rectangular ledger with a completely blank cover. Outside show only unoccupied angular stalls and cloth awnings, with no person, human silhouette, circular sign or round ware. Add no crown, plate, coin pile, fifth disk, round fruit, letter, numeral, text or mark.",
+  "pentacles-6":
+    "This reviewed lock overrides the earlier open-ended Recurring cast wording: show exactly three fully clothed adults total standing at equal eye level around one open market desk—one neutral steward centered and exactly two recipients on opposite sides; every other community member is off-frame, with no fourth person, guest, reflection or background human silhouette. Use no kneeling or savior pose. The explicit Pentacles-6 direction overrides only the general Major-signature warning: show exactly one small utilitarian level market balance with two equal empty shallow rectangular pans behind the desk as a secondary fairness cue, never a monumental Justice silhouette. On the desk place exactly two shallow rectangular allocation trays, one before each recipient, with exactly three complete antique-gold pentacle disks per tray. The steward slides one tray toward each recipient with two open hands touching only tray edges while both recipients reach toward their own tray without covering any disk. Keep all six disks separated and countable as three-plus-three at 140×196. Keep one open blank ledger with featureless pages. Add no round scale weight, loose coin, plate, seventh disk, sword, crown, writing, text or mark.",
+  "pentacles-7":
+    "This reviewed lock overrides the cast description's unavailable The Lovers facial-structure reference: honor only the explicit deep-brown skin, long braids with thin linear gold thread wraps and blue-and-ochre clothing; use no round bead, disk, coin, medallion or pentacle-shaped hair detail, and neither supplied anchor controls identity. Show exactly one fully clothed braided gardener with no second person, guest, reflection or background human silhouette, paused in patient review beside exactly one trellised crop row. Attach exactly seven and only seven complete antique-gold pentacle marker disks to seven separated square wooden plaques along the row, arranged four lower and three upper with every disk fully visible and gaps between all silhouettes at 140×196. The gardener holds exactly one lowered broad-headed garden hoe, clearly wood and iron and not another marker; its head has no circular hole, rivet or disk-like detail. Use leafy nonfruiting vines and small angular leaves only. Add no pomegranate, wheat bundle, round fruit, flower center resembling a disk, eighth disk, seated Empress pose, text or mark.",
+  "pentacles-8":
+    "This reviewed lock overrides the cast description's unavailable The Lovers facial-structure reference: honor only the explicit olive skin, short copper curls and green-and-cream clothing; neither supplied anchor controls identity. Show exactly one fully clothed copper-haired maker with no second person, guest, reflection or background human silhouette, at one sparse apprenticeship bench with exactly eight antique-gold pentacle disks total. One complete disk lies flat on one square work pad beneath a single small engraving tool held by one natural hand; the engraving tip touches only the outer rim and covers neither the disk perimeter nor its central five-point mark. Exactly seven completed disks hang separately on one tall open rectangular rack as four disks in the upper row and three in the lower row, with all seven plus the work disk fully visible and countable at 140×196. Keep every disk clear of buttons, plates and round tool parts; the other hand steadies only the square pad. Add no four-suit tools, architectural model, ninth disk, writing, text or mark.",
+  "pentacles-9":
+    "This reviewed lock overrides the cast description's unavailable The Star facial-structure reference: honor only the explicit older East Asian appearance, silver bob and indigo-and-ochre clothing; neither supplied anchor controls identity. Show exactly one fully clothed elder steward with no second person, guest, reflection or background human silhouette, walking alone through a mature walled herb garden. Show exactly one natural falcon resting calmly on one gloved hand and no other animal. Mark the completed garden with exactly nine and only nine complete antique-gold pentacle disks fixed to nine separated low square stone plot markers, arranged as three visible groups of three along one open path. Every disk remains fully inside the frame, separated from foliage, glove, bird and wall, and countable at 140×196. Use herbs, grasses and angular leaves without fruit or round flower centers. Add no pomegranate, grape, coin pile, decorative star, tenth disk, text or mark.",
+});
+const reviewedCardPromptLockHistory = Object.freeze({
+  "wands-4-v1": Object.freeze({
+    cardId: "wands-4",
+    throughAttemptNumber: 7,
+    lock: "Show exactly four fully clothed adults total, arranged as two friendly nonromantic neighbor pairs greeting with open natural five-digit hands in one stone harvest courtyard. Show exactly four and only four straight bark-textured wooden staffs total, one at each corner of a simple open canopy; all four vertical staffs must have separately visible tops, continuous shafts and ground contacts at 140×196. Suspend one plain square cloth canopy and one restrained flower garland from soft ropes tied directly between the four staff tops; use no wooden crossbar, beam or additional support. Keep all people separated from the four staffs and hierarchy four-staff canopy > shared greeting > open courtyard. Use stone walls and low ground flowers only. Add no fifth person, wedding clothing, bridal veil, arch, paired Lovers path, tree, branch, fence, railing, column, mast, pole, rod, tool handle, fifth staff or any other elongated wooden object.",
+  }),
+});
+const reviewedAnimalRuleCardIds = new Set([
+  "swords-2",
+  "swords-3",
+  "swords-4",
+  "swords-6",
+  "swords-7",
+  "swords-8",
+  "swords-9",
+  "pentacles-2",
+  "pentacles-3",
+  "pentacles-4",
+  "pentacles-6",
+  "pentacles-7",
+  "pentacles-8",
+  "pentacles-9",
+]);
+const reviewedMajorReferenceIds = Object.freeze({
+  "the-devil": Object.freeze(["the-lovers", "strength"]),
+});
+const reviewedMajorIdentityReferenceRoles = Object.freeze({
+  "the-devil": Object.freeze({
+    "the-lovers":
+      "Reference 1 (The Lovers) controls only both matching recurring adults' faces, hair, skin tones, ages and body proportions—the copper-haired maker and the braided gardener. Ignore every other source feature and do not copy clothing, pose, action, setting or composition.",
+  }),
+});
+const reviewedCardPromptDirections = Object.freeze({
+  "the-hanged-man": Object.freeze({
+    name: "The Hanged Man—safe voluntary inversion archetype",
+    gesture:
+      "A serene adult aerial-yoga practitioner chooses a controlled one-ankle inverted pose on a low living garden acrobatics frame, with the free leg bent behind and both open hands relaxed.",
+    avoid:
+      "Keep the scene family-friendly, supervised in feeling, stable, padded by deep moss and unmistakably voluntary; show no distress, falling motion or unsafe equipment.",
+  }),
+  "wands-2": Object.freeze({
+    gesture:
+      "The maker studies one folded route cloth showing only broad unlabeled terrain color fields at a high solid stone parapet, holding one upright staff while a second stands upright in a low plain open-front stone holder that leaves its lower tip visible.",
+    dominantSymbol:
+      "exactly two separated upright wooden staffs against a broad horizon",
+  }),
+  "wands-6": Object.freeze({
+    supportingSymbols: Object.freeze([
+      "a returning rider",
+      "exactly five walking companions and no other person",
+    ]),
+  }),
+});
+const reviewedRepairAuthorizationContracts = Object.freeze({
+  "cups-page-attempt-004-repair-authorization-001": Object.freeze({
+    decisionFingerprintSha256:
+      "55fc3d953eaadffc0c9a895b622d7138144eaf74f0f1ceb3b71c387e391678d9",
+    reviewerIds: Object.freeze([
+      "tarot-content-review",
+      "ux-test-review",
+      "final-plan-review",
+    ]),
+  }),
+});
 const releaseSurfaceReviewIds = Object.freeze(["runtimeMap", "metadata", "og"]);
 const normalizationRecipeContract = Object.freeze({
   chromaSubsampling: "4:4:4",
@@ -241,9 +732,12 @@ export function loadCardArtV3Baseline(
     if (
       ![
         "approvals",
+        "batchReviewGates",
         "controlRegistry",
         "generationRecords",
         "legacyAudit",
+        "legacyReviewCorrections",
+        "repairAuthorizations",
         "replacementGates",
         "releaseHistory",
         "styleHistory",
@@ -267,8 +761,65 @@ export function loadCardArtV3Baseline(
   return baseline;
 }
 
-export function buildCardArtV3Prompt(manifest, cardId, referenceRoute = null) {
+function buildMajorReferenceControl(manifest, cardId, card) {
+  const referenceIds =
+    reviewedMajorReferenceIds[cardId] ?? card.legacySeedReferenceIds;
+  const targetCastIds = new Set(card.castIds);
+  const identityReferenceIndex = referenceIds.findIndex((referenceId) =>
+    manifest.cards?.[referenceId]?.castIds?.some((castId) =>
+      targetCastIds.has(castId),
+    ),
+  );
+  const referenceRoles = referenceIds.map((referenceId, index) => {
+    const referenceName = manifest.cards?.[referenceId]?.name ?? referenceId;
+    if (index === identityReferenceIndex) {
+      return (
+        reviewedMajorIdentityReferenceRoles[cardId]?.[referenceId] ??
+        `Reference ${index + 1} (${referenceName}) controls only the matching recurring figure's face, hair, skin tone, age and body proportions. Ignore every other source figure and do not copy clothing, pose, action, setting or composition.`
+      );
+    }
+    return `Reference ${index + 1} (${referenceName}) controls only ink-and-gouache rendering, aged-paper material and compatible palette. It controls no identity, figure, pose, action, object, animal, architecture, path, water, celestial layout or composition.`;
+  });
+  return [
+    "The target card manifest exclusively controls scene, cast, count and composition.",
+    ...referenceRoles,
+    "Do not import any incidental person, garment, object, animal, building, road, water feature, celestial symbol or layout from either reference.",
+  ].join(" ");
+}
+
+function buildReviewedMinorReferenceControl() {
+  return "Follow the Post-pilot reference role lock above; it exclusively controls both supplied anchors. Use neither anchor for cast or recurring-character identity. Do not copy either anchor's source count, pose, action, movement, setting, lighting layout, composition or incidental objects.";
+}
+
+function getReviewedCardPromptLock(cardId, promptLockVersion) {
+  if (promptLockVersion === "current") {
+    return reviewedCardPromptLocks[cardId];
+  }
+  const historical = reviewedCardPromptLockHistory[promptLockVersion];
+  if (!historical || historical.cardId !== cardId) {
+    throw new Error(
+      `Unknown reviewed prompt-lock version "${promptLockVersion}" for ${cardId}.`,
+    );
+  }
+  return historical.lock;
+}
+
+function getGenerationPromptLockVersion(record) {
+  const historical = reviewedCardPromptLockHistory["wands-4-v1"];
+  return record.cardId === historical.cardId &&
+    record.attemptNumber <= historical.throughAttemptNumber
+    ? "wands-4-v1"
+    : "current";
+}
+
+export function buildCardArtV3Prompt(
+  manifest,
+  cardId,
+  referenceRoute = null,
+  promptLockVersion = "current",
+) {
   const card = getCard(manifest, cardId);
+  const reviewedDirection = reviewedCardPromptDirections[cardId];
   const castById = new Map(manifest.cast.map((member) => [member.id, member]));
   const locationById = new Map(
     manifest.locations.map((location) => [location.id, location]),
@@ -302,6 +853,19 @@ export function buildCardArtV3Prompt(manifest, cardId, referenceRoute = null) {
     }
   }
 
+  const reviewedPromptLock = getReviewedCardPromptLock(
+    cardId,
+    promptLockVersion,
+  );
+  if (reviewedAnimalRuleCardIds.has(cardId)) {
+    rules.push(
+      "Animal lock: unless the card direction explicitly requires a living animal or animal-form object, add no animal, bird, fish, insect, animal silhouette or animal-shaped ornament. When one is explicitly required, show exactly the named count and type and no other animal.",
+    );
+  }
+  if (reviewedPromptLock) {
+    rules.push(`Reviewed card lock: ${reviewedPromptLock}`);
+  }
+
   const safety = manifest.difficultCardSafety[cardId];
   if (safety) rules.push(`Safety lock: ${safety}`);
   if (card.needsRetouch) {
@@ -311,19 +875,25 @@ export function buildCardArtV3Prompt(manifest, cardId, referenceRoute = null) {
   return [
     manifest.prompt.shared,
     "",
-    `CARD DIRECTION — ${card.name} (${cardId})`,
-    `Observable scene: ${card.gesture}`,
+    `CARD DIRECTION — ${reviewedDirection?.name ?? card.name} (${cardId})`,
+    `Observable scene: ${reviewedDirection?.gesture ?? card.gesture}`,
     `Recurring cast: ${cast.join(" ")}`,
     `Location family: ${location.description}`,
-    `Dominant symbol: ${card.dominantSymbol}.`,
-    `Supporting symbols: ${card.supportingSymbols.join("; ")}.`,
-    `Card-specific exclusions: ${card.avoid}`,
+    `Dominant symbol: ${reviewedDirection?.dominantSymbol ?? card.dominantSymbol}.`,
+    `Supporting symbols: ${(reviewedDirection?.supportingSymbols ?? card.supportingSymbols).join("; ")}.`,
+    `Card-specific exclusions: ${reviewedDirection?.avoid ?? card.avoid}`,
     "",
     "DECK AND SYMBOL RULES",
     ...rules.map((rule) => `- ${rule}`),
     "",
     "REFERENCE CONTROL",
-    manifest.referencePolicy.instruction,
+    card.arcana === "major" && reviewedPromptLock
+      ? buildMajorReferenceControl(manifest, cardId, card)
+      : card.arcana === "minor" &&
+          reviewedPromptLock &&
+          referenceRoute?.kind === "numbered"
+        ? buildReviewedMinorReferenceControl()
+        : manifest.referencePolicy.instruction,
     "",
     "OUTPUT CONTRACT",
     `Create exactly one borderless portrait illustration composed for ${manifest.frame.aspectRatio}. Keep the card-specific focal silhouette within roughly ${manifest.frame.focalCoveragePercent[0]}–${manifest.frame.focalCoveragePercent[1]} percent of the frame, important faces and hands inside the central ${manifest.frame.centralFocusPercent} percent, and stable grounding scenery in the lower ${manifest.frame.groundingAreaPercent} percent. The final reviewed delivery will be ${manifest.frame.width} by ${manifest.frame.height} pixels in ${manifest.frame.colorSpace}.`,
@@ -368,16 +938,90 @@ export function buildCardArtV3PrecisionEditPrompt(editInstruction) {
   return editInstruction.trim();
 }
 
+function buildCardArtV3FreshControlBasePrompt(basePrompt, controlId = null) {
+  const genericReferenceBlock =
+    /REFERENCE CONTROL\n[\s\S]*?\n\nOUTPUT CONTRACT/;
+  if (!genericReferenceBlock.test(basePrompt)) {
+    throw new Error(
+      "Fresh-control prompt requires one canonical reference block.",
+    );
+  }
+  const usesExplicitGeometryStyleAuthority = new Set([
+    "wands-4-four-clear-staff-lanes-v1",
+    "wands-7-six-isolated-slots-v1",
+  ]).has(controlId);
+  const authoritySafeBasePrompt = usesExplicitGeometryStyleAuthority
+    ? basePrompt.replace(/\n- Post-pilot reference role lock:[^\n]*/g, "")
+    : basePrompt;
+  return authoritySafeBasePrompt.replace(
+    genericReferenceBlock,
+    usesExplicitGeometryStyleAuthority
+      ? [
+          "REFERENCE CONTROL",
+          "Reference image 1 is authoritative only for the reviewed geometry count, connectivity, contact and topology named by the retry constraint. Never copy its color, material, background, vector rendering, identity, cast or diagram style.",
+          "Reference image 2 is authoritative only for Quiet Celestial Storybook rendering, natural body proportion, Wands bark material and the target palette. Never copy its identity, cast, count, action, scene, composition or incidental objects.",
+          "No other image, prior attempt or recent conversation image is an input.",
+          "",
+          "OUTPUT CONTRACT",
+        ].join("\n")
+      : [
+          "REFERENCE CONTROL",
+          "Reference image 1 is authoritative only for the reviewed geometry count, connectivity and topology named by the retry constraint. Never copy its color, background, vector rendering, dimensions or absolute placement.",
+          "Reference image 2 is authoritative only for Quiet Celestial Storybook rendering, natural body proportion, recurring character identity and the target palette. Never copy its scene, pose, path layout, animal or incidental objects.",
+          "No other image, prior attempt or recent conversation image is an input.",
+          "",
+          "OUTPUT CONTRACT",
+        ].join("\n"),
+  );
+}
+
+export function assertCardArtV3RepairAuthorization(authorization) {
+  const reviewed = reviewedRepairAuthorizationContracts[authorization?.id];
+  const reviewerIds = (authorization?.independentReviews ?? []).map(
+    ({ reviewerId }) => reviewerId,
+  );
+  const decisionPayload = {
+    binding: authorization?.binding,
+    independentReviews: authorization?.independentReviews,
+    status: authorization?.status,
+    authorizedAt: authorization?.authorizedAt,
+  };
+  if (
+    !reviewed ||
+    authorization?.status !== "authorized" ||
+    authorization?.decisionFingerprintSha256 !==
+      sha256(stableStringify(decisionPayload)) ||
+    authorization?.decisionFingerprintSha256 !==
+      reviewed.decisionFingerprintSha256 ||
+    stableStringify(reviewerIds) !== stableStringify(reviewed.reviewerIds) ||
+    new Set(reviewerIds).size !== reviewerIds.length ||
+    (authorization?.independentReviews ?? []).some(
+      (review) =>
+        review.independent !== true ||
+        review.result !== "approved" ||
+        !isCanonicalUtcTimestamp(review.reviewedAt),
+    )
+  ) {
+    throw new Error(
+      "Repair authorization does not match its externally frozen independent-review contract.",
+    );
+  }
+  return authorization;
+}
+
 function getCardArtV3PromptRecordInternal(
   files,
   cardId,
   repositoryRoot = defaultRepositoryRoot,
   stageAuthorization = null,
+  auditOnly = false,
 ) {
   validateForPrompt(files, repositoryRoot);
   const manifest = files.manifest;
   const card = getCard(manifest, cardId);
-  assertGenerationStageOpen(files, cardId, stageAuthorization);
+  if (!auditOnly) {
+    assertGenerationStageOpen(files, cardId, stageAuthorization);
+  }
   const referenceRoute = getCardArtV3PostPilotReferenceRoute(
     files.styleHistory,
     card,
@@ -389,9 +1033,9 @@ function getCardArtV3PromptRecordInternal(
     referenceRoute,
   );
   const prompt = buildCardArtV3Prompt(manifest, cardId, referenceRoute);
-  const generator = card.needsRetouch
-    ? manifest.retouchGenerator
-    : manifest.generator;
+  const generator =
+    getCorrectedLegacyRetouchContract(files, cardId)?.generator ??
+    (card.needsRetouch ? manifest.retouchGenerator : manifest.generator);
 
   return {
     cardId,
@@ -424,18 +1068,37 @@ export function getCardArtV3PromptRecord(
   return getCardArtV3PromptRecordInternal(files, cardId, repositoryRoot, null);
 }
 
+export function getCardArtV3PromptAuditRecord(
+  files,
+  cardId,
+  repositoryRoot = defaultRepositoryRoot,
+) {
+  return {
+    ...getCardArtV3PromptRecordInternal(
+      files,
+      cardId,
+      repositoryRoot,
+      null,
+      true,
+    ),
+    auditOnly: true,
+  };
+}
+
 function getCardArtV3AttemptRecordInternal(
   files,
   cardId,
   retryConstraint = null,
   repositoryRoot = defaultRepositoryRoot,
   stageAuthorization = null,
+  auditOnly = false,
 ) {
   const promptRecord = getCardArtV3PromptRecordInternal(
     files,
     cardId,
     repositoryRoot,
     stageAuthorization,
+    auditOnly,
   );
   const normalizedRetryConstraint =
     retryConstraint === null ? null : retryConstraint.trim();
@@ -467,17 +1130,48 @@ export function getCardArtV3AttemptRecord(
   );
 }
 
-export function getCardArtV3ReviewedAttemptRecord(
+export function getCardArtV3AttemptAuditRecord(
+  files,
+  cardId,
+  retryConstraint = null,
+  repositoryRoot = defaultRepositoryRoot,
+) {
+  return {
+    ...getCardArtV3AttemptRecordInternal(
+      files,
+      cardId,
+      retryConstraint,
+      repositoryRoot,
+      null,
+      true,
+    ),
+    auditOnly: true,
+  };
+}
+
+function getCardArtV3ReviewedAttemptRecordInternal(
   files,
   cardId,
   retryConstraintArtifactPath,
   repositoryRoot = defaultRepositoryRoot,
+  auditOnly = false,
 ) {
   const artifact = loadRetryConstraintArtifact(
     retryConstraintArtifactPath,
     cardId,
     repositoryRoot,
   );
+  const attemptId = `${cardId}-attempt-${String(
+    artifact.attemptNumber,
+  ).padStart(3, "0")}`;
+  if (
+    !auditOnly &&
+    (files.generationRecords.records ?? []).some(
+      (record) => record.id === attemptId,
+    )
+  ) {
+    throw new Error(`${attemptId} is already recorded and cannot be rerun.`);
+  }
   const previousAttempt = (files.generationRecords.records ?? []).find(
     ({ id }) => id === artifact.previousAttemptId,
   );
@@ -506,9 +1200,11 @@ export function getCardArtV3ReviewedAttemptRecord(
   }
   const stageAuthorization = lineageSupersession
     ? getReviewedSupersessionRetryAuthorization(
+        files,
         lineageSupersession,
         artifact,
         cardId,
+        repositoryRoot,
       )
     : null;
   if (
@@ -525,6 +1221,7 @@ export function getCardArtV3ReviewedAttemptRecord(
   }
   const editSource = artifact.editSource;
   const controlReference = artifact.controlReference;
+  const styleReference = artifact.styleReference;
   if (editSource !== null) {
     const sourceAttempt = (files.generationRecords.records ?? []).find(
       ({ id }) => id === editSource.attemptId,
@@ -556,6 +1253,44 @@ export function getCardArtV3ReviewedAttemptRecord(
       );
     }
   }
+  if (stageAuthorization?.repairAuthorizationId) {
+    validateForPrompt(files, repositoryRoot);
+    assertGenerationStageOpen(files, cardId, stageAuthorization);
+    const repair = getRepairAuthorizationForAttempt(
+      files,
+      `${cardId}-attempt-${String(artifact.attemptNumber).padStart(3, "0")}`,
+      repositoryRoot,
+    );
+    return {
+      systemId: files.manifest.systemId,
+      version: files.manifest.version,
+      cardId,
+      attemptNumber: artifact.attemptNumber,
+      previousAttemptId: artifact.previousAttemptId,
+      repairMode: repair.recipe.mode,
+      generator: {
+        tool: repair.recipe.tool,
+        toolVersion: repair.recipe.toolVersion,
+        mode: repair.recipe.mode,
+      },
+      base: repair.authorization.binding.base,
+      mask: repair.authorization.binding.mask,
+      maskSource: repair.authorization.binding.maskSource,
+      neutralOutputPath: repair.neutralOutputPath,
+      recipe: repair.authorization.binding.recipe,
+      retryArtifact: repair.authorization.binding.retryArtifact,
+      script: repair.authorization.binding.script,
+      replacementGate: repair.gateContract,
+      regenerationReason: artifact.reason,
+      retryReview: {
+        artifactPath: artifact.projectRelativePath,
+        artifactSha256: artifact.sha256,
+        result: artifact.result,
+        reviewedAt: artifact.reviewedAt,
+        reviewer: artifact.reviewer,
+      },
+    };
+  }
   const attemptRecord =
     editSource === null
       ? getCardArtV3AttemptRecordInternal(
@@ -564,6 +1299,7 @@ export function getCardArtV3ReviewedAttemptRecord(
           artifact.constraint,
           repositoryRoot,
           stageAuthorization,
+          auditOnly,
         )
       : {
           ...getCardArtV3PromptRecordInternal(
@@ -571,35 +1307,56 @@ export function getCardArtV3ReviewedAttemptRecord(
             cardId,
             repositoryRoot,
             stageAuthorization,
+            auditOnly,
           ),
           editSource: null,
           retryConstraint: artifact.constraint.trim(),
         };
   const effectivePrompt =
-    editSource === null
-      ? attemptRecord.effectivePrompt
-      : buildCardArtV3PrecisionEditPrompt(artifact.constraint);
+    editSource === null && controlReference !== null
+      ? buildCardArtV3AttemptPrompt(
+          buildCardArtV3FreshControlBasePrompt(
+            attemptRecord.prompt,
+            controlReference.id,
+          ),
+          artifact.constraint,
+        )
+      : editSource === null
+        ? attemptRecord.effectivePrompt
+        : buildCardArtV3PrecisionEditPrompt(artifact.constraint);
   return {
     ...attemptRecord,
-    ...(editSource === null
+    ...(editSource === null && controlReference === null
       ? {}
-      : {
-          referenceSha256: {
-            [editSource.attemptId]: editSource.sha256,
-            ...(controlReference === null
-              ? {}
-              : { [controlReference.id]: controlReference.sha256 }),
-          },
-          referenced_image_paths: [
-            resolve(repositoryRoot, editSource.path),
-            ...(controlReference === null
-              ? []
-              : [resolve(repositoryRoot, controlReference.path)]),
-          ],
-        }),
+      : editSource === null
+        ? {
+            referenceSha256: {
+              [controlReference.id]: controlReference.sha256,
+              [styleReference.id]: styleReference.sha256,
+            },
+            referenced_image_paths: [
+              resolve(repositoryRoot, controlReference.path),
+              resolve(repositoryRoot, styleReference.path),
+            ],
+          }
+        : {
+            referenceSha256: {
+              [editSource.attemptId]: editSource.sha256,
+              ...(controlReference === null
+                ? {}
+                : { [controlReference.id]: controlReference.sha256 }),
+            },
+            referenced_image_paths: [
+              resolve(repositoryRoot, editSource.path),
+              ...(controlReference === null
+                ? []
+                : [resolve(repositoryRoot, controlReference.path)]),
+            ],
+          }),
     attemptNumber: artifact.attemptNumber,
     controlReference,
     editSource,
+    styleReference,
     effectivePrompt,
     effectivePromptSha256: sha256(effectivePrompt),
     previousAttemptId: artifact.previousAttemptId,
@@ -611,6 +1368,39 @@ export function getCardArtV3ReviewedAttemptRecord(
       reviewedAt: artifact.reviewedAt,
       reviewer: artifact.reviewer,
     },
+  };
+}
+
+export function getCardArtV3ReviewedAttemptRecord(
+  files,
+  cardId,
+  retryConstraintArtifactPath,
+  repositoryRoot = defaultRepositoryRoot,
+) {
+  return getCardArtV3ReviewedAttemptRecordInternal(
+    files,
+    cardId,
+    retryConstraintArtifactPath,
+    repositoryRoot,
+    false,
+  );
+}
+
+export function getCardArtV3ReviewedAttemptAuditRecord(
+  files,
+  cardId,
+  retryConstraintArtifactPath,
+  repositoryRoot = defaultRepositoryRoot,
+) {
+  return {
+    ...getCardArtV3ReviewedAttemptRecordInternal(
+      files,
+      cardId,
+      retryConstraintArtifactPath,
+      repositoryRoot,
+      true,
+    ),
+    auditOnly: true,
   };
 }
 
@@ -664,6 +1454,21 @@ function loadRetryConstraintArtifact(
         sha256: artifact.controlReferenceSha256,
       }
     : null;
+  const styleReferenceFields = [
+    artifact.styleReferenceId,
+    artifact.styleReferencePath,
+    artifact.styleReferenceSha256,
+  ];
+  const hasStyleReference = styleReferenceFields.some(
+    (value) => value !== undefined,
+  );
+  const styleReference = hasStyleReference
+    ? {
+        id: artifact.styleReferenceId,
+        path: artifact.styleReferencePath,
+        sha256: artifact.styleReferenceSha256,
+      }
+    : null;
   if (
     artifact.schemaVersion !== 1 ||
     artifact.cardId !== cardId ||
@@ -710,7 +1515,7 @@ function loadRetryConstraintArtifact(
       controlReference.path ?? "",
     );
     if (
-      editSource === null ||
+      (editSource === null && styleReference === null) ||
       typeof controlReference.id !== "string" ||
       !new RegExp(`^${cardId}-[a-z0-9-]+-v[0-9]+$`).test(controlReference.id) ||
       controlReference.path !==
@@ -726,6 +1531,23 @@ function loadRetryConstraintArtifact(
       throw new Error(`Invalid immutable control reference for ${cardId}.`);
     }
   }
+  if (hasStyleReference) {
+    const styleApproval = readJson(resolve(repositoryRoot, fileNames.approvals))
+      .records?.[styleReference.id ?? ""];
+    const stylePath = resolve(repositoryRoot, styleReference.path ?? "");
+    if (
+      editSource !== null ||
+      controlReference === null ||
+      typeof styleReference.id !== "string" ||
+      styleReference.path !== `public/cards/v3/${styleReference.id}.jpg` ||
+      styleApproval?.status !== "approved" ||
+      styleApproval?.assetSha256 !== styleReference.sha256 ||
+      !existsSync(stylePath) ||
+      sha256(readFileSync(stylePath)) !== styleReference.sha256
+    ) {
+      throw new Error(`Invalid approved style reference for ${cardId}.`);
+    }
+  }
   if (editSource === null) {
     buildCardArtV3AttemptPrompt("base", artifact.constraint);
   } else {
@@ -735,6 +1557,7 @@ function loadRetryConstraintArtifact(
     ...artifact,
     controlReference,
     editSource,
+    styleReference,
     projectRelativePath,
     sha256: sha256(buffer),
   };
@@ -744,10 +1567,13 @@ function validateForPrompt(files, repositoryRoot) {
   const fingerprint = sha256(
     stableStringify({
       approvals: files.approvals,
+      batchReviewGates: files.batchReviewGates,
       controlRegistry: files.controlRegistry,
       generationRecords: files.generationRecords,
       legacyAudit: files.legacyAudit,
+      legacyReviewCorrections: files.legacyReviewCorrections,
       manifest: files.manifest,
+      repairAuthorizations: files.repairAuthorizations,
       replacementGates: files.replacementGates,
       releaseHistory: files.releaseHistory,
       repositoryRoot,
@@ -765,20 +1591,26 @@ function resolveReferenceRecords(
   cardId,
   repositoryRoot,
   frozenReferenceRoute = undefined,
+  generatedAt = null,
 ) {
   const { approvals, manifest } = files;
   const card = getCard(manifest, cardId);
+  const correctedRetouchContract = getCorrectedLegacyRetouchContract(
+    files,
+    cardId,
+  );
   const legacySources = new Map(
     manifest.legacySources.map((source) => [source.id, source]),
   );
   const usesPromotedSuitAnchors =
     card.arcana === "minor" && !card.batch.startsWith("pilot-");
   const referenceRoute = usesPromotedSuitAnchors ? frozenReferenceRoute : null;
-  const referenceIds = card.needsRetouch
-    ? [cardId]
-    : usesPromotedSuitAnchors
-      ? referenceRoute?.anchorIds
-      : card.legacySeedReferenceIds;
+  const referenceIds =
+    card.needsRetouch || correctedRetouchContract
+      ? [cardId]
+      : usesPromotedSuitAnchors
+        ? referenceRoute?.anchorIds
+        : (reviewedMajorReferenceIds[cardId] ?? card.legacySeedReferenceIds);
 
   if (usesPromotedSuitAnchors && !referenceRoute) {
     throw new Error(
@@ -790,12 +1622,27 @@ function resolveReferenceRecords(
     const legacySource = legacySources.get(referenceId);
     const approval = approvals.records?.[referenceId];
     const referenceCard = manifest.cards?.[referenceId];
+    const approvalAvailableAtGeneration =
+      approval?.status === "approved" &&
+      (generatedAt === null ||
+        Date.parse(approval.batchReviewGateBoundAt ?? approval.reviewedAt) <=
+          Date.parse(generatedAt));
+    const isCorrectedRetouchReference =
+      getCorrectedLegacyRetouchContract(files, referenceId) !== null;
+    const correctedRetouchWasNotYetApproved =
+      isCorrectedRetouchReference &&
+      generatedAt !== null &&
+      (!approval?.reviewedAt ||
+        Date.parse(approval.reviewedAt) > Date.parse(generatedAt));
     const isRetouchedLegacy =
-      manifest.referenceResolution.retouchedLegacyIds.includes(referenceId);
+      manifest.referenceResolution.retouchedLegacyIds.includes(referenceId) ||
+      (isCorrectedRetouchReference && !correctedRetouchWasNotYetApproved);
     const mayUseLegacyRetouchSource =
-      card.needsRetouch === true && referenceId === cardId;
+      (card.needsRetouch === true || correctedRetouchContract !== null) &&
+      referenceId === cardId;
     const mustUseApprovedV3 =
       usesPromotedSuitAnchors ||
+      (approvalAvailableAtGeneration && !mayUseLegacyRetouchSource) ||
       (isRetouchedLegacy && !mayUseLegacyRetouchSource);
 
     if (
@@ -835,9 +1682,11 @@ function resolveReferenceRecords(
 }
 
 function getReviewedSupersessionRetryAuthorization(
+  files,
   supersession,
   artifact,
   cardId,
+  repositoryRoot = defaultRepositoryRoot,
 ) {
   const attemptId = `${cardId}-attempt-${String(
     artifact.attemptNumber,
@@ -846,6 +1695,32 @@ function getReviewedSupersessionRetryAuthorization(
     reviewedSupersessionContracts[supersession?.id]?.authorizations?.[
       attemptId
     ];
+  if (!contract) {
+    const repair = getRepairAuthorizationForAttempt(
+      files,
+      attemptId,
+      repositoryRoot,
+    );
+    if (
+      !repair ||
+      repair.attemptNumber !== artifact.attemptNumber ||
+      repair.previousAttemptId !== artifact.previousAttemptId ||
+      repair.retryArtifactPath !== artifact.projectRelativePath ||
+      repair.retryArtifactSha256 !== artifact.sha256 ||
+      stableStringify(repair.editSource) !==
+        stableStringify(artifact.editSource)
+    ) {
+      throw new Error(
+        `Superseded ${cardId} may only use its exact independently reviewed repair authorization.`,
+      );
+    }
+    return {
+      attemptNumber: artifact.attemptNumber,
+      repairAuthorizationId: repair.authorization.id,
+      retryArtifactSha256: artifact.sha256,
+      supersessionId: supersession.id,
+    };
+  }
   const exactArtifactBinding = {
     attemptNumber: artifact.attemptNumber,
     editSource: artifact.editSource,
@@ -901,6 +1776,7 @@ function getUnresolvedSupersessions(files) {
 function assertGenerationStageOpen(files, cardId, stageAuthorization = null) {
   const { approvals, manifest, styleHistory } = files;
   const card = getCard(manifest, cardId);
+  const effectiveLegacyDecision = getEffectiveLegacyDecision(files, cardId);
   const unresolvedSupersessions = getUnresolvedSupersessions(files);
   if (unresolvedSupersessions.length > 0) {
     const supersession = unresolvedSupersessions.find(
@@ -913,26 +1789,58 @@ function assertGenerationStageOpen(files, cardId, stageAuthorization = null) {
       reviewedSupersessionContracts[supersession?.id]?.authorizations?.[
         attemptId
       ];
+    const repairAuthorization = stageAuthorization?.repairAuthorizationId
+      ? getRepairAuthorizationForAttempt(files, attemptId)
+      : null;
+    const hasReviewedAuthorization =
+      (reviewedAuthorization?.attemptNumber ===
+        stageAuthorization?.attemptNumber &&
+        reviewedAuthorization?.retryArtifactSha256 ===
+          stageAuthorization?.retryArtifactSha256) ||
+      (repairAuthorization?.authorization?.id ===
+        stageAuthorization?.repairAuthorizationId &&
+        repairAuthorization?.attemptNumber ===
+          stageAuthorization?.attemptNumber &&
+        repairAuthorization?.retryArtifactSha256 ===
+          stageAuthorization?.retryArtifactSha256);
     if (
       unresolvedSupersessions.length !== 1 ||
       !supersession ||
       supersession.cardId !== cardId ||
-      reviewedAuthorization?.attemptNumber !==
-        stageAuthorization.attemptNumber ||
-      reviewedAuthorization?.retryArtifactSha256 !==
-        stageAuthorization.retryArtifactSha256
+      !hasReviewedAuthorization
     ) {
       throw new Error(
         `${cardId} generation is closed until the unresolved court replacement passes its exact reviewed retry and replacement contact-sheet gate.`,
       );
     }
+    const authorizedAttemptId = `${cardId}-attempt-${String(
+      stageAuthorization.attemptNumber,
+    ).padStart(3, "0")}`;
+    if (
+      (files.generationRecords.records ?? []).some(
+        (record) => record.id === authorizedAttemptId,
+      )
+    ) {
+      throw new Error(
+        `${authorizedAttemptId} is already recorded and cannot be rerun.`,
+      );
+    }
   }
-  if (card.disposition === "keep" && card.needsRetouch !== true) {
+  if (
+    card.disposition === "keep" &&
+    effectiveLegacyDecision === "keep" &&
+    card.needsRetouch !== true
+  ) {
     throw new Error(
       `${cardId} is approved for byte-identical legacy reuse and must not be regenerated.`,
     );
   }
-  if (card.needsRetouch === true) return;
+  if (
+    card.needsRetouch === true ||
+    (card.disposition === "keep" && effectiveLegacyDecision === "retouch")
+  ) {
+    return;
+  }
 
   const missingRetouchIds =
     manifest.referenceResolution.retouchedLegacyIds.filter(
@@ -970,6 +1878,33 @@ function assertGenerationStageOpen(files, cardId, stageAuthorization = null) {
     throw new Error(
       `${cardId} is closed until all 12 non-pilot court cards pass the court-validation gate.`,
     );
+  }
+  const productionBatchIndex = sequentialProductionBatchIds.indexOf(card.batch);
+  if (productionBatchIndex === -1) return;
+  for (const requiredBatchId of sequentialProductionBatchIds.slice(
+    0,
+    productionBatchIndex,
+  )) {
+    const gate = (files.batchReviewGates?.entries ?? []).find(
+      (entry) => entry.batchId === requiredBatchId,
+    );
+    const missingApprovalIds = canonicalTarotCardIds
+      .filter((id) => manifest.cards[id].batch === requiredBatchId)
+      .filter(
+        (id) =>
+          approvals.records?.[id]?.status !== "approved" ||
+          approvals.records[id].batchReviewGateId !== gate?.id,
+      );
+    if (
+      !gate ||
+      gate.status !== "passed" ||
+      gate.result !== "approved" ||
+      missingApprovalIds.length > 0
+    ) {
+      throw new Error(
+        `${cardId} is closed until ${requiredBatchId} passes its exact frozen batch review and every card approval is committed atomically.`,
+      );
+    }
   }
 }
 
@@ -1017,10 +1952,13 @@ export function validateCardArtV3System(
 ) {
   const {
     approvals,
+    batchReviewGates,
     controlRegistry,
     generationRecords,
     legacyAudit,
+    legacyReviewCorrections,
     manifest,
+    repairAuthorizations,
     replacementGates,
     releaseHistory,
     styleHistory,
@@ -1331,9 +2269,22 @@ export function validateCardArtV3System(
   );
 
   validateLegacyAudit(legacyAudit, manifest, repositoryRoot, errors);
+  validateLegacyReviewCorrections({
+    errors,
+    legacyAudit,
+    legacyReviewCorrections,
+    repositoryRoot,
+  });
 
   validateEnvelope(approvals, manifest, "approvals", errors);
+  validateEnvelope(batchReviewGates, manifest, "batchReviewGates", errors);
   validateEnvelope(generationRecords, manifest, "generationRecords", errors);
+  validateEnvelope(
+    repairAuthorizations,
+    manifest,
+    "repairAuthorizations",
+    errors,
+  );
   validateEnvelope(replacementGates, manifest, "replacementGates", errors);
   validateEnvelope(styleHistory, manifest, "styleHistory", errors, false);
   validateEnvelope(releaseHistory, manifest, "releaseHistory", errors, false);
@@ -1363,6 +2314,11 @@ export function validateCardArtV3System(
   const generationById = new Map(
     (generationRecords.records ?? []).map((record) => [record.id, record]),
   );
+  validateRepairAuthorizations({
+    errors,
+    repairAuthorizations,
+    repositoryRoot,
+  });
   const supersessionByAttemptId = validateSupersessions({
     errors,
     generationById,
@@ -1372,11 +2328,21 @@ export function validateCardArtV3System(
   });
   const replacementGateByAttemptId = validateReplacementGates({
     errors,
+    files,
     generationById,
     manifest,
     replacementGates,
     repositoryRoot,
     supersessionByAttemptId,
+    supersessions,
+  });
+  const batchReviewGateByCardId = validateBatchReviewGates({
+    batchReviewGates,
+    errors,
+    files,
+    generationById,
+    manifest,
+    repositoryRoot,
     supersessions,
   });
   const supersededNormalizedShaByCard = new Map();
@@ -1391,6 +2357,40 @@ export function validateCardArtV3System(
   for (const [cardId, approval] of approvalEntries) {
     const label = `approvals.records.${cardId}`;
     const generation = generationById.get(approval.generationRecordId);
+    const cardBatch = manifest.cards?.[cardId]?.batch;
+    const batchReviewGate = batchReviewGateByCardId.get(cardId);
+    const requiresBatchReviewGate =
+      Boolean(batchReviewGate) ||
+      (typeof cardBatch === "string" &&
+        !cardBatch.startsWith("pilot-") &&
+        cardBatch !== "court-validation-a" &&
+        approval.provenance !== "retouched-v3");
+    if (requiresBatchReviewGate && !batchReviewGate) {
+      errors.push(`${label} requires an externally frozen batch review gate.`);
+    } else if (
+      batchReviewGate &&
+      approval.batchReviewGateId !== batchReviewGate.id
+    ) {
+      errors.push(
+        `${label}.batchReviewGateId must bind its passing batch gate.`,
+      );
+    } else if (
+      !requiresBatchReviewGate &&
+      approval.batchReviewGateId !== undefined
+    ) {
+      errors.push(`${label}.batchReviewGateId is not allowed for this stage.`);
+    }
+    if (
+      approval.batchReviewGateBoundAt !== undefined &&
+      (!batchReviewGate ||
+        !isCanonicalUtcTimestamp(approval.batchReviewGateBoundAt) ||
+        Date.parse(approval.batchReviewGateBoundAt) <
+          Date.parse(batchReviewGate.reviewedAt))
+    ) {
+      errors.push(
+        `${label}.batchReviewGateBoundAt must be a canonical time at or after its passing gate.`,
+      );
+    }
     if (!canonicalTarotCardIds.includes(cardId))
       errors.push(`${label} is not canonical.`);
     if (approval.status !== "approved")
@@ -1446,11 +2446,13 @@ export function validateCardArtV3System(
         `${label}.promptSha256 must be null for byte-identical legacy reuse.`,
       );
     }
-    const auditDecision = legacyAudit.records?.[cardId]?.decision;
-    const needsRetouch = manifest.cards?.[cardId]?.needsRetouch === true;
+    const effectiveLegacyDecision = getEffectiveLegacyDecision(files, cardId);
+    const needsRetouch =
+      manifest.cards?.[cardId]?.needsRetouch === true ||
+      effectiveLegacyDecision === "retouch";
     const expectedProvenance = needsRetouch
       ? "retouched-v3"
-      : auditDecision === "keep"
+      : effectiveLegacyDecision === "keep"
         ? "legacy-v2"
         : "generated-v3";
     if (approval.provenance !== expectedProvenance) {
@@ -1458,7 +2460,10 @@ export function validateCardArtV3System(
         `${label}.provenance must be ${expectedProvenance} for its reviewed disposition.`,
       );
     }
-    if (approval.provenance === "legacy-v2" && auditDecision !== "keep") {
+    if (
+      approval.provenance === "legacy-v2" &&
+      effectiveLegacyDecision !== "keep"
+    ) {
       errors.push(
         `${label} can reuse v2 bytes only after a keep audit decision.`,
       );
@@ -1554,19 +2559,53 @@ export function validateCardArtV3System(
     if (!canonicalTarotCardIds.includes(record.cardId))
       errors.push(`${label}.cardId is not canonical.`);
     const card = manifest.cards?.[record.cardId];
+    const correctedLegacyRetouchContract = getCorrectedLegacyRetouchContract(
+      files,
+      record.cardId,
+    );
+    const isLegacyRetouch =
+      card?.needsRetouch === true || correctedLegacyRetouchContract !== null;
     const lineageSupersession = getLineageSupersession(
       supersessions?.entries ?? [],
       record.cardId,
       record.attemptNumber,
     );
-    const reviewedLineageAuthorization =
+    let reviewedLineageAuthorization =
       reviewedSupersessionContracts[lineageSupersession?.id]?.authorizations?.[
         record.id
       ];
+    if (lineageSupersession && !reviewedLineageAuthorization) {
+      try {
+        const repairAuthorization = getRepairAuthorizationForAttempt(
+          files,
+          record.id,
+          repositoryRoot,
+        );
+        if (repairAuthorization) {
+          reviewedLineageAuthorization = {
+            attemptNumber: repairAuthorization.attemptNumber,
+            editSource: repairAuthorization.editSource,
+            previousAttemptId: repairAuthorization.previousAttemptId,
+            retryArtifactPath: repairAuthorization.retryArtifactPath,
+            retryArtifactSha256: repairAuthorization.retryArtifactSha256,
+          };
+        }
+      } catch (error) {
+        errors.push(
+          `${label} repair authorization is invalid: ${error.message}`,
+        );
+      }
+    }
     const isDeterministicLocalComposite =
-      !card?.needsRetouch &&
+      !isLegacyRetouch &&
       record.generator?.tool === "Sharp" &&
       record.generator?.mode === "deterministic-local-composite";
+    const isDeterministicLocalColorRepair =
+      !isLegacyRetouch &&
+      record.generator?.tool === "Sharp" &&
+      record.generator?.mode === "deterministic-local-color-repair";
+    const isDeterministicLocalRepair =
+      isDeterministicLocalComposite || isDeterministicLocalColorRepair;
     let localRepairReferenceSha256 = null;
     if (record.batchId !== card?.batch) {
       errors.push(`${label}.batchId does not match the card manifest.`);
@@ -1589,6 +2628,7 @@ export function validateCardArtV3System(
     } catch (error) {
       errors.push(`${label}.referenceRoute is invalid: ${error.message}`);
     }
+    const recordPromptLockVersion = getGenerationPromptLockVersion(record);
     if (
       record.manifestSha256 !== getCardArtV3ManifestSha256(manifest) ||
       record.cardSpecSha256 !==
@@ -1609,11 +2649,11 @@ export function validateCardArtV3System(
         `${label}.referenceRoute must bind the frozen post-pilot style route.`,
       );
     }
-    const expectedGenerator = card?.needsRetouch
-      ? manifest.retouchGenerator
-      : manifest.generator;
+    const expectedGenerator =
+      correctedLegacyRetouchContract?.generator ??
+      (card?.needsRetouch ? manifest.retouchGenerator : manifest.generator);
     if (
-      !isDeterministicLocalComposite &&
+      !isDeterministicLocalRepair &&
       (record.generator?.tool !== expectedGenerator?.tool ||
         record.generator?.mode !== expectedGenerator?.mode)
     ) {
@@ -1622,7 +2662,7 @@ export function validateCardArtV3System(
       );
     }
     if (
-      isDeterministicLocalComposite &&
+      isDeterministicLocalRepair &&
       record.generator?.toolVersion !== "0.34.5"
     ) {
       errors.push(
@@ -1669,6 +2709,77 @@ export function validateCardArtV3System(
           `${label} must bind the exact deterministic retouch path and raw SHA-256.`,
         );
       }
+    } else if (correctedLegacyRetouchContract) {
+      const contract = correctedLegacyRetouchContract;
+      const expectedRepair = {
+        changedInside: contract.changedInside,
+        changedOutside: contract.changedOutside,
+        mask: {
+          path: contract.maskPath,
+          sha256: contract.maskSha256,
+        },
+        script: {
+          path: contract.scriptPath,
+          sha256: contract.scriptSha256,
+        },
+      };
+      if (
+        record.id !== contract.generationRecordId ||
+        record.rawOutputPath !== contract.rawOutputPath ||
+        record.rawOutputSha256 !== contract.rawOutputSha256 ||
+        record.retouchRecipeSha256 !== contract.scriptSha256 ||
+        record.retouchRecipeDefinitionSha256 !==
+          contract.recipeDefinitionSha256 ||
+        record.retouchSourceSha256 !== contract.sourceSha256 ||
+        stableStringify(record.repair) !== stableStringify(expectedRepair)
+      ) {
+        errors.push(
+          `${label} must bind the exact independently reviewed corrected-legacy restoration.`,
+        );
+      }
+      for (const [kind, path, hash] of [
+        ["script", contract.scriptPath, contract.scriptSha256],
+        ["mask", contract.maskPath, contract.maskSha256],
+        ["source", contract.sourcePath, contract.sourceSha256],
+      ]) {
+        const absolutePath = resolve(repositoryRoot, path);
+        if (
+          !existsSync(absolutePath) ||
+          sha256(readFileSync(absolutePath)) !== hash
+        ) {
+          errors.push(`${label} corrected-legacy ${kind} bytes do not match.`);
+        }
+      }
+      try {
+        const rendered = JSON.parse(
+          execFileSync(
+            process.execPath,
+            [resolve(repositoryRoot, contract.scriptPath), "--check"],
+            {
+              cwd: repositoryRoot,
+              encoding: "utf8",
+              stdio: ["ignore", "pipe", "pipe"],
+              timeout: 120000,
+            },
+          ),
+        );
+        if (
+          rendered.outputSha256 !== contract.rawOutputSha256 ||
+          rendered.maskSha256 !== contract.maskSha256 ||
+          rendered.sourceSha256 !== contract.sourceSha256 ||
+          rendered.changedInside !== contract.changedInside ||
+          rendered.changedOutside !== contract.changedOutside ||
+          rendered.recipeDefinitionSha256 !== contract.recipeDefinitionSha256
+        ) {
+          errors.push(
+            `${label} corrected-legacy restoration is not reproducible.`,
+          );
+        }
+      } catch (error) {
+        errors.push(
+          `${label} corrected-legacy restoration reproduction failed: ${error.message}`,
+        );
+      }
     } else if (
       record.retouchRecipeSha256 !== null ||
       record.retouchRecipeDefinitionSha256 !== null ||
@@ -1678,7 +2789,7 @@ export function validateCardArtV3System(
         `${label} retouch provenance must be null for generated cards.`,
       );
     }
-    if (!card?.needsRetouch) {
+    if (!isLegacyRetouch) {
       const expectedAttemptId = `${record.cardId}-attempt-${String(
         record.attemptNumber,
       ).padStart(3, "0")}`;
@@ -1771,14 +2882,52 @@ export function validateCardArtV3System(
           record.retryConstraint !== null ||
           record.retryReview !== null ||
           record.editSource !== null ||
-          record.controlReference !== null
+          record.controlReference !== null ||
+          (record.styleReference !== null &&
+            record.styleReference !== undefined)
         ) {
           errors.push(
             `${label} deterministic local repair prompt and retry fields must all be null.`,
           );
         }
-        localRepairReferenceSha256 = validateDeterministicLocalComposite({
+        localRepairReferenceSha256 =
+          record.cardId === "the-devil"
+            ? validateDevilDeterministicLocalComposite({
+                errors,
+                label,
+                previousAttempt,
+                record,
+                repositoryRoot,
+                seenAttemptsById: seenImageGenAttemptsById,
+              })
+            : validateDeterministicLocalComposite({
+                errors,
+                label,
+                previousAttempt,
+                record,
+                repositoryRoot,
+                seenAttemptsById: seenImageGenAttemptsById,
+              });
+      } else if (isDeterministicLocalColorRepair) {
+        if (
+          record.promptSha256 !== null ||
+          record.effectivePromptSha256 !== null ||
+          record.editSource !== null ||
+          record.controlReference !== null ||
+          (record.styleReference !== null &&
+            record.styleReference !== undefined) ||
+          typeof record.retryConstraint !== "string" ||
+          record.retryConstraint.trim() === "" ||
+          record.retryReview === null ||
+          record.retryReview === undefined
+        ) {
+          errors.push(
+            `${label} deterministic local color repair must keep ImageGen fields null and bind one reviewed retry artifact.`,
+          );
+        }
+        localRepairReferenceSha256 = validateDeterministicLocalColorRepair({
           errors,
+          files,
           label,
           previousAttempt,
           record,
@@ -1802,6 +2951,14 @@ export function validateCardArtV3System(
             `${label}.controlReference must be null without a constraint.`,
           );
         }
+        if (
+          record.styleReference !== null &&
+          record.styleReference !== undefined
+        ) {
+          errors.push(
+            `${label}.styleReference must be null without a constraint.`,
+          );
+        }
       } else if (typeof record.retryConstraint === "string") {
         try {
           const retryArtifact = loadRetryConstraintArtifact(
@@ -1816,9 +2973,15 @@ export function validateCardArtV3System(
             retryArtifact.previousAttemptId !== record.previousAttemptId ||
             retryArtifact.reason !== record.regenerationReason ||
             stableStringify(retryArtifact.editSource) !==
-              stableStringify(record.editSource ?? null) ||
+              stableStringify(
+                isDeterministicLocalColorRepair
+                  ? record.repair?.base
+                  : (record.editSource ?? null),
+              ) ||
             stableStringify(retryArtifact.controlReference) !==
               stableStringify(record.controlReference ?? null) ||
+            stableStringify(retryArtifact.styleReference) !==
+              stableStringify(record.styleReference ?? null) ||
             retryArtifact.result !== record.retryReview?.result ||
             retryArtifact.reviewedAt !== record.retryReview?.reviewedAt ||
             retryArtifact.reviewer !== record.retryReview?.reviewer
@@ -1891,7 +3054,7 @@ export function validateCardArtV3System(
       }
       imageGenRawPaths.add(record.rawOutputPath);
       imageGenRawSha256.add(record.rawOutputSha256);
-      if (!isDeterministicLocalComposite) {
+      if (!isDeterministicLocalRepair) {
         if (
           record.retryConstraint !== null &&
           typeof record.retryConstraint !== "string"
@@ -1902,11 +3065,25 @@ export function validateCardArtV3System(
             const expectedEffectivePrompt =
               record.editSource === null || record.editSource === undefined
                 ? buildCardArtV3AttemptPrompt(
-                    buildCardArtV3Prompt(
-                      manifest,
-                      record.cardId,
-                      recordReferenceRoute,
-                    ),
+                    record.controlReference !== null &&
+                      record.controlReference !== undefined &&
+                      record.styleReference !== null &&
+                      record.styleReference !== undefined
+                      ? buildCardArtV3FreshControlBasePrompt(
+                          buildCardArtV3Prompt(
+                            manifest,
+                            record.cardId,
+                            recordReferenceRoute,
+                            recordPromptLockVersion,
+                          ),
+                          record.controlReference.id,
+                        )
+                      : buildCardArtV3Prompt(
+                          manifest,
+                          record.cardId,
+                          recordReferenceRoute,
+                          recordPromptLockVersion,
+                        ),
                     record.retryConstraint,
                   )
                 : buildCardArtV3PrecisionEditPrompt(record.retryConstraint);
@@ -1935,17 +3112,22 @@ export function validateCardArtV3System(
       }
     }
     if (
-      !isDeterministicLocalComposite &&
+      !isDeterministicLocalRepair &&
       record.promptSha256 !==
         sha256(
-          buildCardArtV3Prompt(manifest, record.cardId, recordReferenceRoute),
+          buildCardArtV3Prompt(
+            manifest,
+            record.cardId,
+            recordReferenceRoute,
+            recordPromptLockVersion,
+          ),
         )
     ) {
       errors.push(`${label}.promptSha256 does not match the current prompt.`);
     }
     let expectedReferenceSha256 = {};
     try {
-      if (isDeterministicLocalComposite) {
+      if (isDeterministicLocalRepair) {
         expectedReferenceSha256 = localRepairReferenceSha256 ?? {};
       } else if (
         record.editSource !== null &&
@@ -2006,6 +3188,43 @@ export function validateCardArtV3System(
             );
           }
         }
+      } else if (
+        record.controlReference !== null &&
+        record.controlReference !== undefined &&
+        record.styleReference !== null &&
+        record.styleReference !== undefined
+      ) {
+        const controlPath = resolve(
+          repositoryRoot,
+          record.controlReference.path ?? "",
+        );
+        const stylePath = resolve(
+          repositoryRoot,
+          record.styleReference.path ?? "",
+        );
+        const styleApproval =
+          files.approvals?.records?.[record.styleReference.id];
+        if (
+          record.controlReference.path !==
+            `art/card-art-v3-controls/${record.controlReference.id}.png` ||
+          !existsSync(controlPath) ||
+          sha256(readFileSync(controlPath)) !==
+            record.controlReference.sha256 ||
+          record.styleReference.path !==
+            `public/cards/v3/${record.styleReference.id}.jpg` ||
+          styleApproval?.status !== "approved" ||
+          styleApproval?.assetSha256 !== record.styleReference.sha256 ||
+          !existsSync(stylePath) ||
+          sha256(readFileSync(stylePath)) !== record.styleReference.sha256
+        ) {
+          throw new Error(
+            "fresh control and style references must bind their reviewed bytes",
+          );
+        }
+        expectedReferenceSha256 = {
+          [record.controlReference.id]: record.controlReference.sha256,
+          [record.styleReference.id]: record.styleReference.sha256,
+        };
       } else {
         expectedReferenceSha256 = Object.fromEntries(
           resolveReferenceRecords(
@@ -2013,6 +3232,7 @@ export function validateCardArtV3System(
             record.cardId,
             repositoryRoot,
             recordReferenceRoute,
+            record.generatedAt,
           ).map(({ id, sha256: hash }) => [id, hash]),
         );
       }
@@ -2052,7 +3272,7 @@ export function validateCardArtV3System(
         `${label}.regenerationReason must be null or a non-empty string.`,
       );
     }
-    if (!card?.needsRetouch) {
+    if (!isLegacyRetouch) {
       latestImageGenAttemptByCard.set(record.cardId, record);
       seenImageGenAttemptsById.set(record.id, record);
     }
@@ -2492,6 +3712,21 @@ export function validateCardArtV3System(
         `${label}.runtimeMapSha256 does not match the complete release map.`,
       );
     }
+    const expectedRuntimeMap = {
+      cardCount: canonicalTarotCardIds.length,
+      cardIds: canonicalTarotCardIds,
+      cards: Object.fromEntries(
+        canonicalTarotCardIds.map((cardId) => [
+          cardId,
+          {
+            assetSha256: release.assetSha256?.[cardId],
+            src: `/cards/v3/${cardId}.jpg`,
+          },
+        ]),
+      ),
+      runtimeMapSha256: expectedRuntimeMapSha256,
+      version: "v3",
+    };
 
     const deckReview = release.independentReviews?.deckContactSheet;
     validateReviewArtifact(
@@ -2511,6 +3746,83 @@ export function validateCardArtV3System(
         `${label}.independentReviews.deckContactSheet.deckAssetMapSha256 must bind the reviewed contact sheet to all 78 released assets.`,
       );
     }
+    const expectedDeckSourceSha256 = canonicalTarotCardIds.map(
+      (cardId) => release.assetSha256?.[cardId],
+    );
+    if (
+      deckReview?.recipeFingerprintSha256 !==
+        sha256(stableStringify(cardArtV3DeckContactSheetRecipe)) ||
+      stableStringify(deckReview?.sourceSha256) !==
+        stableStringify(expectedDeckSourceSha256)
+    ) {
+      errors.push(
+        `${label}.independentReviews.deckContactSheet must lock the deterministic 13x6 recipe and all 78 ordered source SHAs.`,
+      );
+    }
+    if (isProjectRelativePath(deckReview?.artifactPath)) {
+      const deckArtifactPath = resolve(repositoryRoot, deckReview.artifactPath);
+      if (existsSync(deckArtifactPath)) {
+        const deckBuffer = readFileSync(deckArtifactPath);
+        const deckImage = readJpegMetadata(deckBuffer);
+        if (
+          deckReview?.bytes !== deckBuffer.length ||
+          deckReview?.width !== cardArtV3DeckContactSheetRecipe.output.width ||
+          deckReview?.height !==
+            cardArtV3DeckContactSheetRecipe.output.height ||
+          deckImage.width !== cardArtV3DeckContactSheetRecipe.output.width ||
+          deckImage.height !== cardArtV3DeckContactSheetRecipe.output.height
+        ) {
+          errors.push(
+            `${label}.independentReviews.deckContactSheet frame or byte count is invalid.`,
+          );
+        }
+        try {
+          const cacheKey = `deck:${stableStringify({
+            artifactSha256: deckReview.artifactSha256,
+            recipeFingerprintSha256: deckReview.recipeFingerprintSha256,
+            repositoryRoot,
+            sourceSha256: deckReview.sourceSha256,
+          })}`;
+          let rendered = contactSheetCheckCache.get(cacheKey);
+          if (!rendered) {
+            rendered = JSON.parse(
+              execFileSync(
+                process.execPath,
+                [
+                  resolve(
+                    repositoryRoot,
+                    "scripts/card-art-v3-deck-contact-sheet.mjs",
+                  ),
+                ],
+                {
+                  cwd: repositoryRoot,
+                  encoding: "utf8",
+                  stdio: ["ignore", "pipe", "pipe"],
+                  timeout: 120000,
+                },
+              ),
+            );
+            contactSheetCheckCache.set(cacheKey, rendered);
+          }
+          if (
+            rendered.recipeFingerprintSha256 !==
+              deckReview.recipeFingerprintSha256 ||
+            stableStringify(rendered.sourceSha256) !==
+              stableStringify(deckReview.sourceSha256) ||
+            rendered.output?.sha256 !== deckReview.artifactSha256 ||
+            rendered.output?.bytes !== deckReview.bytes
+          ) {
+            errors.push(
+              `${label}.independentReviews.deckContactSheet must exactly reproduce from the released assets.`,
+            );
+          }
+        } catch (error) {
+          errors.push(
+            `${label}.independentReviews.deckContactSheet could not be reproduced: ${error.message}`,
+          );
+        }
+      }
+    }
     for (const check of manifest.generationPlan.finalDeckGateChecks) {
       if (deckReview?.checks?.[check] !== true) {
         errors.push(
@@ -2523,6 +3835,32 @@ export function validateCardArtV3System(
         release.independentReviews?.[reviewId],
         `${label}.independentReviews.${reviewId}`,
       );
+    }
+    const runtimeReview = release.independentReviews?.runtimeMap;
+    if (isProjectRelativePath(runtimeReview?.artifactPath)) {
+      const runtimeArtifactPath = resolve(
+        repositoryRoot,
+        runtimeReview.artifactPath,
+      );
+      if (existsSync(runtimeArtifactPath)) {
+        try {
+          const runtimeArtifact = JSON.parse(
+            readFileSync(runtimeArtifactPath, "utf8"),
+          );
+          if (
+            stableStringify(runtimeArtifact) !==
+            stableStringify(expectedRuntimeMap)
+          ) {
+            errors.push(
+              `${label}.independentReviews.runtimeMap artifact must equal the complete approved release map.`,
+            );
+          }
+        } catch (error) {
+          errors.push(
+            `${label}.independentReviews.runtimeMap artifact is invalid JSON: ${error.message}`,
+          );
+        }
+      }
     }
     const expectedReleaseGateSha256 = sha256(
       stableStringify({
@@ -2571,6 +3909,541 @@ function validateEnvelope(
   ) {
     errors.push(`${label} must contain its records or entries collection.`);
   }
+}
+
+function getRepairAuthorizationForAttempt(
+  files,
+  attemptId,
+  repositoryRoot = defaultRepositoryRoot,
+) {
+  const authorization = (files.repairAuthorizations?.entries ?? []).find(
+    (entry) => entry?.binding?.attemptId === attemptId,
+  );
+  if (!authorization) return null;
+  assertCardArtV3RepairAuthorization(authorization);
+  const binding = authorization.binding;
+  const expectedBindingKeys = [
+    "attemptId",
+    "base",
+    "mask",
+    "maskSource",
+    "neutralOutputPath",
+    "recipe",
+    "retryArtifact",
+    "script",
+  ];
+  if (
+    JSON.stringify(Object.keys(binding)) !== JSON.stringify(expectedBindingKeys)
+  ) {
+    throw new Error("Repair authorization binding shape has drifted.");
+  }
+  for (const [label, artifact] of Object.entries(binding)) {
+    if (label === "attemptId" || label === "neutralOutputPath") continue;
+    if (
+      !isProjectRelativePath(artifact?.path) ||
+      !/^[a-f0-9]{64}$/.test(artifact?.sha256 ?? "")
+    ) {
+      throw new Error(`Repair authorization ${label} binding is invalid.`);
+    }
+    const absolutePath = resolve(repositoryRoot, artifact.path);
+    if (
+      !existsSync(absolutePath) ||
+      sha256(readFileSync(absolutePath)) !== artifact.sha256
+    ) {
+      throw new Error(`Repair authorization ${label} bytes have drifted.`);
+    }
+  }
+  if (!isProjectRelativePath(binding.neutralOutputPath)) {
+    throw new Error("Repair authorization neutral output path is invalid.");
+  }
+  const retryArtifact = loadRetryConstraintArtifact(
+    binding.retryArtifact.path,
+    attemptId.replace(/-attempt-[0-9]{3}$/, ""),
+    repositoryRoot,
+  );
+  const recipe = JSON.parse(
+    readFileSync(resolve(repositoryRoot, binding.recipe.path), "utf8"),
+  );
+  const expectedAttemptId = `${retryArtifact.cardId}-attempt-${String(
+    retryArtifact.attemptNumber,
+  ).padStart(3, "0")}`;
+  if (
+    expectedAttemptId !== attemptId ||
+    retryArtifact.repairRecipePath !== binding.recipe.path ||
+    retryArtifact.repairRecipeSha256 !== binding.recipe.sha256 ||
+    stableStringify(retryArtifact.editSource) !==
+      stableStringify(binding.base) ||
+    recipe.id !== "cups-page-local-repair-001" ||
+    recipe.cardId !== retryArtifact.cardId ||
+    recipe.mode !== "deterministic-local-color-repair" ||
+    stableStringify(recipe.base) !== stableStringify(binding.base) ||
+    stableStringify(recipe.mask) !==
+      stableStringify({
+        path: binding.mask.path,
+        sha256: binding.mask.sha256,
+        width: 1060,
+        height: 1484,
+        forbiddenIntersectionCount: 0,
+      }) ||
+    recipe.maskSource?.path !== binding.maskSource.path ||
+    recipe.maskSource?.sha256 !== binding.maskSource.sha256 ||
+    recipe.script?.path !== binding.script.path ||
+    recipe.script?.sha256 !== binding.script.sha256 ||
+    recipe.neutralOutputPath !== binding.neutralOutputPath ||
+    recipe.replacementGate?.id !==
+      "court-validation-a-cups-page-replacement-002" ||
+    recipe.replacementGate?.fullReviewPath !==
+      "art/card-art-v3-reviews/court-validation-a-contact-sheet-v3.jpg" ||
+    recipe.replacementGate?.mobileReviewPath !==
+      "art/card-art-v3-reviews/court-validation-a-contact-sheet-mobile-v3.jpg"
+  ) {
+    throw new Error(
+      "Repair authorization does not bind its exact reviewed retry and recipe chain.",
+    );
+  }
+  return {
+    authorization,
+    attemptNumber: retryArtifact.attemptNumber,
+    editSource: retryArtifact.editSource,
+    gateContract: recipe.replacementGate,
+    neutralOutputPath: binding.neutralOutputPath,
+    previousAttemptId: retryArtifact.previousAttemptId,
+    recipe,
+    retryArtifactPath: retryArtifact.projectRelativePath,
+    retryArtifactSha256: retryArtifact.sha256,
+  };
+}
+
+function validateRepairAuthorizations({
+  errors,
+  repairAuthorizations,
+  repositoryRoot,
+}) {
+  if (
+    repairAuthorizations?.schemaVersion !== 1 ||
+    repairAuthorizations?.systemId !== "quiet-celestial-storybook-full-deck" ||
+    repairAuthorizations?.version !== "v3" ||
+    !Array.isArray(repairAuthorizations?.entries)
+  ) {
+    errors.push("repairAuthorizations must match the reviewed v3 schema.");
+    return;
+  }
+  const ids = new Set();
+  for (const [index, authorization] of repairAuthorizations.entries.entries()) {
+    const label = `repairAuthorizations.entries[${index}]`;
+    if (
+      typeof authorization?.id !== "string" ||
+      ids.has(authorization.id) ||
+      !isCanonicalUtcTimestamp(authorization.authorizedAt)
+    ) {
+      errors.push(`${label} must have a unique id and canonical timestamp.`);
+    }
+    ids.add(authorization?.id);
+    const latestReviewAt = (authorization?.independentReviews ?? [])
+      .map(({ reviewedAt }) => reviewedAt)
+      .sort()
+      .at(-1);
+    if (
+      !isCanonicalUtcTimestamp(latestReviewAt) ||
+      Date.parse(latestReviewAt) >= Date.parse(authorization.authorizedAt)
+    ) {
+      errors.push(
+        `${label} must be authorized after every independent review.`,
+      );
+    }
+    try {
+      getRepairAuthorizationForAttempt(
+        { repairAuthorizations },
+        authorization?.binding?.attemptId,
+        repositoryRoot,
+      );
+    } catch (error) {
+      errors.push(`${label} is invalid: ${error.message}`);
+    }
+  }
+}
+
+function validateDevilDeterministicLocalComposite({
+  errors,
+  label,
+  previousAttempt,
+  record,
+  repositoryRoot,
+  seenAttemptsById,
+}) {
+  const repair = record.repair;
+  const expectedRecipe = Object.freeze({
+    id: "the-devil-local-repair-001",
+    path: "art/card-art-v3-repair-recipes/the-devil-local-repair-001.json",
+    sha256: "9c4216490b1ceb7b25f1cd4b606239fa4f22b89fd8d3e78ac0a9c0c3611ae3a1",
+  });
+  const expectedScript = Object.freeze({
+    path: "scripts/card-art-v3-thedevil-repair.mjs",
+    sha256: "5bbd6c36a0528188c1da386c34af52cb4b012f77dd3d5d83a6e6c8a12dbaf8fd",
+  });
+  const expectedOutputSha256 =
+    "648c7f38d91294f21b25c99d494818b8894385a0e25b2d5494ac39767df627e2";
+  const layerNames = Object.freeze([
+    "leftErase",
+    "leftNew",
+    "rightErase",
+    "rightConnector",
+    "rightNew",
+  ]);
+  const expectedBboxes = Object.freeze({
+    leftErase: Object.freeze({
+      maxX: 454,
+      maxY: 909,
+      minX: 320,
+      minY: 720,
+      nonzero: 18777,
+    }),
+    leftNew: Object.freeze({
+      maxX: 464,
+      maxY: 769,
+      minX: 295,
+      minY: 600,
+      nonzero: 18166,
+    }),
+    rightErase: Object.freeze({
+      maxX: 704,
+      maxY: 979,
+      minX: 601,
+      minY: 750,
+      nonzero: 18481,
+    }),
+    rightConnector: Object.freeze({
+      maxX: 718,
+      maxY: 958,
+      minX: 627,
+      minY: 886,
+      nonzero: 3080,
+    }),
+    rightNew: Object.freeze({
+      maxX: 709,
+      maxY: 769,
+      minX: 495,
+      minY: 500,
+      nonzero: 25659,
+    }),
+  });
+  const expectedLayerChanges = Object.freeze({
+    leftErase: 18431,
+    leftNew: 16095,
+    rightErase: 18090,
+    rightConnector: 754,
+    rightNew: 24986,
+  });
+  const expectedMappingResidual = Object.freeze({
+    left: 0.46465598491982973,
+    right: 0.46465598491982973,
+  });
+  const expectedRepairKeys = Object.freeze([
+    "base",
+    "bboxes",
+    "centralBridgeChanged",
+    "changedInside",
+    "changedOutside",
+    "donors",
+    "expectedOutputSha256",
+    "layerChanges",
+    "leftRightOverlap",
+    "mappingResidual",
+    "masks",
+    "recipe",
+    "registeredDonors",
+    "reviewedAt",
+    "rightGuideChanged",
+    "script",
+    "unionNonzero",
+  ]);
+  if (
+    !repair ||
+    stableStringify(Object.keys(repair).sort()) !==
+      stableStringify(expectedRepairKeys) ||
+    stableStringify(repair.recipe) !== stableStringify(expectedRecipe) ||
+    stableStringify(repair.script) !== stableStringify(expectedScript) ||
+    repair.expectedOutputSha256 !== expectedOutputSha256 ||
+    record.rawOutputSha256 !== expectedOutputSha256 ||
+    repair.changedInside !== 77004 ||
+    repair.changedOutside !== 0 ||
+    repair.leftRightOverlap !== 0 ||
+    repair.centralBridgeChanged !== 0 ||
+    repair.rightGuideChanged !== 0 ||
+    repair.unionNonzero !== 78560 ||
+    stableStringify(repair.layerChanges) !==
+      stableStringify(expectedLayerChanges) ||
+    stableStringify(repair.mappingResidual) !==
+      stableStringify(expectedMappingResidual) ||
+    stableStringify(repair.bboxes) !== stableStringify(expectedBboxes) ||
+    !isCanonicalUtcTimestamp(repair.reviewedAt)
+  ) {
+    errors.push(
+      `${label}.repair must exactly match the reviewed Devil five-layer deterministic repair contract.`,
+    );
+    return {};
+  }
+
+  const recipeAbsolutePath = resolve(repositoryRoot, expectedRecipe.path);
+  const scriptAbsolutePath = resolve(repositoryRoot, expectedScript.path);
+  let recipe = null;
+  if (
+    !existsSync(recipeAbsolutePath) ||
+    sha256(readFileSync(recipeAbsolutePath)) !== expectedRecipe.sha256
+  ) {
+    errors.push(`${label}.repair.recipe does not match its frozen bytes.`);
+  } else {
+    try {
+      recipe = JSON.parse(readFileSync(recipeAbsolutePath, "utf8"));
+    } catch {
+      errors.push(`${label}.repair.recipe must contain valid JSON.`);
+    }
+  }
+  if (
+    !existsSync(scriptAbsolutePath) ||
+    sha256(readFileSync(scriptAbsolutePath)) !== expectedScript.sha256
+  ) {
+    errors.push(`${label}.repair.script does not match its frozen bytes.`);
+  }
+  if (!recipe) return {};
+
+  const expectedReviewers = [
+    "Planck (independent two-loop tarot meaning and four-hand audit)",
+    "Harvey (independent full/mobile mask, anatomy and seam audit)",
+    "Halley (independent registration, byte-identity and provenance audit)",
+  ];
+  const expectedReviewChecks = [
+    "exactRegistration",
+    "maskBounds",
+    "leftRightDisjoint",
+    "outsideUnionPixelIdentity",
+    "protectedGuideIdentity",
+    "centralBridgeAbsent",
+    "fourNaturalHands",
+    "mobileSeparation",
+  ];
+  if (
+    recipe.schemaVersion !== 1 ||
+    recipe.id !== expectedRecipe.id ||
+    recipe.cardId !== record.cardId ||
+    recipe.tool !== record.generator.tool ||
+    recipe.toolVersion !== record.generator.toolVersion ||
+    recipe.mode !== record.generator.mode ||
+    stableStringify(recipe.script) !== stableStringify(expectedScript) ||
+    recipe.frame?.width !== 1060 ||
+    recipe.frame?.height !== 1484 ||
+    recipe.frame?.channels !== 3 ||
+    stableStringify(recipe.precedence) !== stableStringify(layerNames) ||
+    stableStringify(Object.keys(recipe.layers ?? {})) !==
+      stableStringify(layerNames) ||
+    recipe.outputPath !== record.rawOutputPath ||
+    recipe.expectedOutputSha256 !== expectedOutputSha256 ||
+    recipe.review?.result !== "approved" ||
+    recipe.review?.reviewedAt !== repair.reviewedAt ||
+    stableStringify(recipe.review?.reviewers) !==
+      stableStringify(expectedReviewers) ||
+    stableStringify(Object.keys(recipe.review?.checks ?? {})) !==
+      stableStringify(expectedReviewChecks) ||
+    expectedReviewChecks.some((check) => recipe.review.checks[check] !== true)
+  ) {
+    errors.push(
+      `${label}.repair recipe must exactly bind the independently reviewed Devil inputs, layers, output, reviewers, and checks.`,
+    );
+  }
+
+  if (
+    stableStringify(repair.base) !== stableStringify(recipe.base) ||
+    stableStringify(repair.donors) !== stableStringify(recipe.donors) ||
+    stableStringify(repair.registeredDonors) !==
+      stableStringify(recipe.registeredDonors)
+  ) {
+    errors.push(
+      `${label}.repair sources and registered donors must exactly match the frozen recipe.`,
+    );
+    return {};
+  }
+
+  const sourceEntries = [
+    ["base", repair.base],
+    ["donors.left", repair.donors?.left],
+    ["donors.right", repair.donors?.right],
+  ];
+  for (const [name, source] of sourceEntries) {
+    const sourceAttempt = seenAttemptsById.get(source?.attemptId);
+    if (
+      !sourceAttempt ||
+      sourceAttempt.cardId !== record.cardId ||
+      sourceAttempt.selectionStatus !== "rejected" ||
+      sourceAttempt.attemptNumber >= record.attemptNumber ||
+      sourceAttempt.rawOutputPath !== source.path ||
+      sourceAttempt.rawOutputSha256 !== source.sha256 ||
+      Date.parse(sourceAttempt.generatedAt) >= Date.parse(repair.reviewedAt)
+    ) {
+      errors.push(
+        `${label}.repair.${name} must bind an earlier rejected Devil attempt generated before review.`,
+      );
+    }
+  }
+  if (
+    new Set(sourceEntries.map(([, source]) => source?.attemptId)).size !== 3 ||
+    previousAttempt?.id !== repair.donors?.right?.attemptId ||
+    Date.parse(previousAttempt?.generatedAt) >= Date.parse(repair.reviewedAt) ||
+    Date.parse(repair.reviewedAt) >= Date.parse(record.generatedAt)
+  ) {
+    errors.push(
+      `${label}.repair must preserve three distinct sources and predecessor generation < independent review < repair generation order.`,
+    );
+  }
+
+  for (const [side, registered] of Object.entries(
+    repair.registeredDonors ?? {},
+  )) {
+    const absolutePath = resolve(repositoryRoot, registered?.path ?? "");
+    if (
+      !["left", "right"].includes(side) ||
+      !isProjectRelativePath(registered?.path) ||
+      !/^[a-f0-9]{64}$/.test(registered?.sha256 ?? "") ||
+      !existsSync(absolutePath)
+    ) {
+      errors.push(
+        `${label}.repair.registeredDonors.${side} must bind a present project PNG.`,
+      );
+      continue;
+    }
+    const bytes = readFileSync(absolutePath);
+    const frame = readPngFrame(bytes);
+    if (
+      sha256(bytes) !== registered.sha256 ||
+      frame.width !== 1060 ||
+      frame.height !== 1484
+    ) {
+      errors.push(
+        `${label}.repair.registeredDonors.${side} bytes or frame have drifted.`,
+      );
+    }
+  }
+
+  const expectedMasks = Object.fromEntries(
+    layerNames.map((name) => [
+      name,
+      {
+        bbox: expectedBboxes[name],
+        height: 1484,
+        path: recipe.layers[name]?.path,
+        sha256: recipe.layers[name]?.sha256,
+        width: 1060,
+      },
+    ]),
+  );
+  if (stableStringify(repair.masks) !== stableStringify(expectedMasks)) {
+    errors.push(
+      `${label}.repair.masks must exactly bind all five reviewed masks and bounds.`,
+    );
+    return {};
+  }
+  for (const name of layerNames) {
+    const mask = repair.masks?.[name];
+    const absolutePath = resolve(repositoryRoot, mask?.path ?? "");
+    if (!isProjectRelativePath(mask?.path) || !existsSync(absolutePath)) {
+      errors.push(`${label}.repair.masks.${name} is missing.`);
+      continue;
+    }
+    const bytes = readFileSync(absolutePath);
+    const frame = readPngFrame(bytes);
+    if (
+      sha256(bytes) !== mask.sha256 ||
+      frame.width !== mask.width ||
+      frame.height !== mask.height
+    ) {
+      errors.push(`${label}.repair.masks.${name} bytes or frame have drifted.`);
+    }
+  }
+  const overlay = recipe.maskReviewOverlay;
+  const overlayAbsolutePath = resolve(repositoryRoot, overlay?.path ?? "");
+  if (
+    !isProjectRelativePath(overlay?.path) ||
+    !/^[a-f0-9]{64}$/.test(overlay?.sha256 ?? "") ||
+    !existsSync(overlayAbsolutePath) ||
+    sha256(readFileSync(overlayAbsolutePath)) !== overlay.sha256
+  ) {
+    errors.push(`${label}.repair mask review overlay has drifted.`);
+  }
+
+  const cacheKey = stableStringify({
+    masks: Object.fromEntries(
+      layerNames.map((name) => [name, repair.masks[name].sha256]),
+    ),
+    output: record.rawOutputSha256,
+    recipe: expectedRecipe.sha256,
+    registeredDonors: repair.registeredDonors,
+    script: expectedScript.sha256,
+  });
+  let rendered = deterministicRepairCheckCache.get(cacheKey);
+  if (!rendered) {
+    try {
+      rendered = JSON.parse(
+        execFileSync(process.execPath, [scriptAbsolutePath, "--check"], {
+          cwd: repositoryRoot,
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "pipe"],
+          timeout: 120000,
+        }),
+      );
+      deterministicRepairCheckCache.set(cacheKey, rendered);
+    } catch (error) {
+      errors.push(
+        `${label}.repair could not reproduce the frozen Devil output: ${error.message}`,
+      );
+    }
+  }
+  if (
+    rendered &&
+    (rendered.baseSha256 !== repair.base.sha256 ||
+      rendered.recipeSha256 !== expectedRecipe.sha256 ||
+      rendered.outputPath !== record.rawOutputPath ||
+      rendered.toolVersion !== record.generator.toolVersion ||
+      stableStringify(rendered.artifacts) !==
+        stableStringify({
+          masks: Object.fromEntries(
+            layerNames.map((name) => [name, repair.masks[name].sha256]),
+          ),
+          output: expectedOutputSha256,
+          registeredLeft: repair.registeredDonors.left.sha256,
+          registeredRight: repair.registeredDonors.right.sha256,
+        }) ||
+      stableStringify(rendered.bboxes) !== stableStringify(repair.bboxes) ||
+      rendered.centralBridgeChanged !== repair.centralBridgeChanged ||
+      rendered.changedInside !== repair.changedInside ||
+      rendered.changedOutside !== repair.changedOutside ||
+      stableStringify(rendered.layerChanges) !==
+        stableStringify(repair.layerChanges) ||
+      rendered.leftRightOverlap !== repair.leftRightOverlap ||
+      stableStringify(rendered.mappingResidual) !==
+        stableStringify(repair.mappingResidual) ||
+      rendered.rightGuideChanged !== repair.rightGuideChanged ||
+      rendered.unionNonzero !== repair.unionNonzero)
+  ) {
+    errors.push(
+      `${label}.repair reproduction result does not match its immutable five-layer provenance.`,
+    );
+  }
+
+  return {
+    [repair.base.attemptId]: repair.base.sha256,
+    [repair.donors.left.attemptId]: repair.donors.left.sha256,
+    [repair.donors.right.attemptId]: repair.donors.right.sha256,
+    [expectedRecipe.id]: expectedRecipe.sha256,
+    "the-devil-local-repair-script": expectedScript.sha256,
+    "the-devil-left-donor-registered-001": repair.registeredDonors.left.sha256,
+    "the-devil-right-donor-registered-001":
+      repair.registeredDonors.right.sha256,
+    ...Object.fromEntries(
+      layerNames.map((name) => [
+        `the-devil-local-repair-${name}-mask-001`,
+        repair.masks[name].sha256,
+      ]),
+    ),
+  };
 }
 
 function validateDeterministicLocalComposite({
@@ -2743,7 +4616,7 @@ function validateDeterministicLocalComposite({
             cwd: repositoryRoot,
             encoding: "utf8",
             stdio: ["ignore", "pipe", "pipe"],
-            timeout: 30000,
+            timeout: 120000,
           }),
         );
         deterministicRepairCheckCache.set(cacheKey, rendered);
@@ -2779,10 +4652,264 @@ function validateDeterministicLocalComposite({
   };
 }
 
+function validateDeterministicLocalColorRepair({
+  errors,
+  files,
+  label,
+  previousAttempt,
+  record,
+  repositoryRoot,
+  seenAttemptsById,
+}) {
+  const repair = record.repair;
+  let reviewedRepair = null;
+  try {
+    reviewedRepair = getRepairAuthorizationForAttempt(
+      files,
+      record.id,
+      repositoryRoot,
+    );
+  } catch (error) {
+    errors.push(`${label}.repair authorization is invalid: ${error.message}`);
+  }
+  if (!reviewedRepair) {
+    errors.push(
+      `${label}.repair requires its exact externally frozen authorization.`,
+    );
+    return {};
+  }
+
+  const { authorization, recipe } = reviewedRepair;
+  const binding = authorization.binding;
+  const retryArtifact = loadRetryConstraintArtifact(
+    binding.retryArtifact.path,
+    record.cardId,
+    repositoryRoot,
+  );
+  const selectedOutputPath = recipe.canonicalOutputPaths?.selected;
+  const rejectedOutputPath = recipe.canonicalOutputPaths?.rejected;
+  const expectedRepairKeys = [
+    "authorization",
+    "base",
+    "changedInside",
+    "changedOutside",
+    "expectedOutputSha256",
+    "forbiddenIntersections",
+    "mask",
+    "maskSource",
+    "neutralOutput",
+    "normalizedCandidate",
+    "recipe",
+    "retryArtifact",
+    "script",
+  ];
+  const expectedForbiddenRegions = [
+    "face",
+    "ear",
+    "leftEyebrow",
+    "rightEyebrow",
+    "cup",
+    "garment",
+    "backgroundTop",
+    "backgroundLeft",
+    "backgroundRight",
+  ];
+  if (
+    !repair ||
+    stableStringify(Object.keys(repair).sort()) !==
+      stableStringify(expectedRepairKeys) ||
+    record.generator?.toolVersion !== recipe.toolVersion ||
+    record.rawOutputPath !== selectedOutputPath ||
+    repair.expectedOutputSha256 !== record.rawOutputSha256 ||
+    repair.changedInside !== 25523 ||
+    repair.changedOutside !== 0 ||
+    stableStringify(Object.keys(repair.forbiddenIntersections ?? {})) !==
+      stableStringify(expectedForbiddenRegions) ||
+    expectedForbiddenRegions.some(
+      (region) => repair.forbiddenIntersections?.[region] !== 0,
+    ) ||
+    stableStringify(repair.authorization) !==
+      stableStringify({
+        id: authorization.id,
+        authorizedAt: authorization.authorizedAt,
+        decisionFingerprintSha256: authorization.decisionFingerprintSha256,
+      }) ||
+    stableStringify(repair.base) !== stableStringify(binding.base) ||
+    stableStringify(repair.mask) !==
+      stableStringify({
+        ...binding.mask,
+        height: recipe.mask.height,
+        width: recipe.mask.width,
+      }) ||
+    stableStringify(repair.maskSource) !==
+      stableStringify(binding.maskSource) ||
+    stableStringify(repair.recipe) !==
+      stableStringify({ id: recipe.id, ...binding.recipe }) ||
+    stableStringify(repair.retryArtifact) !==
+      stableStringify(binding.retryArtifact) ||
+    stableStringify(repair.script) !== stableStringify(binding.script) ||
+    stableStringify(repair.neutralOutput) !==
+      stableStringify({
+        path: binding.neutralOutputPath,
+        sha256: record.rawOutputSha256,
+      }) ||
+    stableStringify(repair.normalizedCandidate) !==
+      stableStringify({
+        bytes: record.normalized?.assetBytes,
+        path: `art/card-art-v3-candidates/${record.id}.jpg`,
+        sha256: record.normalized?.assetSha256,
+      })
+  ) {
+    errors.push(
+      `${label}.repair must exactly bind the authorized color-repair inputs, proof and staged outputs.`,
+    );
+  }
+
+  const baseAttempt = seenAttemptsById.get(binding.base.attemptId);
+  if (
+    !baseAttempt ||
+    baseAttempt.id !== "cups-page-attempt-002" ||
+    baseAttempt.cardId !== record.cardId ||
+    baseAttempt.selectionStatus !== "selected" ||
+    baseAttempt.rawOutputPath !== binding.base.path ||
+    baseAttempt.rawOutputSha256 !== binding.base.sha256 ||
+    !previousAttempt ||
+    previousAttempt.id !== "cups-page-attempt-003" ||
+    previousAttempt.selectionStatus !== "rejected" ||
+    previousAttempt.id === binding.base.attemptId ||
+    Date.parse(previousAttempt.generatedAt) >=
+      Date.parse(retryArtifact.reviewedAt) ||
+    Date.parse(retryArtifact.reviewedAt) >=
+      Date.parse(authorization.authorizedAt) ||
+    Date.parse(authorization.authorizedAt) >= Date.parse(record.generatedAt)
+  ) {
+    errors.push(
+      `${label}.repair must preserve rejected predecessor < retry review < authorization < generation while using attempt-002 as its sole pixel base.`,
+    );
+  }
+
+  const selectedOutput = resolve(repositoryRoot, selectedOutputPath ?? "");
+  const rejectedOutput = resolve(repositoryRoot, rejectedOutputPath ?? "");
+  const neutralOutput = resolve(repositoryRoot, binding.neutralOutputPath);
+  const normalizedCandidate = resolve(
+    repositoryRoot,
+    repair?.normalizedCandidate?.path ?? "",
+  );
+  const normalizedPublic = resolve(
+    repositoryRoot,
+    record.normalized?.assetPath ?? "",
+  );
+  if (
+    !isProjectRelativePath(selectedOutputPath) ||
+    !isProjectRelativePath(rejectedOutputPath) ||
+    selectedOutputPath === rejectedOutputPath ||
+    !existsSync(selectedOutput) ||
+    !existsSync(neutralOutput) ||
+    existsSync(rejectedOutput)
+  ) {
+    errors.push(
+      `${label}.repair must preserve neutral staging and exactly one selected canonical output branch.`,
+    );
+  } else {
+    const selectedBytes = readFileSync(selectedOutput);
+    const neutralBytes = readFileSync(neutralOutput);
+    if (
+      sha256(selectedBytes) !== record.rawOutputSha256 ||
+      sha256(neutralBytes) !== record.rawOutputSha256 ||
+      !selectedBytes.equals(neutralBytes)
+    ) {
+      errors.push(
+        `${label}.repair canonical and neutral raw outputs must be byte-identical to the reviewed result.`,
+      );
+    }
+  }
+  if (!existsSync(normalizedCandidate) || !existsSync(normalizedPublic)) {
+    errors.push(
+      `${label}.repair normalized candidate and public asset must both exist.`,
+    );
+  } else {
+    const candidateBytes = readFileSync(normalizedCandidate);
+    const publicBytes = readFileSync(normalizedPublic);
+    if (
+      candidateBytes.length !== record.normalized?.assetBytes ||
+      sha256(candidateBytes) !== record.normalized?.assetSha256 ||
+      sha256(publicBytes) !== record.normalized?.assetSha256 ||
+      !candidateBytes.equals(publicBytes)
+    ) {
+      errors.push(
+        `${label}.repair normalized candidate and public asset must remain byte-identical.`,
+      );
+    }
+  }
+
+  const cacheKey = stableStringify({
+    authorization: authorization.decisionFingerprintSha256,
+    output: record.rawOutputSha256,
+    recipe: binding.recipe.sha256,
+    script: binding.script.sha256,
+  });
+  let rendered = deterministicRepairCheckCache.get(cacheKey);
+  if (!rendered) {
+    try {
+      rendered = JSON.parse(
+        execFileSync(
+          process.execPath,
+          [resolve(repositoryRoot, binding.script.path), "--check"],
+          {
+            cwd: repositoryRoot,
+            encoding: "utf8",
+            stdio: ["ignore", "pipe", "pipe"],
+            timeout: 120000,
+          },
+        ),
+      );
+      deterministicRepairCheckCache.set(cacheKey, rendered);
+    } catch (error) {
+      errors.push(
+        `${label}.repair could not reproduce the authorized neutral output: ${error.message}`,
+      );
+    }
+  }
+  if (
+    rendered &&
+    (rendered.authorizationId !== authorization.id ||
+      rendered.baseSha256 !== binding.base.sha256 ||
+      rendered.changedInside !== repair.changedInside ||
+      rendered.changedOutside !== repair.changedOutside ||
+      stableStringify(rendered.forbiddenIntersections) !==
+        stableStringify(repair.forbiddenIntersections) ||
+      rendered.maskSha256 !== binding.mask.sha256 ||
+      rendered.maskSourceSha256 !== binding.maskSource.sha256 ||
+      rendered.outputPath !== binding.neutralOutputPath ||
+      rendered.outputSha256 !== record.rawOutputSha256 ||
+      rendered.recipeSha256 !== binding.recipe.sha256 ||
+      rendered.toolVersion !== record.generator.toolVersion)
+  ) {
+    errors.push(
+      `${label}.repair deterministic reproduction does not match its immutable provenance.`,
+    );
+  }
+
+  return {
+    [binding.base.attemptId]: binding.base.sha256,
+    [authorization.id]: authorization.decisionFingerprintSha256,
+    [`${record.id}-neutral-output`]: record.rawOutputSha256,
+    [`${record.id}-retry-artifact`]: binding.retryArtifact.sha256,
+    [recipe.id]: binding.recipe.sha256,
+    [`${record.cardId}-local-repair-mask-001`]: binding.mask.sha256,
+    [`${record.cardId}-local-repair-mask-source-001`]:
+      binding.maskSource.sha256,
+    [`${record.cardId}-local-repair-script`]: binding.script.sha256,
+  };
+}
+
 function validateAppendOnlyV3Records(baseline, current, errors) {
   if (!baseline) return;
   for (const key of [
+    "batchReviewGates",
     "generationRecords",
+    "legacyReviewCorrections",
+    "repairAuthorizations",
     "replacementGates",
     "releaseHistory",
     "styleHistory",
@@ -2906,11 +5033,34 @@ function validateCourtContactSheetEvidence({
   expectedCardIds,
   expectedFullPath,
   expectedMobilePath,
+  files,
   generationById,
   label,
+  legacyReuseCardIds = [],
+  manifest,
   repositoryRoot,
   supersessionEntries,
 }) {
+  let expectedRecipe = null;
+  let rendererScript = null;
+  if (evidence?.recipe?.id === cardArtV3CourtContactSheetRecipe.id) {
+    if (expectedCardIds.length !== 6) {
+      errors.push(`${label} court recipe requires exactly six cards.`);
+    }
+    expectedRecipe = cardArtV3CourtContactSheetRecipe;
+    rendererScript = "scripts/card-art-v3-contact-sheet.mjs";
+  } else {
+    try {
+      expectedRecipe = getCardArtV3BatchContactSheetRecipe(
+        expectedCardIds.length,
+      );
+      rendererScript = "scripts/card-art-v3-batch-contact-sheet.mjs";
+    } catch (error) {
+      errors.push(
+        `${label} has no valid deterministic recipe: ${error.message}`,
+      );
+    }
+  }
   if (
     stableStringify(evidence?.cardIds) !== stableStringify(expectedCardIds) ||
     !Array.isArray(evidence?.attemptIds) ||
@@ -2923,11 +5073,44 @@ function validateCourtContactSheetEvidence({
   }
   const expectedAssetSha256 = {};
   const sourcePaths = [];
+  const legacyReuseIds = new Set(legacyReuseCardIds);
+  const legacySources = new Map(
+    (manifest?.legacySources ?? []).map((source) => [source.id, source]),
+  );
   let latestGeneratedAt = "1970-01-01T00:00:00.000Z";
   for (const [index, cardId] of expectedCardIds.entries()) {
     const attemptId = evidence.attemptIds[index];
+    if (attemptId === null && legacyReuseIds.has(cardId)) {
+      const legacySource = legacySources.get(cardId);
+      const legacySourcePath = resolve(
+        repositoryRoot,
+        legacySource?.assetPath ?? "",
+      );
+      const reviewedAssetPath = resolve(
+        repositoryRoot,
+        manifest?.cards?.[cardId]?.assetPath ?? "",
+      );
+      if (
+        getEffectiveLegacyDecision(files, cardId) !== "keep" ||
+        manifest?.cards?.[cardId]?.batch !== expectedBatchId ||
+        !legacySource ||
+        !existsSync(legacySourcePath) ||
+        !existsSync(reviewedAssetPath) ||
+        sha256(readFileSync(legacySourcePath)) !== legacySource.sha256 ||
+        sha256(readFileSync(reviewedAssetPath)) !== legacySource.sha256
+      ) {
+        errors.push(
+          `${label}.attemptIds[${index}] null must bind one byte-identical reviewed legacy keep asset.`,
+        );
+        continue;
+      }
+      expectedAssetSha256[cardId] = legacySource.sha256;
+      sourcePaths.push(reviewedAssetPath);
+      continue;
+    }
     const generation = generationById.get(attemptId);
     if (
+      legacyReuseIds.has(cardId) ||
       !generation ||
       generation.cardId !== cardId ||
       generation.batchId !== expectedBatchId ||
@@ -2965,12 +5148,11 @@ function validateCourtContactSheetEvidence({
     );
   }
   if (
-    stableStringify(evidence?.recipe) !==
-      stableStringify(cardArtV3CourtContactSheetRecipe) ||
+    stableStringify(evidence?.recipe) !== stableStringify(expectedRecipe) ||
     evidence?.recipeFingerprintSha256 !==
-      sha256(stableStringify(cardArtV3CourtContactSheetRecipe))
+      sha256(stableStringify(expectedRecipe))
   ) {
-    errors.push(`${label}.recipe must match the deterministic 3x2 contract.`);
+    errors.push(`${label}.recipe must match its deterministic batch contract.`);
   }
   const fullPath = resolve(repositoryRoot, evidence?.full?.path ?? "");
   const mobilePath = resolve(repositoryRoot, evidence?.mobile?.path ?? "");
@@ -3012,10 +5194,7 @@ function validateCourtContactSheetEvidence({
     });
     let rendered = contactSheetCheckCache.get(cacheKey);
     if (!rendered) {
-      const scriptPath = resolve(
-        repositoryRoot,
-        "scripts/card-art-v3-contact-sheet.mjs",
-      );
+      const scriptPath = resolve(repositoryRoot, rendererScript);
       const args = [scriptPath];
       for (const sourcePath of sourcePaths) {
         args.push("--source", sourcePath);
@@ -3027,7 +5206,7 @@ function validateCourtContactSheetEvidence({
             cwd: repositoryRoot,
             encoding: "utf8",
             stdio: ["ignore", "pipe", "pipe"],
-            timeout: 30000,
+            timeout: 120000,
           }),
         );
         contactSheetCheckCache.set(cacheKey, rendered);
@@ -3050,11 +5229,130 @@ function validateCourtContactSheetEvidence({
         rendered.mobile.bytes !== evidence.mobile?.bytes)
     ) {
       errors.push(
-        `${label} artifacts must exactly reproduce from the bound six selected assets.`,
+        `${label} artifacts must exactly reproduce from the bound selected assets.`,
       );
     }
   }
   return { latestGeneratedAt, sourcePaths };
+}
+
+function validateBatchReviewGates({
+  batchReviewGates,
+  errors,
+  files,
+  generationById,
+  manifest,
+  repositoryRoot,
+  supersessions,
+}) {
+  const byCardId = new Map();
+  const ids = new Set();
+  const batchIds = new Set();
+  if (
+    batchReviewGates?.schemaVersion !== 1 ||
+    !Array.isArray(batchReviewGates?.entries)
+  ) {
+    errors.push("batchReviewGates must match the reviewed v3 schema.");
+    return byCardId;
+  }
+  for (const [index, gate] of batchReviewGates.entries.entries()) {
+    const label = `batchReviewGates.entries[${index}]`;
+    const contract = reviewedBatchGateContracts[gate?.id];
+    const expectedCardIds =
+      contract?.cardIds ?? getBatchCardIds(manifest, gate?.batchId);
+    if (
+      !contract ||
+      contract.batchId !== gate?.batchId ||
+      gate?.id !== `${gate?.batchId}-review-001` ||
+      ids.has(gate?.id) ||
+      batchIds.has(gate?.batchId) ||
+      gate?.status !== "passed" ||
+      gate?.result !== "approved" ||
+      !isCanonicalUtcTimestamp(gate?.reviewedAt)
+    ) {
+      errors.push(
+        `${label} must be one externally frozen passing review for its batch.`,
+      );
+    }
+    ids.add(gate?.id);
+    batchIds.add(gate?.batchId);
+    const { latestGeneratedAt } = validateCourtContactSheetEvidence({
+      decisionAt: gate?.reviewedAt,
+      errors,
+      evidence: gate?.reviewEvidence,
+      expectedBatchId: gate?.batchId,
+      expectedCardIds,
+      expectedFullPath: contract?.fullReviewPath,
+      expectedMobilePath: contract?.mobileReviewPath,
+      files,
+      generationById,
+      label: `${label}.reviewEvidence`,
+      legacyReuseCardIds: contract?.legacyReuseCardIds ?? [],
+      manifest,
+      repositoryRoot,
+      supersessionEntries: supersessions?.entries ?? [],
+    });
+    validateIndependentReviews({
+      decisionAt: gate?.reviewedAt,
+      errors,
+      expectedReviewerIds: contract?.reviewerIds,
+      label: `${label}.independentReviews`,
+      minimumGeneratedAt: latestGeneratedAt,
+      requireAllApproved: true,
+      reviews: gate?.independentReviews,
+    });
+    const expectedFingerprint = sha256(
+      stableStringify({
+        batchId: gate?.batchId,
+        independentReviews: gate?.independentReviews,
+        result: gate?.result,
+        reviewEvidence: {
+          assetMapSha256: gate?.reviewEvidence?.assetMapSha256,
+          cardIds: gate?.reviewEvidence?.cardIds,
+          attemptIds: gate?.reviewEvidence?.attemptIds,
+          full: gate?.reviewEvidence?.full,
+          mobile: gate?.reviewEvidence?.mobile,
+          recipeFingerprintSha256:
+            gate?.reviewEvidence?.recipeFingerprintSha256,
+        },
+        status: gate?.status,
+        reviewedAt: gate?.reviewedAt,
+      }),
+    );
+    if (
+      gate?.decisionFingerprintSha256 !== expectedFingerprint ||
+      gate?.decisionFingerprintSha256 !== contract?.decisionFingerprintSha256
+    ) {
+      errors.push(
+        `${label}.decisionFingerprintSha256 must match its externally frozen batch review.`,
+      );
+    }
+    for (const [cardIndex, cardId] of expectedCardIds.entries()) {
+      const attemptId = gate?.reviewEvidence?.attemptIds?.[cardIndex];
+      const generation = generationById.get(attemptId);
+      const approval = files.approvals?.records?.[cardId];
+      const gateBoundAt =
+        approval?.batchReviewGateBoundAt ?? approval?.reviewedAt;
+      if (
+        byCardId.has(cardId) ||
+        approval?.status !== "approved" ||
+        approval?.batchReviewGateId !== gate?.id ||
+        approval?.generationRecordId !== attemptId ||
+        approval?.assetSha256 !==
+          (generation?.normalized?.assetSha256 ??
+            gate?.reviewEvidence?.assetSha256?.[cardId]) ||
+        !isCanonicalUtcTimestamp(approval?.reviewedAt) ||
+        !isCanonicalUtcTimestamp(gateBoundAt) ||
+        Date.parse(gateBoundAt) < Date.parse(gate?.reviewedAt)
+      ) {
+        errors.push(
+          `${label} must be committed atomically with every reviewed batch approval.`,
+        );
+      }
+      byCardId.set(cardId, gate);
+    }
+  }
+  return byCardId;
 }
 
 function validateSupersessions({
@@ -3247,6 +5545,7 @@ function validateSupersessions({
 
 function validateReplacementGates({
   errors,
+  files,
   generationById,
   manifest,
   replacementGates,
@@ -3262,12 +5561,38 @@ function validateReplacementGates({
   for (const [index, gate] of (replacementGates?.entries ?? []).entries()) {
     const label = `replacementGates.entries[${index}]`;
     const supersession = supersessionById.get(gate?.supersessionId);
-    const contract = supersession?.replacementContract;
     const replacement = generationById.get(gate?.replacementAttemptId);
+    let repairAuthorization = null;
+    try {
+      repairAuthorization = replacement
+        ? getRepairAuthorizationForAttempt(
+            files,
+            replacement.id,
+            repositoryRoot,
+          )
+        : null;
+    } catch (error) {
+      errors.push(`${label} repair authorization is invalid: ${error.message}`);
+    }
+    const contract = repairAuthorization?.gateContract
+      ? {
+          requiredFullReviewPath:
+            repairAuthorization.gateContract.fullReviewPath,
+          requiredGateId: repairAuthorization.gateContract.id,
+          requiredMobileReviewPath:
+            repairAuthorization.gateContract.mobileReviewPath,
+        }
+      : supersession?.replacementContract;
     const reviewedAuthorization =
       reviewedSupersessionContracts[supersession?.id]?.authorizations?.[
         replacement?.id
-      ];
+      ] ??
+      (repairAuthorization
+        ? {
+            attemptNumber: repairAuthorization.attemptNumber,
+            previousAttemptId: repairAuthorization.previousAttemptId,
+          }
+        : null);
     if (
       !supersession ||
       gate?.id !== contract?.requiredGateId ||
@@ -3304,6 +5629,23 @@ function validateReplacementGates({
         .at(-1);
       return selected?.id;
     });
+    for (const [cardIndex, cardId] of expectedCardIds.entries()) {
+      const approval = files.approvals?.records?.[cardId];
+      const generation = generationById.get(
+        expectedActiveAttemptIds[cardIndex],
+      );
+      if (
+        approval?.status !== "approved" ||
+        approval?.generationRecordId !== generation?.id ||
+        approval?.assetSha256 !== generation?.normalized?.assetSha256 ||
+        !isCanonicalUtcTimestamp(approval?.reviewedAt) ||
+        Date.parse(approval.reviewedAt) < Date.parse(gate?.reviewedAt)
+      ) {
+        errors.push(
+          `${label} must be committed atomically with approval for every reviewed batch asset.`,
+        );
+      }
+    }
     if (
       stableStringify(gate?.reviewEvidence?.attemptIds) !==
         stableStringify(expectedActiveAttemptIds) ||
@@ -3383,17 +5725,56 @@ function validateControlRegistry(registry, manifest, repositoryRoot, errors) {
     );
     return;
   }
-  const expectedChecks = [
-    "exactTopCount",
-    "exactContinuousShaftCount",
-    "exactBottomCount",
-    "noMergeSplitOrLoss",
-    "singleBundle",
-    "noText",
-    "thumbnailLegible",
-  ];
   for (const [controlId, control] of Object.entries(registry.controls)) {
     const label = `controlRegistry.controls.${controlId}`;
+    const expectedChecksByCard = {
+      "the-devil": [
+        "exactTwoCordPaths",
+        "continuousEndpointToEndpoint",
+        "oneCordPerAdult",
+        "noMergeSplitOrLoss",
+        "noText",
+        "thumbnailLegible",
+      ],
+      "wheel-of-fortune": [
+        "singleMeetingPoint",
+        "exactFourArms",
+        "continuousArms",
+        "noMergeSplitOrLoss",
+        "noText",
+        "thumbnailLegible",
+      ],
+      "wands-10": [
+        "exactTopCount",
+        "exactContinuousShaftCount",
+        "exactBottomCount",
+        "noMergeSplitOrLoss",
+        "singleBundle",
+        "noText",
+        "thumbnailLegible",
+      ],
+      "wands-4": [
+        "exactFourStaffs",
+        "exactFourFigures",
+        "continuousIndependentShafts",
+        "separatePavingContacts",
+        "noSharedRailOrCrossbar",
+        "noText",
+        "thumbnailLegible",
+      ],
+      "wands-7": [
+        "exactUpperOnePlusLowerSix",
+        "exactHorizontalOnePlusUprightSix",
+        "oneHandContactPerLowerStaff",
+        "twoUpperHandContacts",
+        "explicitFeetAndPavingContacts",
+        "outwardSideIsolation",
+        "stoneEdgeSeparation",
+        "noText",
+        "thumbnailLegible",
+      ],
+    };
+    const expectedChecks = expectedChecksByCard[control.cardId];
     const sourcePath = `art/card-art-v3-controls/${controlId}.svg`;
     const renderPath = `art/card-art-v3-controls/${controlId}.png`;
     if (
@@ -3401,7 +5782,8 @@ function validateControlRegistry(registry, manifest, repositoryRoot, errors) {
       !new RegExp(`^${control.cardId}-[a-z0-9-]+-v[0-9]+$`).test(controlId) ||
       control.status !== "approved" ||
       typeof control.purpose !== "string" ||
-      control.purpose.trim() === ""
+      control.purpose.trim() === "" ||
+      !expectedChecks
     ) {
       errors.push(`${label} must identify one approved card-specific control.`);
     }
@@ -3457,6 +5839,7 @@ function validateControlRegistry(registry, manifest, repositoryRoot, errors) {
       control.approval.reviewers.some(
         (reviewer) => typeof reviewer !== "string" || reviewer.trim() === "",
       ) ||
+      !expectedChecks ||
       JSON.stringify(Object.keys(control.approval?.checks ?? {})) !==
         JSON.stringify(expectedChecks) ||
       expectedChecks.some((check) => control.approval.checks[check] !== true)
@@ -3546,6 +5929,199 @@ function validateLegacyAudit(audit, manifest, repositoryRoot, errors) {
     ) {
       errors.push(
         `manifest.cards.${cardId}.needsRetouch must match the reviewed legacy audit.`,
+      );
+    }
+  }
+}
+
+function getEffectiveLegacyDecision(files, cardId) {
+  const corrected = [...(files.legacyReviewCorrections?.entries ?? [])]
+    .reverse()
+    .find((entry) => entry.status === "approved")?.decisions?.[
+    cardId
+  ]?.decision;
+  return corrected ?? files.legacyAudit?.records?.[cardId]?.decision ?? null;
+}
+
+function getCorrectedLegacyRetouchContract(files, cardId) {
+  return getEffectiveLegacyDecision(files, cardId) === "retouch" &&
+    files.legacyAudit?.records?.[cardId]?.decision !== "retouch"
+    ? (reviewedCorrectedLegacyRetouchContracts[cardId] ?? null)
+    : null;
+}
+
+function validateLegacyReviewCorrections({
+  errors,
+  legacyAudit,
+  legacyReviewCorrections,
+  repositoryRoot,
+}) {
+  if (
+    legacyReviewCorrections?.schemaVersion !== 1 ||
+    legacyReviewCorrections?.systemId !==
+      "quiet-celestial-storybook-full-deck" ||
+    legacyReviewCorrections?.version !== "v3" ||
+    !Array.isArray(legacyReviewCorrections?.entries)
+  ) {
+    errors.push("legacyReviewCorrections must match the reviewed v3 schema.");
+    return;
+  }
+  const ids = new Set();
+  for (const [index, entry] of legacyReviewCorrections.entries.entries()) {
+    const label = `legacyReviewCorrections.entries[${index}]`;
+    const contract = reviewedLegacyCorrectionContracts[entry?.id];
+    const cardIds = Object.keys(entry?.decisions ?? {});
+    const expectedCardIds = Object.keys(contract?.decisions ?? {});
+    const reviewerIds = (entry?.independentReviews ?? []).map(
+      ({ reviewerId }) => reviewerId,
+    );
+    const reviewerResults = (entry?.independentReviews ?? []).map(
+      ({ result }) => result,
+    );
+    if (
+      !contract ||
+      ids.has(entry?.id) ||
+      entry?.status !== "approved" ||
+      entry?.result !== "corrected" ||
+      !isCanonicalUtcTimestamp(entry?.reviewedAt) ||
+      stableStringify(cardIds) !== stableStringify(expectedCardIds) ||
+      stableStringify(reviewerIds) !== stableStringify(contract?.reviewerIds) ||
+      stableStringify(reviewerResults) !==
+        stableStringify(contract?.reviewerResults)
+    ) {
+      errors.push(
+        `${label} must be one externally frozen, chronologically valid source-review correction.`,
+      );
+    }
+    ids.add(entry?.id);
+    for (const cardId of expectedCardIds) {
+      const decision = entry?.decisions?.[cardId];
+      if (
+        decision?.previousDecision !==
+          legacyAudit?.records?.[cardId]?.decision ||
+        decision?.decision !== contract.decisions[cardId] ||
+        typeof decision?.reason !== "string" ||
+        decision.reason.trim() === ""
+      ) {
+        errors.push(
+          `${label}.decisions.${cardId} is not the reviewed outcome.`,
+        );
+      }
+    }
+    for (const [reviewIndex, review] of (
+      entry?.independentReviews ?? []
+    ).entries()) {
+      if (
+        review?.independent !== true ||
+        typeof review?.reviewer !== "string" ||
+        review.reviewer.trim() === "" ||
+        typeof review?.scope !== "string" ||
+        review.scope.trim() === "" ||
+        !isCanonicalUtcTimestamp(review?.reviewedAt) ||
+        Date.parse(review.reviewedAt) > Date.parse(entry?.reviewedAt) ||
+        review?.reviewerId !== contract?.reviewerIds[reviewIndex] ||
+        review?.result !== contract?.reviewerResults[reviewIndex]
+      ) {
+        errors.push(
+          `${label}.independentReviews[${reviewIndex}] is not the frozen independent source review.`,
+        );
+      }
+    }
+    const evidence = entry?.reviewEvidence;
+    const expectedSourceSha256 = expectedCardIds.map(
+      (cardId) => legacyAudit?.records?.[cardId]?.sourceSha256,
+    );
+    const expectedRecipe = getCardArtV3BatchContactSheetRecipe(
+      expectedCardIds.length,
+    );
+    if (
+      stableStringify(evidence?.cardIds) !== stableStringify(expectedCardIds) ||
+      stableStringify(evidence?.sourceSha256) !==
+        stableStringify(expectedSourceSha256) ||
+      evidence?.recipeFingerprintSha256 !==
+        sha256(stableStringify(expectedRecipe)) ||
+      evidence?.full?.path !== contract?.fullReviewPath ||
+      evidence?.mobile?.path !== contract?.mobileReviewPath
+    ) {
+      errors.push(
+        `${label}.reviewEvidence is not the exact five-source audit.`,
+      );
+    }
+    for (const kind of ["full", "mobile"]) {
+      const artifact = evidence?.[kind];
+      const absolutePath = resolve(repositoryRoot, artifact?.path ?? "");
+      if (!isProjectRelativePath(artifact?.path) || !existsSync(absolutePath)) {
+        errors.push(`${label}.reviewEvidence.${kind} is missing.`);
+        continue;
+      }
+      const buffer = readFileSync(absolutePath);
+      const image = readJpegMetadata(buffer);
+      if (
+        sha256(buffer) !== artifact.sha256 ||
+        buffer.length !== artifact.bytes ||
+        image.width !== artifact.width ||
+        image.height !== artifact.height ||
+        image.components !== 3
+      ) {
+        errors.push(`${label}.reviewEvidence.${kind} bytes do not match.`);
+      }
+    }
+    const sourcePaths = expectedCardIds.map((cardId) =>
+      resolve(repositoryRoot, legacyAudit.records[cardId].sourceAssetPath),
+    );
+    try {
+      const rendered = JSON.parse(
+        execFileSync(
+          process.execPath,
+          [
+            resolve(
+              repositoryRoot,
+              "scripts/card-art-v3-batch-contact-sheet.mjs",
+            ),
+            ...sourcePaths.flatMap((sourcePath) => ["--source", sourcePath]),
+            "--full",
+            resolve(repositoryRoot, evidence.full.path),
+            "--mobile",
+            resolve(repositoryRoot, evidence.mobile.path),
+          ],
+          {
+            cwd: repositoryRoot,
+            encoding: "utf8",
+            stdio: ["ignore", "pipe", "pipe"],
+            timeout: 120000,
+          },
+        ),
+      );
+      if (
+        stableStringify(rendered.sourceSha256) !==
+          stableStringify(expectedSourceSha256) ||
+        rendered.recipeFingerprintSha256 !== evidence.recipeFingerprintSha256 ||
+        rendered.full.sha256 !== evidence.full.sha256 ||
+        rendered.mobile.sha256 !== evidence.mobile.sha256
+      ) {
+        errors.push(`${label}.reviewEvidence cannot be reproduced exactly.`);
+      }
+    } catch (error) {
+      errors.push(
+        `${label}.reviewEvidence reproduction failed: ${error.message}`,
+      );
+    }
+    const expectedFingerprint = sha256(
+      stableStringify({
+        decisions: entry?.decisions,
+        independentReviews: entry?.independentReviews,
+        result: entry?.result,
+        reviewEvidence: entry?.reviewEvidence,
+        status: entry?.status,
+        reviewedAt: entry?.reviewedAt,
+      }),
+    );
+    if (
+      entry?.decisionFingerprintSha256 !== expectedFingerprint ||
+      entry?.decisionFingerprintSha256 !== contract?.decisionFingerprintSha256
+    ) {
+      errors.push(
+        `${label}.decisionFingerprintSha256 must match the frozen decision.`,
       );
     }
   }

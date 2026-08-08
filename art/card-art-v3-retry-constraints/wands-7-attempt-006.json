@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-7",
+  "attemptNumber": 6,
+  "previousAttemptId": "wands-7-attempt-005",
+  "editSourceAttemptId": "wands-7-attempt-005",
+  "editSourcePath": "art/card-art-v3-raw/wands-a/wands-7-candidate-005-rejected.png",
+  "editSourceSha256": "d54373e2846c0517c6413f92cc92007f473856d566ede8c1b7a929f7d5a2e8ee",
+  "constraint": "Perform a visual-preservation ImageGen edit of the supplied rejected attempt-005. Whole-canvas resampling or redrawing is allowed and is not claimed pixel-immutable. Preserve exactly one upper plus six lower adults and all six existing lower inward-side staff layouts, hand contacts, uninterrupted shafts, separate paving endpoints, broad center lane, stone walls, anatomy, crop and Wands style. The current inward lower placement is base-contract-valid for this candidate; outward placement was only the retired attempt-005 remedial tactic. Do not move, add or delete a lower person or staff. The only permitted observable scene change is shortening both ends of the upper horizontal staff. Keep both natural hands gripping the same one staff, but make each end stop in open sky inside the opening with at least four visible sky pixels from its wall cap at 140×196. At each shortened end remove every old over-wall wood fragment visibly and restore matching open sky; leave no fragment, ghost, second endpoint or wall contact. Add no new wood, bridge, rail, lintel, text or elongated object beyond the required seven bark staffs. Preserve exact 1+6 people and 1+6 staffs at 140×196.",
+  "reason": "Attempt-005 achieved the exact seven adults, exact seven staffs, six unobscured lower shafts and endpoints, open center and lintel-free stone walls. It failed because its upper staff crossed both wall caps and because all six lower staffs reversed an outward-side layout that independent review now confirms was a noncanonical anti-occlusion tactic rather than a base requirement. Attempt-006 transparently retires that tactic, preserves the fully passing lower inward layout and changes only the observable upper endpoint gaps while permitting honest whole-canvas redrawing.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T11:30:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Seven of Wands base-contract review, upper-gap feasibility, honest resampling provenance and 140-pixel review)"
+}

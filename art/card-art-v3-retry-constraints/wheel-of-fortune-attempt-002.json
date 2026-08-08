@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wheel-of-fortune",
+  "attemptNumber": 2,
+  "previousAttemptId": "wheel-of-fortune-attempt-001",
+  "constraint": "Fresh composition. References only: legacy Wheel for palette/material/waterwheel function; approved retouched Fool for traveler identity/proportions/palette. Copy no source layout, prop or animal geometry; rejected attempt-001 and recent images are not inputs. Render the waterwheel anew. Exactly 1 wheel total; no gear/rosette/second circular mechanism. Center a fully exposed level four-way dry-road junction in open foreground: one meeting point with continuous arms to bottom/top/left/right, all connected, separate and unobstructed at 140×196. Huge working waterwheel stays beside the roads, never in the junction. Its narrow channel stays beside the wheel; it never crosses/replaces/merges with/resembles/blocks a road; no bridge. Exactly 1 person total: the young traveler stands beside, never on, the junction. At 140×196, wheel largest, junction second, traveler third. Changing clear-and-rain weather. No animal, including the Fool's dog. No table/workbench/paper/map/plan/book/document/diagram/marked sheet/board/plaque/signpost/road sign/banner/text/numeral/pseudo-writing/crowd/floating symbol.",
+  "reason": "Independent full-size and mobile review rejected attempt 001 because its foreground road formed a three-arm Y junction, its marked planning sheet repeated a forbidden document surface, and the road sign and people weakened the required wheel-and-four-way-crossing hierarchy. A fresh attempt must use the approved Fool restoration, expose all four road arms and remove every prior scene prop.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T01:04:30.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent tarot meaning, 140-pixel junction hierarchy and adversarial provenance review)"
+}

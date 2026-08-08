@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1060" height="1484" viewBox="0 0 1060 1484">
+  <rect width="1060" height="1484" fill="#f3ead7"/>
+  <g fill="#8b826f">
+    <path d="M0 430H300V650H0Z"/>
+    <path d="M760 430H1060V650H760Z"/>
+    <ellipse cx="65" cy="1338" rx="38" ry="14"/>
+    <ellipse cx="195" cy="1338" rx="38" ry="14"/>
+    <ellipse cx="335" cy="1338" rx="38" ry="14"/>
+    <ellipse cx="725" cy="1338" rx="38" ry="14"/>
+    <ellipse cx="865" cy="1338" rx="38" ry="14"/>
+    <ellipse cx="995" cy="1338" rx="38" ry="14"/>
+    <ellipse cx="502" cy="590" rx="30" ry="12"/>
+    <ellipse cx="558" cy="590" rx="30" ry="12"/>
+  </g>
+  <g fill="#354957" stroke="#f3ead7" stroke-width="7">
+    <circle cx="530" cy="270" r="36"/>
+    <path d="M490 315Q530 292 570 315L585 525Q530 575 475 525Z"/>
+  </g>
+  <path d="M390 390H670" stroke="#6f4b2d" stroke-width="28" stroke-linecap="round"/>
+  <g stroke="#354957" stroke-width="20" stroke-linecap="round">
+    <path d="M500 340L470 390M560 340L590 390"/>
+    <path d="M505 520L502 575M555 520L558 575"/>
+    <path d="M502 575L485 580M558 575L575 580"/>
+  </g>
+  <g stroke="#6f4b2d" stroke-width="24" stroke-linecap="round">
+    <path d="M65 700V1330"/>
+    <path d="M195 700V1330"/>
+    <path d="M335 700V1330"/>
+    <path d="M725 700V1330"/>
+    <path d="M865 700V1330"/>
+    <path d="M995 700V1330"/>
+  </g>
+  <g fill="#354957" stroke="#f3ead7" stroke-width="7">
+    <circle cx="125" cy="820" r="30"/><path d="M93 858Q125 840 157 858L167 1115Q125 1160 83 1115Z"/>
+    <circle cx="255" cy="840" r="30"/><path d="M223 878Q255 860 287 878L297 1135Q255 1180 213 1135Z"/>
+    <circle cx="395" cy="860" r="30"/><path d="M363 898Q395 880 427 898L437 1155Q395 1200 353 1155Z"/>
+    <circle cx="665" cy="860" r="30"/><path d="M633 898Q665 880 697 898L707 1155Q665 1200 623 1155Z"/>
+    <circle cx="805" cy="840" r="30"/><path d="M773 878Q805 860 837 878L847 1135Q805 1180 763 1135Z"/>
+    <circle cx="935" cy="820" r="30"/><path d="M903 858Q935 840 967 858L977 1115Q935 1160 893 1115Z"/>
+  </g>
+  <g stroke="#354957" stroke-width="18" stroke-linecap="round">
+    <path d="M100 900L65 930M230 920L195 950M370 940L335 970"/>
+    <path d="M690 940L725 970M830 920L865 950M960 900L995 930"/>
+    <path d="M108 1115L105 1290M142 1115L145 1290M105 1290L88 1298M145 1290L162 1298"/>
+    <path d="M238 1135L235 1290M272 1135L275 1290M235 1290L218 1298M275 1290L292 1298"/>
+    <path d="M378 1155L375 1290M412 1155L415 1290M375 1290L358 1298M415 1290L432 1298"/>
+    <path d="M648 1155L645 1290M682 1155L685 1290M645 1290L628 1298M685 1290L702 1298"/>
+    <path d="M788 1135L785 1290M822 1135L825 1290M785 1290L768 1298M825 1290L842 1298"/>
+    <path d="M918 1115L915 1290M952 1115L955 1290M915 1290L898 1298M955 1290L972 1298"/>
+  </g>
+</svg>

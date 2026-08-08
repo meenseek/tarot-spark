@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-3",
+  "attemptNumber": 2,
+  "previousAttemptId": "wands-3-attempt-001",
+  "editSourceAttemptId": "wands-3-attempt-001",
+  "editSourcePath": "art/card-art-v3-raw/wands-a/wands-3-candidate-001.png",
+  "editSourceSha256": "35d22adc07fb6b779c779598563ca3e9930c2c74fb49051ca6f63f13cf30f7cd",
+  "constraint": "Perform an honest visual-preservation ImageGen edit of selected attempt-001 after its reviewed batch supersession; whole-canvas resampling or redrawing is allowed and no pixels are claimed immutable. Preserve exactly three complete people total: the same foreground traveler and the same two distant caravan walkers. Preserve exactly one calm pack mule with the same soft cloth cargo and no rigid frame or protruding object. Preserve exactly three and only three upright bark staffs beside the foreground traveler, each with a separate top, full shaft and ground contact. Remove only the thin diagonal rod or handle carried by the distant viewer-right walker and restore a natural empty hand plus matching road and hillside in its place. The corrected distant walker carries and touches no staff, pole, rod, tool, rigid handle, rope, lead, mule tack or elongated object; leave no fragment, ghost, diagonal line or free endpoint where the removed object was. Preserve the road, valley, treeless slopes, cast, anatomy, crop, palette, lighting and Wands rendering visually. Add no fourth person, second animal, cart, wheel, harness shaft, tree, branch, fence, post, mast, pole, rod, tool handle, fourth staff, text or other elongated object beyond the required three foreground staffs. At 140×196 keep exactly three people, one mule and three foreground staff identities countable, with no fourth rod-like mark.",
+  "reason": "The first normalized Wands A batch sheet revealed one thin diagonal rod or handle in the distant viewer-right walker’s hand, outside the three required foreground staffs. That extra elongated object breaks the exact Three of Wands count even though the scene, three people, mule, three foreground staffs, road, meaning and style otherwise pass. Attempt-002 uses the exact selected raw attempt-001 as its sole edit source after a byte-identical archive and independently reviewed supersession, permits honest whole-canvas resampling and removes only that observable extra rod while preserving every passing invariant.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T12:20:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Three of Wands exact-count, bounded-edit, supersession provenance and 140-pixel review)"
+}

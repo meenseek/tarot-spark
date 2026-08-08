@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-9",
+  "attemptNumber": 3,
+  "previousAttemptId": "wands-9-attempt-002",
+  "editSourceAttemptId": "wands-9-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/wands-b/wands-9-candidate-002-rejected.png",
+  "editSourceSha256": "fa5e6edd1820a52235d9c15ef7829e36a47a7be1c7b0fe1c9c71c1b5a85030f6",
+  "constraint": "Perform an honest ImageGen edit of rejected Wands-9 attempt-002; whole-canvas resampling is allowed. Preserve the seven existing upright barrier staffs and the one held foreground staff without removing, merging, splitting or duplicating any of them. Add exactly one and only one upright bark staff at the viewer-right end of the existing barrier, with a distinct top, continuously traceable shaft and visible ground contact, separated from the current rightmost staff by a clear gap comparable to the existing barrier spacing. Extend the existing flexible rope to the new staff and terminate it with one restrained knot, leaving no loose or staff-like rope tail. Preserve the traveler, head wrap, hands, held staff, pack, hillside, town, crop, palette, light and rendering. Beyond this single required new staff and its one connecting rope span, add no fence post, rope extension, person, opponent, tree, branch, pole, tool, weapon, text, tenth staff or other rod-like object. At full size and 140×196 require exactly one held staff plus eight separately countable barrier staffs, nine staffs total.",
+  "reason": "Attempt-002 cleanly removed the excess right-side posts and preserved the traveler, but it left only seven barrier staffs, so the image totals eight with the held staff. Attempt-003 adds one isolated right-end barrier staff and one bounded rope knot to create the required eight-plus-one structure without disturbing any passing feature.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T13:55:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Nine of Wands single-post addition, one-plus-eight exact-count and full/mobile review)"
+}

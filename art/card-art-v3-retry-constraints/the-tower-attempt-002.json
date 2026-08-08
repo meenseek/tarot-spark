@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "the-tower",
+  "attemptNumber": 2,
+  "previousAttemptId": "the-tower-attempt-001",
+  "editSourceAttemptId": "the-tower-attempt-001",
+  "editSourcePath": "art/card-art-v3-raw/major-new-b/the-tower-candidate-001-rejected.png",
+  "editSourceSha256": "b16d067e1b16d06e0f762991033359ce11b5d89229c4e4ecd4ff79432b3a5c4f",
+  "constraint": "Precision-edit only the supplied rejected The Tower attempt-001; it is the immutable target scene. Preserve the complete stone tower, its single branching lightning strike, the splitting false upper crown, all falling masonry, the cordoned empty ground, mountain landscape, broad bottom-right exit route, exactly three existing foreground adults, and every face, hand, limb, garment and pose belonging to those three large lower-right adults, plus the crop, palette, lighting, ink linework and gouache texture. Edit only the complete above-ground volume of the lower-left wooden hut or market stall and the minimum immediately adjacent rock, soil and vegetation pixels needed for natural restoration. Exclude all tower masonry, the cypress and landscape above the hut, every cordon post and rope, the exit route and the three lower-right adults from the edit area. Remove the hut and every part of its roof, posts, walls, counter, furniture and contents. Remove every person, face, head, limb, body, worker and human-like silhouette inside, behind or beside that hut. Restore the vacated area as an unoccupied low rocky slope with sparse moss and small wildflowers matching the surrounding terrain, with no shelter, building, furniture, tool, fire or new object. Final frame contains exactly three people total: only the unchanged foreground trio together at safe lower-right. Do not alter, move, redraw, crop or duplicate any of those three. Add no person, human-like shape, animal, tower, lightning, debris, flame, smoke, sign, banner, letter, numeral, pseudo-writing, symbol or object. Change no pixel outside the bounded hut-removal and natural-background-restoration area as closely as the edit tool permits.",
+  "reason": "All three independent full-size and 140-pixel reviews rejected attempt-001 only because the lower-left inhabited hut added at least one extra adult near the fall zone. The tower, single lightning strike, false crown, safe foreground trio, exit route, anatomy, text-free surface and deck style passed, so attempt-002 may remove only the hut and its human contents while preserving the passing scene.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T08:20:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent tarot count, 140-pixel hierarchy and immutable precision-edit provenance review)"
+}

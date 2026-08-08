@@ -1,5 +1,218 @@
 {
   "systemId": "quiet-celestial-storybook-full-deck",
   "version": "v3",
-  "entries": []
+  "entries": [
+    {
+      "id": "court-validation-a-cups-page-replacement-002",
+      "supersessionId": "cups-page-attempt-002-batch-supersession-001",
+      "replacementAttemptId": "cups-page-attempt-004",
+      "status": "passed",
+      "result": "approved",
+      "reviewedAt": "2026-08-06T13:05:00.000Z",
+      "reviewEvidence": {
+        "cardIds": [
+          "wands-knight",
+          "wands-queen",
+          "wands-king",
+          "cups-page",
+          "cups-queen",
+          "cups-king"
+        ],
+        "attemptIds": [
+          "wands-knight-attempt-002",
+          "wands-queen-attempt-002",
+          "wands-king-attempt-001",
+          "cups-page-attempt-004",
+          "cups-queen-attempt-003",
+          "cups-king-attempt-002"
+        ],
+        "assetSha256": {
+          "wands-knight": "8e00a488561923762722d5e67b45b75c7c7cbca459939de9ba379e4fcee3eade",
+          "wands-queen": "25d7084acf088a67bf2f3dad69b54343cc7d1845dac8381c1f78cfa5ce3e59ca",
+          "wands-king": "aaa9e41d26f69edbbdb30a41efaef2422f374bb2fca33fcdcd2e1e8667d85e91",
+          "cups-page": "a4d860d0e2db734d22c66fdda538995538895b099036c00c635a95aab85bd25b",
+          "cups-queen": "79cd9bccb358a238af98c362bb75b8f44788e3d1e21767114390467ab44f7f22",
+          "cups-king": "a6ddaef1c3e2992d2dbaeddc972b9b818589d19ef2b3d438f978a9f7b0698d98"
+        },
+        "assetMapSha256": "3b870d599d15a8b3bee621885a5ce780120e5ccc32be6147e4f96cb9b2c5e146",
+        "recipe": {
+          "id": "court-contact-sheet-3x2-v1",
+          "tool": "sharp",
+          "toolVersion": "0.34.5",
+          "background": "#e8ddc6",
+          "columns": 3,
+          "rows": 2,
+          "order": "cardIds row-major",
+          "output": {
+            "format": "jpeg",
+            "quality": 92,
+            "chromaSubsampling": "4:4:4",
+            "progressive": true
+          },
+          "full": {
+            "width": 896,
+            "height": 828,
+            "tileWidth": 280,
+            "tileHeight": 392,
+            "margin": 16,
+            "columnGap": 12,
+            "rowGap": 12
+          },
+          "mobile": {
+            "width": 456,
+            "height": 420,
+            "tileWidth": 140,
+            "tileHeight": 196,
+            "margin": 10,
+            "columnGap": 8,
+            "rowGap": 8
+          }
+        },
+        "recipeFingerprintSha256": "73dea60def02f0bc9207e4842e16842fe4ff5df98ca7fa33437863f88b52ea9a",
+        "full": {
+          "path": "art/card-art-v3-reviews/court-validation-a-contact-sheet-v3.jpg",
+          "sha256": "1ee4a2414d61f1bd31c37bef25badcaa8eebc2e4b64a6251ca83afe94e087276",
+          "bytes": 264520,
+          "width": 896,
+          "height": 828
+        },
+        "mobile": {
+          "path": "art/card-art-v3-reviews/court-validation-a-contact-sheet-mobile-v3.jpg",
+          "sha256": "091ea6d54a5ab0458baaee8cc5f0da2913bc772f3ae151475cb4cc84464ef779",
+          "bytes": 80339,
+          "width": 456,
+          "height": 420
+        }
+      },
+      "independentReviews": [
+        {
+          "reviewerId": "tarot-content-review",
+          "reviewer": "Planck",
+          "scope": "tarot identity, exact object count and six-card meaning coherence",
+          "independent": true,
+          "result": "approved",
+          "reviewedAt": "2026-08-06T13:02:00.000Z"
+        },
+        {
+          "reviewerId": "ux-test-review",
+          "reviewer": "Harvey",
+          "scope": "full-size and 140-pixel mobile distinction, seams and hierarchy",
+          "independent": true,
+          "result": "approved",
+          "reviewedAt": "2026-08-06T13:03:00.000Z"
+        },
+        {
+          "reviewerId": "final-plan-review",
+          "reviewer": "Halley",
+          "scope": "deterministic provenance, atomic transition and expansion readiness",
+          "independent": true,
+          "result": "approved",
+          "reviewedAt": "2026-08-06T13:04:00.000Z"
+        }
+      ],
+      "decisionFingerprintSha256": "8f3be269b77e192210ee74d6ab25ed8941a430629843ba5aae31610169343eff"
+    },
+    {
+      "id": "wands-a-wands-3-replacement-001",
+      "supersessionId": "wands-3-attempt-001-batch-supersession-001",
+      "replacementAttemptId": "wands-3-attempt-006",
+      "status": "passed",
+      "result": "approved",
+      "reviewedAt": "2026-08-07T13:29:00.000Z",
+      "reviewEvidence": {
+        "cardIds": ["wands-2", "wands-3", "wands-4", "wands-6", "wands-7"],
+        "attemptIds": [
+          "wands-2-attempt-005",
+          "wands-3-attempt-006",
+          "wands-4-attempt-008",
+          "wands-6-attempt-001",
+          "wands-7-attempt-006"
+        ],
+        "assetSha256": {
+          "wands-2": "7dfcab3cd5c9c7de51839df37ad726effbc46d563ce57f2022ba4d34b6dc3963",
+          "wands-3": "2ec5f094d07fbb6eb31279c6d654059fe75ee0cf09f31c73c372c7a50e088530",
+          "wands-4": "3553df10c48f7e7641bc5f18c92deb52398528e8c8f65a6ab639e3227975eff9",
+          "wands-6": "9940f8f2d8b8f8aa61274ca777264d3c84bede9efa17270004a720e1a889be78",
+          "wands-7": "93509ecc19b748a3e8a4b40faeeafd42c30898bb099abf9488a4aaefd522aa0a"
+        },
+        "assetMapSha256": "94c3236085318604b4a9e1ae12da54afc1d6c3d79dcd49358b20a4f8db07796c",
+        "recipe": {
+          "id": "batch-contact-sheet-v1",
+          "tool": "sharp",
+          "toolVersion": "0.34.5",
+          "sourceCount": 5,
+          "background": "#e8ddc6",
+          "columns": 3,
+          "rows": 2,
+          "order": "cardIds row-major",
+          "output": {
+            "format": "jpeg",
+            "quality": 92,
+            "chromaSubsampling": "4:4:4",
+            "progressive": true
+          },
+          "full": {
+            "width": 896,
+            "height": 828,
+            "tileWidth": 280,
+            "tileHeight": 392,
+            "margin": 16,
+            "columnGap": 12,
+            "rowGap": 12
+          },
+          "mobile": {
+            "width": 456,
+            "height": 420,
+            "tileWidth": 140,
+            "tileHeight": 196,
+            "margin": 10,
+            "columnGap": 8,
+            "rowGap": 8
+          }
+        },
+        "recipeFingerprintSha256": "d6ddee0961f4ff2ad522b03ba78fa0a2efa5cc2a315ec285dbbd121a0aad1ab6",
+        "full": {
+          "path": "art/card-art-v3-reviews/wands-a-contact-sheet-v2.jpg",
+          "sha256": "e55f1d6e94fe75c2f8178675ea3b90daf16974a5994a0197f8862085f7c3cfba",
+          "bytes": 225680,
+          "width": 896,
+          "height": 828
+        },
+        "mobile": {
+          "path": "art/card-art-v3-reviews/wands-a-contact-sheet-mobile-v2.jpg",
+          "sha256": "34f2bc2dc0ef0fd1d830cac20fede1c23f0a0165afd328e9a012047b3e8f856f",
+          "bytes": 69414,
+          "width": 456,
+          "height": 420
+        }
+      },
+      "independentReviews": [
+        {
+          "reviewerId": "tarot-content-review",
+          "reviewer": "Planck",
+          "scope": "Three of Wands exact count, returning-caravan meaning and Wands A coherence",
+          "independent": true,
+          "result": "approved",
+          "reviewedAt": "2026-08-07T13:26:00.000Z"
+        },
+        {
+          "reviewerId": "ux-test-review",
+          "reviewer": "Harvey",
+          "scope": "full-size and 140-pixel count legibility, distinction and batch harmony",
+          "independent": true,
+          "result": "approved",
+          "reviewedAt": "2026-08-07T13:27:00.000Z"
+        },
+        {
+          "reviewerId": "final-plan-review",
+          "reviewer": "Halley",
+          "scope": "normalized provenance, supersession closure and atomic replacement readiness",
+          "independent": true,
+          "result": "approved",
+          "reviewedAt": "2026-08-07T13:28:00.000Z"
+        }
+      ],
+      "decisionFingerprintSha256": "ba4a6561ba9d762a06552e10649ff1b7e606f0ec88bfccb9359b9fc692ef088a"
+    }
+  ]
 }

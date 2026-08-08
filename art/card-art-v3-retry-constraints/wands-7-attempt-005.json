@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-7",
+  "attemptNumber": 5,
+  "previousAttemptId": "wands-7-attempt-004",
+  "controlReferenceId": "wands-7-six-isolated-slots-v1",
+  "controlReferencePath": "art/card-art-v3-controls/wands-7-six-isolated-slots-v1.png",
+  "controlReferenceSha256": "eaf5b1a41459b43e10af24cb5e760ccf6a195308d446e241863ee3aa19ab6808",
+  "styleReferenceId": "wands-5",
+  "styleReferencePath": "public/cards/v3/wands-5.jpg",
+  "styleReferenceSha256": "7700a9f1efaf218e3ed79c2ccc4cc1ed5a6d3436770291b8af390b35ea1150a9",
+  "constraint": "Fresh generation. Input 1 is geometry only: follow its upper person and short horizontal staff, six isolated lower person-and-outward-staff slots, hand contacts, feet, shafts, paving endpoints, stone ends and empty center; copy none of its shapes, colors or diagram style. Input 2 controls only approved Wands material, palette and ink-and-gouache rendering, never count, cast or composition. No rejected Seven of Wands image is input. Render exactly seven complete adults and seven bark staffs: upper 1 plus lower 6, horizontal 1 plus upright 6. The upper adult grips the short staff with two hands; both ends stay inside the opening with clear sky gaps from both stone walls. On each lower side place three separate adults. Each holds one uninterrupted outward-side staff with one visible hand; every head, body, two feet, staff top, full shaft and separate paving contact stays clear. Keep a broad central lane. Stone walls end separately with no lintel, arch, beam, rail, door, slat, post or fitting. Add no eighth person, animal, tree, branch, pole, tool handle or other elongated object. At 140×196 keep 1+6 people, 1+6 staffs, six lower endpoints and both upper sky gaps countable.",
+  "reason": "Attempt-004 reached the exact people and staff totals but again hid one lower shaft behind another person, placed every lower staff on the inward side contrary to its reviewed slot contract and added a forbidden stone lintel. The approved geometry control now binds all six outward-side hand contacts, full shafts, feet, separate endpoints, upper sky gaps and unbridged stone ends, while approved Wands Five supplies style alone and no rejected Seven of Wands composition remains in the inputs.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T10:58:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Seven of Wands geometry-control, style-authority and 140-pixel review)"
+}

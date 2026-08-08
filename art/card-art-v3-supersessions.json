@@ -145,6 +145,141 @@
         "requiredMobileReviewPath": "art/card-art-v3-reviews/court-validation-a-contact-sheet-mobile-v2.jpg"
       },
       "decisionFingerprintSha256": "32fc34421f00fd315afa34826f209acb339d9da15f0c969510f56b8ca1870682"
+    },
+    {
+      "id": "wands-3-attempt-001-batch-supersession-001",
+      "cardId": "wands-3",
+      "attemptId": "wands-3-attempt-001",
+      "attemptNumber": 1,
+      "batchId": "wands-a",
+      "status": "superseded",
+      "result": "rejected",
+      "supersededAt": "2026-08-07T12:15:00.000Z",
+      "reason": "The first normalized Wands A contact-sheet gate exposed an exact-count failure that was not legible enough in the isolated candidate review: the distant viewer-right caravan walker carries a thin diagonal rod or handle in addition to the three required upright foreground staffs. The Three of Wands scene, people, mule, three foreground staffs, road, meaning and style otherwise pass; only that bounded extra elongated object must be removed before batch approval.",
+      "archive": {
+        "path": "art/card-art-v3-superseded/wands-3-attempt-001.jpg",
+        "sha256": "c8f3cce8b7dc842210ee4c61635d3414f4507b1bdfe7fe2357af24ec30ca519a",
+        "bytes": 279027
+      },
+      "reviewEvidence": {
+        "cardIds": ["wands-2", "wands-3", "wands-4", "wands-6", "wands-7"],
+        "attemptIds": [
+          "wands-2-attempt-005",
+          "wands-3-attempt-001",
+          "wands-4-attempt-008",
+          "wands-6-attempt-001",
+          "wands-7-attempt-006"
+        ],
+        "assetSha256": {
+          "wands-2": "7dfcab3cd5c9c7de51839df37ad726effbc46d563ce57f2022ba4d34b6dc3963",
+          "wands-3": "c8f3cce8b7dc842210ee4c61635d3414f4507b1bdfe7fe2357af24ec30ca519a",
+          "wands-4": "3553df10c48f7e7641bc5f18c92deb52398528e8c8f65a6ab639e3227975eff9",
+          "wands-6": "9940f8f2d8b8f8aa61274ca777264d3c84bede9efa17270004a720e1a889be78",
+          "wands-7": "93509ecc19b748a3e8a4b40faeeafd42c30898bb099abf9488a4aaefd522aa0a"
+        },
+        "assetMapSha256": "0d10fe86de91e2568671ef7ae79ffbf5058c7b698f0957fe463d4c2314d431eb",
+        "recipe": {
+          "id": "batch-contact-sheet-v1",
+          "tool": "sharp",
+          "toolVersion": "0.34.5",
+          "sourceCount": 5,
+          "background": "#e8ddc6",
+          "columns": 3,
+          "rows": 2,
+          "order": "cardIds row-major",
+          "output": {
+            "format": "jpeg",
+            "quality": 92,
+            "chromaSubsampling": "4:4:4",
+            "progressive": true
+          },
+          "full": {
+            "width": 896,
+            "height": 828,
+            "tileWidth": 280,
+            "tileHeight": 392,
+            "margin": 16,
+            "columnGap": 12,
+            "rowGap": 12
+          },
+          "mobile": {
+            "width": 456,
+            "height": 420,
+            "tileWidth": 140,
+            "tileHeight": 196,
+            "margin": 10,
+            "columnGap": 8,
+            "rowGap": 8
+          }
+        },
+        "recipeFingerprintSha256": "d6ddee0961f4ff2ad522b03ba78fa0a2efa5cc2a315ec285dbbd121a0aad1ab6",
+        "full": {
+          "path": "art/card-art-v3-reviews/wands-a-contact-sheet-v1.jpg",
+          "sha256": "4944c98d04d4ec18e261900a1feb3ea464ce592964386ed7c1ff86ce85a10863",
+          "bytes": 224791,
+          "width": 896,
+          "height": 828
+        },
+        "mobile": {
+          "path": "art/card-art-v3-reviews/wands-a-contact-sheet-mobile-v1.jpg",
+          "sha256": "c3c6baa6f20730a4e1c6de5bd35cfe5157c0beb86b9bdcb29a8e93b48227e6e6",
+          "bytes": 69471,
+          "width": 456,
+          "height": 420
+        },
+        "blocker": "The distant viewer-right caravan walker carries one thin diagonal rod or handle beyond the three required upright foreground staffs."
+      },
+      "independentReviews": [
+        {
+          "reviewerId": "tarot-content-review",
+          "reviewer": "Planck",
+          "scope": "Three of Wands exact-count meaning, caravan coherence and bounded correction",
+          "independent": true,
+          "result": "rejected",
+          "reviewedAt": "2026-08-07T12:12:00.000Z"
+        },
+        {
+          "reviewerId": "ux-test-review",
+          "reviewer": "Harvey",
+          "scope": "full-size and 140-pixel extra-rod legibility and batch consistency",
+          "independent": true,
+          "result": "rejected",
+          "reviewedAt": "2026-08-07T12:13:00.000Z"
+        },
+        {
+          "reviewerId": "final-plan-review",
+          "reviewer": "Halley",
+          "scope": "supersession provenance, atomic replacement gate and release readiness",
+          "independent": true,
+          "result": "rejected",
+          "reviewedAt": "2026-08-07T12:14:00.000Z"
+        }
+      ],
+      "replacementContract": {
+        "mode": "precision-edit-only",
+        "selectionPolicy": "review candidate before ledger append; commit selected only atomically with an externally frozen passing replacement gate, otherwise commit rejected",
+        "attemptNumber": 2,
+        "previousAttemptId": "wands-3-attempt-001",
+        "retryArtifactPath": "art/card-art-v3-retry-constraints/wands-3-attempt-002.json",
+        "retryArtifactSha256": "9406f1f153c8a026fab1a0ebd480239d6f0d7b3bcf62e9e9df2632a656a58dff",
+        "editSource": {
+          "attemptId": "wands-3-attempt-001",
+          "path": "art/card-art-v3-raw/wands-a/wands-3-candidate-001.png",
+          "sha256": "35d22adc07fb6b779c779598563ca3e9930c2c74fb49051ca6f63f13cf30f7cd"
+        },
+        "allowedChange": "Only the distant viewer-right walker’s thin diagonal rod or handle may be removed and replaced with a natural empty hand plus matching road and hillside; leave no fragment, ghost, diagonal line, free endpoint, rope, lead or mule-tack substitute, while all three people, the mule, three foreground staffs, cargo, road, anatomy, composition and Wands rendering remain visually preserved.",
+        "requiredGateId": "wands-a-wands-3-replacement-001",
+        "requiredBatchCardIds": [
+          "wands-2",
+          "wands-3",
+          "wands-4",
+          "wands-6",
+          "wands-7"
+        ],
+        "requiredFullReviewPath": "art/card-art-v3-reviews/wands-a-contact-sheet-v2.jpg",
+        "requiredMobileReviewPath": "art/card-art-v3-reviews/wands-a-contact-sheet-mobile-v2.jpg"
+      },
+      "decisionFingerprintSha256": "6d97ca3229da523913d9b0329cd2f5a65272b1668d9a978e0ff81ef39a61ed70"
     }
   ]
 }

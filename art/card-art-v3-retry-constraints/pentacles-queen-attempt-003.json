@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "cardId": "pentacles-queen",
+  "attemptNumber": 3,
+  "previousAttemptId": "pentacles-queen-attempt-002",
+  "editSourceAttemptId": "pentacles-queen-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/court-validation-b/pentacles-queen-candidate-002-rejected.png",
+  "editSourceSha256": "2ced13fe8d181c08f6bd8143b946ee8a6c51d954769a7573986497d15b31a677",
+  "constraint": "Precision-edit rejected attempt-002 only. Preserve the two people, young-traveler identity, every face and limb, the steward's disk-side sleeve and forearm, exact natural five-digit disk grip and open-palm sweep, exactly one unchanged wood-and-brass pentacle disk and its complete edge, the helper's rectangular leafy-produce crate, raised soil beds, stone bench, plain folded rectangular blanket, exactly one rabbit, pergola, landscape, crop, light, palette and gouache-and-ink texture. Remove only the single short barrel-like wooden planter in the far-left midground, immediately behind the steward's disk-side forearm and against the base and front edge of the low pale-stone wall. Remove its complete elliptical rim, staves, body, base, contained soil, plant and cast shadow. Continue the exact neighboring pale-stone wall face and top, adjacent paving and existing background greenery through the vacated footprint, with only one irregular soil-rooted trailing vine crossing the restored wall edge. Root that vine visibly beyond or behind the wall; add no floating plant or isolated soil patch. Make no intentional change outside this bounded planter-and-contained-plant region; limit unavoidable boundary blending to the smallest immediately adjacent edge pixels. Leave no ellipse, dark circular soil patch, stave pattern, cylindrical shadow, bounded plant clump, residual rim, planter ghost, planter, pot, basket, barrel, box, crate or vessel silhouette anywhere inside the repaired patch at full size or 140 by 196 pixels. Preserve the helper's existing rectangular produce crate outside the repair patch and do not reinterpret it as a basket or vessel. Add no pot, jar, pitcher, bowl, plate, circular vessel, tableware, round food, person, animal, disk, pentacle-like mark, text, symbol or object. At full size and 140 pixels, exactly two people, one rabbit and one pentacle disk remain, and no round vessel remains.",
+  "reason": "Attempt 002 passed the new open-garden composition, non-copied anchor role, two-person count, single disk, single rabbit, food-rest-work action, anatomy and mobile hierarchy, but adversarial review found one short cylindrical wooden planter in the far-left midground that directly violated the reviewed no-pot and no-round-vessel retry contract. Only that planter, its contents and its shadow may be removed.",
+  "result": "approved",
+  "reviewedAt": "2026-08-06T14:48:39.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent tarot preservation, mobile residual-shape and adversarial lineage review)"
+}

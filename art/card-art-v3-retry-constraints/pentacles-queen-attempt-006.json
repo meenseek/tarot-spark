@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "cardId": "pentacles-queen",
+  "attemptNumber": 6,
+  "previousAttemptId": "pentacles-queen-attempt-005",
+  "constraint": "Fresh generation; Ace/King anchors only for render style and disk shape/material. No failed-attempt input or King scene/composition. High diagonal view of flat garden; one unbroken low stone wall, no opening/arch/gate/portal/step/threshold. Exactly 2 people, 1 small rabbit. Medium-brown, short-dark-curled young traveler is largest at 140×196; plum/cream clothes, no belt/pocket/pouch/strap/flap/bulge/hip attachment. Hold exactly 1 wood/brass disk low at hip with 1 five-point mark and clear edge/mark. One natural five-digit hand touches only rim, never face/mark; other has five digits and one open-palm sweep. Only helper carries 1 rigid rectangular solid-board crate, square corners/flat base clear at 140×196; no slats/gaps/weave/curve/handle/taper/sack/soil/roots; cut-stem produce only. It is the only container; neither person wears a receptacle. One open-legged bench, empty below, holds 1 soft folded blanket, never box/bag/cushion/chest/storage. Other plants root in flush ground soil, no raised frame/trough. Disk/hand, helper/crate, bench/blanket and rabbit stay separate. No extra container/basket/planter/vessel/tableware/round food/prop/person/animal/disk/emblem, even edge-cropped.",
+  "reason": "Attempt 005 passed the fresh anchor-only route, Queen role, exact people/rabbit/disk count, rigid crate, ground planting, wall continuity and mobile hierarchy, but three independent reviews found belt pouches on the foreground traveler and a side pouch on the helper. Those wearable receptacles directly violated the reviewed crate-only container contract, so attempt 006 must be a fresh anchor-only generation with unadorned waist and hip silhouettes, a solid-board crate and a visibly open-legged non-storage bench.",
+  "result": "approved",
+  "reviewedAt": "2026-08-06T23:59:12.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent executable Queen meaning, mobile object/anatomy and adversarial provenance review)"
+}

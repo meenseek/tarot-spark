@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wands-7",
+  "attemptNumber": 4,
+  "previousAttemptId": "wands-7-attempt-003",
+  "constraint": "Fresh generation from the two approved Wands anchors only; use no rejected input and preserve the complete base contract. Show exactly one complete upper adult with the sole horizontal staff and exactly six complete lower adults in six isolated person-plus-staff slots, three image-left and three image-right, leaving one broad empty central lane to the stone opening. Each lower adult has one and only one upright bark staff on that adult’s outward side; for every slot show the complete head, body, two feet, distinct staff top, uninterrupted shaft and separate paving contact with background gaps from all other people and staffs. Thus show exactly 7 adults and exactly 7 staffs: upper 1 plus lower 6. Keep the upper staff clear of both monolithic stone wall ends. The gateway and opening are stone only, with no wood, door, slat, post, rail, beam or fitting. No eighth person, animal, tree, branch, pole, tool handle or other elongated object. Keep 1+6 people and 1+6 staffs countable at 140×196.",
+  "reason": "Attempt-003 reached the exact one-plus-six people and one-plus-six staff totals and preserved the stone-only gate, but one lower staff disappeared behind another adult before its paving contact. Independent source-geometry review found no safe local-edit corridor without moving protected people. Attempt-004 therefore regenerates only from the approved Wands anchors and assigns every lower adult an isolated outward-side person-and-staff slot with a complete shaft and endpoint.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T10:38:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent Seven of Wands meaning, fresh-source provenance, isolated-slot topology and 140-pixel review)"
+}

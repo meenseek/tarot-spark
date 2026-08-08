@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "cardId": "wheel-of-fortune",
+  "attemptNumber": 3,
+  "previousAttemptId": "wheel-of-fortune-attempt-002",
+  "editSourceAttemptId": "wheel-of-fortune-attempt-002",
+  "editSourcePath": "art/card-art-v3-raw/legacy-keep/wheel-of-fortune-candidate-002-rejected.png",
+  "editSourceSha256": "769b3e252f2b4166edd64b57dbeadde44205aeba0fc1b102c646b619e1d3808d",
+  "controlReferenceId": "wheel-of-fortune-four-way-junction-v1",
+  "controlReferencePath": "art/card-art-v3-controls/wheel-of-fortune-four-way-junction-v1.png",
+  "controlReferenceSha256": "0854404db7824dfb62697d332716ab21eb1163d50f34c21a8bbc4ebde3a725ee",
+  "constraint": "Precision-edit only the first supplied image, rejected attempt-002; it is the immutable target scene. The second supplied image is a geometry-only control. Preserve the first image's huge working waterwheel, wheel geometry, mill, water channel, changing sky, exactly one traveler, face, hair, hands, anatomy, clothing, pose, scale, crop, palette, lighting, ink and gouache texture. Edit only the dry roads and the immediately adjacent ground, low stone edge and vegetation needed to expose their connections. The source currently reads as three arms. Rebuild the road ground into exactly four continuous dry-road arms meeting at one fully exposed central point: bottom foreground, top background, left and right. Add a distinct top arm that continues from the same center through the open gap between the mill and traveler toward the distant mountain; it must not stop at a building, hide behind the traveler, merge into the right arm or become water. Keep the traveler beside, never on, the center. At 140×196 all four arms must be simultaneously visible, connected to the same point, separate and unobstructed. Use the control only for one meeting point, exact four-arm count and connectivity. Do not copy its cream background, brown color, vector stroke, absolute position, width or flat rendering. The water channel stays beside the wheel and never resembles, crosses, replaces, merges with or blocks a road. Keep exactly one wheel or wheel-like object and exactly one person total. Add no animal, gear, rosette, bridge, table, workbench, paper, map, plan, book, document, marked sheet, board, plaque, sign, banner, text, numeral, pseudo-writing, crowd or floating symbol. Change no sky, figure or wheel pixel except minimal natural edge blending where newly exposed road meets preserved scenery.",
+  "reason": "Independent review rejected attempt 002 because the road still formed a three-arm Y junction. The waterwheel, traveler, weather, anatomy, palette and text-free scene passed, so the reviewed precision edit may change only road-adjacent ground while a geometry-only control fixes the missing fourth arm and single-center topology.",
+  "result": "approved",
+  "reviewedAt": "2026-08-07T01:15:00.000Z",
+  "reviewer": "Planck, Harvey and Halley (independent tarot topology, mobile four-arm visibility and precision-edit provenance review)"
+}
