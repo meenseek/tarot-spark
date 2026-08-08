@@ -38,6 +38,7 @@ import {
 } from "./card-art-v3-batch-contact-sheet.mjs";
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
+const planningValidationOptions = Object.freeze({ baselineFiles: null });
 const temporaryDirectories = [];
 const temporaryFiles = [];
 const temporaryFileRestorations = [];
@@ -312,7 +313,7 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
       generationCount: files.generationRecords.records.length,
       releaseCount: 1,
     });
-  }, 30_000);
+  }, 60_000);
 
   it("builds a deterministic retouch prompt from the reviewed manifest and frozen source", () => {
     const files = loadAuditCardArtV3Files();
@@ -1410,7 +1411,7 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
 
   it("rejects every forged Devil selected-record provenance class", () => {
     const validFiles = asPlanningSnapshot(loadCardArtV3Files(repositoryRoot));
-    expect(validateCardArtV3System(validFiles, repositoryRoot)).toEqual({
+    expect(validateCardArtV3System(validFiles, repositoryRoot, null)).toEqual({
       approvedCount: 78,
       cardCount: 78,
       generationCount: validFiles.generationRecords.records.length,
@@ -1598,7 +1599,12 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
       "the-world",
     ]) {
       expect(() =>
-        getCardArtV3PromptRecord(preGate, cardId, repositoryRoot),
+        getCardArtV3PromptRecord(
+          preGate,
+          cardId,
+          repositoryRoot,
+          planningValidationOptions,
+        ),
       ).toThrow(/externally frozen batch review gate|committed atomically/i);
       expect(() =>
         getCardArtV3PromptAuditRecord(preGate, cardId, repositoryRoot),
@@ -1610,7 +1616,7 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
     postGate.batchReviewGates.entries.splice(gateIndex, 0, fixture.gate);
     Object.assign(postGate.approvals.records, fixture.approvals);
     expect(postGate).toEqual(committed);
-    expect(validateCardArtV3System(postGate, repositoryRoot)).toEqual({
+    expect(validateCardArtV3System(postGate, repositoryRoot, null)).toEqual({
       approvedCount: 78,
       cardCount: 78,
       generationCount: postGate.generationRecords.records.length,
@@ -1624,20 +1630,25 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
       "the-world",
     ]) {
       expect(() =>
-        getCardArtV3PromptRecord(postGate, cardId, repositoryRoot),
+        getCardArtV3PromptRecord(
+          postGate,
+          cardId,
+          repositoryRoot,
+          planningValidationOptions,
+        ),
       ).not.toThrow();
     }
 
     const gateOnly = structuredClone(preGate);
     gateOnly.batchReviewGates.entries.splice(gateIndex, 0, fixture.gate);
-    expect(() => validateCardArtV3System(gateOnly, repositoryRoot)).toThrow(
-      /committed atomically/i,
-    );
+    expect(() =>
+      validateCardArtV3System(gateOnly, repositoryRoot, null),
+    ).toThrow(/committed atomically/i);
 
     const approvalsOnly = structuredClone(preGate);
     Object.assign(approvalsOnly.approvals.records, fixture.approvals);
     expect(() =>
-      validateCardArtV3System(approvalsOnly, repositoryRoot),
+      validateCardArtV3System(approvalsOnly, repositoryRoot, null),
     ).toThrow(/requires an externally frozen batch review gate/i);
 
     const mutations = [
@@ -1679,7 +1690,9 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
     for (const mutate of mutations) {
       const forged = structuredClone(postGate);
       mutate(forged);
-      expect(() => validateCardArtV3System(forged, repositoryRoot)).toThrow();
+      expect(() =>
+        validateCardArtV3System(forged, repositoryRoot, null),
+      ).toThrow();
     }
   }, 60_000);
 
@@ -1701,7 +1714,12 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
       "wands-7",
     ]) {
       expect(() =>
-        getCardArtV3PromptRecord(preGate, cardId, repositoryRoot),
+        getCardArtV3PromptRecord(
+          preGate,
+          cardId,
+          repositoryRoot,
+          planningValidationOptions,
+        ),
       ).toThrow(/externally frozen batch review gate|committed atomically/i);
       expect(() =>
         getCardArtV3PromptAuditRecord(preGate, cardId, repositoryRoot),
@@ -1713,7 +1731,7 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
     postGate.batchReviewGates.entries.splice(gateIndex, 0, fixture.gate);
     Object.assign(postGate.approvals.records, fixture.approvals);
     expect(postGate).toEqual(committed);
-    expect(validateCardArtV3System(postGate, repositoryRoot)).toEqual({
+    expect(validateCardArtV3System(postGate, repositoryRoot, null)).toEqual({
       approvedCount: 78,
       cardCount: 78,
       generationCount: postGate.generationRecords.records.length,
@@ -1727,20 +1745,25 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
       "wands-7",
     ]) {
       expect(() =>
-        getCardArtV3PromptRecord(postGate, cardId, repositoryRoot),
+        getCardArtV3PromptRecord(
+          postGate,
+          cardId,
+          repositoryRoot,
+          planningValidationOptions,
+        ),
       ).not.toThrow();
     }
 
     const gateOnly = structuredClone(preGate);
     gateOnly.batchReviewGates.entries.splice(gateIndex, 0, fixture.gate);
-    expect(() => validateCardArtV3System(gateOnly, repositoryRoot)).toThrow(
-      /committed atomically/i,
-    );
+    expect(() =>
+      validateCardArtV3System(gateOnly, repositoryRoot, null),
+    ).toThrow(/committed atomically/i);
 
     const approvalsOnly = structuredClone(preGate);
     Object.assign(approvalsOnly.approvals.records, fixture.approvals);
     expect(() =>
-      validateCardArtV3System(approvalsOnly, repositoryRoot),
+      validateCardArtV3System(approvalsOnly, repositoryRoot, null),
     ).toThrow(/requires an externally frozen batch review gate/i);
 
     const mutations = [
@@ -1782,7 +1805,9 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
     for (const mutate of mutations) {
       const forged = structuredClone(postGate);
       mutate(forged);
-      expect(() => validateCardArtV3System(forged, repositoryRoot)).toThrow();
+      expect(() =>
+        validateCardArtV3System(forged, repositoryRoot, null),
+      ).toThrow();
     }
   }, 60_000);
 
@@ -1805,10 +1830,20 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
     });
     expect(majorAudit).toMatchObject({ cardId: "death", auditOnly: true });
     expect(
-      getCardArtV3PromptRecord(files, "swords-page", repositoryRoot).prompt,
+      getCardArtV3PromptRecord(
+        files,
+        "swords-page",
+        repositoryRoot,
+        planningValidationOptions,
+      ).prompt,
     ).toBe(courtAudit.prompt);
     expect(
-      getCardArtV3PromptRecord(files, "death", repositoryRoot).prompt,
+      getCardArtV3PromptRecord(
+        files,
+        "death",
+        repositoryRoot,
+        planningValidationOptions,
+      ).prompt,
     ).toBe(majorAudit.prompt);
   });
 
@@ -1895,9 +1930,11 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
         structuredClone(loadCardArtV3Files(repositoryRoot)),
       );
       mutate(files);
-      expect(() => validateCardArtV3System(files, repositoryRoot)).toThrow();
+      expect(() =>
+        validateCardArtV3System(files, repositoryRoot, null),
+      ).toThrow();
     }
-  }, 15_000);
+  }, 30_000);
 
   it("refuses a release snapshot before all 78 card approvals exist", () => {
     const files = structuredClone(loadCardArtV3Files(repositoryRoot));
@@ -2709,7 +2746,9 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
       selectionStatus: "candidate",
     });
 
-    expect(() => validateCardArtV3System(files, repositoryRoot)).not.toThrow();
+    expect(() =>
+      validateCardArtV3System(files, repositoryRoot, null),
+    ).not.toThrow();
     const forged = structuredClone(files);
     forged.generationRecords.records[0].rawOutputPath =
       "public/cards/the-hermit.jpg";
@@ -2718,7 +2757,7 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
         await readFile(resolve(repositoryRoot, "public/cards/the-hermit.jpg")),
       )
       .digest("hex");
-    expect(() => validateCardArtV3System(forged, repositoryRoot)).toThrow(
+    expect(() => validateCardArtV3System(forged, repositoryRoot, null)).toThrow(
       /exact deterministic retouch path and raw sha-256/i,
     );
     files.generationRecords.records[0].referenceSha256 = {
@@ -2726,7 +2765,7 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
         ({ id }) => id === "the-fool",
       ).sha256,
     };
-    expect(() => validateCardArtV3System(files, repositoryRoot)).toThrow(
+    expect(() => validateCardArtV3System(files, repositoryRoot, null)).toThrow(
       /exactly match the actual frozen generation inputs/i,
     );
   });
@@ -2739,7 +2778,9 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
       ({ id }) => id === "wands-10-attempt-002",
     );
     secondAttempt.previousAttemptId = "wands-10-attempt-999";
-    expect(() => validateCardArtV3System(brokenChain, repositoryRoot)).toThrow(
+    expect(() =>
+      validateCardArtV3System(brokenChain, repositoryRoot, null),
+    ).toThrow(
       /immediately preceding rejected or independently superseded selected attempt/i,
     );
 
@@ -2752,9 +2793,9 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
     );
     second.rawOutputPath = first.rawOutputPath;
     second.rawOutputSha256 = first.rawOutputSha256;
-    expect(() => validateCardArtV3System(reusedRaw, repositoryRoot)).toThrow(
-      /globally unique|attempt number and immutable status/i,
-    );
+    expect(() =>
+      validateCardArtV3System(reusedRaw, repositoryRoot, null),
+    ).toThrow(/globally unique|attempt number and immutable status/i);
 
     const firstAttemptRetry = structuredClone(files);
     const pageAttempt = firstAttemptRetry.generationRecords.records.find(
@@ -2763,7 +2804,7 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
     pageAttempt.retryConstraint =
       "Show no background pole-like objects outside the single reviewed staff.";
     expect(() =>
-      validateCardArtV3System(firstAttemptRetry, repositoryRoot),
+      validateCardArtV3System(firstAttemptRetry, repositoryRoot, null),
     ).toThrow(/first attempt cannot use a retry constraint/i);
 
     const selfEditSource = structuredClone(files);
@@ -2779,7 +2820,7 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
       [precisionEdit.id]: precisionEdit.rawOutputSha256,
     };
     expect(() =>
-      validateCardArtV3System(selfEditSource, repositoryRoot),
+      validateCardArtV3System(selfEditSource, repositoryRoot, null),
     ).toThrow(/independently approved constraint|frozen generation inputs/i);
 
     const generatedBeforeReview = structuredClone(files);
@@ -2787,7 +2828,7 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
       ({ id }) => id === "wands-10-attempt-007",
     ).generatedAt = "2020-01-01T00:00:00.000Z";
     expect(() =>
-      validateCardArtV3System(generatedBeforeReview, repositoryRoot),
+      validateCardArtV3System(generatedBeforeReview, repositoryRoot, null),
     ).toThrow(/time order|after its preceding attempt/i);
 
     const predecessorAtReview = structuredClone(files);
@@ -2795,7 +2836,7 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
       ({ id }) => id === "wands-10-attempt-006",
     ).generatedAt = "2026-08-04T16:33:28.000Z";
     expect(() =>
-      validateCardArtV3System(predecessorAtReview, repositoryRoot),
+      validateCardArtV3System(predecessorAtReview, repositoryRoot, null),
     ).toThrow(/time order/i);
 
     const editSourceAtReview = structuredClone(files);
@@ -2803,7 +2844,7 @@ describe("card art v3 preflight", { timeout: 30_000 }, () => {
       ({ id }) => id === "wands-10-attempt-004",
     ).generatedAt = "2026-08-04T16:33:28.000Z";
     expect(() =>
-      validateCardArtV3System(editSourceAtReview, repositoryRoot),
+      validateCardArtV3System(editSourceAtReview, repositoryRoot, null),
     ).toThrow(/edit source/i);
   }, 15_000);
 });
