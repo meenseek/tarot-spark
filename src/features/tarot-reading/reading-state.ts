@@ -16,9 +16,7 @@ const readingStyleParam = "style";
 const readingDrawStyleParam = "drawStyle";
 const shareSourceParam = "source";
 const shareCampaignParam = "campaign";
-const privateContextHandoffStorageKey =
-  "tarot-spark.private-context-handoff.v1";
-const privateContextHandoffVersion = 1;
+const privateContextHandoffStorageKey = "tarot-spark.private-context-handoff";
 const privateContextHandoffLifetimeMilliseconds = 60_000;
 
 export type ReadingUrlState = {
@@ -344,6 +342,8 @@ export function storePrivateContextHandoff(
   try {
     const normalizedValue = normalizeUserContext(value);
 
+    removeLegacyPrivateContextHandoffs(storage);
+
     if (!normalizedValue) {
       storage.removeItem(privateContextHandoffStorageKey);
       return;
@@ -354,7 +354,6 @@ export function storePrivateContextHandoff(
       JSON.stringify({
         context: normalizedValue,
         expiresAt: now + privateContextHandoffLifetimeMilliseconds,
-        version: privateContextHandoffVersion,
       }),
     );
   } catch {
@@ -363,23 +362,27 @@ export function storePrivateContextHandoff(
 }
 
 export function getPrivateContextHandoffResetScript() {
-  return `try{window.sessionStorage.removeItem(${JSON.stringify(privateContextHandoffStorageKey)})}catch{}`;
+  const key = JSON.stringify(privateContextHandoffStorageKey);
+
+  return `try{const s=window.sessionStorage,k=${key},p=k+".",r=[];for(let i=0;i<s.length;i++){const x=s.key(i);if(x&&(x===k||x.startsWith(p)))r.push(x)}for(const x of r)s.removeItem(x)}catch{}`;
 }
 
 export function consumePrivateContextHandoff(
   storage: Storage,
   now = Date.now(),
 ) {
-  const context = readPrivateContextHandoff(storage, now);
-  clearPrivateContextHandoff(storage);
-
-  return context;
+  try {
+    return readPrivateContextHandoff(storage, now);
+  } finally {
+    clearPrivateContextHandoff(storage);
+  }
 }
 
 export function readPrivateContextHandoff(storage: Storage, now = Date.now()) {
   let storedValue: string | null;
 
   try {
+    removeLegacyPrivateContextHandoffs(storage);
     storedValue = storage.getItem(privateContextHandoffStorageKey);
   } catch {
     return undefined;
@@ -395,11 +398,13 @@ export function readPrivateContextHandoff(storage: Storage, now = Date.now()) {
     if (
       typeof parsedValue !== "object" ||
       parsedValue === null ||
-      !("version" in parsedValue) ||
-      parsedValue.version !== privateContextHandoffVersion ||
+      Array.isArray(parsedValue) ||
+      !hasExactKeys(parsedValue, ["context", "expiresAt"]) ||
       !("expiresAt" in parsedValue) ||
       typeof parsedValue.expiresAt !== "number" ||
+      !Number.isFinite(parsedValue.expiresAt) ||
       parsedValue.expiresAt < now ||
+      parsedValue.expiresAt > now + privateContextHandoffLifetimeMilliseconds ||
       !("context" in parsedValue) ||
       typeof parsedValue.context !== "string"
     ) {
@@ -428,7 +433,34 @@ export function clearPrivateContextHandoff(storage: Storage) {
 function tryRemovePrivateContextHandoff(storage: Storage) {
   try {
     storage.removeItem(privateContextHandoffStorageKey);
+    removeLegacyPrivateContextHandoffs(storage);
   } catch {
     // Storage is optional; the locale switch still works without private state.
   }
+}
+
+function removeLegacyPrivateContextHandoffs(storage: Storage) {
+  const legacyPrefix = `${privateContextHandoffStorageKey}.`;
+  const keysToRemove: string[] = [];
+
+  for (let index = 0; index < storage.length; index += 1) {
+    const key = storage.key(index);
+
+    if (key?.startsWith(legacyPrefix)) {
+      keysToRemove.push(key);
+    }
+  }
+
+  for (const key of keysToRemove) {
+    storage.removeItem(key);
+  }
+}
+
+function hasExactKeys(value: object, expectedKeys: readonly string[]) {
+  const keys = Object.keys(value);
+
+  return (
+    keys.length === expectedKeys.length &&
+    expectedKeys.every((key) => Object.hasOwn(value, key))
+  );
 }

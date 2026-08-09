@@ -27,7 +27,6 @@ import {
   getTopic,
   maxUserContextLength,
   parseInstantReading,
-  promptVersion,
   type DrawnCard,
   type InstantReadingRequest,
   type InstantReading,
@@ -838,7 +837,7 @@ export function TarotExperienceClient({
 
     const operationId = promptOperationIdRef.current + 1;
     promptOperationIdRef.current = operationId;
-    const promptRevision = currentResult.promptRevision;
+    const promptChangeId = currentResult.promptChangeId;
     const analyticsInvocation = captureAnalyticsInvocation();
     const analyticsPayload = {
       ...analyticsAttribution,
@@ -848,7 +847,6 @@ export function TarotExperienceClient({
       draw_style_id: currentResult.drawStyleId,
       spread_id: currentResult.inputs.spreadId,
       style_id: currentResult.inputs.styleId,
-      prompt_version: promptVersion,
       surface: "reading_result",
     } as const;
     setCopyState("idle");
@@ -866,7 +864,7 @@ export function TarotExperienceClient({
       if (
         promptOperationIdRef.current === operationId &&
         activeSession.mode !== "setup" &&
-        activeResult?.promptRevision === promptRevision
+        activeResult?.promptChangeId === promptChangeId
       ) {
         setCopyState("copied");
       }
@@ -875,7 +873,7 @@ export function TarotExperienceClient({
       if (
         promptOperationIdRef.current === operationId &&
         activeSession.mode !== "setup" &&
-        activeSession.current.promptRevision === promptRevision
+        activeSession.current.promptChangeId === promptChangeId
       ) {
         setCopyState("failed");
       }
@@ -1060,7 +1058,7 @@ export function TarotExperienceClient({
     const attempt = {
       analyticsInvocation: captureAnalyticsInvocation(),
       operationId,
-      publicStateRevision: currentResult.publicStateRevision,
+      shareChangeId: currentResult.shareChangeId,
       payload: {
         ...analyticsAttribution,
         locale,
@@ -1092,7 +1090,7 @@ export function TarotExperienceClient({
     if (
       shareOperationIdRef.current !== attempt.operationId ||
       activeSession.mode === "setup" ||
-      activeResult?.publicStateRevision !== attempt.publicStateRevision
+      activeResult?.shareChangeId !== attempt.shareChangeId
     ) {
       return;
     }

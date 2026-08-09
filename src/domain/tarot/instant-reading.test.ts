@@ -59,7 +59,7 @@ function createProviderReading() {
   };
 }
 
-describe("instant reading v5 contract", () => {
+describe("instant reading contract", () => {
   it("accepts only exact ordered card-only requests", () => {
     expect(parseInstantReadingRequest(request)).toEqual(request);
     expect(

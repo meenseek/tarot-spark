@@ -12,11 +12,9 @@ import { optionalServicesDocumentReloadEvent } from "./events";
 import type { PrivacyConsentCopy } from "./i18n";
 import { isAdvertisingEligiblePathname } from "./route-policy";
 
-const consentStorageKey = "tarot-spark.optional-services-consent.v1";
-const consentVersion = 1;
+const consentStorageKey = "tarot-spark.optional-services-consent";
 
 type ConsentPreferences = {
-  readonly version: typeof consentVersion;
   readonly analytics: boolean;
   readonly advertising: boolean;
 };
@@ -215,7 +213,6 @@ export function PrivacyConsent({
                 className={secondaryButtonClassName}
                 onClick={() =>
                   savePreferences({
-                    version: consentVersion,
                     analytics: hasAnalytics && analyticsSelected,
                     advertising: hasAdvertising && advertisingSelected,
                   })
@@ -228,7 +225,6 @@ export function PrivacyConsent({
                 className={secondaryButtonClassName}
                 onClick={() =>
                   savePreferences({
-                    version: consentVersion,
                     analytics: false,
                     advertising: false,
                   })
@@ -260,6 +256,7 @@ function readConsentPreferences(): ConsentPreferences | null {
   let storedValue: string | null;
 
   try {
+    removeLegacyConsentEntries();
     storedValue = window.localStorage.getItem(consentStorageKey);
   } catch {
     return null;
@@ -275,8 +272,8 @@ function readConsentPreferences(): ConsentPreferences | null {
     if (
       typeof parsedValue !== "object" ||
       parsedValue === null ||
-      !("version" in parsedValue) ||
-      parsedValue.version !== consentVersion ||
+      Array.isArray(parsedValue) ||
+      !hasExactKeys(parsedValue, ["analytics", "advertising"]) ||
       !("analytics" in parsedValue) ||
       typeof parsedValue.analytics !== "boolean" ||
       !("advertising" in parsedValue) ||
@@ -286,12 +283,37 @@ function readConsentPreferences(): ConsentPreferences | null {
     }
 
     return {
-      version: consentVersion,
       analytics: parsedValue.analytics,
       advertising: parsedValue.advertising,
     };
   } catch {
     return null;
+  }
+}
+
+function hasExactKeys(value: object, expectedKeys: readonly string[]) {
+  const keys = Object.keys(value);
+
+  return (
+    keys.length === expectedKeys.length &&
+    expectedKeys.every((key) => Object.hasOwn(value, key))
+  );
+}
+
+function removeLegacyConsentEntries() {
+  const legacyPrefix = `${consentStorageKey}.`;
+  const keysToRemove: string[] = [];
+
+  for (let index = 0; index < window.localStorage.length; index += 1) {
+    const key = window.localStorage.key(index);
+
+    if (key?.startsWith(legacyPrefix)) {
+      keysToRemove.push(key);
+    }
+  }
+
+  for (const key of keysToRemove) {
+    window.localStorage.removeItem(key);
   }
 }
 

@@ -1,6 +1,6 @@
 import type { BrowserContext } from "@playwright/test";
 
-const consentStorageKey = "tarot-spark.optional-services-consent.v1";
+const consentStorageKey = "tarot-spark.optional-services-consent";
 
 export async function rejectOptionalServices(context: BrowserContext) {
   await context.addInitScript(
@@ -10,7 +10,6 @@ export async function rejectOptionalServices(context: BrowserContext) {
     {
       key: consentStorageKey,
       value: JSON.stringify({
-        version: 1,
         analytics: false,
         advertising: false,
       }),

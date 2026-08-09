@@ -8,10 +8,7 @@ import {
   buildInstantReadingContractPrompt,
   buildInstantReadingResponseSchema,
   hasUnsupportedVisualClaim,
-  instantReadingContractFingerprint,
   instantReadingGenerationConfig,
-  instantReadingPromptVersion,
-  instantReadingSchemaVersion,
   instantReadingSystemInstruction,
 } from "../src/domain/tarot/instant-reading-contract.ts";
 import {
@@ -24,11 +21,9 @@ import {
   commonForbiddenBehaviors,
   getFixedEvaluationCaseManifest,
 } from "./instant-reading-eval-cases.mjs";
+import { getEvaluationSourceContentHashes } from "./instant-reading-source-hashes.mjs";
 
-export const schemaVersion = instantReadingSchemaVersion;
-export const promptVersion = instantReadingPromptVersion;
 export const geminiApiVersion = "v1";
-export const runnerVersion = "instant-reading-runner-v7";
 export const generationConfig = Object.freeze({
   ...instantReadingGenerationConfig,
 });
@@ -620,7 +615,13 @@ function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
 }
 
-export function buildRunManifest({ cases, messages, model, suite }) {
+export function buildRunManifest({
+  cases,
+  messages,
+  model,
+  repositoryRoot = process.cwd(),
+  suite,
+}) {
   const promptSet = [...cases.normalCases, ...cases.safetyCases].map(
     (evaluationCase) => ({
       caseId: evaluationCase.caseId,
@@ -629,15 +630,12 @@ export function buildRunManifest({ cases, messages, model, suite }) {
   );
   const contract = {
     apiVersion: geminiApiVersion,
-    contractFingerprint: instantReadingContractFingerprint,
     executionPolicy,
     generationConfig,
     modelId: model,
     promptSetSha256: sha256(JSON.stringify(promptSet)),
-    promptVersion,
     responseSchemas,
-    runnerVersion,
-    schemaVersion,
+    sourceContentSha256: getEvaluationSourceContentHashes(repositoryRoot),
     store: false,
     suite,
     systemInstruction,

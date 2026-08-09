@@ -130,6 +130,7 @@ export async function buildBlindStudy({
     baseline: summarizeRunRecords(baseline.records, cases),
     candidate: summarizeRunRecords(candidate.records, cases),
     comparablePairs: packetItems.length,
+    sourceContentSha256: candidate.manifest.sourceContentSha256,
     studyId,
   };
   const ratingTemplate = {
@@ -212,15 +213,12 @@ function assertComparableRuns(candidate, baseline) {
   const comparableFields = [
     "apiVersion",
     "caseManifestSha256",
-    "contractFingerprint",
     "dataSha256",
     "executionPolicy",
     "generationConfig",
     "promptSetSha256",
-    "promptVersion",
     "responseSchemas",
-    "runnerVersion",
-    "schemaVersion",
+    "sourceContentSha256",
     "store",
     "suite",
     "systemInstruction",

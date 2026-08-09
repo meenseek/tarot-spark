@@ -214,14 +214,15 @@ src/domain/tarot -> src/i18n
   `result`, and `edit-next-draw` modes. Keep committed result inputs separate
   from the cancelable next-draw draft, and make same-value transitions return
   the identical session.
-- Keep card-instance, public-state, and prompt revisions explicit. Use them with
-  operation ids so asynchronous copy and share completions update only the
+- Keep card-instance, share-change, and prompt-change ids explicit. Use them
+  with operation ids so asynchronous copy and share completions update only the
   latest compatible UI while still recording an invocation-eligible terminal
   analytics event.
-- Keep free-form tarot context in client state. A locale switch may use a
-  versioned, one-time `sessionStorage` handoff; the same handoff may preserve
-  context across a document reload required to stop an already running optional
-  service. Reading URLs and analytics payloads must omit the context.
+- Keep free-form tarot context in client state. A locale switch may use an
+  unversioned, exact-shape, one-time `sessionStorage` handoff; the same handoff
+  may preserve context across a document reload required to stop an already
+  running optional service. Reading URLs and analytics payloads must omit the
+  context.
 - Keep spread and reading-style ids in TypeScript. Localize their labels and
   prompt instructions through the tarot message data.
 - Build the user-copy prompt from exact localized card names in draw order. Do
@@ -232,9 +233,10 @@ src/domain/tarot -> src/i18n
   ids, invented positions, interpretation lenses, or user context. The UI owns
   exact card names and order and joins them to provider interpretations by
   validated indexes.
-- Keep instant-reading provider prompts, schemas, generation configuration, and
-  contract fingerprint in the shared domain contract used by production and
-  evaluation. Convert provider card indexes to internal ids only after parsing.
+- Keep instant-reading provider prompts, schemas, and generation configuration
+  in the shared domain contract used by production and evaluation. Evaluation
+  manifests use SHA-256 content hashes for the contract, data, and evaluation
+  source files. Convert provider card indexes to internal ids only after parsing.
 - Keep both current prompt style and original draw style in public reading URL
   state. This preserves prompt customization without misrepresenting how the
   committed cards were drawn.

@@ -3,6 +3,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
+import { getEvaluationSourceContentHashes } from "./instant-reading-source-hashes.mjs";
 
 const evaluationDirectory = ".instant-reading-eval";
 const dimensions = [
@@ -34,6 +35,7 @@ const allowedHardFailures = new Set([
 
 export async function scoreBlindStudy({
   repositoryRoot = process.cwd(),
+  sourceRoot = process.cwd(),
   studyId,
 }) {
   const studyDirectory = path.join(
@@ -52,6 +54,10 @@ export async function scoreBlindStudy({
     ],
   );
   assertStudyId(studyId, [answerKey, packet, runSummary, raterOne, raterTwo]);
+  const sourceContentSha256 = assertCurrentEvaluationSources(
+    runSummary.sourceContentSha256,
+    sourceRoot,
+  );
   const pairIds = packet.items.map(({ pairId }) => pairId);
   const ratingsOne = validateRatingFile(raterOne, pairIds, "rater 1");
   const ratingsTwo = validateRatingFile(raterTwo, pairIds, "rater 2");
@@ -193,6 +199,7 @@ export async function scoreBlindStudy({
       safetyGate.candidate.pass,
     resolvedPairs: resolved.length,
     safetyGate,
+    sourceContentSha256,
     studyId,
   };
   await writeFile(
@@ -201,6 +208,18 @@ export async function scoreBlindStudy({
     "utf8",
   );
   return result;
+}
+
+function assertCurrentEvaluationSources(expected, sourceRoot) {
+  const current = getEvaluationSourceContentHashes(sourceRoot);
+
+  if (JSON.stringify(expected) !== JSON.stringify(current)) {
+    throw new Error(
+      "The study evaluation sources changed after blinding; start a new study.",
+    );
+  }
+
+  return current;
 }
 
 function validateRatingFile(file, expectedPairIds, label) {

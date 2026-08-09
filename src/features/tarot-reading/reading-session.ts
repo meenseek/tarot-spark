@@ -17,8 +17,8 @@ export type CurrentResult = {
   readonly cards: readonly DrawnCard[];
   readonly drawStyleId: ReadingStyleId;
   readonly cardInstanceId: number;
-  readonly publicStateRevision: number;
-  readonly promptRevision: number;
+  readonly shareChangeId: number;
+  readonly promptChangeId: number;
 };
 
 export type Session =
@@ -66,8 +66,8 @@ export function createResultSession(seed: ResultSessionSeed): Session {
       cards: seed.cards,
       drawStyleId: seed.drawStyleId ?? seed.inputs.styleId,
       cardInstanceId: 1,
-      publicStateRevision: 1,
-      promptRevision: 1,
+      shareChangeId: 1,
+      promptChangeId: 1,
     },
   };
 }
@@ -124,8 +124,8 @@ export function readingSessionReducer(
         current: {
           ...session.current,
           inputs: { ...session.current.inputs, styleId: action.styleId },
-          publicStateRevision: session.current.publicStateRevision + 1,
-          promptRevision: session.current.promptRevision + 1,
+          shareChangeId: session.current.shareChangeId + 1,
+          promptChangeId: session.current.promptChangeId + 1,
         },
       };
     case "SET_CURRENT_PRIVATE_CONTEXT":
@@ -144,7 +144,7 @@ export function readingSessionReducer(
             ...session.current.inputs,
             privateContext: action.privateContext,
           },
-          promptRevision: session.current.promptRevision + 1,
+          promptChangeId: session.current.promptChangeId + 1,
         },
       };
   }
@@ -177,8 +177,8 @@ function commitDraw(
       cards,
       drawStyleId: inputs.styleId,
       cardInstanceId: (previous?.cardInstanceId ?? 0) + 1,
-      publicStateRevision: (previous?.publicStateRevision ?? 0) + 1,
-      promptRevision: (previous?.promptRevision ?? 0) + 1,
+      shareChangeId: (previous?.shareChangeId ?? 0) + 1,
+      promptChangeId: (previous?.promptChangeId ?? 0) + 1,
     },
   };
 }

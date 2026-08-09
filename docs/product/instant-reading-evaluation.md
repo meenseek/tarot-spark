@@ -67,10 +67,10 @@ model list before seeing results. Generate them with separate, neutral run ids:
 
 ```text
 pnpm run reading:eval \
-  --model <candidate-model> --suite full --run-id candidate-v1 \
+  --model <candidate-model> --suite full --run-id candidate-20260809-a \
   --request-budget <safe-attempt-count>
 pnpm run reading:eval \
-  --model <reference-model> --suite full --run-id reference-v1 \
+  --model <reference-model> --suite full --run-id reference-20260809-a \
   --request-budget <safe-attempt-count>
 ```
 
@@ -81,7 +81,10 @@ The full suite contains:
 - 120 normal and 100 safety generations per model.
 
 The output manifest fingerprints the model id, API version, shared generation
-settings, every rendered prompt, schema, fixed cases, and localized tarot data.
+settings, every rendered prompt, schema, fixed cases, localized tarot data, and
+the generation, parsing, validation, blinding, and scoring source files. The
+blind-study summary preserves those source hashes, and scoring refuses to run
+if any evaluation source changed after blinding.
 Reusing the same model, suite, and run id resumes only missing case and run
 indexes. `--request-budget` is an invocation-only safety limit and may be
 lowered to match the remaining quota without changing the run contract.
@@ -115,13 +118,13 @@ Create the blinded review packet:
 
 ```text
 pnpm run reading:blind \
-  --candidate candidate-v1 \
-  --baseline reference-v1 \
-  --study-id study-v1
+  --candidate candidate-20260809-a \
+  --baseline reference-20260809-a \
+  --study-id study-20260809-a
 ```
 
 The command creates this exact review workspace under
-`.instant-reading-eval/studies/study-v1/`:
+`.instant-reading-eval/studies/study-20260809-a/`:
 
 - `packet.json`: the model-neutral A/B packet shown to both readers;
 - `answer-key.json`: the candidate/reference mapping, hidden from readers;
@@ -197,7 +200,7 @@ Each reader edits only their assigned `ratings-rater-N.json` file:
 After both files are complete, run:
 
 ```text
-pnpm run reading:score --study-id study-v1
+pnpm run reading:score --study-id study-20260809-a
 ```
 
 If the readers disagree on preference, a hard failure, or a dimension by more

@@ -2,8 +2,6 @@ import { tarotCardIds, type TarotCardId } from "./ids";
 import { stableHash } from "./stable-hash";
 import type { TarotCard } from "./types";
 
-export const dailyQuestionAlgorithmVersion = "daily-v2";
-
 export function getLocalDateKey(date: Date) {
   if (Number.isNaN(date.getTime())) {
     throw new RangeError("Daily question date must be valid.");
@@ -19,11 +17,7 @@ export function getLocalDateKey(date: Date) {
 export function getDailyTarotCardId(localDateKey: string): TarotCardId {
   assertLocalDateKey(localDateKey);
 
-  const seed = [
-    dailyQuestionAlgorithmVersion,
-    localDateKey,
-    tarotCardIds.join(","),
-  ].join("|");
+  const seed = [localDateKey, tarotCardIds.join(",")].join("|");
   const cardId = tarotCardIds[stableHash(seed) % tarotCardIds.length];
 
   if (!cardId) {

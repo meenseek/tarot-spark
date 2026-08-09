@@ -7,7 +7,7 @@ import { cardArtSources } from "./tarot-card-art-sources";
 
 const releasedDeckSha256 =
   "42757b386fe8e54f4917de4b778c04c80fb9df0400637cb62a3556946dab8e41";
-const deckDirectory = path.join(process.cwd(), "public", "cards", "v3");
+const deckDirectory = path.join(process.cwd(), "public", "cards");
 
 describe("released card art", () => {
   it("contains exactly one correctly sized final JPEG for every card", () => {
@@ -22,7 +22,7 @@ describe("released card art", () => {
     );
 
     for (const cardId of tarotCardIds) {
-      const expectedSource = `/cards/v3/${cardId}.jpg`;
+      const expectedSource = `/cards/${cardId}.jpg`;
       const image = readFileSync(path.join(deckDirectory, `${cardId}.jpg`));
 
       expect(cardArtSources[cardId]).toBe(expectedSource);

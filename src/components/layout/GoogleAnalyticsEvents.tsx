@@ -47,7 +47,6 @@ const analyticsEventPayloadKeys = {
     "style_id",
     "draw_style_id",
     "card_count",
-    "prompt_version",
     "surface",
   ],
   share_click: [
@@ -264,10 +263,7 @@ function isAnalyticsPayload(
   }
 
   if (name === "prompt_copy") {
-    return (
-      value["prompt_version"] === "tarot-prompt-v3" &&
-      value["surface"] === "reading_result"
-    );
+    return value["surface"] === "reading_result";
   }
 
   if (name === "share_click") {

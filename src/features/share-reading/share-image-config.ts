@@ -1,4 +1,5 @@
-// This value invalidates immutable image caches. It does not select a renderer.
-export const shareImageCacheRevision = "20260808-deck";
-export const shareImageCacheRevisionParam = "rev";
-export const shareImageCacheControl = "public, max-age=31536000, immutable";
+export const legacyShareImageQueryParam = "rev";
+export const legacyShareImageQueryValue = "20260808-deck";
+export const shareImageCacheControl =
+  "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800";
+export const privateShareImageCacheControl = "no-store";

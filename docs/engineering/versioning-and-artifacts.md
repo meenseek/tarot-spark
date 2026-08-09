@@ -7,9 +7,11 @@ repositories focused on current runtime behavior. This standard applies to API
 contracts, URL parameters, cached output, persisted browser data, generated
 assets, and compatibility tests.
 
-## Default To One Current Contract
+## One Release Version, One Current Contract
 
-Do not add a version, old implementation branch, migration path, or
+The package release in `package.json` is the product's only internal sequential
+version. Do not add prompt, schema, runner, deck, algorithm, storage, or cache
+`vN` labels. Do not add an old implementation branch, migration path, or
 compatibility test only because code was deployed or an intermediate state
 existed. A compatibility boundary requires at least one real consumer outside
 the implementation being changed:
@@ -23,24 +25,36 @@ Before adding a compatibility branch, document the consumer, the observable
 contract, the support owner, the support duration, and the removal condition.
 If these facts are absent, replace the current implementation atomically.
 
-Package versions, provider API versions, consent or session migrations, and
-evaluation identifiers may remain when they label a real package, external
-provider contract, persisted state, or durable result. An identifier alone does
-not justify a second runtime implementation.
+Dependency, tool, provider API, and provider model versions remain when they are
+official external contracts. Browser records use stable keys and exact-shape
+validation rather than internal schema numbers. Evaluation runs use neutral run
+ids and content hashes rather than sequential version labels. An identifier
+alone does not justify a second runtime implementation.
 
-## Cache Revisions Are Not Protocol Versions
+## Content Identity And Caching
 
-A cache revision changes the identity of immutable output. It must not choose
-among renderers or business rules.
+Use a byte or source-content SHA-256 when durable evidence needs an identity.
+A content hash is not a release version and must not select among renderers or
+business rules.
 
-- Keep one renderer and accept exactly the current cache revision.
-- Reject missing, duplicate, unknown, and retired revisions.
-- Change the revision whenever renderer output or another pixel-affecting input
-  changes.
-- Replace the revision constant and current tests; do not add a branch for the
-  old value.
-- Use a new immutable asset namespace when asset bytes change. An old namespace
-  may remain in Git history or storage without remaining in the runtime map.
+- Keep one renderer and stable canonical URLs.
+- Use bounded shared caching and revalidation for mutable canonical output.
+- Do not add manual cache-revision query parameters or numbered asset paths.
+- Cache only valid public output. Return `no-store` for invalid input and
+  query-normalization redirects. A public asset URL's documented 301/308
+  migration may remain cacheable through its sunset period.
+- Keep byte fingerprints as integrity gates, not URL selectors.
+
+## Persisted Browser Data
+
+- Use stable storage keys and validate an exact object shape.
+- When the shape changes, replace the current record atomically and request a
+  new privacy choice when required; do not create a numbered key.
+- Keep optional services disabled until a valid current consent record exists.
+- Remove obsolete private-context handoffs by namespace prefix so sensitive
+  text does not linger after a cutover.
+- Preserve concurrency behavior with purpose-named change ids, not revision
+  labels.
 
 ## Compatibility Test Standard
 
@@ -80,7 +94,7 @@ deleted as part of card-art cleanup.
 
 ## Change Checklist
 
-When a version or generated pipeline appears necessary:
+When an additional identifier or generated pipeline appears necessary:
 
 1. Identify the concrete external or persisted consumer.
 2. Decide whether this is compatibility, cache invalidation, data migration, or
