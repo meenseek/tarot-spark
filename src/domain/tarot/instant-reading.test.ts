@@ -72,6 +72,12 @@ describe("instant reading contract", () => {
       }),
     ).toBeUndefined();
     expect(
+      parseInstantReadingRequest({ ...request, questionId: "mutual-view" }),
+    ).toEqual({ ...request, questionId: "mutual-view" });
+    expect(
+      parseInstantReadingRequest({ ...request, questionId: "" }),
+    ).toBeUndefined();
+    expect(
       parseInstantReadingRequest({
         ...request,
         cards: [request.cards[0], request.cards[0], request.cards[2]],

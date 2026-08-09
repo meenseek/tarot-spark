@@ -8,12 +8,18 @@ import {
   type SpreadId,
   type TopicId,
 } from "@/domain/tarot";
+import {
+  getRelationshipQuestionDefinition,
+  isRelationshipQuestionId,
+  type RelationshipQuestionId,
+} from "@/features/relationship-questions/registry";
 
 const readingTopicParam = "topic";
 const readingCardsParam = "cards";
 const readingSpreadParam = "spread";
 const readingStyleParam = "style";
 const readingDrawStyleParam = "drawStyle";
+const readingQuestionParam = "question";
 const shareSourceParam = "source";
 const shareCampaignParam = "campaign";
 const privateContextHandoffStorageKey = "tarot-spark.private-context-handoff";
@@ -25,6 +31,7 @@ export type ReadingUrlState = {
   readonly spreadId: SpreadId;
   readonly styleId: ReadingStyleId;
   readonly topicId: TopicId;
+  readonly questionId?: RelationshipQuestionId;
 };
 
 export const shareSourceIds = [
@@ -67,6 +74,10 @@ export function buildReadingUrl(
   url.search = "";
   url.hash = "";
   url.searchParams.set(readingTopicParam, state.topicId);
+
+  if (state.questionId) {
+    url.searchParams.set(readingQuestionParam, state.questionId);
+  }
 
   if (state.spreadId !== "quick") {
     url.searchParams.set(readingSpreadParam, state.spreadId);
@@ -220,6 +231,7 @@ export function getReadingStateFromUrl(
     readingSpreadParam,
     readingStyleParam,
     readingDrawStyleParam,
+    readingQuestionParam,
   ]) {
     const values = url.searchParams.getAll(param);
 
@@ -243,6 +255,7 @@ export function getReadingStateFromSearchParams(
     readingSpreadParam,
     readingStyleParam,
     readingDrawStyleParam,
+    readingQuestionParam,
   ].some((param) => searchParams[param] !== undefined);
 
   if (!hasReadingState) {
@@ -255,6 +268,7 @@ export function getReadingStateFromSearchParams(
     searchParams[readingSpreadParam],
     searchParams[readingStyleParam],
     searchParams[readingDrawStyleParam],
+    searchParams[readingQuestionParam],
   ];
 
   if (
@@ -282,8 +296,22 @@ export function getReadingStateFromSearchParams(
       )
     : style;
   const cardsParam = getStringValue(searchParams[readingCardsParam]);
+  const questionParam = getStringValue(searchParams[readingQuestionParam]);
 
   if (!topic || !spread || !style || !drawStyle) {
+    return undefined;
+  }
+
+  const questionId =
+    questionParam && isRelationshipQuestionId(questionParam)
+      ? questionParam
+      : undefined;
+
+  if (
+    questionParam !== undefined &&
+    (!questionId ||
+      getRelationshipQuestionDefinition(questionId).topicId !== topic.id)
+  ) {
     return undefined;
   }
 
@@ -298,6 +326,7 @@ export function getReadingStateFromSearchParams(
       spreadId: spread.id,
       styleId: style.id,
       topicId: topic.id,
+      ...(questionId ? { questionId } : {}),
     };
   }
 
@@ -327,6 +356,7 @@ export function getReadingStateFromSearchParams(
     spreadId: spread.id,
     styleId: style.id,
     topicId: topic.id,
+    ...(questionId ? { questionId } : {}),
   };
 }
 

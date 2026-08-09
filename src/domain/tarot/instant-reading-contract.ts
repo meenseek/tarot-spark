@@ -24,6 +24,7 @@ export type InstantReadingPromptMaterials = {
   readonly spreadLabel: string;
   readonly styleLabel: string;
   readonly styleInstruction: string;
+  readonly questionFocus?: string;
   readonly cards: readonly {
     readonly meaning: string;
   }[];
@@ -40,6 +41,9 @@ export function buildInstantReadingContractPrompt(
   return [
     `주제: ${materials.topicLabel}`,
     `살펴볼 점: ${materials.promptLead}`,
+    ...(materials.questionFocus
+      ? [`선택한 성찰 질문: ${materials.questionFocus}`]
+      : []),
     `카드 수: ${materials.spreadLabel}`,
     `답변 분위기: ${materials.styleLabel}`,
     `말투 안내: ${materials.styleInstruction}`,

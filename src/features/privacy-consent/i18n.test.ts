@@ -11,7 +11,7 @@ describe("privacy consent copy", () => {
     expect(copy.advertisingDescription).toContain(
       "허용하고 Google AdSense가 설정된 경우에만",
     );
-    expect(copy.advertisingDescription).toContain("관계 흐름 소개 페이지");
+    expect(copy.advertisingDescription).toContain("검토된 관계 콘텐츠 페이지");
     expect(copy.rejectOptional).toBe("모두 거부");
   });
 });

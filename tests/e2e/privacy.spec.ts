@@ -94,6 +94,30 @@ test("clears an active advertising document before showing a reading", async ({
   ).toHaveCount(0);
 });
 
+test("allows advertising only after consent on the question explorer", async ({
+  context,
+  page,
+}) => {
+  await context.addInitScript(
+    ({ key, value }) => {
+      window.localStorage.setItem(key, value);
+    },
+    {
+      key: consentStorageKey,
+      value: JSON.stringify({
+        version: 1,
+        analytics: false,
+        advertising: true,
+      }),
+    },
+  );
+
+  await page.goto("/ko/relationship-tarot-questions");
+  await expect(
+    page.locator('script[src*="googlesyndication.com"]'),
+  ).toHaveCount(1);
+});
+
 for (const { locale, path } of [
   {
     locale: "en",

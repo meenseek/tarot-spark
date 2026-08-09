@@ -9,6 +9,10 @@ import {
   topicIds,
 } from "@/domain/tarot";
 import {
+  getRelationshipQuestionDefinition,
+  isRelationshipQuestionId,
+} from "@/features/relationship-questions/registry";
+import {
   announceAnalyticsReady,
   clearAnalyticsReady,
 } from "@/features/tarot-reading/analytics";
@@ -70,6 +74,7 @@ const analyticsEventPayloadKeys = {
   ],
 } as const;
 const analyticsAttributionPayloadKeys = ["source", "campaign"] as const;
+const analyticsQuestionPayloadKey = "question_id";
 
 type AnalyticsEventName = keyof typeof analyticsEventPayloadKeys;
 const shareMethods = [
@@ -208,10 +213,15 @@ function isAnalyticsPayload(
   const receivedKeys = Object.keys(value);
   const hasSource = Object.hasOwn(value, "source");
   const hasCampaign = Object.hasOwn(value, "campaign");
+  const hasQuestion = Object.hasOwn(value, analyticsQuestionPayloadKey);
   const expectedKeys =
     hasSource && hasCampaign
-      ? [...allowedKeys, ...analyticsAttributionPayloadKeys]
-      : allowedKeys;
+      ? [
+          ...allowedKeys,
+          ...(hasQuestion ? [analyticsQuestionPayloadKey] : []),
+          ...analyticsAttributionPayloadKeys,
+        ]
+      : [...allowedKeys, ...(hasQuestion ? [analyticsQuestionPayloadKey] : [])];
 
   if (
     hasSource !== hasCampaign ||
@@ -219,6 +229,15 @@ function isAnalyticsPayload(
     !receivedKeys.every((key) => expectedKeys.includes(key)) ||
     !isLocaleValue(value["locale"]) ||
     !isAllowedValue(value["topic_id"], topicIds)
+  ) {
+    return false;
+  }
+
+  if (
+    hasQuestion &&
+    (!isRelationshipQuestionValue(value[analyticsQuestionPayloadKey]) ||
+      getRelationshipQuestionDefinition(value[analyticsQuestionPayloadKey])
+        .topicId !== value["topic_id"])
   ) {
     return false;
   }
@@ -304,4 +323,10 @@ function isAllowedValue<const Values extends readonly string[]>(
 
 function isCardCount(value: unknown) {
   return value === 3 || value === 6;
+}
+
+function isRelationshipQuestionValue(
+  value: unknown,
+): value is Parameters<typeof getRelationshipQuestionDefinition>[0] {
+  return typeof value === "string" && isRelationshipQuestionId(value);
 }

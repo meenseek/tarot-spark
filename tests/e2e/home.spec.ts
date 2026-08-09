@@ -470,11 +470,67 @@ test("serves localized SEO metadata and discovery files", async ({
       "/ko/tarot-card-combinations",
       "/relationship-flow",
       "/ko/relationship-flow",
+      "/relationship-tarot-questions",
+      "/ko/relationship-tarot-questions",
     ]),
   );
   expect(sitemapXml).toContain('hreflang="en"');
   expect(sitemapXml).toContain('hreflang="ko"');
   expect(sitemapXml).toContain('hreflang="x-default"');
+});
+
+test("serves the relationship question explorer with localized SEO", async ({
+  page,
+}) => {
+  for (const currentPath of [
+    "/relationship-tarot-questions",
+    "/ko/relationship-tarot-questions",
+  ]) {
+    const response = await page.goto(currentPath);
+
+    expect(response?.status()).toBe(200);
+    expectPathname(
+      await page.locator('link[rel="canonical"]').getAttribute("href"),
+      currentPath,
+    );
+    expectPathname(
+      await page
+        .locator('link[rel="alternate"][hreflang="en"]')
+        .getAttribute("href"),
+      "/relationship-tarot-questions",
+    );
+    expectPathname(
+      await page
+        .locator('link[rel="alternate"][hreflang="ko"]')
+        .getAttribute("href"),
+      "/ko/relationship-tarot-questions",
+    );
+  }
+});
+
+test("uses a chosen relationship question in the generated prompt", async ({
+  page,
+}) => {
+  await page.goto("/ko/relationship-tarot-questions");
+  await page.getByRole("link", { name: "서로에 대한 기대 보기" }).click();
+
+  await expect(page).toHaveURL(/topic=feelings&question=mutual-view/);
+  await expect(
+    page.getByTestId("selected-relationship-question"),
+  ).toContainText("그 사람과 나는 서로를 어떻게 보고 있을까?");
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+
+  await expect(page.getByTestId("current-relationship-question")).toContainText(
+    "그 사람과 나는 서로를 어떻게 보고 있을까?",
+  );
+  await page
+    .getByTestId("prompt-content-disclosure")
+    .locator("summary")
+    .click();
+  await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
+    /선택한 성찰 질문: 내가 상대에게 기대하는 모습, 상대가 행동으로 보여준 신호/,
+  );
+  await expect(page).toHaveURL(/question=mutual-view/);
 });
 
 test("returns 404 for unsupported or duplicate locale paths", async ({

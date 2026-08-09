@@ -1,0 +1,238 @@
+{
+  "metadata": {
+    "title": "28 Relationship Tarot Questions for Dating, Contact, Reunion, and Boundaries",
+    "description": "Explore 28 relationship tarot questions about dating, mutual expectations, communication, conflict, reunion, boundaries, and your own patterns without claiming access to hidden feelings."
+  },
+  "eyebrow": "Relationship question explorer",
+  "title": "What should I ask about this person and our relationship?",
+  "intro": "A compelling question can begin with curiosity. It becomes more useful when tarot is not asked to prove another person's hidden mind or the future, and instead separates observed behavior, your interpretation, what remains unknown, and one next step you can actually check.",
+  "methodHeading": "How to turn curiosity into a workable question",
+  "methodIntro": "Choosing a question starts a quick three-card reading with the existing 78-card deck. These five steps refine the question; the three-card guide continues with evidence from each card and the strongest connection among them. The choice is passed only as a public preset; names and personal circumstances are never placed in the URL.",
+  "methodGuideLinkLabel": "Read the three-card guide for evidence and connections",
+  "methodSteps": [
+    "Curiosity: choose one relationship moment that matters now.",
+    "Evidence: separate what was said or done from a guess about private feelings.",
+    "Alternatives: keep at least two materially different explanations open.",
+    "Check: name a conversation or behavior that could distinguish them.",
+    "Choice: pair one reversible action with a reason to stop."
+  ],
+  "comparisonHeading": "Turn a hidden-feelings question into a checkable one",
+  "weakQuestionLabel": "Vague question",
+  "weakQuestion": "“Does this person really like me?” asks the cards to prove someone else's private feelings.",
+  "strongQuestionLabel": "Workable question",
+  "strongQuestion": "“Which behavior have I read as interest, what other explanation such as kindness or familiarity fits, and what respectful conversation could help us clarify our intentions?”",
+  "browseHeading": "Choose the question closest to what you feel now",
+  "categoryNavigationLabel": "Relationship question categories",
+  "focusLabel": "What this question explores",
+  "workedExampleHeading": "Example: How do this person and I see each other?",
+  "workedExampleBody": "The title is intriguing, but the reading does not enter another person's mind. It separates the role you expect them to play, the signals they have shown through behavior, another plausible explanation, and one conversation you can use to check your interpretation.",
+  "workedExampleItems": [
+    "Evidence: first write only the words and behavior you directly observed.",
+    "Alternative A: the expectations may be similar while the pace of expression differs.",
+    "Alternative B: one person's expectation may be running ahead of the available signals.",
+    "Observable discriminator: notice how the person responds in words and behavior to one specific, low-pressure suggestion.",
+    "Unknown: the cards cannot establish hidden feelings or the future of the relationship.",
+    "Next step and stop condition: make one low-pressure suggestion, and stop if boundaries are ignored or pressure appears."
+  ],
+  "disclaimer": "For entertainment and self-reflection only. Tarot is not evidence about another person's thoughts or the future and does not replace medical, legal, financial, investment, mental-health, or safety advice.",
+  "categories": {
+    "starting": {
+      "title": "Dating and the beginning",
+      "intro": "Before turning excitement into a conclusion, separate interest, kindness, pace, and readiness."
+    },
+    "perception": {
+      "title": "Mutual perceptions and expectations",
+      "intro": "Instead of guessing a hidden mind, compare the person you hope to see with the signals you can actually observe."
+    },
+    "communication": {
+      "title": "Contact and conversation",
+      "intro": "Look beyond message frequency to recurring communication patterns, initiative, and misunderstanding."
+    },
+    "distance-conflict": {
+      "title": "Distance and conflict",
+      "intro": "Distinguish rest from avoidance and repeated conflict from observable repair."
+    },
+    "reunion": {
+      "title": "Reunion and contacting an ex",
+      "intro": "Before acting on longing, check what has changed and which old pattern could return."
+    },
+    "choice-boundaries": {
+      "title": "Relationship choices and boundaries",
+      "intro": "Find criteria for continuing, slowing down, or stopping, plus one reversible test."
+    },
+    "self-patterns": {
+      "title": "Your patterns in relationships",
+      "intro": "Move from analyzing the other person to examining repeated expectations, anxiety, compromise, and the relationship you want."
+    }
+  },
+  "questions": {
+    "interest-or-kindness": {
+      "title": "Is this interest, or simply kindness?",
+      "summary": "Separate exciting signals from kindness the person may show to anyone.",
+      "focus": "Compare the behavior I have interpreted as interest with alternatives such as kindness or habit, and identify a low-pressure signal I can check.",
+      "ctaLabel": "Explore the signals"
+    },
+    "pace-of-closeness": {
+      "title": "Are we getting closer at a pace that fits both of us?",
+      "summary": "Consider whether the pace of contact and meetings respects both people's boundaries.",
+      "focus": "Separate the pace that feels comfortable to me, the pace shown through the other person's behavior, and one small conversation that could help us coordinate.",
+      "ctaLabel": "Explore the pace"
+    },
+    "before-starting": {
+      "title": "What should I check before starting a relationship?",
+      "summary": "Look beyond excitement to values, responsibility, and practical readiness.",
+      "focus": "Clarify aligned values, mutual responsibility, conditions that remain unknown, and one reversible step to take before starting a relationship.",
+      "ctaLabel": "Find starting criteria"
+    },
+    "first-contact": {
+      "title": "Would it be okay for me to contact them first?",
+      "summary": "Check your purpose and the boundary to respect instead of predicting the reply.",
+      "focus": "Examine my purpose in reaching out, the boundaries shown so far, a low-pressure way to contact them, and a stop condition if there is no reply.",
+      "ctaLabel": "Explore contact criteria"
+    },
+    "mutual-view": {
+      "title": "How do this person and I see each other?",
+      "summary": "Compare expectations with observed behavior rather than entering either person's mind.",
+      "focus": "Separate the role I expect this person to play, the signals they have shown through behavior, another plausible interpretation, and one conversation that could clarify the difference.",
+      "ctaLabel": "Explore mutual expectations"
+    },
+    "unspoken-expectations": {
+      "title": "Which expectations have we left unspoken?",
+      "summary": "Check whether assumed roles and promises were ever mutually agreed.",
+      "focus": "Separate what I expect without saying, what we have actually agreed, what the other person may reasonably expect differently, and one thing to ask clearly.",
+      "ctaLabel": "Clarify expectations"
+    },
+    "overreading-signals": {
+      "title": "Am I reading too much into their signals?",
+      "summary": "Compare one powerful moment with repeated behavior and other explanations.",
+      "focus": "Identify the signal I gave extra weight, the behavior that has repeated, other plausible explanations, and an observation that would make me revise my interpretation.",
+      "ctaLabel": "Separate signal from story"
+    },
+    "strengths-and-burdens": {
+      "title": "When do our strengths become burdens?",
+      "summary": "Notice how an attractive quality can create tension in the relationship.",
+      "focus": "Explore which qualities support the relationship, when those same qualities become burdens, a boundary we can coordinate, and what cannot yet be known.",
+      "ctaLabel": "Connect strengths and tension"
+    },
+    "broken-contact-pattern": {
+      "title": "Where does our stop-and-start contact pattern begin?",
+      "summary": "Examine behavior and expectations around the silence, not frequency alone.",
+      "focus": "Map the repeated behavior before and after contact stops, the meaning I attach to it, another plausible cause, and one contact expectation we could agree directly.",
+      "ctaLabel": "Explore the contact pattern"
+    },
+    "conversation-to-start": {
+      "title": "Which conversation should I start now?",
+      "summary": "Find the subject that matters without cornering the other person.",
+      "focus": "Identify the core subject I am avoiding, facts to check before speaking, a respectful way to ask, and a condition for ending the conversation.",
+      "ctaLabel": "Find the needed conversation"
+    },
+    "recurring-misunderstanding": {
+      "title": "Which misunderstanding keeps repeating between us?",
+      "summary": "Separate what was said, what each person may have heard, and the response that followed.",
+      "focus": "Examine the words and reactions that repeatedly miss each other, two plausible interpretations, one clarifying question, and a small change for the next conversation.",
+      "ctaLabel": "Explore the misunderstanding"
+    },
+    "initiative-balance": {
+      "title": "Who opens contact and conversation more often?",
+      "summary": "Focus only on who starts contact, proposes plans, and reopens a paused conversation.",
+      "focus": "Compare who recently initiated contact, proposed plans, or reopened a paused conversation, other explanations for the difference, and one agreement for sharing the burden of starting.",
+      "ctaLabel": "Explore initiative"
+    },
+    "space-or-conversation": {
+      "title": "Do we need space, or a conversation?",
+      "summary": "Distinguish time that settles emotion from silence that avoids the issue.",
+      "focus": "Compare evidence that distance would help recovery with the risk of avoidance, conditions needed before a conversation, and a point to review the choice.",
+      "ctaLabel": "Compare space and conversation"
+    },
+    "repeating-conflict": {
+      "title": "Why do we keep arguing about the same thing?",
+      "summary": "Look beneath the surface topic to the needs and reactions that repeat.",
+      "focus": "Map the recurring conflict scene, the different needs each person may be protecting, alternative explanations, and one response I can change next time.",
+      "ctaLabel": "Explore the repeated conflict"
+    },
+    "swallowed-boundary": {
+      "title": "What happens when I keep letting things pass?",
+      "summary": "Distinguish flexible compromise from silence that erases your boundary.",
+      "focus": "Examine what I repeatedly tolerate, its short-term benefit and long-term cost, one boundary to express, and a stop condition if pressure follows.",
+      "ctaLabel": "Explore the pattern of tolerating"
+    },
+    "repair-evidence": {
+      "title": "What would show that the relationship is repairing?",
+      "summary": "Use accountability and consistent behavior rather than an apology alone.",
+      "focus": "Identify concrete behavior that would support repair, the alternative of reassurance without change, an observation period, and a criterion for reassessing.",
+      "ctaLabel": "Find evidence of repair"
+    },
+    "person-or-familiarity": {
+      "title": "Do I miss this person, or the familiarity?",
+      "summary": "Separate the person from the daily routine and identity that once felt stable.",
+      "focus": "Distinguish what I miss about the person from what I miss about familiarity or stability, then identify an observation and action that could clarify the difference.",
+      "ctaLabel": "Separate the kinds of longing"
+    },
+    "evidence-of-change": {
+      "title": "What evidence says a reunion would be different?",
+      "summary": "Look for verified change rather than promises or longing.",
+      "focus": "Name the central problem in the old relationship, change I can actually verify, the possibility that nothing important has changed, and one small criterion to test before reunion.",
+      "ctaLabel": "Explore evidence of change"
+    },
+    "repeated-pattern": {
+      "title": "Which old pattern could return if we reunite?",
+      "summary": "Review previous conditions and responses without predicting the future.",
+      "focus": "Identify the behavior that repeated before, whether the same conditions remain, evidence that a different response is possible, and a reason to stop.",
+      "ctaLabel": "Explore the old pattern"
+    },
+    "no-contact-meaning": {
+      "title": "What can choosing no contact teach me?",
+      "summary": "Treat silence as a boundary for your recovery, not as a secret message from the other person.",
+      "focus": "Explore the emotions and needs revealed by no contact, how it supports recovery, where it becomes avoidance, and when to review the choice.",
+      "ctaLabel": "Reflect on no contact"
+    },
+    "continue-slow-stop": {
+      "title": "Should I continue, slow down, or stop?",
+      "summary": "Compare three choices using behavior rather than emotional intensity.",
+      "focus": "Separate evidence for continuing, slowing down, and stopping the relationship, then identify the smallest reversible choice that could test the decision.",
+      "ctaLabel": "Compare the three choices"
+    },
+    "effort-balance": {
+      "title": "Is the effort between us balanced?",
+      "summary": "Look at sustained time, responsibility, and care rather than measuring the size of feelings.",
+      "focus": "Compare the consistency of time, responsibility, and caring behavior each person has given over a defined period, other explanations for an imbalance, and one agreement that could test fairness.",
+      "ctaLabel": "Explore the balance of effort"
+    },
+    "waiting-boundary": {
+      "title": "Where is the boundary between waiting and letting go?",
+      "summary": "Replace indefinite waiting with required evidence and a review point.",
+      "focus": "Clarify the reason to wait, the cost of waiting, change that needs to become visible, a review point, and a stop condition at that point.",
+      "ctaLabel": "Find a waiting boundary"
+    },
+    "small-test": {
+      "title": "What small change can I test now?",
+      "summary": "Choose one reversible action before making a large conclusion.",
+      "focus": "Identify the assumption I need to check, one small reversible action, the result to observe, and a reason to stop the test.",
+      "ctaLabel": "Find a small test"
+    },
+    "drawn-to-ambiguity": {
+      "title": "Why am I drawn to ambiguous relationships?",
+      "summary": "Examine the familiarity and reward of uncertainty instead of analyzing the other person.",
+      "focus": "Map where ambiguity repeats, the familiar reward and cost it gives me, and one small action toward the clarity I say I want.",
+      "ctaLabel": "Explore the ambiguity pattern"
+    },
+    "ignored-signals": {
+      "title": "What am I overlooking because I want to be loved?",
+      "summary": "Revisit behavior and boundaries you made smaller to protect a desired conclusion.",
+      "focus": "Identify the signal I dismissed, why I minimized it, another interpretation, and one boundary I can restore now.",
+      "ctaLabel": "Explore overlooked signals"
+    },
+    "reassurance-seeking": {
+      "title": "Am I repeating behaviors that seek reassurance?",
+      "summary": "Check whether contact or checking brings brief reassurance and whether anxiety later grows again.",
+      "focus": "Check whether reassurance-seeking behavior is actually repeating and whether anxiety returns after short-term relief; if so, identify one small alternative I can choose.",
+      "ctaLabel": "Reflect on reassurance seeking"
+    },
+    "desired-relationship": {
+      "title": "What behavior would the relationship I want include?",
+      "summary": "Turn an abstract ideal into standards you can observe in daily life.",
+      "focus": "Clarify the values of the relationship I want, concrete behavior that would express them, a non-negotiable boundary, and one choice I can practice now.",
+      "ctaLabel": "Make the relationship concrete"
+    }
+  }
+}

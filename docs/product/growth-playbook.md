@@ -90,6 +90,20 @@ Every post should disclose that tarot-spark is the author's project when a link
 is present. Every tarot post should frame the content as entertainment and
 self-reflection.
 
+### Relationship Question Explorer Contract
+
+Publish relationship discovery as one substantial localized explorer, not as
+one thin page per question. The explorer groups 28 reviewed presets into seven
+intent categories and connects every choice to the existing reading workflow.
+The selected preset may appear in a reading or share URL by stable id; names,
+free-form questions, and personal circumstances must not.
+
+Do not create indexable pages for individual presets merely to increase page
+count. Consider splitting out a question only after search impressions,
+reading starts, and successful prompt copies show durable demand for that
+specific intent and there is enough original worked material to make the page
+independently useful.
+
 ## Four-Week Run
 
 ### Week 1: Establish Relevance
@@ -135,10 +149,13 @@ Use only the source and campaign values implemented by the product.
 - `campaign`: `vertical-slice`, `pick-a-card`, `prompt-education`,
   `deck-progress`, or `topic-guide`.
 
-Never add names, account handles, community names, post titles, user questions,
-or personal context to analytics fields or reading URLs.
+The optional `question_id` is limited to one of the reviewed public preset ids.
+Never add localized question text, free-form user questions, names, account
+handles, community names, post titles, or personal context to analytics fields
+or reading URLs.
 
-Review this funnel by locale, source, campaign, topic, spread, and style:
+Review this funnel by locale, source, campaign, topic, public question preset,
+spread, and style:
 
 `draw_start` -> `result_view` -> `prompt_copy`
 

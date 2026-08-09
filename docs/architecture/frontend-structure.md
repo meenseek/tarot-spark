@@ -166,6 +166,10 @@ src/domain/tarot -> src/i18n
   components should receive localized data through props.
 - Production modules that import `src/messages` must be server-only modules.
 - Cross-feature imports should go through the feature's `index.ts`.
+- When a feature's default entry point is server-only, expose a narrowly named
+  client-safe entry point such as `registry.ts` for ids and serializable types;
+  never pull a server-only localization loader into a client bundle through a
+  barrel export.
 - Route files should import feature entry points instead of feature internals.
 
 ## Component Strategy
@@ -208,6 +212,11 @@ src/domain/tarot -> src/i18n
   TypeScript as the canonical source of truth; materialize localized arrays
   from those ids. A spread records only card count and never assigns semantic
   position names.
+- Keep relationship question ids, category ids, and topic mappings in one typed
+  feature registry. Materialize Korean and English copy from those ids, render
+  one static explorer route per locale, and pass only the stable selected id
+  through reading and share URLs. Never place localized question text or
+  personal context in those URLs.
 - Keep browser storage, analytics, and clipboard helpers behind small wrapper
   functions in the feature or `src/lib`.
 - Model the reading workflow as a feature-local tagged session with `setup`,

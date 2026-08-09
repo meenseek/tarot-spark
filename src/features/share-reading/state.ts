@@ -11,6 +11,7 @@ const allowedSearchParamNames = [
   "spread",
   "style",
   "drawStyle",
+  "question",
   "source",
   "campaign",
 ] as const;

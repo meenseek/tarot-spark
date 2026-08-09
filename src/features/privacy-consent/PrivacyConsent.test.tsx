@@ -295,6 +295,14 @@ describe("PrivacyConsent", () => {
       advertisingClientId: "ca-pub-1234567890123492",
       pathname: "/ko/relationship-flow",
     },
+    {
+      advertisingClientId: "ca-pub-1234567890123493",
+      pathname: "/relationship-tarot-questions",
+    },
+    {
+      advertisingClientId: "ca-pub-1234567890123494",
+      pathname: "/ko/relationship-tarot-questions",
+    },
   ])(
     "loads AdSense after stored consent on allowlisted route $pathname",
     async ({ advertisingClientId, pathname }) => {

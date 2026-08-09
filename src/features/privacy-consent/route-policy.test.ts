@@ -2,12 +2,14 @@ import { describe, expect, it } from "vitest";
 import { isAdvertisingEligiblePathname } from "./route-policy";
 
 describe("advertising route policy", () => {
-  it.each(["/relationship-flow", "/ko/relationship-flow"])(
-    "allows reviewed content route %s",
-    (pathname) => {
-      expect(isAdvertisingEligiblePathname(pathname)).toBe(true);
-    },
-  );
+  it.each([
+    "/relationship-flow",
+    "/ko/relationship-flow",
+    "/relationship-tarot-questions",
+    "/ko/relationship-tarot-questions",
+  ])("allows reviewed content route %s", (pathname) => {
+    expect(isAdvertisingEligiblePathname(pathname)).toBe(true);
+  });
 
   it.each([
     "/",
@@ -26,6 +28,7 @@ describe("advertising route policy", () => {
     "/ko/privacy",
     "/ja/relationship-flow",
     "/relationship-flow/extra",
+    "/relationship-tarot-questions/extra",
   ])("rejects route %s by default", (pathname) => {
     expect(isAdvertisingEligiblePathname(pathname)).toBe(false);
   });

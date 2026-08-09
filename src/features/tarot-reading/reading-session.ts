@@ -4,12 +4,14 @@ import type {
   SpreadId,
   TopicId,
 } from "@/domain/tarot";
+import type { RelationshipQuestionId } from "@/features/relationship-questions/registry";
 
 export type ReadingInputs = {
   readonly topicId: TopicId;
   readonly spreadId: SpreadId;
   readonly styleId: ReadingStyleId;
   readonly privateContext: string;
+  readonly questionId?: RelationshipQuestionId;
 };
 
 export type CurrentResult = {
@@ -78,7 +80,7 @@ export function readingSessionReducer(
 ): Session {
   switch (action.type) {
     case "SET_DRAFT_TOPIC":
-      return updateDraft(session, "topicId", action.topicId);
+      return updateDraftTopic(session, action.topicId);
     case "SET_DRAFT_SPREAD":
       return updateDraft(session, "spreadId", action.spreadId);
     case "SET_DRAFT_STYLE":
@@ -148,6 +150,22 @@ export function readingSessionReducer(
         },
       };
   }
+}
+
+function updateDraftTopic(session: Session, topicId: TopicId): Session {
+  if (session.mode === "result" || session.draft.topicId === topicId) {
+    return session;
+  }
+
+  return {
+    ...session,
+    draft: {
+      privateContext: session.draft.privateContext,
+      spreadId: session.draft.spreadId,
+      styleId: session.draft.styleId,
+      topicId,
+    },
+  };
 }
 
 function updateDraft<Key extends keyof ReadingInputs>(

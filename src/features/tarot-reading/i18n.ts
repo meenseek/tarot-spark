@@ -27,6 +27,10 @@ export type TarotReadingMessages = {
   readonly contextHelp: string;
   readonly contextCountLabel: string;
   readonly topicSelectorLabel: string;
+  readonly selectedQuestionLabel: string;
+  readonly selectedQuestionHelp: string;
+  readonly selectedQuestionFocusLabel: string;
+  readonly browseQuestions: string;
   readonly cardCountLabel: string;
   readonly drawButton: string;
   readonly drawStatus: string;
@@ -177,6 +181,10 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     spreadSelectorLabel: copy.spreadSelectorLabel,
     cardDetailsDisclosure: copy.cardDetailsDisclosure,
     topicSelectorLabel: copy.topicSelectorLabel,
+    selectedQuestionLabel: copy.selectedQuestionLabel,
+    selectedQuestionHelp: copy.selectedQuestionHelp,
+    selectedQuestionFocusLabel: copy.selectedQuestionFocusLabel,
+    browseQuestions: copy.browseQuestions,
     workspaceLabel: copy.workspaceLabel,
   };
 }

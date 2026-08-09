@@ -3,12 +3,14 @@ import {
   isDailyQuestionPathSegment,
 } from "@/features/daily-question/paths";
 import { isPublicPageId, publicPageIds } from "@/features/public-pages/ids";
+import { relationshipQuestionPathSegment } from "@/features/relationship-questions/paths";
 
 export const relationshipFlowPathSegment = "relationship-flow";
 export const shareReadingPathSegment = "share";
 
 export const localizedSecondLevelPathSegments = [
   ...publicPageIds,
+  relationshipQuestionPathSegment,
   dailyQuestionPathSegment,
   relationshipFlowPathSegment,
   shareReadingPathSegment,
@@ -22,6 +24,7 @@ export function isLocalizedSecondLevelPathSegment(
 ): value is LocalizedSecondLevelPathSegment {
   return (
     isPublicPageId(value) ||
+    value === relationshipQuestionPathSegment ||
     isDailyQuestionPathSegment(value) ||
     value === relationshipFlowPathSegment ||
     value === shareReadingPathSegment
