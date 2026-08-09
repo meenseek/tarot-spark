@@ -62,8 +62,19 @@ export type TarotReadingMessages = {
     readonly unavailable: string;
     readonly disclosure: string;
     readonly strongestConnection: string;
-    readonly uncertainty: string;
+    readonly alternatives: string;
+    readonly alternativesNote: string;
+    readonly alternativeLabels: {
+      readonly first: string;
+      readonly second: string;
+    };
+    readonly realityCheck: string;
+    readonly unknown: string;
+    readonly observableDiscriminator: string;
+    readonly revisionCondition: string;
     readonly nextStep: string;
+    readonly action: string;
+    readonly stopOrReviewCondition: string;
     readonly reflection: string;
     readonly relationLabels: Readonly<
       Record<InstantReadingRelationType, string>

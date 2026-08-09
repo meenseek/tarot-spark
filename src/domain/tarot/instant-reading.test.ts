@@ -3,6 +3,7 @@ import koCards from "@/messages/ko/tarot-cards.json";
 import {
   getInstantReadingSafetyViolation,
   getInstantReadingVisibleText,
+  getInstantReadingVisibleLengthRange,
   hasUnsupportedVisualClaim,
   parseInstantReading,
   parseInstantReadingProviderResponse,
@@ -21,6 +22,19 @@ const request = {
   styleId: "balanced",
   topicId: "love",
 } as const satisfies InstantReadingRequest;
+const deepRequest = {
+  cards: [
+    { cardId: "the-fool" },
+    { cardId: "wands-queen" },
+    { cardId: "swords-3" },
+    { cardId: "cups-2" },
+    { cardId: "pentacles-6" },
+    { cardId: "justice" },
+  ],
+  spreadId: "deep",
+  styleId: "balanced",
+  topicId: "love",
+} as const satisfies InstantReadingRequest;
 const sentence =
   "서두르기보다 지금 확인할 수 있는 선택과 경계를 차분히 살펴보는 흐름입니다. ";
 
@@ -31,7 +45,19 @@ function createReading(): InstantReading {
       interpretation: sentence.repeat(2),
     })),
     headline: "멈춤과 움직임 사이의 선택",
-    nextStep: sentence,
+    alternatives: [
+      `표현의 속도 차이가 불확실성을 키웠을 수 있습니다. ${sentence}`,
+      `기대가 실제 신호보다 앞섰을 수 있습니다. ${sentence}`,
+    ],
+    nextStep: {
+      action: sentence,
+      stopOrReviewCondition: sentence,
+    },
+    realityCheck: {
+      observableDiscriminator: sentence.repeat(2),
+      revisionCondition: sentence.repeat(2),
+      unknown: sentence.repeat(2),
+    },
     reflection: "지금 가장 부담 없이 확인할 수 있는 선택은 무엇인가요?",
     strongestConnection: {
       cardIds: ["the-fool", "wands-queen"],
@@ -39,13 +65,10 @@ function createReading(): InstantReading {
       relationType: "progression",
     },
     synthesis: sentence.repeat(3),
-    uncertainty: sentence.repeat(2),
   };
 }
 
-function createProviderReading() {
-  const reading = createReading();
-
+function createProviderReading(reading = createReading()) {
   return {
     ...reading,
     cardReadings: reading.cardReadings.map(({ interpretation }) => ({
@@ -57,6 +80,44 @@ function createProviderReading() {
       relationType: reading.strongestConnection.relationType,
     },
   };
+}
+
+function createBoundaryReading(
+  currentRequest: InstantReadingRequest,
+  targetLength: number,
+) {
+  const reading = {
+    cardReadings: currentRequest.cards.map(({ cardId }) => ({
+      cardId,
+      interpretation: "가",
+    })),
+    headline: "가",
+    alternatives: ["가", "나"],
+    nextStep: {
+      action: "가",
+      stopOrReviewCondition: "가",
+    },
+    realityCheck: {
+      observableDiscriminator: "가",
+      revisionCondition: "가",
+      unknown: "가",
+    },
+    reflection: "가",
+    strongestConnection: {
+      cardIds: currentRequest.cards.slice(0, 2).map(({ cardId }) => cardId),
+      explanation: "가",
+      relationType: "integration",
+    },
+    synthesis: "가",
+  } satisfies InstantReading;
+  const padding =
+    targetLength - [...getInstantReadingVisibleText(reading)].length;
+  if (padding < 0) {
+    throw new RangeError("Boundary fixture target is too short.");
+  }
+  reading.synthesis += "가".repeat(padding);
+
+  return reading;
 }
 
 describe("instant reading contract", () => {
@@ -132,6 +193,91 @@ describe("instant reading contract", () => {
         request,
       ),
     ).toBeUndefined();
+  });
+
+  it("requires the complete six-step method structure", () => {
+    const providerReading = createProviderReading();
+
+    expect(
+      parseInstantReadingProviderResponse(
+        { ...providerReading, alternatives: [providerReading.alternatives[0]] },
+        request,
+      ),
+    ).toBeUndefined();
+    expect(
+      parseInstantReadingProviderResponse(
+        {
+          ...providerReading,
+          alternatives: [
+            providerReading.alternatives[0],
+            `  ${providerReading.alternatives[0].toUpperCase()}  `,
+          ],
+        },
+        request,
+      ),
+    ).toBeUndefined();
+    expect(
+      parseInstantReadingProviderResponse(
+        {
+          ...providerReading,
+          realityCheck: {
+            unknown: providerReading.realityCheck.unknown,
+            observableDiscriminator:
+              providerReading.realityCheck.observableDiscriminator,
+          },
+        },
+        request,
+      ),
+    ).toBeUndefined();
+    expect(
+      parseInstantReadingProviderResponse(
+        {
+          ...providerReading,
+          nextStep: {
+            ...providerReading.nextStep,
+            extra: "계약 밖 필드",
+          },
+        },
+        request,
+      ),
+    ).toBeUndefined();
+  });
+
+  it("uses broad card-count-dependent completeness bounds", () => {
+    expect(getInstantReadingVisibleLengthRange("quick")).toEqual({
+      max: 1800,
+      min: 700,
+    });
+    expect(getInstantReadingVisibleLengthRange("deep")).toEqual({
+      max: 2800,
+      min: 1100,
+    });
+
+    for (const currentRequest of [request, deepRequest]) {
+      const { max, min } = getInstantReadingVisibleLengthRange(
+        currentRequest.spreadId,
+      );
+      for (const [targetLength, accepted] of [
+        [min - 1, false],
+        [min, true],
+        [max, true],
+        [max + 1, false],
+      ] as const) {
+        const reading = createBoundaryReading(currentRequest, targetLength);
+
+        expect(Boolean(parseInstantReading(reading, currentRequest))).toBe(
+          accepted,
+        );
+        expect(
+          Boolean(
+            parseInstantReadingProviderResponse(
+              createProviderReading(reading),
+              currentRequest,
+            ),
+          ),
+        ).toBe(accepted);
+      }
+    }
   });
 
   it.each([

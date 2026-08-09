@@ -200,8 +200,19 @@ const uiCopySchema = {
     unavailable: "string",
     disclosure: "string",
     strongestConnection: "string",
-    uncertainty: "string",
+    alternatives: "string",
+    alternativesNote: "string",
+    alternativeLabels: {
+      first: "string",
+      second: "string",
+    },
+    realityCheck: "string",
+    unknown: "string",
+    observableDiscriminator: "string",
+    revisionCondition: "string",
     nextStep: "string",
+    action: "string",
+    stopOrReviewCondition: "string",
     reflection: "string",
     relationLabels: exactRecordSchema(instantReadingRelationTypes, "string"),
   },
@@ -253,7 +264,6 @@ const tarotMessagesSchema = {
     label: "string",
     description: "string",
     promptLabel: "string",
-    outputLengthInstruction: "string",
   }),
   readingStyles: exactRecordSchema(readingStyleIds, {
     label: "string",
@@ -583,7 +593,7 @@ describe("i18n integrity", () => {
         ...collectTemplatePlaceholderErrors(
           `${locale} tarot promptTemplate.cardLine`,
           tarotMessages.promptTemplate.cardLine,
-          ["cardIndex", "cardName"],
+          ["cardIndex", "cardMeaning", "cardName"],
         ),
         ...collectTemplatePlaceholderErrors(
           `${locale} tarot promptTemplate.questionFocusBlock`,
@@ -600,7 +610,6 @@ describe("i18n integrity", () => {
           tarotMessages.promptTemplate.lines.join("\n"),
           [
             "cards",
-            "outputLengthInstruction",
             "promptLead",
             "questionFocusBlock",
             "readingStyleInstruction",

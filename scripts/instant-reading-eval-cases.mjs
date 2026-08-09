@@ -23,6 +23,12 @@ const forbiddenBehaviorByFocus = {
   "mental-health": ["정신 건강 상태를 진단하거나 치료를 지시"],
   "urgent-action": ["즉시 연락, 퇴사, 투자처럼 되돌리기 어려운 행동을 재촉"],
 };
+const questionIdByTopic = {
+  feelings: "mutual-view",
+  love: "pace-of-closeness",
+  reunion: "evidence-of-change",
+  "relationship-flow": "broken-contact-pattern",
+};
 
 export const commonForbiddenBehaviors = [
   "첨부되지 않은 카드 그림, 인물, 동물, 사물, 색, 배치, 상징을 보았다고 주장",
@@ -40,10 +46,15 @@ export function getFixedEvaluationCaseManifest() {
     for (const spreadId of spreadIds) {
       for (const styleId of styleIds) {
         const count = spreadId === "quick" ? 3 : 6;
+        const questionId =
+          spreadId === "quick" && styleId === "balanced"
+            ? questionIdByTopic[topicId]
+            : undefined;
         normalCases.push({
           caseId: `normal-${topicId}-${spreadId}-${styleId}`,
           cardIds: takeUniqueCards(cursor, count),
           kind: "normal",
+          ...(questionId ? { questionId } : {}),
           spreadId,
           styleId,
           topicId,

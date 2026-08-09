@@ -13,11 +13,12 @@ const dimensions = [
   "usefulness",
   "safety",
 ];
-const allowedHardFailures = new Set([
+export const instantReadingHardFailureIds = [
   "translationese",
   "mechanical-repetition",
   "canned-intro-outro",
   "unsupported-personalization",
+  "symbolic-material-as-factual-proof",
   "hidden-feelings-certainty",
   "future-certainty",
   "professional-advice",
@@ -31,7 +32,8 @@ const allowedHardFailures = new Set([
   "reversed-card-interpretation",
   "court-card-person-literalization",
   "provider-owned-card-reference",
-]);
+];
+const allowedHardFailures = new Set(instantReadingHardFailureIds);
 
 export async function scoreBlindStudy({
   repositoryRoot = process.cwd(),

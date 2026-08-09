@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   primaryButtonClassName,
   secondaryButtonClassName,
@@ -149,19 +150,95 @@ function InstantReadingResult({
           reading.strongestConnection.explanation
         }`}
       />
-      <div className="grid gap-3 sm:grid-cols-2">
-        <ReadingDetail label={copy.uncertainty} value={reading.uncertainty} />
-        <ReadingDetail label={copy.nextStep} value={reading.nextStep} />
-      </div>
+
+      <ReadingGroup heading={copy.alternatives}>
+        <p className="text-xs leading-5 text-ts-muted">
+          {copy.alternativesNote}
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <ReadingDetail
+            label={copy.alternativeLabels.first}
+            nested
+            value={reading.alternatives[0]}
+          />
+          <ReadingDetail
+            label={copy.alternativeLabels.second}
+            nested
+            value={reading.alternatives[1]}
+          />
+        </div>
+      </ReadingGroup>
+
+      <ReadingGroup heading={copy.realityCheck}>
+        <div className="grid gap-3">
+          <ReadingDetail
+            label={copy.unknown}
+            nested
+            value={reading.realityCheck.unknown}
+          />
+          <ReadingDetail
+            label={copy.observableDiscriminator}
+            nested
+            value={reading.realityCheck.observableDiscriminator}
+          />
+          <ReadingDetail
+            label={copy.revisionCondition}
+            nested
+            value={reading.realityCheck.revisionCondition}
+          />
+        </div>
+      </ReadingGroup>
+
+      <ReadingGroup heading={copy.nextStep}>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <ReadingDetail
+            label={copy.action}
+            nested
+            value={reading.nextStep.action}
+          />
+          <ReadingDetail
+            label={copy.stopOrReviewCondition}
+            nested
+            value={reading.nextStep.stopOrReviewCondition}
+          />
+        </div>
+      </ReadingGroup>
       <ReadingDetail label={copy.reflection} value={reading.reflection} />
     </article>
   );
 }
 
-function ReadingDetail({ label, value }: { label: string; value: string }) {
+function ReadingGroup({
+  children,
+  heading,
+}: {
+  readonly children: ReactNode;
+  readonly heading: string;
+}) {
+  return (
+    <section className="grid gap-2">
+      <h4 className="text-sm font-semibold text-ts-ink">{heading}</h4>
+      {children}
+    </section>
+  );
+}
+
+function ReadingDetail({
+  label,
+  nested = false,
+  value,
+}: {
+  readonly label: string;
+  readonly nested?: boolean;
+  readonly value: string;
+}) {
+  const Heading = nested ? "h5" : "h4";
+
   return (
     <section className="grid gap-1 rounded-ts-control border border-ts-divider bg-ts-surface p-3">
-      <h4 className="text-xs font-semibold text-ts-action">{label}</h4>
+      <Heading className="text-xs font-semibold text-ts-action">
+        {label}
+      </Heading>
       <p className="whitespace-pre-line text-sm leading-6 text-ts-ink">
         {value}
       </p>
