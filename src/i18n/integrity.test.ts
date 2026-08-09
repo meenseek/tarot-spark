@@ -9,16 +9,22 @@ import {
   topicIds,
 } from "@/domain/tarot";
 import { publicPageIds } from "@/features/public-pages";
+import {
+  relationshipQuestionCategoryIds,
+  relationshipQuestionDefinitions,
+} from "@/features/relationship-questions/registry";
 import enDailyQuestion from "@/messages/en/daily-question.json";
 import enPublicPages from "@/messages/en/public-pages.json";
 import enPrivacyConsent from "@/messages/en/privacy-consent.json";
 import enRelationshipFlow from "@/messages/en/relationship-flow.json";
+import enRelationshipQuestions from "@/messages/en/relationship-questions.json";
 import enTarotMessages from "@/messages/en/tarot-domain.json";
 import enCopy from "@/messages/en/tarot-reading.json";
 import koDailyQuestion from "@/messages/ko/daily-question.json";
 import koPublicPages from "@/messages/ko/public-pages.json";
 import koPrivacyConsent from "@/messages/ko/privacy-consent.json";
 import koRelationshipFlow from "@/messages/ko/relationship-flow.json";
+import koRelationshipQuestions from "@/messages/ko/relationship-questions.json";
 import koTarotMessages from "@/messages/ko/tarot-domain.json";
 import koCopy from "@/messages/ko/tarot-reading.json";
 import {
@@ -58,6 +64,11 @@ const privacyConsentMessagesByLocale = {
 const relationshipFlowMessagesByLocale = {
   en: enRelationshipFlow,
   ko: koRelationshipFlow,
+} satisfies Record<Locale, unknown>;
+
+const relationshipQuestionMessagesByLocale = {
+  en: enRelationshipQuestions,
+  ko: koRelationshipQuestions,
 } satisfies Record<Locale, unknown>;
 
 const jsonFiles = [
@@ -109,6 +120,14 @@ const jsonFiles = [
     label: "messages/ko/relationship-flow.json",
     path: "src/messages/ko/relationship-flow.json",
   },
+  {
+    label: "messages/en/relationship-questions.json",
+    path: "src/messages/en/relationship-questions.json",
+  },
+  {
+    label: "messages/ko/relationship-questions.json",
+    path: "src/messages/ko/relationship-questions.json",
+  },
 ] as const;
 
 type JsonSchema =
@@ -146,6 +165,10 @@ const uiCopySchema = {
   contextHelp: "string",
   contextCountLabel: "string",
   topicSelectorLabel: "string",
+  selectedQuestionLabel: "string",
+  selectedQuestionHelp: "string",
+  selectedQuestionFocusLabel: "string",
+  browseQuestions: "string",
   cardCountLabel: "string",
   drawButton: "string",
   drawStatus: "string",
@@ -222,6 +245,7 @@ const uiCopySchema = {
 const tarotMessagesSchema = {
   promptTemplate: {
     cardLine: "string",
+    questionFocusBlock: "string",
     userContextBlock: "string",
     lines: ["string"],
   },
@@ -249,6 +273,7 @@ const publicPageMessagesSchema = {
   homeLabel: "string",
   languageSwitchLabel: "string",
   pageNavigationLabel: "string",
+  questionExplorerLinkLabel: "string",
   pages: exactRecordSchema(publicPageIds, {
     metadata: {
       title: "string",
@@ -357,6 +382,45 @@ const relationshipFlowMessagesSchema = {
   disclaimer: "string",
 } satisfies JsonSchema;
 
+const relationshipQuestionMessagesSchema = {
+  metadata: {
+    title: "string",
+    description: "string",
+  },
+  eyebrow: "string",
+  title: "string",
+  intro: "string",
+  methodHeading: "string",
+  methodIntro: "string",
+  methodGuideLinkLabel: "string",
+  methodSteps: ["string"],
+  comparisonHeading: "string",
+  weakQuestionLabel: "string",
+  weakQuestion: "string",
+  strongQuestionLabel: "string",
+  strongQuestion: "string",
+  browseHeading: "string",
+  categoryNavigationLabel: "string",
+  focusLabel: "string",
+  workedExampleHeading: "string",
+  workedExampleBody: "string",
+  workedExampleItems: ["string"],
+  disclaimer: "string",
+  categories: exactRecordSchema(relationshipQuestionCategoryIds, {
+    title: "string",
+    intro: "string",
+  }),
+  questions: exactRecordSchema(
+    relationshipQuestionDefinitions.map(({ id }) => id),
+    {
+      title: "string",
+      summary: "string",
+      focus: "string",
+      ctaLabel: "string",
+    },
+  ),
+} satisfies JsonSchema;
+
 describe("i18n integrity", () => {
   it("keeps locale files aligned with supported locales", () => {
     expect(Object.keys(uiCopyByLocale).sort()).toEqual(
@@ -375,6 +439,9 @@ describe("i18n integrity", () => {
       [...supportedLocales].sort(),
     );
     expect(Object.keys(relationshipFlowMessagesByLocale).sort()).toEqual(
+      [...supportedLocales].sort(),
+    );
+    expect(Object.keys(relationshipQuestionMessagesByLocale).sort()).toEqual(
       [...supportedLocales].sort(),
     );
   });
@@ -420,6 +487,12 @@ describe("i18n integrity", () => {
     );
   });
 
+  it("keeps relationship question message keys identical across locales", () => {
+    expect(collectShapePaths(koRelationshipQuestions)).toEqual(
+      collectShapePaths(enRelationshipQuestions),
+    );
+  });
+
   it("matches supported locale JSON schemas exactly", () => {
     const schemaErrors = [
       ...collectLocaleSchemaErrors(uiCopyByLocale, uiCopySchema, "$.uiCopy"),
@@ -447,6 +520,11 @@ describe("i18n integrity", () => {
         relationshipFlowMessagesByLocale,
         relationshipFlowMessagesSchema,
         "$.relationshipFlowMessages",
+      ),
+      ...collectLocaleSchemaErrors(
+        relationshipQuestionMessagesByLocale,
+        relationshipQuestionMessagesSchema,
+        "$.relationshipQuestionMessages",
       ),
     ];
 
@@ -508,6 +586,11 @@ describe("i18n integrity", () => {
           ["cardIndex", "cardName"],
         ),
         ...collectTemplatePlaceholderErrors(
+          `${locale} tarot promptTemplate.questionFocusBlock`,
+          tarotMessages.promptTemplate.questionFocusBlock,
+          ["questionFocus"],
+        ),
+        ...collectTemplatePlaceholderErrors(
           `${locale} tarot promptTemplate.userContextBlock`,
           tarotMessages.promptTemplate.userContextBlock,
           ["userContext"],
@@ -519,6 +602,7 @@ describe("i18n integrity", () => {
             "cards",
             "outputLengthInstruction",
             "promptLead",
+            "questionFocusBlock",
             "readingStyleInstruction",
             "readingStyleLabel",
             "spreadLabel",
@@ -563,6 +647,10 @@ describe("i18n integrity", () => {
       ...collectBlankStringPaths(
         relationshipFlowMessagesByLocale,
         "$.relationshipFlowMessages",
+      ),
+      ...collectBlankStringPaths(
+        relationshipQuestionMessagesByLocale,
+        "$.relationshipQuestionMessages",
       ),
     ];
 

@@ -12,6 +12,7 @@ export const maxUserContextLength = 500;
 type BuildPromptInput = {
   readonly cards: readonly DrawnCard[];
   readonly readingStyle: ReadingStyle;
+  readonly questionFocus?: string;
   readonly spread: Spread;
   readonly template: PromptTemplate;
   readonly topic: Topic;
@@ -22,6 +23,7 @@ export function buildPrompt(
   {
     cards,
     readingStyle,
+    questionFocus = "",
     spread,
     template,
     topic,
@@ -55,6 +57,13 @@ export function buildPrompt(
         `${context}.userContextBlock`,
       )
     : "";
+  const questionFocusBlock = questionFocus.trim()
+    ? formatTemplateStrict(
+        template.questionFocusBlock,
+        { questionFocus: questionFocus.trim() },
+        `${context}.questionFocusBlock`,
+      )
+    : "";
 
   return formatTemplateStrict(
     template.lines.join("\n"),
@@ -62,6 +71,7 @@ export function buildPrompt(
       cards: cardLines,
       outputLengthInstruction: spread.outputLengthInstruction,
       promptLead: topic.promptLead,
+      questionFocusBlock,
       readingStyleInstruction: readingStyle.instruction,
       readingStyleLabel: readingStyle.label,
       spreadLabel: spread.promptLabel,

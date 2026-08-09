@@ -36,6 +36,10 @@ import {
   type TopicId,
 } from "@/domain/tarot";
 import { optionalServicesDocumentReloadEvent } from "@/features/privacy-consent/events";
+import type {
+  RelationshipQuestion,
+  RelationshipQuestionId,
+} from "@/features/relationship-questions/registry";
 import { localeNames, supportedLocales, type Locale } from "@/i18n/config";
 import { formatTemplateStrict } from "@/i18n/template";
 import {
@@ -105,6 +109,8 @@ type TarotExperienceClientProps = {
   readonly kakaoJavaScriptKey: string | undefined;
   readonly publicPageLinks: readonly PublicPageLink[];
   readonly publicPageNavigationLabel: string;
+  readonly relationshipQuestionPath: string;
+  readonly relationshipQuestions: readonly RelationshipQuestion[];
   readonly shareSiteUrl: string;
   readonly tarotData: LocaleTarotData;
   readonly viewMode: TarotExperienceViewMode;
@@ -126,6 +132,8 @@ export function TarotExperienceClient({
   kakaoJavaScriptKey,
   publicPageLinks,
   publicPageNavigationLabel,
+  relationshipQuestionPath,
+  relationshipQuestions,
   shareSiteUrl,
   tarotData,
   viewMode,
@@ -147,6 +155,9 @@ export function TarotExperienceClient({
         spreadId: seedReadingState?.spreadId ?? defaultSpread.id,
         styleId: seedReadingState?.styleId ?? defaultReadingStyle.id,
         privateContext: "",
+        ...(seedReadingState?.questionId
+          ? { questionId: seedReadingState.questionId }
+          : {}),
       };
 
       return seedReadingState && seedReadingState.cards.length > 0
@@ -216,6 +227,11 @@ export function TarotExperienceClient({
   const cards = currentResult?.cards ?? emptyDrawnCards;
   const selectedTopic = getTopic(tarotData.topics, formInputs.topicId);
   const selectedSpread = getSpread(tarotData.spreads, formInputs.spreadId);
+  const selectedQuestion = formInputs.questionId
+    ? relationshipQuestions.find(
+        (question) => question.id === formInputs.questionId,
+      )
+    : undefined;
   const currentTopic = currentResult
     ? getTopic(tarotData.topics, currentResult.inputs.topicId)
     : undefined;
@@ -224,6 +240,11 @@ export function TarotExperienceClient({
     : undefined;
   const currentReadingStyle = currentResult
     ? getReadingStyle(tarotData.readingStyles, currentResult.inputs.styleId)
+    : undefined;
+  const currentQuestion = currentResult?.inputs.questionId
+    ? relationshipQuestions.find(
+        (question) => question.id === currentResult.inputs.questionId,
+      )
     : undefined;
   const analyticsAttribution =
     getAnalyticsAttributionPayload(readingAttribution);
@@ -321,6 +342,9 @@ export function TarotExperienceClient({
             draw_style_id: currentResult.drawStyleId,
             spread_id: currentSpread.id,
             style_id: currentResult.inputs.styleId,
+            ...(currentResult.inputs.questionId
+              ? { question_id: currentResult.inputs.questionId }
+              : {}),
           });
         });
       },
@@ -460,6 +484,9 @@ export function TarotExperienceClient({
             {
               cards,
               readingStyle: currentReadingStyle,
+              ...(currentQuestion
+                ? { questionFocus: currentQuestion.focus }
+                : {}),
               spread: currentSpread,
               template: tarotData.promptTemplate,
               topic: currentTopic,
@@ -471,6 +498,7 @@ export function TarotExperienceClient({
     [
       cards,
       currentReadingStyle,
+      currentQuestion,
       currentResult,
       currentSpread,
       currentTopic,
@@ -508,6 +536,9 @@ export function TarotExperienceClient({
             spreadId: currentResult.inputs.spreadId,
             styleId: currentResult.inputs.styleId,
             topicId: currentResult.inputs.topicId,
+            ...(currentResult.inputs.questionId
+              ? { questionId: currentResult.inputs.questionId }
+              : {}),
           }
         : {
             cards: emptyDrawnCards,
@@ -515,6 +546,9 @@ export function TarotExperienceClient({
             spreadId: formInputs.spreadId,
             styleId: formInputs.styleId,
             topicId: formInputs.topicId,
+            ...(formInputs.questionId
+              ? { questionId: formInputs.questionId }
+              : {}),
           },
     [currentResult, formInputs],
   );
@@ -564,6 +598,7 @@ export function TarotExperienceClient({
           formInputs.styleId,
           formInputs.styleId,
           [],
+          undefined,
           readingAttribution,
         ),
       );
@@ -589,6 +624,7 @@ export function TarotExperienceClient({
           formInputs.styleId,
           formInputs.styleId,
           [],
+          formInputs.questionId,
           readingAttribution,
         ),
       );
@@ -609,6 +645,7 @@ export function TarotExperienceClient({
           styleId,
           styleId,
           [],
+          formInputs.questionId,
           readingAttribution,
         ),
       );
@@ -631,6 +668,7 @@ export function TarotExperienceClient({
         styleId,
         currentResult.drawStyleId,
         currentResult.cards,
+        currentResult.inputs.questionId,
         readingAttribution,
       ),
     );
@@ -712,6 +750,7 @@ export function TarotExperienceClient({
       draw_style_id: inputs.styleId,
       spread_id: inputs.spreadId,
       style_id: inputs.styleId,
+      ...(inputs.questionId ? { question_id: inputs.questionId } : {}),
     });
 
     const spread = getSpread(tarotData.spreads, inputs.spreadId);
@@ -734,6 +773,7 @@ export function TarotExperienceClient({
         inputs.styleId,
         inputs.styleId,
         drawnCards,
+        inputs.questionId,
         readingAttribution,
       ),
     );
@@ -748,6 +788,7 @@ export function TarotExperienceClient({
         draw_style_id: inputs.styleId,
         spread_id: inputs.spreadId,
         style_id: inputs.styleId,
+        ...(inputs.questionId ? { question_id: inputs.questionId } : {}),
       });
     });
   }
@@ -770,6 +811,9 @@ export function TarotExperienceClient({
       spreadId: currentResult.inputs.spreadId,
       styleId: currentResult.inputs.styleId,
       topicId: currentResult.inputs.topicId,
+      ...(currentResult.inputs.questionId
+        ? { questionId: currentResult.inputs.questionId }
+        : {}),
     } satisfies InstantReadingRequest;
 
     setInstantReading(undefined);
@@ -848,6 +892,9 @@ export function TarotExperienceClient({
       spread_id: currentResult.inputs.spreadId,
       style_id: currentResult.inputs.styleId,
       surface: "reading_result",
+      ...(currentResult.inputs.questionId
+        ? { question_id: currentResult.inputs.questionId }
+        : {}),
     } as const;
     setCopyState("idle");
 
@@ -916,6 +963,7 @@ export function TarotExperienceClient({
       currentResult.inputs.styleId,
       currentResult.drawStyleId,
       cards,
+      currentResult.inputs.questionId,
       "kakao",
     );
 
@@ -957,6 +1005,7 @@ export function TarotExperienceClient({
       currentResult.inputs.styleId,
       currentResult.drawStyleId,
       cards,
+      currentResult.inputs.questionId,
       "native",
     );
     const shareData = {
@@ -1009,6 +1058,7 @@ export function TarotExperienceClient({
           currentResult.inputs.styleId,
           currentResult.drawStyleId,
           cards,
+          currentResult.inputs.questionId,
           "copy",
         ),
       );
@@ -1038,6 +1088,7 @@ export function TarotExperienceClient({
           currentResult.inputs.styleId,
           currentResult.drawStyleId,
           cards,
+          currentResult.inputs.questionId,
           "instagram",
         ),
       );
@@ -1068,6 +1119,9 @@ export function TarotExperienceClient({
         method,
         spread_id: currentResult.inputs.spreadId,
         style_id: currentResult.inputs.styleId,
+        ...(currentResult.inputs.questionId
+          ? { question_id: currentResult.inputs.questionId }
+          : {}),
       },
     };
 
@@ -1131,6 +1185,7 @@ export function TarotExperienceClient({
         currentResult.inputs.styleId,
         currentResult.drawStyleId,
         cards,
+        currentResult.inputs.questionId,
         "copy",
       )
     : "";
@@ -1248,6 +1303,11 @@ export function TarotExperienceClient({
                     <p className="font-semibold text-ts-action">
                       {currentTopic.label}
                     </p>
+                    {currentQuestion ? (
+                      <p className="font-medium text-ts-ink">
+                        {copy.selectedQuestionLabel}: {currentQuestion.title}
+                      </p>
+                    ) : null}
                     <p className="text-ts-muted">
                       {copy.currentReadingSettings}: {currentSpread.label} ·{" "}
                       {currentReadingStyle.label}
@@ -1349,6 +1409,37 @@ export function TarotExperienceClient({
 
           {session.mode !== "result" && (
             <>
+              {selectedQuestion ? (
+                <aside
+                  className="grid gap-2 rounded-ts-panel border border-ts-gold/50 bg-ts-surface p-4"
+                  data-testid="selected-relationship-question"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.08em] text-ts-action">
+                    {copy.selectedQuestionLabel}
+                  </p>
+                  <p className="font-ts-display text-xl font-semibold leading-7 text-ts-ink">
+                    {selectedQuestion.title}
+                  </p>
+                  <p className="text-sm leading-6 text-ts-muted">
+                    {copy.selectedQuestionHelp}
+                  </p>
+                  <div className="grid gap-1 border-l-2 border-ts-gold pl-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.06em] text-ts-action">
+                      {copy.selectedQuestionFocusLabel}
+                    </p>
+                    <p className="text-sm leading-6 text-ts-ink">
+                      {selectedQuestion.focus}
+                    </p>
+                  </div>
+                  <Link
+                    className="w-fit text-sm font-semibold text-ts-action underline decoration-ts-gold underline-offset-4"
+                    href={relationshipQuestionPath}
+                  >
+                    {copy.browseQuestions}
+                  </Link>
+                </aside>
+              ) : null}
+
               <TopicSelector
                 ariaLabel={copy.topicSelectorLabel}
                 onSelect={chooseTopic}
@@ -1439,6 +1530,14 @@ export function TarotExperienceClient({
                 <p className="text-sm font-semibold text-ts-action">
                   {currentTopic.label}
                 </p>
+                {currentQuestion ? (
+                  <p
+                    className="text-sm font-medium leading-6 text-ts-ink"
+                    data-testid="current-relationship-question"
+                  >
+                    {copy.selectedQuestionLabel}: {currentQuestion.title}
+                  </p>
+                ) : null}
                 <p className="text-sm leading-6 text-ts-ink">
                   {currentTopic.resultFrame}
                 </p>
@@ -1581,6 +1680,7 @@ function getBrowserReadingUrl(
   styleId: ReadingStyleId,
   drawStyleId: ReadingStyleId,
   cards: readonly DrawnCard[],
+  questionId: RelationshipQuestionId | undefined,
   attribution?: ReadingUrlAttribution,
 ) {
   return buildReadingUrl(
@@ -1591,6 +1691,7 @@ function getBrowserReadingUrl(
       spreadId,
       styleId,
       topicId,
+      ...(questionId ? { questionId } : {}),
     },
     attribution,
   );
@@ -1604,6 +1705,7 @@ function getShareUrl(
   styleId: ReadingStyleId,
   drawStyleId: ReadingStyleId,
   cards: readonly DrawnCard[],
+  questionId: RelationshipQuestionId | undefined,
   sourceId: ShareSourceId = "copy",
 ) {
   return buildReadingUrl(
@@ -1614,6 +1716,7 @@ function getShareUrl(
       spreadId,
       styleId,
       topicId,
+      ...(questionId ? { questionId } : {}),
     },
     {
       campaignId: "vertical-slice",

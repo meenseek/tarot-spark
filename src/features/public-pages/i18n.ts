@@ -3,13 +3,17 @@ import "server-only";
 import type { Metadata } from "next";
 import { getLocalePath, type Locale } from "@/i18n/config";
 import { withLocalizedAlternates } from "@/i18n/seo";
+import { getRelationshipQuestionPath } from "@/features/relationship-questions/paths";
 import enMessages from "@/messages/en/public-pages.json";
 import koMessages from "@/messages/ko/public-pages.json";
 import type { GuidePageId, PublicPageId } from "./ids";
 import { guidePageIds, publicPageIds } from "./ids";
 import type { PublicPageContent, PublicPageCta, PublicPageLink } from "./types";
 
-type GuideRelatedTarget = GuidePageId | "relationship-flow";
+type GuideRelatedTarget =
+  | GuidePageId
+  | "relationship-flow"
+  | "relationship-tarot-questions";
 type GuideRouteConfig = {
   readonly relatedTargets: readonly GuideRelatedTarget[];
   readonly ctaSpreadId?: "quick" | "deep";
@@ -21,6 +25,7 @@ const guideRouteConfig = {
       "how-to-ask-tarot-questions",
       "tarot-card-combinations",
       "relationship-flow",
+      "relationship-tarot-questions",
     ],
     ctaSpreadId: "quick",
   },
@@ -29,6 +34,7 @@ const guideRouteConfig = {
       "three-card-tarot-reading",
       "tarot-card-combinations",
       "relationship-flow",
+      "relationship-tarot-questions",
     ],
   },
   "tarot-card-combinations": {
@@ -36,6 +42,7 @@ const guideRouteConfig = {
       "three-card-tarot-reading",
       "how-to-ask-tarot-questions",
       "relationship-flow",
+      "relationship-tarot-questions",
     ],
     ctaSpreadId: "deep",
   },
@@ -54,6 +61,7 @@ type RawPublicPageMessages = {
   readonly homeLabel: string;
   readonly languageSwitchLabel: string;
   readonly pageNavigationLabel: string;
+  readonly questionExplorerLinkLabel: string;
   readonly pages: Record<
     PublicPageId,
     RawPublicPageContent & {
@@ -109,10 +117,16 @@ export function getPublicPageMetadata(
 }
 
 export function getPublicPageLinks(locale: Locale): readonly PublicPageLink[] {
-  return publicPageIds.map((pageId) => ({
-    href: getPublicPagePath(locale, pageId),
-    label: messagesByLocale[locale].pages[pageId].linkLabel,
-  }));
+  return [
+    {
+      href: getRelationshipQuestionPath(locale),
+      label: messagesByLocale[locale].questionExplorerLinkLabel,
+    },
+    ...publicPageIds.map((pageId) => ({
+      href: getPublicPagePath(locale, pageId),
+      label: messagesByLocale[locale].pages[pageId].linkLabel,
+    })),
+  ];
 }
 
 export function getPublicPageShellCopy(locale: Locale) {
@@ -175,6 +189,10 @@ function getGuideRouteConfig(pageId: PublicPageId): GuideRouteConfig {
 }
 
 function getGuideRelatedPath(locale: Locale, target: GuideRelatedTarget) {
+  if (target === "relationship-tarot-questions") {
+    return getRelationshipQuestionPath(locale);
+  }
+
   if (target !== "relationship-flow") {
     return getPublicPagePath(locale, target);
   }

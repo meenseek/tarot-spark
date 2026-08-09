@@ -4,7 +4,7 @@
   "analyticsLabel": "서비스 이용 분석",
   "analyticsDescription": "허용하면 서비스 개선을 위해 방문한 페이지와 사용한 기능을 제한적으로 측정합니다.",
   "advertisingLabel": "광고",
-  "advertisingDescription": "허용하고 Google AdSense가 설정된 경우에만 관계 흐름 소개 페이지에서 광고를 불러옵니다.",
+  "advertisingDescription": "허용하고 Google AdSense가 설정된 경우에만 검토된 관계 콘텐츠 페이지에서 광고를 불러옵니다.",
   "saveChoices": "선택 저장",
   "rejectOptional": "모두 거부",
   "settingsButton": "개인정보 설정"

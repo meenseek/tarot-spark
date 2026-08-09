@@ -256,6 +256,46 @@ describe("GoogleAnalyticsEvents", () => {
     ]);
   });
 
+  it("forwards only a topic-compatible stable question preset id", () => {
+    const calls = mockGtag();
+    const payload = {
+      locale: "ko",
+      topic_id: "feelings",
+      spread_id: "quick",
+      style_id: "relational",
+      draw_style_id: "relational",
+      card_count: 3,
+    };
+
+    render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
+    for (const question_id of [
+      "mutual-view",
+      "private free text",
+      "pace-of-closeness",
+    ]) {
+      window.dispatchEvent(
+        new CustomEvent("tarot_spark_event", {
+          detail: {
+            name: "result_view",
+            payload: { ...payload, question_id },
+          },
+        }),
+      );
+    }
+
+    expect(calls).toContainEqual([
+      "event",
+      "result_view",
+      { ...payload, question_id: "mutual-view" },
+    ]);
+    expect(
+      calls.filter(
+        ([command, eventName]) =>
+          command === "event" && eventName === "result_view",
+      ),
+    ).toHaveLength(1);
+  });
+
   it("captures an event waiting for the analytics listener exactly once", () => {
     const calls = mockGtag();
 

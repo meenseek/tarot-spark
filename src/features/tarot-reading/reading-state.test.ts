@@ -127,6 +127,30 @@ describe("reading URL state", () => {
     expect(restored).toEqual(state);
   });
 
+  it("round-trips a compatible relationship question without private text", () => {
+    const state = {
+      ...createState("quick", "balanced"),
+      topicId: "feelings",
+      questionId: "mutual-view",
+    } as const satisfies ReadingUrlState;
+    const url = new URL(buildReadingUrl("https://example.com/", state));
+
+    expect(url.searchParams.get("question")).toBe("mutual-view");
+    expect(url.toString()).not.toContain("How");
+    expect(getReadingStateFromUrl(tarotData, url.toString())).toEqual(state);
+  });
+
+  it("rejects unknown, duplicated, empty, and topic-mismatched questions", () => {
+    for (const href of [
+      "https://example.com/?topic=feelings&question=unknown",
+      "https://example.com/?topic=feelings&question=",
+      "https://example.com/?topic=feelings&question=mutual-view&question=ignored-signals",
+      "https://example.com/?topic=love&question=mutual-view",
+    ]) {
+      expect(getReadingStateFromUrl(tarotData, href)).toBeUndefined();
+    }
+  });
+
   it("preserves an immutable draw style only for result URLs", () => {
     const resultUrl = new URL(
       buildReadingUrl(

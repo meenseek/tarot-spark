@@ -14,6 +14,7 @@ describe("localized route policy", () => {
       "privacy",
       "contact",
       "disclaimer",
+      "relationship-tarot-questions",
       "daily",
       "relationship-flow",
       "share",

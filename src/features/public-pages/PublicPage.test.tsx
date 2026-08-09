@@ -117,10 +117,19 @@ describe("PublicPage", () => {
       screen.getByText(/유효한 측정 ID가 설정되어 있고.*허용한 경우에만/i),
     ).toBeVisible();
     expect(
+      screen.getByText(/공개 성찰 질문의 미리 작성된 초점 문구/i),
+    ).toBeVisible();
+    expect(
       screen.getByText(
-        /기능 사용 이벤트와 함께 보내는 값은.*직접 적은 상황 설명이나.*포함하지 않습니다/i,
+        /사용자가 직접 작성한 자유 형식 질문은 보내지 않습니다/i,
       ),
     ).toBeVisible();
+    expect(
+      screen.getByText(
+        /기능 사용 이벤트와 함께 보내는 값은.*자유 형식 질문이나 상황 설명.*포함하지 않습니다/i,
+      ),
+    ).toBeVisible();
+    expect(screen.getByText(/공개 질문 프리셋의 고정 ID/i)).toBeVisible();
     expect(screen.getByText(/Vercel에서 호스팅될 수 있습니다/i)).toBeVisible();
     expect(screen.getByText(/별도의 광고 스크립트 설정/i)).toBeVisible();
     expect(

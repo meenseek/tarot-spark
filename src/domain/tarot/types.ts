@@ -35,6 +35,7 @@ export type TarotCard = {
 
 export type PromptTemplate = {
   readonly cardLine: string;
+  readonly questionFocusBlock: string;
   readonly userContextBlock: string;
   readonly lines: readonly string[];
 };

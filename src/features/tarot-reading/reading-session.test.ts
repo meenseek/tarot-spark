@@ -20,6 +20,32 @@ const firstCards = [createDrawnCard("the-fool", "The Fool")];
 const secondCards = [createDrawnCard("the-magician", "The Magician")];
 
 describe("reading session reducer", () => {
+  it("keeps a compatible preset until the user changes its topic", () => {
+    const setup = createSetupSession({
+      ...defaultInputs,
+      questionId: "pace-of-closeness",
+    });
+    const unchanged = readingSessionReducer(setup, {
+      type: "SET_DRAFT_STYLE",
+      styleId: "relational",
+    });
+    const topicChanged = readingSessionReducer(unchanged, {
+      type: "SET_DRAFT_TOPIC",
+      topicId: "feelings",
+    });
+
+    expect(
+      unchanged.mode === "setup" ? unchanged.draft.questionId : undefined,
+    ).toBe("pace-of-closeness");
+    expect(topicChanged).toMatchObject({
+      mode: "setup",
+      draft: { topicId: "feelings" },
+    });
+    expect(
+      topicChanged.mode === "setup" ? topicChanged.draft.questionId : "bad",
+    ).toBeUndefined();
+  });
+
   it("creates setup and restored result sessions with isolated inputs", () => {
     const setup = createSetupSession(defaultInputs);
     const restored = createResultSession({

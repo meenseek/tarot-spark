@@ -45,6 +45,7 @@ export type InstantReadingRequest = {
   readonly spreadId: SpreadId;
   readonly styleId: ReadingStyleId;
   readonly cards: readonly InstantReadingCardInput[];
+  readonly questionId?: string;
 };
 
 export type InstantReading = {
@@ -65,6 +66,7 @@ export type InstantReading = {
 };
 
 const requestKeys = ["topicId", "spreadId", "styleId", "cards"] as const;
+const requestKeysWithQuestion = [...requestKeys, "questionId"] as const;
 const cardInputKeys = ["cardId"] as const;
 const readingKeys = [
   "headline",
@@ -186,12 +188,25 @@ const unsafeReadingPatternGroups = [
 export function parseInstantReadingRequest(
   value: unknown,
 ): InstantReadingRequest | undefined {
-  if (!isRecord(value) || !hasExactKeys(value, requestKeys)) return undefined;
+  if (
+    !isRecord(value) ||
+    (!hasExactKeys(value, requestKeys) &&
+      !hasExactKeys(value, requestKeysWithQuestion))
+  ) {
+    return undefined;
+  }
   if (
     !isAllowedId(value["topicId"], topicIds) ||
     !isAllowedId(value["spreadId"], spreadIds) ||
     !isAllowedId(value["styleId"], readingStyleIds) ||
     !Array.isArray(value["cards"])
+  ) {
+    return undefined;
+  }
+
+  if (
+    "questionId" in value &&
+    (typeof value["questionId"] !== "string" || !value["questionId"].trim())
   ) {
     return undefined;
   }
@@ -219,6 +234,9 @@ export function parseInstantReadingRequest(
     spreadId: value["spreadId"],
     styleId: value["styleId"],
     topicId: value["topicId"],
+    ...(typeof value["questionId"] === "string"
+      ? { questionId: value["questionId"] }
+      : {}),
   };
 }
 

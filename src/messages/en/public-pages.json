@@ -3,6 +3,7 @@
   "homeLabel": "Free tarot prompt generator",
   "languageSwitchLabel": "Choose language",
   "pageNavigationLabel": "Public pages",
+  "questionExplorerLinkLabel": "Relationship tarot questions",
   "pages": {
     "three-card-tarot-reading": {
       "metadata": {
@@ -85,7 +86,8 @@
         "labels": [
           "Turn predictive questions into reflective ones",
           "Read card combinations",
-          "See a relationship example"
+          "See a relationship example",
+          "Browse relationship questions"
         ]
       },
       "cta": {
@@ -173,7 +175,8 @@
         "labels": [
           "Use the three-card method",
           "Connect multiple cards",
-          "Apply it to relationship reflection"
+          "Apply it to relationship reflection",
+          "Choose a relationship question"
         ]
       },
       "cta": {
@@ -262,7 +265,8 @@
         "labels": [
           "Read a full three-card spread",
           "Improve the question first",
-          "Study a relationship example"
+          "Study a relationship example",
+          "Try a relationship question"
         ]
       },
       "cta": {
@@ -324,7 +328,7 @@
           "heading": "Analytics",
           "paragraphs": [
             "When Google Analytics is enabled, the site may collect page views and behavior events such as topic clicks, card draws, result views, prompt copies, and share clicks.",
-            "Analytics payloads are limited to stable event details such as locale, topic id, card count, and card ids. They are not designed to include names, birth dates, contact details, or personal questions."
+            "Analytics payloads are limited to stable event details such as locale, topic id, card count, card ids, and the stable id of a selected public question preset. Localized question text, names, birth dates, contact details, personal free-form questions, and optional situation text are not included."
           ]
         },
         {
@@ -337,9 +341,9 @@
         {
           "heading": "Third-party services",
           "paragraphs": [
-            "The site may be hosted on Vercel. When the corresponding services and identifiers are enabled, Google Analytics and Google AdSense remain off until you allow those optional services in the privacy choices. Advertising delivery may also be disabled site-wide. When enabled, AdSense loads only on allowlisted non-reading content pages.",
+            "The site may be hosted on Vercel. When the corresponding services and identifiers are enabled, Google Analytics and Google AdSense remain off until you allow those optional services in the privacy choices. Advertising delivery may also be disabled site-wide. When enabled, AdSense loads only on the reviewed relationship content pages (/relationship-flow, /ko/relationship-flow, /relationship-tarot-questions, and /ko/relationship-tarot-questions).",
             "Google AdSense and its partners may use cookies or other local storage and process device, page, and ad interaction data to serve, measure, and, where permitted, personalize ads.",
-            "When instant readings are available, the selected topic, card count, answer tone, and tarot-spark's predefined nonvisual upright meanings are sent in input order to the Google Gemini API to create the interpretation. Card names, card images, invented position meanings, optional situation text, names, birth dates, contact details, and personal questions are not sent. Requests are configured not to be stored, but Google may process requests and results under the applicable terms and project settings.",
+            "When instant readings are available, the selected topic, card count, answer tone, tarot-spark's predefined nonvisual upright meanings, and—if one was chosen—the predefined public reflection-question focus are sent in input order to the Google Gemini API to create the interpretation. Card names, card images, invented position meanings, optional situation text, names, birth dates, contact details, and personal free-form questions are not sent. Requests are configured not to be stored, but Google may process requests and results under the applicable terms and project settings.",
             "Your optional-service choices are stored in this browser and can be revised through the Privacy choices control. Those providers process technical, analytics, and advertising data according to their own terms and privacy policies."
           ]
         },

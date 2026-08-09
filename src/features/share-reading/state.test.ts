@@ -44,6 +44,15 @@ describe("share reading state", () => {
     });
   });
 
+  it("preserves a compatible public question preset", () => {
+    const snapshot = getShareReadingSnapshot("ko", {
+      ...validParams,
+      question: "broken-contact-pattern",
+    });
+
+    expect(snapshot?.state.questionId).toBe("broken-contact-pattern");
+  });
+
   it.each([
     { ...validParams, source: "private-note" },
     { ...validParams, campaign: undefined },

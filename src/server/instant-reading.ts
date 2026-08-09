@@ -14,6 +14,7 @@ import {
   type InstantReading,
   type LocaleTarotData,
 } from "@/domain/tarot";
+import { getRelationshipQuestionCatalog } from "@/features/relationship-questions";
 
 export const geminiInteractionsApiVersion = "v1";
 export const instantReadingRequestTimeoutMs = 12_000;
@@ -151,6 +152,17 @@ function getRequestMaterials(
     tarotData.readingStyles,
     request.styleId,
   );
+  const question = request.questionId
+    ? getRelationshipQuestionCatalog("ko").questions.find(
+        (candidate) => candidate.id === request.questionId,
+      )
+    : undefined;
+
+  if (request.questionId && (!question || question.topicId !== topic.id)) {
+    throw new RangeError(
+      "Instant reading request contains an incompatible question.",
+    );
+  }
 
   if (request.cards.length !== spread.cardCount) {
     throw new RangeError("Instant reading request has the wrong card count.");
@@ -167,6 +179,7 @@ function getRequestMaterials(
   return {
     cards,
     promptLead: topic.promptLead,
+    ...(question ? { questionFocus: question.focus } : {}),
     spreadLabel: spread.label,
     styleInstruction: readingStyle.instruction,
     styleLabel: readingStyle.label,
