@@ -118,9 +118,9 @@ controlled production verification:
 - Confirm that `/`, `/ko`, `/share`, and `/ko/share` never load the AdSense
   script or make advertising network requests before consent, after consent,
   after rejection, or after client navigation from an advertising route.
-- Use a default-deny advertising route policy. Allow only substantial
-  relationship-flow and guide pages after separate content review. Exclude
-  home, share, daily, and legal pages.
+- Use a default-deny advertising route policy. Allow only individually reviewed,
+  substantial content routes through an explicit allowlist. Exclude home, share,
+  daily, and legal pages.
 - Confirm that an allowed advertising page loads advertising only after valid
   advertising consent and stops after consent withdrawal and document reload.
 - Enable advertising in production only after these checks pass and AdSense
@@ -162,26 +162,12 @@ analytics consent is active. Do not backfill an earlier intersection after the
 result has left view. Review `topic_click` as selector diagnostics rather than
 the funnel entrance because the default topic requires no topic click.
 
-Publish up to four original Korean guides during the first cohort:
-
-1. How to structure a relationship tarot question.
-2. How to ask about reunion without claiming certainty.
-3. When to choose a three-card or six-card spread.
-4. How to turn a tarot result into a grounded action plan.
-
-Each guide should include an original example, a before-and-after comparison,
-clear authorship or creation context, a relevant generator call to action, and
-the required disclaimer. Do not mass-produce keyword variants or English
-translations. Add another locale only after demand is observed.
-
 Register the site in Search Console, submit the sitemap, and review queries,
 pages, impressions, and clicks. Keep daily content out of the index until the
 page contains substantial static value. Do not create date-specific thin URLs.
 
 Use only the implemented source and campaign values. Stop an acquisition
-channel after 50 referred visits with no `result_view`. If a guide receives no
-search impressions or clicks after four weeks, revise its title and internal
-links once before creating more content for the same intent.
+channel after 50 referred visits with no `result_view`.
 
 The 200-session gate validates activation and the current deck experiment. It
 does not validate willingness to pay.
@@ -317,7 +303,6 @@ only after those earnings are finalized.
 - Do not add server-generated AI readings or advisor matching.
 - Do not sell custom or predictive readings.
 - Do not mass-produce SEO pages, translations, or community posts.
-- Do not expand to all 22 illustrated cards before the existing deck gate.
 - Do not place ads on interactive reading, share, daily, or legal routes.
 - Do not send personal data or free-form tarot context to analytics,
   advertising, sharing, or checkout providers.
