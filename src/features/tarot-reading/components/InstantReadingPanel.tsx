@@ -2,7 +2,7 @@ import {
   primaryButtonClassName,
   secondaryButtonClassName,
 } from "@/components/visual/class-names";
-import type { DrawnCard, InstantReadingV2, TarotCardId } from "@/domain/tarot";
+import type { DrawnCard, InstantReading, TarotCardId } from "@/domain/tarot";
 import type { TarotReadingCopy } from "../i18n";
 
 export type InstantReadingStatus =
@@ -14,7 +14,7 @@ export type InstantReadingStatus =
 type InstantReadingPanelProps = {
   readonly cards: readonly DrawnCard[];
   readonly copy: TarotReadingCopy["instantReading"];
-  readonly reading: InstantReadingV2 | undefined;
+  readonly reading: InstantReading | undefined;
   readonly status: InstantReadingStatus;
   readonly onGenerate: () => void;
 };
@@ -82,7 +82,7 @@ export function InstantReadingPanel({
 
 function getStatusAnnouncement(
   copy: TarotReadingCopy["instantReading"],
-  reading: InstantReadingV2 | undefined,
+  reading: InstantReading | undefined,
   status: InstantReadingStatus,
 ) {
   if (status === "loading") {
@@ -103,7 +103,7 @@ function InstantReadingResult({
 }: {
   readonly cards: readonly DrawnCard[];
   readonly copy: TarotReadingCopy["instantReading"];
-  readonly reading: InstantReadingV2;
+  readonly reading: InstantReading;
 }) {
   return (
     <article className="grid gap-5" data-testid="instant-reading-result">

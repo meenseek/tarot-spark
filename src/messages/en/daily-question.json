@@ -4,6 +4,7 @@
     "description": "Meet one card from tarot-spark's complete 78-card tarot deck and reflect on one question for today."
   },
   "brand": "tarot-spark",
+  "cardArtRetry": "Try again",
   "eyebrow": "Daily Question",
   "heading": "One card. One question for today.",
   "intro": "Use today's card as a small pause for self-reflection. The same card returns throughout your local calendar day.",

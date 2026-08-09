@@ -3,6 +3,7 @@
     "title": "Relationship Flow Tarot Prompt | tarot-spark",
     "description": "Draw six cards from a complete 78-card tarot deck and copy one concise, nonvisual AI prompt for relationship reflection."
   },
+  "cardArtRetry": "Try again",
   "eyebrow": "Relationship reflection guide",
   "heading": "See the relationship pattern without pretending to know the other person’s mind.",
   "intro": "Draw six cards with no assigned position meanings. The result keeps their exact names in draw order and prepares one concise prompt for grounded relationship reflection.",

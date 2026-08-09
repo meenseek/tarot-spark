@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { shareImageVersion } from "./share-image-config";
+import {
+  shareImageCacheRevision,
+  shareImageCacheRevisionParam,
+} from "./share-image-config";
 import { formatCardTitleSummary, getShareReadingMetadata } from "./metadata";
 
 const originalSiteUrl = process.env["NEXT_PUBLIC_SITE_URL"];
@@ -34,7 +37,7 @@ describe("share reading metadata", () => {
           {
             height: 630,
             url: expect.stringContaining(
-              `https://tarot-spark.example/api/share-image?v=${shareImageVersion}&`,
+              `https://tarot-spark.example/api/share-image?${shareImageCacheRevisionParam}=${shareImageCacheRevision}&`,
             ),
             width: 1200,
           },

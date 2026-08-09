@@ -47,7 +47,7 @@ export type InstantReadingRequest = {
   readonly cards: readonly InstantReadingCardInput[];
 };
 
-export type InstantReadingV2 = {
+export type InstantReading = {
   readonly headline: string;
   readonly synthesis: string;
   readonly cardReadings: readonly {
@@ -225,7 +225,7 @@ export function parseInstantReadingRequest(
 export function parseInstantReadingProviderResponse(
   value: unknown,
   request: InstantReadingRequest,
-): InstantReadingV2 | undefined {
+): InstantReading | undefined {
   if (!isRecord(value) || !hasExactKeys(value, readingKeys)) return undefined;
   if (
     !isNonEmptyString(value["headline"]) ||
@@ -240,7 +240,7 @@ export function parseInstantReadingProviderResponse(
     return undefined;
   }
 
-  const cardReadings: InstantReadingV2["cardReadings"][number][] = [];
+  const cardReadings: InstantReading["cardReadings"][number][] = [];
   for (const [index, expectedCard] of request.cards.entries()) {
     const cardReading = value["cardReadings"][index];
     if (
@@ -277,7 +277,7 @@ export function parseInstantReadingProviderResponse(
     return undefined;
   }
 
-  const reading: InstantReadingV2 = {
+  const reading: InstantReading = {
     cardReadings,
     headline: value["headline"],
     nextStep: value["nextStep"],
@@ -298,7 +298,7 @@ export function parseInstantReadingProviderResponse(
 export function parseInstantReading(
   value: unknown,
   request: InstantReadingRequest,
-): InstantReadingV2 | undefined {
+): InstantReading | undefined {
   if (!isRecord(value) || !hasExactKeys(value, readingKeys)) return undefined;
   if (
     !isNonEmptyString(value["headline"]) ||
@@ -313,7 +313,7 @@ export function parseInstantReading(
     return undefined;
   }
 
-  const cardReadings: InstantReadingV2["cardReadings"][number][] = [];
+  const cardReadings: InstantReading["cardReadings"][number][] = [];
   for (const [index, expectedCard] of request.cards.entries()) {
     const cardReading = value["cardReadings"][index];
     if (
@@ -367,7 +367,7 @@ export function parseInstantReading(
   });
 }
 
-function validateInstantReading(reading: InstantReadingV2) {
+function validateInstantReading(reading: InstantReading) {
   const visibleText = getInstantReadingVisibleText(reading);
   const visibleLength = [...visibleText].length;
   if (
@@ -391,7 +391,7 @@ function isAllowedCardIndex(
   );
 }
 
-export function getInstantReadingVisibleText(reading: InstantReadingV2) {
+export function getInstantReadingVisibleText(reading: InstantReading) {
   return [
     reading.headline,
     reading.synthesis,
@@ -404,7 +404,7 @@ export function getInstantReadingVisibleText(reading: InstantReadingV2) {
 }
 
 export function getInstantReadingSafetyViolation(
-  reading: InstantReadingV2,
+  reading: InstantReading,
 ): InstantReadingSafetyViolationId | undefined {
   const visibleText = getInstantReadingVisibleText(reading);
   if (hasUnsupportedVisualClaim(visibleText)) return "unsupported-visual-claim";

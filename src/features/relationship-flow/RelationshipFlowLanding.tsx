@@ -16,7 +16,6 @@ import {
   type ReadingUrlAttribution,
 } from "@/features/tarot-reading";
 import { localeNames, supportedLocales, type Locale } from "@/i18n/config";
-import { getTarotData } from "@/i18n/tarot-data";
 import {
   getRelationshipFlowCopy,
   getRelationshipFlowPath,
@@ -34,11 +33,6 @@ export function RelationshipFlowLanding({
 }: RelationshipFlowLandingProps) {
   const copy = getRelationshipFlowCopy(locale);
   const shellCopy = getPublicPageShellCopy(locale);
-  const tarotData = getTarotData(locale);
-  const loversName = tarotData.cards.find(
-    ({ id }) => id === "the-lovers",
-  )!.name;
-  const starName = tarotData.cards.find(({ id }) => id === "the-star")!.name;
 
   return (
     <main className="min-h-screen bg-ts-canvas text-ts-ink">
@@ -94,16 +88,16 @@ export function RelationshipFlowLanding({
             <div className="relative aspect-[5/7] overflow-hidden rounded-ts-control border border-ts-divider bg-ts-canvas">
               <TarotCardArt
                 cardId="the-lovers"
-                cardName={loversName}
                 className="object-cover"
+                retryLabel={copy.cardArtRetry}
                 sizes="(min-width: 1024px) 14rem, 42vw"
               />
             </div>
             <div className="relative aspect-[5/7] translate-y-3 overflow-hidden rounded-ts-control border border-ts-divider bg-ts-canvas">
               <TarotCardArt
                 cardId="the-star"
-                cardName={starName}
                 className="object-cover"
+                retryLabel={copy.cardArtRetry}
                 sizes="(min-width: 1024px) 14rem, 42vw"
               />
             </div>

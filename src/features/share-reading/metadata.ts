@@ -11,8 +11,8 @@ import { shareReadingPathSegment } from "@/i18n/routing";
 import { getAbsoluteSiteUrl, getSiteUrl } from "@/i18n/seo";
 import { formatTemplateStrict } from "@/i18n/template";
 import {
-  shareImageVersion,
-  shareImageVersionParam,
+  shareImageCacheRevision,
+  shareImageCacheRevisionParam,
 } from "./share-image-config";
 import { getShareReadingSnapshot, type ShareSearchParams } from "./state";
 
@@ -118,7 +118,7 @@ function getShareImageUrl(
   snapshot: NonNullable<ReturnType<typeof getShareReadingSnapshot>>,
 ) {
   const url = new URL("/api/share-image", getSiteUrl());
-  url.searchParams.set(shareImageVersionParam, shareImageVersion);
+  url.searchParams.set(shareImageCacheRevisionParam, shareImageCacheRevision);
   url.searchParams.set("locale", locale);
   url.searchParams.set("topic", snapshot.topic.id);
   url.searchParams.set("spread", snapshot.spread.id);

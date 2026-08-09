@@ -13,6 +13,7 @@ export type DailyQuestionMessages = {
     readonly description: string;
   };
   readonly brand: string;
+  readonly cardArtRetry: string;
   readonly eyebrow: string;
   readonly heading: string;
   readonly intro: string;
@@ -38,6 +39,7 @@ export function getDailyQuestionCopy(locale: Locale): DailyQuestionCopy {
 
   return {
     brand: copy.brand,
+    cardArtRetry: copy.cardArtRetry,
     deckNote: copy.deckNote,
     disclaimer: copy.disclaimer,
     eyebrow: copy.eyebrow,

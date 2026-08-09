@@ -479,7 +479,6 @@ test("keeps the card back visible until delayed card art can reveal", async ({
     await arrivalAnimation.finished;
   });
   await expect(firstCard.locator("[data-card-back]")).toBeVisible();
-  await expect(firstCard.locator("[data-card-text-face]")).toHaveCount(0);
   await expect(firstCard.locator("[data-card-visual-state]")).toHaveAttribute(
     "data-card-visual-state",
     "pending",
@@ -651,7 +650,7 @@ test("keeps the quick reading result start in view after a pointer draw", async 
     .toBe(true);
 });
 
-test("keeps a failed-art name face centered inside the enlarged frame", async ({
+test("keeps failed-art retry UI inside the enlarged frame", async ({
   page,
 }) => {
   await page.setViewportSize({ height: 844, width: 320 });
@@ -678,21 +677,21 @@ test("keeps a failed-art name face centered inside the enlarged frame", async ({
   );
 
   const firstCard = page.getByTestId("reading-card-0");
-  const textFace = firstCard.locator('[data-card-text-face="the-fool"]');
-  await expect(textFace).toBeVisible({ timeout: 10_000 });
-  await expect(textFace).toContainText("The Fool");
+  const retryButton = firstCard.getByRole("button", { name: "Try again" });
+  await expect(retryButton).toBeVisible({ timeout: 10_000 });
+  await expect(firstCard.locator("[data-card-back]")).toBeVisible();
   await expectCardSpreadLayout(page, 3);
 
   const geometry = await firstCard.evaluate((card) => {
     const frame = card.querySelector("[data-card-art-frame]");
-    const currentFace = card.querySelector('[data-card-text-face="the-fool"]');
+    const retry = card.querySelector("[data-card-art-retry]");
 
-    if (!frame || !currentFace) {
-      throw new Error("Fallback frame or name face is missing");
+    if (!frame || !retry) {
+      throw new Error("Card frame or retry control is missing");
     }
 
     const frameRect = frame.getBoundingClientRect();
-    const faceRect = currentFace.getBoundingClientRect();
+    const retryRect = retry.getBoundingClientRect();
 
     return {
       frame: {
@@ -703,38 +702,25 @@ test("keeps a failed-art name face centered inside the enlarged frame", async ({
         top: frameRect.top,
         width: frameRect.width,
       },
-      face: {
-        bottom: faceRect.bottom,
-        height: faceRect.height,
-        left: faceRect.left,
-        right: faceRect.right,
-        top: faceRect.top,
-        width: faceRect.width,
+      retry: {
+        bottom: retryRect.bottom,
+        height: retryRect.height,
+        left: retryRect.left,
+        right: retryRect.right,
+        top: retryRect.top,
+        width: retryRect.width,
       },
     };
   });
 
-  expectContained(geometry.frame, geometry.face, "fallback name face");
-  expect(
-    Math.abs(
-      geometry.frame.left +
-        geometry.frame.width / 2 -
-        (geometry.face.left + geometry.face.width / 2),
-    ),
-  ).toBeLessThanOrEqual(1);
-  expect(
-    Math.abs(
-      geometry.frame.top +
-        geometry.frame.height / 2 -
-        (geometry.face.top + geometry.face.height / 2),
-    ),
-  ).toBeLessThanOrEqual(1);
+  expectContained(geometry.frame, geometry.retry, "card art retry control");
+  expect(geometry.retry.height).toBeGreaterThanOrEqual(24);
 });
 
-test("reserves the hydrated Daily panel height at mobile widths", async ({
-  browser,
-}) => {
-  for (const width of [320, 390] as const) {
+for (const width of [320, 390] as const) {
+  test(`reserves the hydrated Daily panel height at ${width}px`, async ({
+    browser,
+  }) => {
     const contextOptions = {
       baseURL: "http://127.0.0.1:3000",
       viewport: { height: 844, width },
@@ -803,8 +789,8 @@ test("reserves the hydrated Daily panel height at mobile widths", async ({
       await staticContext.close();
       await hydratedContext.close();
     }
-  }
-});
+  });
+}
 
 test("maps every restored illustrated card to approved art", async ({
   page,
@@ -895,7 +881,7 @@ test("maps every restored illustrated card to approved art", async ({
   }
 });
 
-test("loads approved v3 art for previously text-only localized cards", async ({
+test("loads final art for localized cards across the full deck", async ({
   page,
 }) => {
   await page.goto(
@@ -912,9 +898,6 @@ test("loads approved v3 art for previously text-only localized cards", async ({
   ] as const) {
     const card = page.locator(`[data-card-id="${cardId}"]`);
     await expect(card.getByText(cardName, { exact: true })).toBeVisible();
-    await expect(card.locator(`[data-card-text-face="${cardId}"]`)).toHaveCount(
-      0,
-    );
     await expect(card.locator(`[data-art-id="${cardId}"]`)).toHaveAttribute(
       "data-art-ready",
       "true",

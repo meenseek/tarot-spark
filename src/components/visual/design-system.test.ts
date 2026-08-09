@@ -6,7 +6,6 @@ const themedSourceFiles = [
   "src/components/layout/LocaleSwitch.tsx",
   "src/components/visual/CelestialMark.tsx",
   "src/components/visual/TarotCardBack.tsx",
-  "src/components/visual/TarotCardGlyph.tsx",
   "src/components/visual/class-names.ts",
   "src/features/daily-question/DailyQuestionClient.tsx",
   "src/features/public-pages/PublicPage.tsx",

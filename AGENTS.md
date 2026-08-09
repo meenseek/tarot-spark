@@ -12,6 +12,8 @@ Keep task details in the linked docs; do not duplicate them here.
 - Preflight before file edits: follow `docs/workflow/task-routing.md#preflight`.
 - Code changes: read `docs/engineering/code-standards.md` and
   `docs/engineering/verification-gates.md`.
+- Versioning, compatibility tests, cache revisions, or generated artifacts:
+  read `docs/engineering/versioning-and-artifacts.md`.
 - Product, analytics, AdSense, SEO, or tarot content changes: read
   `docs/product/guardrails.md`.
 - Issue creation or issue planning: read `docs/workflow/issues.md`.

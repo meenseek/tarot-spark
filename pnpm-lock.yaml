@@ -62,9 +62,6 @@ importers:
       prettier:
         specifier: ^3
         version: 3.8.3
-      sharp:
-        specifier: 0.34.5
-        version: 0.34.5
       tailwindcss:
         specifier: ^4
         version: 4.3.0
@@ -4988,6 +4985,8 @@ snapshots:
     optional: true
 
   "@emnapi/runtime@1.10.0":
+    dependencies:
+      tslib: 2.8.1
     optional: true
 
   "@emnapi/wasi-threads@1.2.1":
@@ -5139,7 +5138,8 @@ snapshots:
 
   "@humanwhocodes/retry@0.4.3": {}
 
-  "@img/colour@1.1.0": {}
+  "@img/colour@1.1.0":
+    optional: true
 
   "@img/sharp-darwin-arm64@0.34.5":
     optionalDependencies:
@@ -7110,6 +7110,7 @@ snapshots:
       "@next/swc-win32-arm64-msvc": 16.2.6
       "@next/swc-win32-x64-msvc": 16.2.6
       "@playwright/test": 1.60.0
+      sharp: 0.34.5
     transitivePeerDependencies:
       - "@babel/core"
       - babel-plugin-macros
@@ -7427,6 +7428,7 @@ snapshots:
       "@img/sharp-win32-arm64": 0.34.5
       "@img/sharp-win32-ia32": 0.34.5
       "@img/sharp-win32-x64": 0.34.5
+    optional: true
 
   shebang-command@2.0.0:
     dependencies:

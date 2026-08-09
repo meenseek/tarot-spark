@@ -1,9 +1,4 @@
-// v1 and v2 remain immutable. v3 is the complete illustrated 78-card deck.
-export const legacyShareImageVersion = "1";
-export const completeDeckLegacyShareImageVersion = "2";
-export const shareImageVersion = "3";
-export const shareImageVersionParam = "v";
-export const versionedShareImageCacheControl =
-  "public, max-age=31536000, immutable";
-export const legacyShareImageCacheControl =
-  "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800";
+// This value invalidates immutable image caches. It does not select a renderer.
+export const shareImageCacheRevision = "20260808-deck";
+export const shareImageCacheRevisionParam = "rev";
+export const shareImageCacheControl = "public, max-age=31536000, immutable";

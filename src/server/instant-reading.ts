@@ -13,7 +13,7 @@ import {
   parseInstantReadingProviderResponse,
   type InstantReadingPromptMaterials,
   type InstantReadingRequest,
-  type InstantReadingV2,
+  type InstantReading,
   type LocaleTarotData,
 } from "@/domain/tarot";
 
@@ -96,7 +96,7 @@ export async function requestInstantReading(
     model = process.env["TAROT_READING_MODEL"]?.trim() || defaultModel,
     timeoutMs = instantReadingRequestTimeoutMs,
   }: RequestOptions,
-): Promise<InstantReadingV2> {
+): Promise<InstantReading> {
   const response = await fetchImpl(
     `https://generativelanguage.googleapis.com/${geminiInteractionsApiVersion}/interactions`,
     {

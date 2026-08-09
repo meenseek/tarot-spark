@@ -1,4 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
+import {
+  shareImageCacheRevision,
+  shareImageCacheRevisionParam,
+} from "../../src/features/share-reading/share-image-config";
 import { rejectOptionalServices } from "./privacy-helpers";
 
 test.beforeEach(async ({ context }) => {
@@ -708,55 +712,36 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
     "/api/share-image",
   );
   const localImageUrl = new URL(imageUrl ?? "http://localhost/api/share-image");
-  expect(localImageUrl.searchParams.get("v")).toBe("3");
-  const imageResponse = await request.get(
-    `${localImageUrl.pathname}${localImageUrl.search}`,
+  expect(localImageUrl.searchParams.get(shareImageCacheRevisionParam)).toBe(
+    shareImageCacheRevision,
   );
-  expect(imageResponse.ok()).toBe(true);
-  expect(imageResponse.headers()["content-type"]).toContain("image/png");
-  expect(imageResponse.headers()["cache-control"]).toContain(
-    "max-age=31536000",
-  );
-  expect(imageResponse.headers()["cache-control"]).toContain("immutable");
+  expect(localImageUrl.searchParams.has("v")).toBe(false);
 
-  const deepImageResponse = await request.get(
-    "/api/share-image?v=1&locale=en&topic=relationship-flow&spread=deep&style=relational&cards=the-fool,the-magician,the-high-priestess,the-empress,the-emperor,the-lovers",
-  );
-  const deepImageBody = await deepImageResponse.body();
-  expect(deepImageResponse.ok()).toBe(true);
-  expect(Array.from(deepImageBody.subarray(0, 8))).toEqual([
-    137, 80, 78, 71, 13, 10, 26, 10,
-  ]);
-  expect(deepImageBody.readUInt32BE(16)).toBe(1200);
-  expect(deepImageBody.readUInt32BE(20)).toBe(630);
+  const imageStates = [
+    "spread=quick&cards=the-fool,the-lovers,the-star",
+    "spread=deep&cards=pentacles-queen,the-high-priestess,wands-knight,swords-10,cups-page,wheel-of-fortune",
+  ] as const;
 
   for (const locale of ["en", "ko"] as const) {
-    const completeDeckImageResponse = await request.get(
-      `/api/share-image?v=2&locale=${locale}&topic=relationship-flow&spread=deep&style=relational&cards=pentacles-queen,the-high-priestess,wands-knight,swords-10,cups-page,wheel-of-fortune`,
-    );
-    const completeDeckImageBody = await completeDeckImageResponse.body();
-    expect(completeDeckImageResponse.ok()).toBe(true);
-    expect(completeDeckImageResponse.headers()["content-type"]).toContain(
-      "image/png",
-    );
-    expect(Array.from(completeDeckImageBody.subarray(0, 8))).toEqual([
-      137, 80, 78, 71, 13, 10, 26, 10,
-    ]);
-    expect(completeDeckImageBody.readUInt32BE(16)).toBe(1200);
-    expect(completeDeckImageBody.readUInt32BE(20)).toBe(630);
-  }
+    for (const state of imageStates) {
+      const imageResponse = await request.get(
+        `/api/share-image?${shareImageCacheRevisionParam}=${shareImageCacheRevision}&locale=${locale}&topic=relationship-flow&style=relational&${state}`,
+      );
+      const imageBody = await imageResponse.body();
 
-  const koreanImageResponse = await request.get(
-    "/api/share-image?locale=ko&topic=relationship-flow&spread=quick&style=relational&cards=the-fool,the-lovers,the-star",
-  );
-  expect(koreanImageResponse.ok()).toBe(true);
-  expect(koreanImageResponse.headers()["content-type"]).toContain("image/png");
-  expect(koreanImageResponse.headers()["cache-control"]).toContain(
-    "s-maxage=86400",
-  );
-  expect(koreanImageResponse.headers()["cache-control"]).not.toContain(
-    "immutable",
-  );
+      expect(imageResponse.ok()).toBe(true);
+      expect(imageResponse.headers()["content-type"]).toContain("image/png");
+      expect(imageResponse.headers()["cache-control"]).toContain(
+        "max-age=31536000",
+      );
+      expect(imageResponse.headers()["cache-control"]).toContain("immutable");
+      expect(Array.from(imageBody.subarray(0, 8))).toEqual([
+        137, 80, 78, 71, 13, 10, 26, 10,
+      ]);
+      expect(imageBody.readUInt32BE(16)).toBe(1200);
+      expect(imageBody.readUInt32BE(20)).toBe(630);
+    }
+  }
 
   await page.goto(
     "/share?topic=relationship-flow&cards=the-fool,the-lovers,the-star&context=private",
