@@ -60,7 +60,7 @@ instead of palette utilities or color literals.
   meaning. Do not place card names, numerals, captions, logos, or UI text inside
   the illustration.
 - Use the shared full-frame card back only while current art loads. Every one
-  of the 78 stable card ids maps to one approved `/cards/v3/` illustration in
+  of the 78 stable card ids maps to one approved `/cards/` illustration in
   the active release. A load failure exposes retry UI and never substitutes a
   typographic or glyph card front.
 - Keep the card back identical across cards. Fill the `5:7` frame

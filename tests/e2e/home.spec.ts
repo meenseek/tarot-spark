@@ -1,8 +1,4 @@
 import { expect, test, type Page } from "@playwright/test";
-import {
-  shareImageCacheRevision,
-  shareImageCacheRevisionParam,
-} from "../../src/features/share-reading/share-image-config";
 import { rejectOptionalServices } from "./privacy-helpers";
 
 test.beforeEach(async ({ context }) => {
@@ -20,6 +16,24 @@ test("loads the app shell", async ({ page }) => {
     }),
   ).toBeVisible();
   await expect(page.getByText(/complete 78-card deck/i)).toBeVisible();
+});
+
+test("serves stable card art and redirects the issued deck path", async ({
+  request,
+}) => {
+  const current = await request.get("/cards/the-fool.jpg");
+
+  expect(current.ok()).toBe(true);
+  expect(current.headers()["content-type"]).toContain("image/jpeg");
+  expect(current.headers()["cache-control"]).toContain("s-maxage=86400");
+  expect(current.headers()["cache-control"]).not.toContain("immutable");
+
+  const legacy = await request.get("/cards/v3/the-fool.jpg", {
+    maxRedirects: 0,
+  });
+
+  expect(legacy.status()).toBe(308);
+  expect(legacy.headers()["location"]).toBe("/cards/the-fool.jpg");
 });
 
 test("loads Korean localized content", async ({ page }) => {
@@ -712,9 +726,7 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
     "/api/share-image",
   );
   const localImageUrl = new URL(imageUrl ?? "http://localhost/api/share-image");
-  expect(localImageUrl.searchParams.get(shareImageCacheRevisionParam)).toBe(
-    shareImageCacheRevision,
-  );
+  expect(localImageUrl.searchParams.has("rev")).toBe(false);
   expect(localImageUrl.searchParams.has("v")).toBe(false);
 
   const imageStates = [
@@ -725,16 +737,18 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
   for (const locale of ["en", "ko"] as const) {
     for (const state of imageStates) {
       const imageResponse = await request.get(
-        `/api/share-image?${shareImageCacheRevisionParam}=${shareImageCacheRevision}&locale=${locale}&topic=relationship-flow&style=relational&${state}`,
+        `/api/share-image?locale=${locale}&topic=relationship-flow&style=relational&${state}`,
       );
       const imageBody = await imageResponse.body();
 
       expect(imageResponse.ok()).toBe(true);
       expect(imageResponse.headers()["content-type"]).toContain("image/png");
       expect(imageResponse.headers()["cache-control"]).toContain(
-        "max-age=31536000",
+        "s-maxage=86400",
       );
-      expect(imageResponse.headers()["cache-control"]).toContain("immutable");
+      expect(imageResponse.headers()["cache-control"]).not.toContain(
+        "immutable",
+      );
       expect(Array.from(imageBody.subarray(0, 8))).toEqual([
         137, 80, 78, 71, 13, 10, 26, 10,
       ]);

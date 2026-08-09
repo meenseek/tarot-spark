@@ -10,10 +10,6 @@ import type { Locale } from "@/i18n/config";
 import { shareReadingPathSegment } from "@/i18n/routing";
 import { getAbsoluteSiteUrl, getSiteUrl } from "@/i18n/seo";
 import { formatTemplateStrict } from "@/i18n/template";
-import {
-  shareImageCacheRevision,
-  shareImageCacheRevisionParam,
-} from "./share-image-config";
 import { getShareReadingSnapshot, type ShareSearchParams } from "./state";
 
 export function getShareReadingPath(locale: Locale) {
@@ -118,7 +114,6 @@ function getShareImageUrl(
   snapshot: NonNullable<ReturnType<typeof getShareReadingSnapshot>>,
 ) {
   const url = new URL("/api/share-image", getSiteUrl());
-  url.searchParams.set(shareImageCacheRevisionParam, shareImageCacheRevision);
   url.searchParams.set("locale", locale);
   url.searchParams.set("topic", snapshot.topic.id);
   url.searchParams.set("spread", snapshot.spread.id);

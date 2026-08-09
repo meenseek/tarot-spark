@@ -1,8 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-const consentStorageKey = "tarot-spark.optional-services-consent.v1";
-const privateContextHandoffStorageKey =
-  "tarot-spark.private-context-handoff.v1";
+const consentStorageKey = "tarot-spark.optional-services-consent";
+const privateContextHandoffStorageKey = "tarot-spark.private-context-handoff";
 
 test.beforeEach(async ({ page }) => {
   await page.route("https://**/*", async (route) => {
@@ -52,7 +51,6 @@ test("revokes analytics without losing private reading context", async ({
     ),
   ).toEqual({
     consent: JSON.stringify({
-      version: 1,
       analytics: false,
       advertising: false,
     }),
@@ -71,7 +69,6 @@ test("clears an active advertising document before showing a reading", async ({
     {
       key: consentStorageKey,
       value: JSON.stringify({
-        version: 1,
         analytics: false,
         advertising: true,
       }),
@@ -118,7 +115,6 @@ for (const { locale, path } of [
       {
         key: consentStorageKey,
         value: JSON.stringify({
-          version: 1,
           analytics: true,
           advertising: true,
         }),
@@ -165,7 +161,6 @@ test("clears stale private handoff before opening a clean attributed generator",
       value: JSON.stringify({
         context: "Stale private context from another screen.",
         expiresAt: Date.now() + 60_000,
-        version: 1,
       }),
     },
   );
@@ -219,7 +214,6 @@ test("clears stale private handoff before consecutive pre-hydration navigation",
       value: JSON.stringify({
         context: "Stale pre-hydration private context.",
         expiresAt: Date.now() + 60_000,
-        version: 1,
       }),
     },
   );

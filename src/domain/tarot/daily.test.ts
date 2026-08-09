@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getTarotData } from "@/i18n/tarot-data";
 import {
-  dailyQuestionAlgorithmVersion,
   getDailyTarotCard,
   getDailyTarotCardId,
   getLocalDateKey,
@@ -15,11 +14,10 @@ describe("daily question tarot selection", () => {
     expect(getLocalDateKey(localDate)).toBe("2026-07-28");
   });
 
-  it("keeps the versioned daily mapping deterministic", () => {
-    expect(dailyQuestionAlgorithmVersion).toBe("daily-v2");
+  it("keeps the daily mapping deterministic", () => {
     expect(tarotCardIds).toHaveLength(78);
-    expect(getDailyTarotCardId("2026-07-28")).toBe("wands-knight");
-    expect(getDailyTarotCardId("2026-07-29")).toBe("swords-7");
+    expect(getDailyTarotCardId("2026-07-28")).toBe("swords-8");
+    expect(getDailyTarotCardId("2026-07-29")).toBe("cups-7");
     expect(getDailyTarotCardId("2026-07-28")).toBe(
       getDailyTarotCardId("2026-07-28"),
     );

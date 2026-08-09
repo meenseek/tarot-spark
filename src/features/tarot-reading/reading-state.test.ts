@@ -16,8 +16,7 @@ import {
   type ReadingUrlState,
 } from "./reading-state";
 
-const privateContextHandoffStorageKey =
-  "tarot-spark.private-context-handoff.v1";
+const privateContextHandoffStorageKey = "tarot-spark.private-context-handoff";
 
 describe("reading URL state", () => {
   const tarotData = getTarotData("en");
@@ -362,6 +361,34 @@ describe("one-time locale context transfer", () => {
     expect(
       window.sessionStorage.getItem(privateContextHandoffStorageKey),
     ).toBeNull();
+  });
+
+  it("rejects extra fields, far-future expiry, and clears legacy keys", () => {
+    window.sessionStorage.setItem(
+      `${privateContextHandoffStorageKey}.legacy`,
+      JSON.stringify({ context: "old", expiresAt: 2_000 }),
+    );
+    window.sessionStorage.setItem(
+      privateContextHandoffStorageKey,
+      JSON.stringify({ context: "Private", expiresAt: 2_000, extra: true }),
+    );
+
+    expect(
+      consumePrivateContextHandoff(window.sessionStorage, 1_000),
+    ).toBeUndefined();
+    expect(
+      window.sessionStorage.getItem(
+        `${privateContextHandoffStorageKey}.legacy`,
+      ),
+    ).toBeNull();
+
+    window.sessionStorage.setItem(
+      privateContextHandoffStorageKey,
+      JSON.stringify({ context: "Private", expiresAt: 62_000 }),
+    );
+    expect(
+      consumePrivateContextHandoff(window.sessionStorage, 1_000),
+    ).toBeUndefined();
   });
 
   it("does not throw when storage is unavailable", () => {

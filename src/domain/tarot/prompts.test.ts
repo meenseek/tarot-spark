@@ -4,7 +4,6 @@ import {
   buildPrompt,
   maxUserContextLength,
   normalizeUserContext,
-  promptVersion,
 } from "./prompts";
 import { getDefaultReadingStyle, getReadingStyle } from "./reading-styles";
 import { getDefaultSpread, getSpread } from "./spreads";
@@ -28,11 +27,10 @@ function getPrompt(locale: "en" | "ko", spreadId: "quick" | "deep") {
   };
 }
 
-describe("tarot prompt v3", () => {
+describe("tarot prompt", () => {
   it("serializes only exact ordered card names", () => {
     const { cards, prompt } = getPrompt("ko", "quick");
 
-    expect(promptVersion).toBe("tarot-prompt-v3");
     for (const [index, { card }] of cards.entries()) {
       expect(prompt).toContain(`${index + 1}. ${card.name}`);
       expect(prompt).not.toContain(card.meaning);

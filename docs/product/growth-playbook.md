@@ -7,9 +7,9 @@ messages, prediction claims, or personal-data collection. Treat a successful
 `prompt_copy` as activation. Treat `share_click` as intent and `share_result` as
 the terminal share outcome.
 
-Keep the complete 78-card runtime deck available. Treat v3 as one atomic
-full-deck release; never expose a partial illustrated deck or tie card coverage
-to the 200-session acquisition gate.
+Keep the complete 78-card runtime deck available as one atomic release. Never
+expose a partial illustrated deck or tie card coverage to the 200-session
+acquisition gate.
 
 Use the [revenue validation plan](revenue-validation-plan.md) for monetization.
 Start its interest test only after its production-integrity and activation

@@ -30,7 +30,7 @@ async function serveCardArtFixture(page: Page, delayMs = 0) {
 
     await route.fulfill({
       contentType: "image/jpeg",
-      path: "public/cards/v3/the-fool.jpg",
+      path: "public/cards/the-fool.jpg",
       status: 200,
     });
   });
@@ -657,7 +657,7 @@ test("keeps failed-art retry UI inside the enlarged frame", async ({
   await page.route("**/_next/image**", async (route) => {
     const optimizedUrl = new URL(route.request().url()).searchParams.get("url");
 
-    if (optimizedUrl === "/cards/v3/the-fool.jpg") {
+    if (optimizedUrl === "/cards/the-fool.jpg") {
       await route.fulfill({
         body: "failed card art",
         contentType: "text/plain",
@@ -668,7 +668,7 @@ test("keeps failed-art retry UI inside the enlarged frame", async ({
 
     await route.fulfill({
       contentType: "image/jpeg",
-      path: "public/cards/v3/the-fool.jpg",
+      path: "public/cards/the-fool.jpg",
       status: 200,
     });
   });

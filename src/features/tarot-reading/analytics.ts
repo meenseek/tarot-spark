@@ -65,7 +65,6 @@ type AnalyticsEventPayloads = {
   };
   readonly prompt_copy: DrawAnalyticsContext & {
     readonly card_count: number;
-    readonly prompt_version: "tarot-prompt-v3";
     readonly surface: "reading_result";
   };
   readonly share_click: DrawAnalyticsContext & {

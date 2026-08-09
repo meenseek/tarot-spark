@@ -54,7 +54,34 @@ describe("PrivacyConsent", () => {
     expect(getGoogleScripts()).toHaveLength(0);
   });
 
-  it("loads only explicitly selected services and allows revision", async () => {
+  it("ignores non-current records and removes namespaced legacy entries", async () => {
+    window.localStorage.setItem(
+      `${getConsentStorageKey()}.legacy`,
+      JSON.stringify({ analytics: true, advertising: true }),
+    );
+    window.localStorage.setItem(
+      getConsentStorageKey(),
+      JSON.stringify({
+        analytics: true,
+        advertising: true,
+        unexpected: true,
+      }),
+    );
+
+    renderConsent();
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "Optional privacy choices",
+      }),
+    ).toBeInTheDocument();
+    expect(getGoogleScripts()).toHaveLength(0);
+    expect(
+      window.localStorage.getItem(`${getConsentStorageKey()}.legacy`),
+    ).toBeNull();
+  });
+
+  it("loads only explicitly selected services and allows later changes", async () => {
     renderConsent();
 
     fireEvent.click(await screen.findByRole("checkbox", { name: /Analytics/ }));
@@ -160,7 +187,6 @@ describe("PrivacyConsent", () => {
     window.localStorage.setItem(
       getConsentStorageKey(),
       JSON.stringify({
-        version: 1,
         analytics: false,
         advertising: false,
       }),
@@ -193,7 +219,6 @@ describe("PrivacyConsent", () => {
     window.localStorage.setItem(
       getConsentStorageKey(),
       JSON.stringify({
-        version: 1,
         analytics: false,
         advertising: true,
       }),
@@ -277,7 +302,6 @@ describe("PrivacyConsent", () => {
       window.localStorage.setItem(
         getConsentStorageKey(),
         JSON.stringify({
-          version: 1,
           analytics: false,
           advertising: true,
         }),
@@ -307,7 +331,6 @@ describe("PrivacyConsent", () => {
     window.localStorage.setItem(
       getConsentStorageKey(),
       JSON.stringify({
-        version: 1,
         analytics: false,
         advertising: true,
       }),
@@ -349,7 +372,6 @@ describe("PrivacyConsent", () => {
     window.localStorage.setItem(
       getConsentStorageKey(),
       JSON.stringify({
-        version: 1,
         analytics: true,
         advertising: false,
       }),
@@ -411,7 +433,6 @@ function setStoredRejection() {
   window.localStorage.setItem(
     getConsentStorageKey(),
     JSON.stringify({
-      version: 1,
       analytics: false,
       advertising: false,
     }),
@@ -419,5 +440,5 @@ function setStoredRejection() {
 }
 
 function getConsentStorageKey() {
-  return "tarot-spark.optional-services-consent.v1";
+  return "tarot-spark.optional-services-consent";
 }

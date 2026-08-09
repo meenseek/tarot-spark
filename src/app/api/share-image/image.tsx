@@ -4,9 +4,10 @@ import path from "node:path";
 import { cardArtSources } from "@/components/visual/tarot-card-art-sources";
 import type { TarotCardId } from "@/domain/tarot";
 import {
+  legacyShareImageQueryParam,
+  legacyShareImageQueryValue,
+  privateShareImageCacheControl,
   shareImageCacheControl,
-  shareImageCacheRevision,
-  shareImageCacheRevisionParam,
 } from "@/features/share-reading/share-image-config";
 import { getShareReadingSnapshot } from "@/features/share-reading/state";
 import { defaultLocale, isLocale } from "@/i18n/config";
@@ -164,27 +165,28 @@ export function getShareImageModel(
 ): ShareImageModel | Response {
   const url = new URL(request.url);
   const localeParam = url.searchParams.get("locale");
-  const revisionValues = url.searchParams.getAll(shareImageCacheRevisionParam);
+  const legacyValues = url.searchParams.getAll(legacyShareImageQueryParam);
 
   if (
-    revisionValues.length !== 1 ||
-    revisionValues[0] !== shareImageCacheRevision
+    legacyValues.length > 1 ||
+    (legacyValues.length === 1 &&
+      legacyValues[0] !== legacyShareImageQueryValue)
   ) {
-    return new Response("Invalid share image cache revision", { status: 400 });
+    return invalidShareImage("Invalid legacy share image URL");
   }
 
   if (
     url.searchParams.getAll("locale").length > 1 ||
     (localeParam !== null && !isLocale(localeParam))
   ) {
-    return new Response("Invalid locale", { status: 400 });
+    return invalidShareImage("Invalid locale");
   }
 
   const locale = localeParam ?? defaultLocale;
   const searchParams: Record<string, string | readonly string[]> = {};
 
   for (const key of new Set(url.searchParams.keys())) {
-    if (key === "locale" || key === shareImageCacheRevisionParam) {
+    if (key === "locale" || key === legacyShareImageQueryParam) {
       continue;
     }
 
@@ -195,7 +197,18 @@ export function getShareImageModel(
   const snapshot = getShareReadingSnapshot(locale, searchParams);
 
   if (!snapshot) {
-    return new Response("Invalid share state", { status: 400 });
+    return invalidShareImage("Invalid share state");
+  }
+
+  if (legacyValues.length === 1) {
+    url.searchParams.delete(legacyShareImageQueryParam);
+    return new Response(null, {
+      headers: {
+        "Cache-Control": privateShareImageCacheControl,
+        Location: url.toString(),
+      },
+      status: 308,
+    });
   }
 
   return {
@@ -205,6 +218,13 @@ export function getShareImageModel(
       name: card.name,
     })),
   };
+}
+
+function invalidShareImage(message: string) {
+  return new Response(message, {
+    headers: { "Cache-Control": privateShareImageCacheControl },
+    status: 400,
+  });
 }
 
 function getCardArtDataUrl(cardId: TarotCardId) {

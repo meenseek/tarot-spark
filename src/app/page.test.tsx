@@ -1212,7 +1212,6 @@ describe("Home", () => {
           draw_style_id: "balanced",
           spread_id: "quick",
           style_id: "balanced",
-          prompt_version: "tarot-prompt-v3",
           surface: "reading_result",
         },
       });

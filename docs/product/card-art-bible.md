@@ -90,8 +90,8 @@ weather and time of day without changing the world.
 
 - The application ships exactly one upright illustration for each of the 78
   stable card ids.
-- Final files live in the immutable `/cards/v3/` asset namespace. The namespace
-  is a cache identity, not a runtime compatibility branch.
+- Final files live at stable `/cards/<card-id>.jpg` paths with bounded shared
+  caching. Runtime code does not create numbered deck namespaces.
 - `cardArtSources` is the only runtime source map. Do not add an old source map
   or a renderer selector.
 - Keep the shared card back visible while an image loads. On failure, keep the
@@ -100,9 +100,22 @@ weather and time of day without changing the world.
 - The lightweight asset test locks the exact 78 filenames, dimensions, size
   bounds, source map, and aggregate SHA-256 of the released bytes.
 
-If any final image bytes change, use a new immutable asset namespace, replace
-the one runtime source map, and change the share-image cache revision. Do not
-reuse a previously cached path and do not preserve the old renderer.
+If any final image bytes change, replace the complete runtime deck atomically,
+update the aggregate byte fingerprint, and verify the bounded card and share
+image cache policy. Do not preserve an old renderer or add a numbered asset
+namespace.
+
+The previously published `/cards/v3/<card-id>.jpg` paths redirect permanently
+to the stable paths. Do not remove this redirect before 2027-08-09 or one year
+after the actual production cutover, whichever is later. Before removal, verify
+that legacy-path traffic is negligible, Search Console reports no related image
+errors, and representative old external shares still resolve. This is a sunset
+contract for issued public URLs, not an active deck namespace.
+
+The exact previously issued share-image `rev=20260808-deck` query redirects to
+the canonical query without that parameter under the same earliest-removal date
+and checks. New links never generate the parameter. Unknown or duplicate legacy
+values remain invalid.
 
 ## Future Production Work
 
@@ -115,9 +128,9 @@ Before copying a future final deck into the application:
 
 1. Complete full-size, thumbnail, safety, and whole-deck reviews outside this
    repository.
-2. Copy only the final 78 compressed JPEGs into a new immutable namespace.
-3. Replace `cardArtSources`, update the aggregate fingerprint, and change the
-   share-image cache revision in the same change.
+2. Replace all 78 compressed JPEGs at their stable card-id paths atomically.
+3. Verify `cardArtSources`, update the aggregate fingerprint, and exercise the
+   bounded card and share-image cache checks in the same change.
 4. Run all code-bearing verification gates. Do not commit partial decks.
 
 ## Review Gate

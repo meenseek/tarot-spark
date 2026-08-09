@@ -37,8 +37,8 @@ describe("reading session reducer", () => {
         cards: firstCards,
         drawStyleId: "direct",
         cardInstanceId: 1,
-        publicStateRevision: 1,
-        promptRevision: 1,
+        shareChangeId: 1,
+        promptChangeId: 1,
       },
     });
     expect(restored.mode === "result" && restored.current.inputs).not.toBe(
@@ -118,8 +118,8 @@ describe("reading session reducer", () => {
         cards: firstCards,
         drawStyleId: "balanced",
         cardInstanceId: 1,
-        publicStateRevision: 1,
-        promptRevision: 1,
+        shareChangeId: 1,
+        promptChangeId: 1,
       },
     });
   });
@@ -152,8 +152,8 @@ describe("reading session reducer", () => {
         cards: secondCards,
         drawStyleId: "direct",
         cardInstanceId: 2,
-        publicStateRevision: 2,
-        promptRevision: 2,
+        shareChangeId: 2,
+        promptChangeId: 2,
       },
     });
   });
@@ -182,11 +182,11 @@ describe("reading session reducer", () => {
     expect(redrawn.current.cardInstanceId).toBe(
       changed.current.cardInstanceId + 1,
     );
-    expect(redrawn.current.publicStateRevision).toBe(
-      changed.current.publicStateRevision + 1,
+    expect(redrawn.current.shareChangeId).toBe(
+      changed.current.shareChangeId + 1,
     );
-    expect(redrawn.current.promptRevision).toBe(
-      changed.current.promptRevision + 1,
+    expect(redrawn.current.promptChangeId).toBe(
+      changed.current.promptChangeId + 1,
     );
   });
 
@@ -206,15 +206,15 @@ describe("reading session reducer", () => {
     expect(changed.current.drawStyleId).toBe("balanced");
     expect(changed.current.cards).toBe(result.current.cards);
     expect(changed.current.cardInstanceId).toBe(result.current.cardInstanceId);
-    expect(changed.current.publicStateRevision).toBe(
-      result.current.publicStateRevision + 1,
+    expect(changed.current.shareChangeId).toBe(
+      result.current.shareChangeId + 1,
     );
-    expect(changed.current.promptRevision).toBe(
-      result.current.promptRevision + 1,
+    expect(changed.current.promptChangeId).toBe(
+      result.current.promptChangeId + 1,
     );
   });
 
-  it("changes current context with a prompt-only revision", () => {
+  it("changes current context with a prompt-only change id", () => {
     const result = createResult();
     const contextChanged = readingSessionReducer(result, {
       type: "SET_CURRENT_PRIVATE_CONTEXT",
@@ -231,11 +231,11 @@ describe("reading session reducer", () => {
     expect(contextChanged.current.cardInstanceId).toBe(
       result.current.cardInstanceId,
     );
-    expect(contextChanged.current.publicStateRevision).toBe(
-      result.current.publicStateRevision,
+    expect(contextChanged.current.shareChangeId).toBe(
+      result.current.shareChangeId,
     );
-    expect(contextChanged.current.promptRevision).toBe(
-      result.current.promptRevision + 1,
+    expect(contextChanged.current.promptChangeId).toBe(
+      result.current.promptChangeId + 1,
     );
   });
 

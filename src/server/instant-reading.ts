@@ -7,8 +7,6 @@ import {
   getSpread,
   getTopic,
   instantReadingGenerationConfig,
-  instantReadingPromptVersion,
-  instantReadingSchemaVersion,
   instantReadingSystemInstruction,
   parseInstantReadingProviderResponse,
   type InstantReadingPromptMaterials,
@@ -17,7 +15,6 @@ import {
   type LocaleTarotData,
 } from "@/domain/tarot";
 
-export { instantReadingPromptVersion, instantReadingSchemaVersion };
 export const geminiInteractionsApiVersion = "v1";
 export const instantReadingRequestTimeoutMs = 12_000;
 

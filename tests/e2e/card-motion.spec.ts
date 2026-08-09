@@ -8,7 +8,7 @@ async function fulfillCardArt(route: Route, delayMs = 0) {
 
   await route.fulfill({
     contentType: "image/jpeg",
-    path: "public/cards/v3/the-fool.jpg",
+    path: "public/cards/the-fool.jpg",
     status: 200,
   });
 }
@@ -83,7 +83,7 @@ test("keeps the back pending and independently reveals delayed art", async ({
 
     return fulfillCardArt(
       route,
-      optimizedUrl === "/cards/v3/the-fool.jpg" ? 350 : 0,
+      optimizedUrl === "/cards/the-fool.jpg" ? 350 : 0,
     );
   });
   await page.goto("/");
@@ -151,7 +151,7 @@ test("keeps the back visible and reveals only after a successful retry", async (
   await page.route("**/_next/image**", async (route) => {
     const optimizedUrl = new URL(route.request().url()).searchParams.get("url");
 
-    if (optimizedUrl === "/cards/v3/the-fool.jpg" && foolAttempts++ === 0) {
+    if (optimizedUrl === "/cards/the-fool.jpg" && foolAttempts++ === 0) {
       await route.fulfill({
         body: "failed card art",
         contentType: "text/plain",

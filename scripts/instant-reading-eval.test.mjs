@@ -278,7 +278,7 @@ describe("instant reading evaluation", () => {
     ).toHaveLength(100);
   });
 
-  it("fingerprints the model, prompt, schema, cases, settings, and data", () => {
+  it("fingerprints the provider contract, evaluation code, cases, and data", () => {
     const manifest = buildRunManifest({
       cases,
       messages,
@@ -314,7 +314,18 @@ describe("instant reading evaluation", () => {
     expect(manifest.recordType).toBe("manifest");
     expect(manifest.modelId).toBe("gemini-test");
     expect(manifest.apiVersion).toBe("v1");
-    expect(manifest.runnerVersion).toBe("instant-reading-runner-v7");
+    expect(Object.keys(manifest.sourceContentSha256)).toEqual([
+      "scripts/instant-reading-blind.mjs",
+      "scripts/instant-reading-eval-cases.mjs",
+      "scripts/instant-reading-eval.mjs",
+      "scripts/instant-reading-score.mjs",
+      "scripts/instant-reading-source-hashes.mjs",
+      "src/domain/tarot/instant-reading-contract.ts",
+      "src/domain/tarot/instant-reading.ts",
+    ]);
+    for (const hash of Object.values(manifest.sourceContentSha256)) {
+      expect(hash).toMatch(/^[a-f0-9]{64}$/u);
+    }
     expect(executionPolicy.firstAttemptTimeoutMs).toBe(
       instantReadingRequestTimeoutMs,
     );
@@ -365,7 +376,7 @@ describe("instant reading evaluation", () => {
       return {
         ok: true,
         json: async () => ({
-          model: "gemini-test-revision",
+          model: "gemini-test-build",
           steps: [
             {
               type: "model_output",
@@ -391,7 +402,7 @@ describe("instant reading evaluation", () => {
         model: "gemini-test",
       }),
     ).resolves.toEqual({
-      modelVersion: "gemini-test-revision",
+      modelVersion: "gemini-test-build",
       payload: output,
       usage: { total_tokens: 10 },
     });
@@ -529,7 +540,7 @@ describe("instant reading evaluation", () => {
       })
       .mockResolvedValueOnce({
         json: async () => ({
-          model: "gemini-test-revision",
+          model: "gemini-test-build",
           steps: [
             {
               type: "model_output",
@@ -556,7 +567,7 @@ describe("instant reading evaluation", () => {
         sleepImpl,
       }),
     ).resolves.toMatchObject({
-      modelVersion: "gemini-test-revision",
+      modelVersion: "gemini-test-build",
       payload: output,
     });
     expect(sleepImpl).toHaveBeenNthCalledWith(1, 65_000);
@@ -602,7 +613,7 @@ describe("instant reading evaluation", () => {
       .fn()
       .mockResolvedValueOnce({
         json: async () => ({
-          model: "gemini-test-revision",
+          model: "gemini-test-build",
           status: "incomplete",
           steps: [],
         }),
@@ -610,7 +621,7 @@ describe("instant reading evaluation", () => {
       })
       .mockResolvedValueOnce({
         json: async () => ({
-          model: "gemini-test-revision",
+          model: "gemini-test-build",
           status: "completed",
           steps: [
             {
@@ -1299,6 +1310,23 @@ describe("instant reading evaluation", () => {
         );
       }
 
+      const runSummaryPath = path.join(studyDirectory, "run-summary.json");
+      const runSummary = JSON.parse(await readFile(runSummaryPath, "utf8"));
+      const originalSourceHashes = runSummary.sourceContentSha256;
+      runSummary.sourceContentSha256 = {
+        ...originalSourceHashes,
+        "scripts/instant-reading-score.mjs": "0".repeat(64),
+      };
+      await writeFile(runSummaryPath, JSON.stringify(runSummary), "utf8");
+      await expect(
+        scoreBlindStudy({
+          repositoryRoot: temporaryRoot,
+          studyId: "study",
+        }),
+      ).rejects.toThrow("evaluation sources changed after blinding");
+      runSummary.sourceContentSha256 = originalSourceHashes;
+      await writeFile(runSummaryPath, JSON.stringify(runSummary), "utf8");
+
       await expect(
         scoreBlindStudy({
           repositoryRoot: temporaryRoot,
@@ -1393,7 +1421,7 @@ function makeValidOutput(evaluationCase) {
 function makeSuccessfulFetch(output) {
   return vi.fn(async () => ({
     json: async () => ({
-      model: "gemini-test-revision",
+      model: "gemini-test-build",
       status: "completed",
       steps: [
         {

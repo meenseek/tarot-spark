@@ -8,7 +8,6 @@ import type {
 } from "./types";
 
 export const maxUserContextLength = 500;
-export const promptVersion = "tarot-prompt-v3";
 
 type BuildPromptInput = {
   readonly cards: readonly DrawnCard[];

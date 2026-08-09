@@ -1,6 +1,3 @@
-export const instantReadingSchemaVersion = "instant-reading-v5";
-export const instantReadingPromptVersion = "instant-reading-prompt-v5";
-export const instantReadingContractVersion = "instant-reading-contract-v5";
 export const instantReadingGenerationConfig = {
   max_output_tokens: 1800,
   thinking_level: "low",
@@ -165,25 +162,4 @@ const unsupportedVisualClaimPatterns = [
 
 export function hasUnsupportedVisualClaim(value: string) {
   return unsupportedVisualClaimPatterns.some((pattern) => pattern.test(value));
-}
-
-export const instantReadingContractFingerprint = hashContract(
-  JSON.stringify({
-    generation: instantReadingGenerationConfig,
-    prompt: instantReadingPromptVersion,
-    schema: instantReadingSchemaVersion,
-    system: instantReadingSystemInstruction,
-    version: instantReadingContractVersion,
-  }),
-);
-
-function hashContract(value: string) {
-  let hash = 2_166_136_261;
-
-  for (let index = 0; index < value.length; index += 1) {
-    hash ^= value.charCodeAt(index);
-    hash = Math.imul(hash, 16_777_619);
-  }
-
-  return `fnv1a-${(hash >>> 0).toString(16).padStart(8, "0")}`;
 }
