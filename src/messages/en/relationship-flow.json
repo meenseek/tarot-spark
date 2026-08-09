@@ -6,7 +6,7 @@
   "cardArtRetry": "Try again",
   "eyebrow": "Relationship reflection guide",
   "heading": "See the relationship pattern without pretending to know the other person’s mind.",
-  "intro": "Start with three cards with no assigned position meanings. The result keeps their exact names in draw order and prepares one concise prompt for grounded relationship reflection. A six-card spread remains optional when three cards do not provide enough evidence to compare several aspects of the question.",
+  "intro": "Start with three cards with no assigned position meanings. The result keeps their exact names in draw order and prepares one relationship prompt that uses upright meanings as symbolic interpretation material. A six-card spread remains optional when three meanings are not enough to compare several aspects of the question.",
   "benefitsHeading": "Built for a more useful AI conversation",
   "benefits": [
     {
@@ -15,7 +15,7 @@
     },
     {
       "title": "One clear card list",
-      "body": "The prompt sends only the exact card names in draw order, without invented position labels or image descriptions."
+      "body": "The prompt sends the exact card names in draw order plus the site's reviewed nonvisual upright meanings, without invented position labels or image descriptions."
     },
     {
       "title": "Agency before prediction",
@@ -30,7 +30,7 @@
     },
     {
       "title": "2. Draw three cards first",
-      "body": "The numbers show draw order only. They do not assign past, present, future, obstacle, or advice roles. Use six cards only when evidence from three cards is not enough to compare several aspects of the question."
+      "body": "The numbers show draw order only. They do not assign past, present, future, obstacle, or advice roles. Use six cards only when three meanings are not enough to compare several aspects of the question."
     },
     {
       "title": "3. Copy one prompt",
@@ -46,28 +46,36 @@
       "body": "“How can I tell whether this relationship is becoming more balanced without pretending to know the other person's feelings?”"
     },
     {
-      "title": "Card evidence",
-      "body": "Justice points to fair judgment, accountability, and the consequences of choice. Queen of Swords points to discernment, independence, and clear honest boundaries. Six of Pentacles points to fairness and balance in giving and receiving support."
+      "title": "Symbolic interpretation material",
+      "body": "Justice points to fair judgment, accountability, and the consequences of choice. Queen of Swords points to discernment, independence, and clear honest boundaries. Six of Pentacles points to fairness and balance in giving and receiving support. These meanings support reflection; they do not prove that the relationship is fair."
     },
     {
       "title": "Strongest connection",
       "body": "All three meanings reinforce accountable reciprocity: fairness needs a clear boundary and a pattern of giving and receiving that can be observed. The cards do not establish that this pattern already exists."
     },
     {
-      "title": "Two alternatives",
-      "body": "The current imbalance may be temporary and improve once one responsibility is made explicit, or it may be a stable pattern in which one person's needs and effort repeatedly carry more weight."
+      "title": "Two working hypotheses to compare",
+      "body": "The current imbalance may be temporary and improve once one responsibility is made explicit. It may also be a stable pattern in which one person's needs and effort repeatedly carry more weight. These are neither exclusive nor exhaustive, so both may partly fit or both may fail."
     },
     {
-      "title": "Observable discriminator",
-      "body": "Agree on one specific responsibility and observe the next week: is it shared without reminders, negotiation pressure, or a penalty for stating the boundary?"
+      "title": "What to observe in real life",
+      "body": "For the next week, record only whether one already-agreed responsibility is completed by the agreed time, who initiates it, and how many reminders are needed."
     },
     {
       "title": "What remains unknown",
       "body": "The cards cannot establish private feelings, guarantee future effort, or determine whether the relationship is safe and suitable."
     },
     {
+      "title": "What should revise the interpretation",
+      "body": "Follow-through without reminders raises the temporary hypothesis; repeated omission raises the stable-pattern hypothesis. If the responsibility itself was unclear or unrealistic, suspend both and redesign the check."
+    },
+    {
       "title": "Reversible next step and stop condition",
-      "body": "Ask for one small change in how a responsibility is shared, then review it after a week. Stop the trial if the boundary is mocked, met with pressure or retaliation, or used to justify repeated contact."
+      "body": "Write down one small change in responsibility and a one-week review point. Regardless of which hypothesis seems stronger, stop if scope expands without agreement, a boundary is mocked, pressure or retaliation appears, safety becomes a concern, or the review date arrives."
+    },
+    {
+      "title": "Reflection",
+      "body": "Am I judging fairness by balanced words or by responsibility that continues in observable behavior?"
     }
   ],
   "faqHeading": "Relationship tarot prompt FAQ",
@@ -82,11 +90,11 @@
     },
     {
       "question": "What does the copied prompt include?",
-      "answer": "It includes your selected topic and tone, optional context if you entered it, and the exact card names in draw order. It explicitly says that no card images or position meanings are attached."
+      "answer": "It includes your selected topic and tone, optional context if you entered it, and the exact card names in draw order with the site's reviewed nonvisual upright meanings. It explicitly says that no card images or position meanings are attached."
     }
   ],
   "ctaHeading": "Ready to map the relationship flow?",
-  "ctaBody": "Start with three cards and move to six only when three-card evidence is not enough to compare several aspects of the question. You can change the answer tone before drawing.",
+  "ctaBody": "Start with three cards and move to six only when three meanings are not enough to compare several aspects of the question. You can change the answer tone before drawing.",
   "ctaButton": "Start with three cards",
   "deepCtaButton": "Open the six-card spread",
   "privacyNote": "No account required. Keep names and identifying details out of optional context.",

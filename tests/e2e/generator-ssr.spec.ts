@@ -47,7 +47,7 @@ test("renders the complete localized guide and CTA without JavaScript", async ({
       name: "전체 예시: 연인, 소드 2, 별",
     }),
   ).toBeVisible();
-  await expect(page.getByText(/관찰 기준:/).first()).toBeVisible();
+  await expect(page.getByText(/현실 관찰:/).first()).toBeVisible();
   await expect(
     page.getByRole("link", { name: "카드 세 장 뽑기" }),
   ).toHaveAttribute("href", "/ko?spread=quick");

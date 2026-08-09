@@ -28,18 +28,18 @@ function getPrompt(locale: "en" | "ko", spreadId: "quick" | "deep") {
 }
 
 describe("tarot prompt", () => {
-  it("serializes only exact ordered card names", () => {
+  it("serializes exact ordered card names with reviewed meanings", () => {
     const { cards, prompt } = getPrompt("ko", "quick");
 
     for (const [index, { card }] of cards.entries()) {
       expect(prompt).toContain(`${index + 1}. ${card.name}`);
-      expect(prompt).not.toContain(card.meaning);
+      expect(prompt).toContain(card.meaning);
     }
     expect(prompt).toContain("카드 이미지는 첨부되지 않았습니다");
     expect(prompt).toContain("번호는 카드를 구분하는 순서일 뿐");
     expect(prompt).toContain("모든 카드는 정방향으로만");
     expect(prompt).toContain("페이지, 나이트, 퀸, 킹");
-    expect(prompt).toContain("뽑히지 않은 카드나 정보를 추가하지 마세요");
+    expect(prompt).toContain("뽑히지 않은 카드·정보를 추가하지 마세요");
     expect(prompt).not.toMatch(/불씨|그림자|다음 걸음|자리 이름|해석 렌즈/);
     expect(prompt).not.toMatch(
       /archetype|symbols|keywords|promptAngle|upright/,
@@ -97,15 +97,44 @@ describe("tarot prompt", () => {
     );
   });
 
-  it("uses concise length contracts for both card counts and locales", () => {
-    expect(getPrompt("ko", "quick").prompt).toContain("한국어 600~900자");
-    expect(getPrompt("ko", "deep").prompt).toContain("한국어 1,000~1,500자");
-    expect(getPrompt("en", "quick").prompt).toContain(
-      "300 to 450 English words",
-    );
-    expect(getPrompt("en", "deep").prompt).toContain(
-      "550 to 800 English words",
-    );
+  it("requires the same complete method without padding targets", () => {
+    for (const locale of ["en", "ko"] as const) {
+      for (const spreadId of ["quick", "deep"] as const) {
+        const prompt = getPrompt(locale, spreadId).prompt;
+
+        expect(prompt).not.toMatch(
+          /\d[\d,]*\s*(?:~|-|to)\s*\d[\d,]*\s*(?:자|words?)/i,
+        );
+        expect(prompt).toContain(
+          locale === "ko"
+            ? "상징적 해석 재료"
+            : "Symbolic interpretation material",
+        );
+        expect(prompt).toContain(
+          locale === "ko"
+            ? "비교용 작업 가설을 정확히 두 개"
+            : "exactly two materially different working hypotheses",
+        );
+        expect(prompt).toContain(
+          locale === "ko"
+            ? "둘 다 일부 맞거나 둘 다 틀릴 수"
+            : "both may partly fit or both may fail",
+        );
+        expect(prompt).toContain(
+          locale === "ko" ? "현실 확인" : "Reality check",
+        );
+        expect(prompt).toContain(
+          locale === "ko"
+            ? "답변에서는 이미지가 없다는 점을 되풀이하거나 시각 요소 자체를 설명하지 마세요"
+            : "Do not mention the absence of images or discuss visual elements in the answer",
+        );
+        expect(prompt).toContain(
+          locale === "ko"
+            ? "멈추거나 다시 판단할 조건"
+            : "stop-or-review condition",
+        );
+      }
+    }
   });
 
   it("keeps every topic, style, spread, and all 78 cards usable", () => {
@@ -161,9 +190,9 @@ describe("tarot prompt", () => {
         });
 
         covered.add(card.id);
-        expect(prompt).toContain(`1. ${card.name}\n`);
-        expect(prompt).not.toContain(card.meaning);
-        expect(prompt).not.toContain(card.id);
+        expect(prompt).toContain(`1. ${card.name} —`);
+        expect(prompt).toContain(card.meaning);
+        expect(prompt).not.toMatch(/\bcardId\b/);
       }
       expect([...covered].sort()).toEqual(
         data.cards.map(({ id }) => id).sort(),

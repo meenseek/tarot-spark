@@ -33,10 +33,10 @@ structured way to reflect on a relationship.
 1. Relationship-flow landing: reach people actively reflecting on a
    relationship with the search guide and direct generator CTA.
 2. Naver Blog: reach Korean search users interested in AI or tarot how-to
-   content with an 800-1,400 character guide and screenshots. Link once after
-   the useful content.
+   content with a complete worked guide and screenshots. Link once after the
+   useful content; do not pad the article to hit a character target.
 3. Instagram: reach visual tarot and journaling discovery with an original
-   five-to-seven-slide carousel or one current-preview card image. Use the
+   five-to-eight-slide carousel or one current-preview card image. Use the
    profile or story link.
 4. Threads: reach Korean and English public conversations with a short
    observation, example prompt, and one question. Link in a relevant follow-up.
@@ -77,8 +77,8 @@ Use one clear job per post.
    reflective-question method and explain what changed.
 2. Pick a card: show two or three symbols and ask a reflective question without
    revealing a prediction.
-3. Relationship guide: separate observation, interpretation, uncertainty, and
-   user agency.
+3. Relationship guide: separate symbolic interpretation material from factual
+   proof, keep two alternatives open, and show how reality could revise them.
 4. Combination method: demonstrate reinforcement, tension, progression, or
    integration with supplied upright meanings and an observable check.
 5. Deck progress: show the Fool, Lovers, or Star from the canonical feedback
@@ -190,9 +190,9 @@ If a condition fails, improve the vertical slice and collect another cohort.
 > 타로 카드 뜻을 길게 붙여도 AI 답변이 짧고 비슷해지는 이유는 "무엇을
 > 비교하고 어떻게 답할지"가 빠져 있기 때문이었습니다.
 >
-> 그래서 뽑힌 순서와 정확한 카드명만 담는 질문 하나로 줄였습니다. 카드
-> 그림이나 임의의 자리 이름을 붙이지 않고, 상대의 속마음을 단정하지
-> 않도록 규칙을 분명히 적었어요.
+> 그래서 카드 의미를 사실의 증거로 쓰지 않고, 가장 강한 연결 하나와
+> 서로 다른 두 가능성, 현실에서 확인할 기준, 멈출 조건까지 이어지는
+> 여섯 단계 질문으로 바꿨습니다.
 >
 > 관계 리딩에서 카드명 외에 꼭 필요하다고 느끼는 정보는 무엇인가요?
 
@@ -214,8 +214,9 @@ Body order:
 
 1. Short prompt and detailed prompt comparison.
 2. Why card numbers mean draw order only.
-3. Observation, interpretation, and uncertainty example.
-4. One prompt with exact card names and the no-image rule.
+3. Symbolic meanings, two alternatives, and a reality-check example.
+4. One prompt with exact card names, reviewed nonvisual meanings, the no-image
+   rule, a revision condition, and a reversible action.
 5. Maker disclosure, relationship-flow link, and disclaimer.
 
 ### Korean Naver Cafe: Value-First Discussion
@@ -225,9 +226,11 @@ Title: `카드 뜻 나열 대신 스프레드 전체를 연결하는 질문 방�
 > 카드별 뜻을 하나씩 묻는 것보다 "강화, 긴장, 전개, 통합 중 어떤 관계가
 > 가장 강한지"를 먼저 고르게 하니 답변의 반복이 줄었습니다.
 >
-> 여기에 관찰한 사실과 해석을 구분하고, 내가 바꿀 수 있는 것만 행동으로
-> 정리하게 했습니다. 여러분은 여러 장 리딩에서 카드 사이의 연결을 어떤
-> 질문으로 끌어내시나요?
+> 여기에 같은 카드 의미로 가능한 비배타적 작업 가설을 정확히 두 개
+> 남기고, 무엇을 확인하면 둘의 비중을 바꾸거나 모두 버려야 하는지와
+> 해석의 승패와 별개로 멈출 조건까지 정리하게 했습니다.
+> 여러분은 여러 장 리딩에서 카드 사이의 연결을 어떤 질문으로
+> 끌어내시나요?
 
 Add a link and maker disclosure only when the cafe and board explicitly allow
 self-promotion.
@@ -235,27 +238,30 @@ self-promotion.
 ### Instagram Carousel: Lovers Pilot
 
 1. `상대의 속마음을 단정하지 않는 관계 타로 질문`
-2. `관찰한 행동은 무엇인가?`
-3. `내가 해석한 의미는 무엇인가?`
-4. `아직 확인할 수 없는 것은 무엇인가?`
-5. `내가 바꿀 수 있는 작은 행동은 무엇인가?`
-6. `The Lovers: 선택과 상호성은 말보다 행동에서 보이는가?`
-7. `오락과 자기 성찰 전용 | tarot-spark`
+2. `카드 의미는 해석 재료이지 사실의 증거가 아니다`
+3. `양자택일이 아닌 두 작업 가설`
+4. `무엇을 보면 둘의 비중을 바꾸거나 모두 버릴까?`
+5. `관찰과 별개로 언제 시험을 멈출까?`
+6. `작은 행동 하나와 멈출 조건 하나`
+7. `The Lovers: 선택과 상호성은 말보다 행동에서 보이는가?`
+8. `오락과 자기 성찰 전용 | tarot-spark`
 
 Use the canonical Lovers art. Do not add synthetic testimonials or outcome
 claims.
 
 ### English Reddit: Native Text Case Study
 
-Title: `I reduced a tarot prompt to exact card names and one clear contract`
+Title: `I rebuilt a tarot prompt around two alternatives and a reality check`
 
 > I was getting the same pattern from AI tarot prompts: three isolated card
 > definitions, a vague conclusion, and no distinction between evidence and
 > projection.
 >
-> I changed the structure so the prompt sends exact card names in draw order,
-> states that no images or position meanings are attached, connects all cards,
-> and separates user agency from another person's unknown response.
+> I changed the structure so the prompt uses exact card names in draw order,
+> treats their meanings as symbolic material rather than proof, develops one
+> strong connection, keeps exactly two non-exclusive working hypotheses open,
+> and names what would reweight them or reject both, plus an independent reason
+> to stop the test.
 >
 > I built the free prototype, tarot-spark. I am looking for feedback on whether
 > the simpler output is easier to understand, not for predictive accuracy.
