@@ -15,7 +15,6 @@ export type Spread = {
   readonly label: string;
   readonly description: string;
   readonly promptLabel: string;
-  readonly outputLengthInstruction: string;
   readonly cardCount: 3 | 6;
 };
 

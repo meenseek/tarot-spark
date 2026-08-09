@@ -25,7 +25,7 @@ describe("RelationshipFlowLanding", () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Observable discriminator" }),
+      screen.getByRole("heading", { name: "What to observe in real life" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Open the six-card spread" }),

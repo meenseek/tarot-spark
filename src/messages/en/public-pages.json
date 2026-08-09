@@ -8,11 +8,11 @@
     "three-card-tarot-reading": {
       "metadata": {
         "title": "How to Read a Three-Card Tarot Spread Without Fixed Positions",
-        "description": "Use a no-position three-card tarot method to connect evidence, alternatives, unknowns, and one reversible next step."
+        "description": "Use upright meanings as symbolic interpretation material, then connect alternatives, reality checks, revision conditions, and a reversible choice."
       },
       "linkLabel": "Three-card method",
       "title": "A complete three-card tarot reading without past-present-future positions",
-      "intro": "A three-card spread does not need fixed positions to be specific. Read each upright card as one piece of evidence, compare how the meanings interact, then turn the pattern into alternatives you can check in real life.",
+      "intro": "A three-card spread does not need fixed positions to be specific. Use each reviewed upright meaning as symbolic interpretation material, compare how the meanings interact, then turn the pattern into alternatives you can check against real life.",
       "sections": [
         {
           "heading": "What a no-position spread changes",
@@ -29,11 +29,11 @@
           "ordered": true,
           "items": [
             "Question: name the decision or pattern you can influence, and set a time or situation boundary.",
-            "Evidence: paraphrase the supplied upright meaning of every card without adding image details or position roles.",
+            "Interpretation material: paraphrase the supplied upright meaning of every card without adding image details or position roles. These meanings support an interpretation; they do not prove a real-world fact.",
             "Connection: identify the strongest reinforcement, tension, progression, or integration among at least two cards.",
-            "Alternatives: write at least two plausible explanations for the same pattern instead of choosing one story too early.",
-            "Check: name one observable fact that would make either explanation more likely, and state what is still unknown.",
-            "Choice: take one small, reversible action with a stop condition, then ask what you learned before taking a larger step."
+            "Alternatives: write exactly two materially different working hypotheses supported by the same meanings. They are non-exclusive and not a complete list of explanations.",
+            "Reality check: separate what remains unknown, one observation that could reweight the hypotheses or reject both, and how that finding should revise or reopen the interpretation.",
+            "Choice: take one small, reversible action with a stop-or-review condition based independently on cost, boundary, or deadline, then end with a reflection question that does not repeat the answer."
           ]
         },
         {
@@ -47,15 +47,18 @@
           "heading": "Worked example: The Lovers, Two of Swords, The Star",
           "paragraphs": [
             "Question: “What should I examine before deciding whether to rebuild trust?” No temporal or advice positions are assigned.",
-            "Evidence: The Lovers points to connection, aligned values, and a responsible choice. Two of Swords points to indecision caused by missing information or unclear criteria. The Star points to renewed hope, recovery, and honest trust after difficulty.",
+            "Interpretation material: The Lovers points to connection, aligned values, and a responsible choice. Two of Swords points to indecision caused by missing information or unclear criteria. The Star points to renewed hope, recovery, and honest trust after difficulty. These meanings support reflection; they do not prove that trust has recovered.",
             "Connection: choice and hope reinforce the possibility of repair, while indecision creates a tension: hope alone is not a decision criterion. All three cards contribute to that reading; none is treated as a prediction."
           ],
           "items": [
             "Alternative A: trust is rebuilding, but both people need an explicit standard for what repair looks like.",
             "Alternative B: hope is carrying more weight than current behavior, so the decision remains unclear.",
-            "Observable discriminator: look for a specific promise followed by consistent behavior, not intensity of words alone.",
+            "Scope of the hypotheses: these are not a binary choice. Trust may be partly rebuilding while hope still outruns behavior, and neither hypothesis may fully explain the situation.",
             "Unknown: the cards cannot establish the other person's private intention or whether consistency will continue.",
-            "Reversible action: ask for one concrete agreement for the next week; pause if the boundary is dismissed or pressured."
+            "Real-world observation: for the next week, record only whether one agreed promise happens by the agreed time and without reminders.",
+            "Revision condition: self-maintained follow-through raises the weight of A; repeated omission raises the weight of B. If the promise itself was unclear or unrealistic, suspend both and redesign the check.",
+            "Reversible action and stop condition: write down one small agreement and a one-week review point. Stop and reassess independently of the interpretation if the scope expands without consent, a boundary is dismissed, or the review point arrives.",
+            "Reflection: am I treating hope and observed change as though they were the same thing?"
           ]
         },
         {
@@ -71,12 +74,12 @@
             "Before using or sharing the reading, check each condition."
           ],
           "items": [
-            "Every drawn card appears and is grounded in its supplied upright meaning.",
+            "Every drawn card appears and uses its supplied upright meaning as symbolic interpretation material.",
             "No image, reversed meaning, hidden-feelings claim, timeline, or fixed position was invented.",
-            "At least one relationship among cards is explained with evidence.",
-            "At least two alternatives and one observable discriminator are present.",
-            "Unknowns are separated from interpretations.",
-            "The action is small, reversible, and includes a reason to pause."
+            "At least one relationship among cards is explained with the exact meanings that support it.",
+            "Exactly two materially different working hypotheses are present and identified as non-exclusive and non-exhaustive.",
+            "Unknowns and a reality check that can reweight or reject both hypotheses are separated from interpretation.",
+            "The action is small and reversible, with an independent cost, boundary, or deadline stop condition and a distinct reflection question."
           ]
         }
       ],
@@ -113,15 +116,15 @@
           "items": [
             "Agency: focus on your choices, communication, preparation, or boundary.",
             "Observability: ask what behavior, evidence, or criterion you can actually check.",
-            "Uncertainty: leave room for more than one explanation and name what the cards cannot establish.",
+            "Uncertainty: compare exactly two non-exclusive, non-exhaustive working hypotheses and name what the cards cannot establish.",
             "Scope: limit the question to a situation or near-term review point instead of an unlimited future."
           ]
         },
         {
           "heading": "A reusable question formula",
           "paragraphs": [
-            "Use: “What pattern should I examine in [situation], what evidence would distinguish the main alternatives, and what small choice can I test before [review point]?”",
-            "The formula is not magic wording. Its value is structural: it forces interpretation, evidence, alternatives, and action to remain separate."
+            "Use: “What pattern should I examine in [situation], what observation could reweight or reject both of two non-exclusive working hypotheses, and what small choice can I test before [review point]?”",
+            "The formula is not magic wording. Its value is structural: it keeps symbolic interpretation material, real-world evidence, two working hypotheses, a revision condition, and action separate."
           ]
         },
         {
@@ -139,14 +142,17 @@
           "heading": "Worked example: The Tower, Eight of Pentacles, Temperance",
           "paragraphs": [
             "Starting question: “Will this career setback ruin my future?” Rewrite: “Which assumption did the setback expose, which skill can I improve, and how can I balance recovery with a practical next attempt?”",
-            "Evidence: The Tower means disruption that exposes assumptions and requires an honest reset, not a prediction of disaster. Eight of Pentacles points to skill improving through consistent practice. Temperance points to patiently balancing and integrating different needs.",
+            "Interpretation material: The Tower means disruption that exposes assumptions and requires an honest reset, not a prediction of disaster. Eight of Pentacles points to skill improving through consistent practice. Temperance points to patiently balancing and integrating different needs. These meanings do not prove how a particular employer will decide.",
             "Connection: The Tower and Eight of Pentacles form a reset-to-practice progression, while Temperance prevents practice from becoming a rushed attempt to erase the setback. Together, the cards frame the decision as learning from exposed assumptions while balancing recovery with deliberate skill-building.",
-            "Two alternatives now become possible: the setback may reveal a preparation gap that practice can address, or the role itself may conflict with a need that was previously ignored. The discriminator is concrete feedback from the application or work sample, not the emotional force of the setback."
+            "Two working hypotheses are useful for comparison: the setback may reveal a preparation gap that practice can address, or the role itself may conflict with a need that was previously ignored. They are not exclusive or exhaustive: both may partly fit, or feedback may reveal a different constraint altogether."
           ],
           "items": [
             "Unknown: whether a particular employer will make an offer.",
+            "Real-world observation: categorize one round of application or work-sample feedback as preparation, role constraints, or another constraint.",
+            "Revision condition: repeated preparation feedback raises the first hypothesis; repeated role-constraint feedback raises the second. If the feedback fits neither, suspend both and reopen the question.",
             "Reversible action: request one specific piece of feedback and schedule one short practice block.",
-            "Stop condition: do not keep applying the same strategy if repeated feedback points to a different constraint."
+            "Stop condition: end this trial at the review date, when practice cuts into recovery, or when the cost of repeating the same application approach reaches the limit you set, regardless of which hypothesis seems stronger.",
+            "Reflection: how am I distinguishing a skill I can strengthen from a direction I should reconsider?"
           ]
         },
         {
@@ -162,9 +168,9 @@
           "items": [
             "Can I answer part of this question through my own observation or choice?",
             "Does it avoid claiming access to another person's hidden mind?",
-            "Does it allow at least two plausible explanations?",
-            "Does it name evidence or a review point?",
-            "Is the next action small enough to reverse?",
+            "Does it allow exactly two materially different, non-exclusive and non-exhaustive working hypotheses?",
+            "Does it name an observation that can reweight or reject both hypotheses and a condition that should reopen the interpretation?",
+            "Is the next action small enough to reverse, with an independent cost, boundary, or deadline stop condition?",
             "Have I moved professional or safety decisions outside tarot?"
           ]
         }
@@ -188,11 +194,11 @@
     "tarot-card-combinations": {
       "metadata": {
         "title": "How to Read Tarot Card Combinations Without Memorizing Pairs",
-        "description": "Learn four meaning-grounded tarot combination relationships and work through a complete three-card example."
+        "description": "Learn four meaning-grounded tarot combination relationships and work through complete three-card and six-card examples."
       },
       "linkLabel": "Card combinations",
       "title": "How to read tarot card combinations without a fixed pair dictionary",
-      "intro": "A card combination is not a secret phrase attached to two names. It is a relationship you can explain between the supplied upright meanings in this particular question.",
+      "intro": "A card combination is not a secret phrase attached to two names. It is a relationship you can explain by using the supplied upright meanings as symbolic interpretation material for this question.",
       "sections": [
         {
           "heading": "Four useful relationship types",
@@ -207,10 +213,10 @@
           ]
         },
         {
-          "heading": "The evidence sentence",
+          "heading": "A connection sentence that shows its material",
           "paragraphs": [
             "Write the connection as: “Because [meaning A] and [meaning B], the spread may be asking us to compare [specific pattern].” Then quote or paraphrase the exact parts of both meanings that support the claim.",
-            "If you cannot finish that sentence without image symbolism, a fixed position, or outside card lore, the connection is not grounded enough yet."
+            "If you cannot finish that sentence without image symbolism, a fixed position, or outside card lore, the supplied meanings do not support the connection well enough yet."
           ]
         },
         {
@@ -222,9 +228,12 @@
           "items": [
             "Alternative A: the next direction is unclear because disappointment has not been named precisely.",
             "Alternative B: the loss is understood, but too many outside opinions are replacing a personal decision criterion.",
-            "Observable discriminator: write what failed, then see whether a direction emerges from that evidence or only after outside approval.",
+            "Scope of the hypotheses: these are comparison tools, not exclusive or exhaustive explanations. Both may partly fit, or another constraint may matter more.",
             "Unknown: which new project will succeed.",
-            "Reversible action and stop condition: spend twenty minutes making two criteria and compare one small trial against them. Stop and revise the criteria if the trial supplies no relevant evidence or only repeats the same outside approval you meant to test."
+            "Real-world observation: spend twenty minutes listing what failed and what you want separately, then mark whether a direction emerged from the failure record or only after waiting for outside evaluation.",
+            "Revision condition: if naming the failure produces direction, raise A; if the criteria are already clear but action still depends on approval, raise B. If neither explains the result, suspend both.",
+            "Reversible action and stop condition: compare one small trial against two criteria and review it the next day. End the trial regardless of the interpretation when its cost crosses your limit or the review point arrives.",
+            "Reflection: when choosing a direction, which matters more right now—avoiding another disappointment or following a value I can name?"
           ]
         },
         {
@@ -232,6 +241,26 @@
           "paragraphs": [
             "With three cards, identify one strongest connection and one meaningful tension if it exists. With six cards, group the meanings into two or three semantic clusters before comparing them. Do not explain all fifteen possible pairs; that usually creates repetition rather than insight.",
             "A card can contribute to more than one cluster, but every card must contribute somewhere. If one card is ignored, revise the synthesis instead of attaching a generic sentence at the end."
+          ]
+        },
+        {
+          "heading": "Complete six-card example: The Moon, Ace of Swords, Three of Pentacles, Six of Pentacles, Nine of Wands, Justice",
+          "paragraphs": [
+            "Question: “What should I check before deciding whether to accept a new collaboration?” The six numbers record draw order only; they carry no position or timeline meaning.",
+            "Interpretation material: The Moon points to uncertainty and the need to separate intuition, fear, fact, and assumption. Ace of Swords points to clarity, truth, and precise judgment. Three of Pentacles points to skill, collaboration, and improving quality through learning. Six of Pentacles points to fairness and balance in giving and receiving support. Nine of Wands points to resilience and cautious persistence despite fatigue. Justice points to fair judgment, accountability, and the consequences of choice. These meanings do not prove the collaboration's real outcome.",
+            "Compress the six meanings into three clusters. Information and criteria: The Moon, Ace of Swords, and Justice. Collaboration and reciprocity: Three of Pentacles and Six of Pentacles. Sustainability and boundaries: Nine of Wands and Justice. Justice contributes to two clusters because it concerns both fair terms and the responsibility you can carry.",
+            "The strongest connection is integration. Reducing uncertainty through clear facts and fair terms, learning together with balanced resource exchange, and protecting current capacity all need to hold at once for the proposal to become a sustainable trial. This is not a progression based on draw order."
+          ],
+          "items": [
+            "Working hypothesis A: explicit roles, feedback, and resource sharing may reduce uncertainty, allowing the collaboration to continue if a small trial shows consistency.",
+            "Working hypothesis B: even with fair terms, current fatigue and capacity may make a full commitment unsustainable, so narrowing or postponing it may be better.",
+            "Scope of the hypotheses: they are neither exclusive nor exhaustive. The terms may be good while the workload is too high, and a trial may reveal a different problem altogether.",
+            "Unknown: the cards cannot establish actual reliability, workload, feedback dynamics, or energy cost after work begins.",
+            "Real-world observation: in one 30-minute planning conversation or explicitly scoped sample, record only whether roles and deadlines are clear, feedback and resources are reciprocal, and the energy cost afterward is manageable.",
+            "Revision condition: clear reciprocal terms with high strain raises B; manageable capacity with unclear scope or exchange lowers A. If the observed issue fits neither, discard both and reopen the question.",
+            "Reversible action: before any paid or open-ended commitment, propose one 30-minute planning session or one small trial with written scope, deliverable, and review date.",
+            "Independent stop condition: end and reassess the trial regardless of which hypothesis seems stronger if scope expands without agreement, unpaid work accumulates, a boundary is ignored, or the review date arrives.",
+            "Reflection: am I expanding what I can carry because I want to prove that the collaboration has potential?"
           ]
         },
         {
@@ -250,12 +279,12 @@
           "heading": "Combination checklist",
           "paragraphs": [],
           "items": [
-            "The relationship type is named and supported by exact meanings.",
+            "The relationship type is named and uses exact meanings as symbolic interpretation material.",
             "Every card contributes to the synthesis.",
             "The interpretation fits the question without inventing personal facts.",
-            "At least two alternatives are materially different.",
-            "One observable cue could distinguish those alternatives.",
-            "Unknowns and a reversible next step are explicit."
+            "Exactly two working hypotheses are materially different and identified as non-exclusive and non-exhaustive.",
+            "One real-world observation can reweight the hypotheses or reject both.",
+            "Unknowns, a revision condition, a reversible action, and an independent cost, boundary, or deadline stop condition are explicit."
           ]
         }
       ],
@@ -301,7 +330,7 @@
         {
           "heading": "How guide content is made",
           "paragraphs": [
-            "The guides start from tarot-spark's reviewed nonvisual upright meanings. Examples separate card evidence, interpretation, unknowns, alternative explanations, observable checks, and reversible choices. They do not use image details, reversed meanings, fixed positions, or claims about hidden feelings unless a page explicitly explains why those claims are unsupported.",
+            "The guides use tarot-spark's reviewed nonvisual upright meanings as symbolic interpretation material. Examples separate that material, the connection, exactly two non-exclusive and non-exhaustive working hypotheses, unknowns, reality checks that can reweight or reject both, revision conditions, reversible choices, and independent stop conditions. They do not use unprovided image details, reversed meanings, fixed positions, or claims about hidden feelings unless a page explicitly explains why those claims are unsupported.",
             "We review Korean and English pages for the same method and example coverage before publishing them. Material corrections update the page directly instead of preserving numbered content editions. Feedback can be sent to tarotspark.app@gmail.com."
           ]
         }

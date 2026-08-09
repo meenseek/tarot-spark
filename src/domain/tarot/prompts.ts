@@ -44,6 +44,7 @@ export function buildPrompt(
         template.cardLine,
         {
           cardIndex: String(index + 1),
+          cardMeaning: card.meaning,
           cardName: card.name,
         },
         `${context}.cardLine`,
@@ -69,7 +70,6 @@ export function buildPrompt(
     template.lines.join("\n"),
     {
       cards: cardLines,
-      outputLengthInstruction: spread.outputLengthInstruction,
       promptLead: topic.promptLead,
       questionFocusBlock,
       readingStyleInstruction: readingStyle.instruction,

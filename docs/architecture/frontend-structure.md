@@ -234,9 +234,10 @@ src/domain/tarot -> src/i18n
   context.
 - Keep spread and reading-style ids in TypeScript. Localize their labels and
   prompt instructions through the tarot message data.
-- Build the user-copy prompt from exact localized card names in draw order. Do
-  not serialize card images, visual descriptions, fixed card meanings, internal
-  card ids, prompt variants, or interpretation lenses into that prompt.
+- Build the user-copy prompt from exact localized card names and reviewed
+  localized nonvisual upright meanings in draw order. Do not serialize card
+  images, visual descriptions, outside card lore, internal card ids, prompt
+  variants, or interpretation lenses into that prompt.
 - Build the separate instant-reading provider input from reviewed nonvisual
   upright meanings in draw order. Do not send card names, card images, internal
   ids, invented positions, interpretation lenses, or user context. The UI owns

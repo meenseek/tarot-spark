@@ -65,7 +65,7 @@ describe("PublicPage", () => {
     expect(
       screen.getByText(/Alternative A: trust is rebuilding/i),
     ).toBeVisible();
-    expect(screen.getByText(/Observable discriminator:/i)).toBeVisible();
+    expect(screen.getByText(/Real-world observation:/i)).toBeVisible();
     expect(
       screen.getByText(/Tarot interpretations are not evidence of facts/i),
     ).toBeVisible();
@@ -93,7 +93,12 @@ describe("PublicPage", () => {
     expect(
       screen.getByRole("heading", { name: "전체 예시: 컵 5, 완드 2, 은둔자" }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/관찰 기준:/i)).toBeVisible();
+    expect(
+      screen.getByRole("heading", {
+        name: /6장 전체 예시: 달, 소드 에이스, 펜타클 3/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/둘 다 버리고 질문을 다시 엽니다/i)).toBeVisible();
   });
 
   it("describes the editorial method without calling the product an MVP", () => {

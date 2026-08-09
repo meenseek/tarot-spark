@@ -6,15 +6,16 @@
   "eyebrow": "Relationship question explorer",
   "title": "What should I ask about this person and our relationship?",
   "intro": "A compelling question can begin with curiosity. It becomes more useful when tarot is not asked to prove another person's hidden mind or the future, and instead separates observed behavior, your interpretation, what remains unknown, and one next step you can actually check.",
-  "methodHeading": "How to turn curiosity into a workable question",
-  "methodIntro": "Choosing a question starts a quick three-card reading with the existing 78-card deck. These five steps refine the question; the three-card guide continues with evidence from each card and the strongest connection among them. The choice is passed only as a public preset; names and personal circumstances are never placed in the URL.",
-  "methodGuideLinkLabel": "Read the three-card guide for evidence and connections",
+  "methodHeading": "Six steps from curiosity to a complete reading",
+  "methodIntro": "Choosing a question starts a quick three-card reading with the existing 78-card deck. The selected question becomes the first-step focus, and the next five steps connect card meanings to one action you can check in real life. The choice is passed only as a public preset; names and personal circumstances are never placed in the URL.",
+  "methodGuideLinkLabel": "Read all six steps in the three-card guide",
   "methodSteps": [
-    "Curiosity: choose one relationship moment that matters now.",
-    "Evidence: separate what was said or done from a guess about private feelings.",
-    "Alternatives: keep at least two materially different explanations open.",
-    "Check: name a conversation or behavior that could distinguish them.",
-    "Choice: pair one reversible action with a reason to stop."
+    "Question focus: choose one relationship moment that matters now and the part you can influence.",
+    "Symbolic interpretation material: use the established upright meanings of all three cards without treating them as factual proof.",
+    "Strongest connection: develop one pattern of reinforcement, tension, progression, or integration among the meanings.",
+    "Two working hypotheses: keep exactly two materially different explanations grounded in the same meanings. They are non-exclusive and not a complete list.",
+    "Reality check: name what remains unknown, an observation that can reweight or reject both hypotheses, and a condition that should revise or reopen the reading.",
+    "Choice: leave one reversible action, an independent cost, boundary, or deadline stop condition, and a non-repetitive reflection question."
   ],
   "comparisonHeading": "Turn a hidden-feelings question into a checkable one",
   "weakQuestionLabel": "Vague question",
@@ -25,14 +26,19 @@
   "categoryNavigationLabel": "Relationship question categories",
   "focusLabel": "What this question explores",
   "workedExampleHeading": "Example: How do this person and I see each other?",
-  "workedExampleBody": "The title is intriguing, but the reading does not enter another person's mind. It separates the role you expect them to play, the signals they have shown through behavior, another plausible explanation, and one conversation you can use to check your interpretation.",
+  "workedExampleBody": "The title is intriguing, but the reading does not enter another person's mind. Imagine drawing the Moon, Ace of Swords, and Two of Pentacles: their meanings become symbolic material for two different explanations and a reality-based check.",
   "workedExampleItems": [
-    "Evidence: first write only the words and behavior you directly observed.",
-    "Alternative A: the expectations may be similar while the pace of expression differs.",
-    "Alternative B: one person's expectation may be running ahead of the available signals.",
-    "Observable discriminator: notice how the person responds in words and behavior to one specific, low-pressure suggestion.",
+    "Question focus: examine the gap between the relationship I expect and the signals I can actually observe, without claiming hidden knowledge.",
+    "Symbolic interpretation material: use the Moon's uncertainty, the Ace of Swords' clear conversation, and the Two of Pentacles' adjustment. These meanings do not prove another person's feelings.",
+    "Strongest connection: The Moon's uncertainty makes the Ace of Swords' clear confirmation useful, and whatever is confirmed makes the Two of Pentacles' adjustment relevant. This is a conditional relationship, not a timeline based on draw order.",
+    "Alternative A: expectations may be similar while different expression speeds have amplified uncertainty.",
+    "Alternative B: one person's expectation may be ahead of the available signals, and clear conversation may expose that difference.",
+    "Scope of the hypotheses: these are not a binary choice. Both may partly fit, or a different reason may explain the observed behavior.",
     "Unknown: the cards cannot establish hidden feelings or the future of the relationship.",
-    "Next step and stop condition: make one low-pressure suggestion, and stop if boundaries are ignored or pressure appears."
+    "Real-world observation: during one naturally occurring contact or plan in the next week, record only whether intent becomes clear without prompting and whether words and behavior align.",
+    "Revision condition: a spontaneous consistent response raises A; recurring ambiguity or a words-actions gap raises B. If neither explains the behavior, discard both and reopen the question.",
+    "Next action and stop condition: first write your own criterion for contact or a meeting, then ask once when relevant. Independently of the interpretation, stop pursuing after a clear refusal, no response, boundary violation, pressure, or the one-week review point.",
+    "Reflection: which observable behavior counts as reciprocity for me, and do I apply that standard fairly to myself too?"
   ],
   "disclaimer": "For entertainment and self-reflection only. Tarot is not evidence about another person's thoughts or the future and does not replace medical, legal, financial, investment, mental-health, or safety advice.",
   "categories": {
@@ -189,7 +195,7 @@
     "continue-slow-stop": {
       "title": "Should I continue, slow down, or stop?",
       "summary": "Compare three choices using behavior rather than emotional intensity.",
-      "focus": "Separate evidence for continuing, slowing down, and stopping the relationship, then identify the smallest reversible choice that could test the decision.",
+      "focus": "Separate real-world information for continuing, slowing down, and stopping the relationship, then identify the smallest reversible choice that could test the decision. These three are action options, a different layer from the reading's two working hypotheses.",
       "ctaLabel": "Compare the three choices"
     },
     "effort-balance": {

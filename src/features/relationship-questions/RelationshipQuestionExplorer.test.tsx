@@ -35,9 +35,23 @@ describe("RelationshipQuestionExplorer", () => {
     ).toBeVisible();
     expect(
       screen.getByRole("link", {
-        name: "카드별 근거와 연결을 읽는 3장 해석 가이드",
+        name: "여섯 단계를 전체 카드 예시로 읽는 3장 해석 가이드",
       }),
     ).toHaveAttribute("href", "/ko/three-card-tarot-reading");
+    expect(
+      screen.getByRole("heading", {
+        name: "호기심을 완결된 리딩으로 바꾸는 여섯 단계",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "상징적 해석 재료: 달의 불확실성, 소드 에이스의 명료한 대화, 펜타클 2의 조율을 모두 사용합니다. 이 의미들은 상대의 감정을 증명하지 않습니다.",
+      ),
+    ).toBeVisible();
+    expect(screen.getByText(/가설의 범위:/)).toBeVisible();
+    expect(screen.getByText(/둘 다 버리고 질문을 다시 엽니다/)).toBeVisible();
+    expect(screen.getByText(/수정 조건:/)).toBeVisible();
+    expect(screen.getByText(/성찰 질문:/)).toBeVisible();
 
     const catalog = getRelationshipQuestionCatalog("ko");
     expect(catalog.categories).toHaveLength(7);

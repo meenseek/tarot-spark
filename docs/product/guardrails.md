@@ -22,6 +22,31 @@
 - Do not enable or deploy server-generated readings publicly until the
   evaluation and launch-readiness checks pass.
 
+## Reading Method Contract
+
+Use one method across public guides, copied prompts, question presets, and any
+server-generated reading:
+
+1. Focus the question on one situation and the reader's agency.
+2. Use every drawn card's reviewed upright meaning as symbolic interpretation
+   material, never as proof of a real-world fact.
+3. Develop the strongest reinforcement, tension, progression, or integration
+   among the meanings instead of listing every possible pair.
+4. Compare exactly two materially different, non-predictive working
+   hypotheses. They are non-exclusive and non-exhaustive: both may partly fit,
+   or both may fail.
+5. State what remains unknown, an observable reality check that can change the
+   relative weight of the hypotheses or reject both, and how the reading should
+   be revised or reopened. Do not force the observation to choose a winner.
+6. End with one reversible action, a stop-or-review condition based on cost,
+   boundary, or deadline independently of which hypothesis seems stronger, and
+   a reflection question that adds a new angle instead of repeating the answer.
+
+Keep the two evidence layers separate: card meanings ground the symbolic
+interpretation; observable words, behavior, and outcomes test it in reality.
+Length is not a quality target. Prefer complete coverage of the method without
+padding or repeated paraphrases.
+
 ## Analytics
 
 - Track behavior-level events only, not personal user data.
