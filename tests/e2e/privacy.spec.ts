@@ -105,7 +105,6 @@ test("allows advertising only after consent on the question explorer", async ({
     {
       key: consentStorageKey,
       value: JSON.stringify({
-        version: 1,
         analytics: false,
         advertising: true,
       }),
