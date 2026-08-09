@@ -22,7 +22,7 @@ const privateContextHandoffStorageKey =
 describe("reading URL state", () => {
   const tarotData = getTarotData("en");
 
-  it("keeps only public allowlisted state and omits legacy defaults", () => {
+  it("keeps only public allowlisted state and omits canonical defaults", () => {
     const state = createState("quick", "balanced");
     const url = new URL(
       buildReadingUrl(
@@ -39,6 +39,7 @@ describe("reading URL state", () => {
     expect(url.searchParams.has("style")).toBe(false);
     expect(url.searchParams.has("utm_source")).toBe(false);
     expect(url.hash).toBe("");
+    expect(getReadingStateFromUrl(tarotData, url.toString())).toEqual(state);
   });
 
   it("adds only allowlisted share attribution when explicitly requested", () => {
@@ -102,7 +103,7 @@ describe("reading URL state", () => {
     }
   });
 
-  it("restores legacy three-card URLs as the quick balanced reading", () => {
+  it("restores the canonical three-card URL as the quick balanced reading", () => {
     const restored = getReadingStateFromUrl(
       tarotData,
       "https://example.com/?topic=love&cards=the-fool,the-magician,the-high-priestess",

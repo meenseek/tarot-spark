@@ -40,3 +40,6 @@ Use this map when reading, adding, moving, or reviewing repository documents.
 - Keep one source of truth for each rule; link to it instead of copying it.
 - Update `AGENTS.md`, README links, and cross-document links in the same change
   when a document moves.
+
+Use `docs/engineering/versioning-and-artifacts.md` when deciding whether a
+compatibility branch is justified or where generated working files belong.

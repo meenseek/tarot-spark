@@ -12,6 +12,7 @@ type CardSpreadProps = {
   readonly cardCount: number;
   readonly cardMarkLabel: string;
   readonly placeholderCardName: string;
+  readonly retryLabel: string;
   readonly revealSequence: number;
 };
 
@@ -20,6 +21,7 @@ export function CardSpread({
   cardCount,
   cardMarkLabel,
   placeholderCardName,
+  retryLabel,
   revealSequence,
 }: CardSpreadProps) {
   const shouldReveal = cards.length > 0 && revealSequence > 0;
@@ -65,9 +67,8 @@ export function CardSpread({
               >
                 <TarotCardArt
                   cardId={displayCard.cardId}
-                  cardName={displayCard.cardName}
                   className="object-cover"
-                  glyphClassName="h-20 w-20 sm:h-18 sm:w-18"
+                  retryLabel={retryLabel}
                   revealSequence={revealSequence}
                   shouldReveal={shouldReveal}
                   sizes="(max-width: 639px) 6rem, 5.5rem"

@@ -6,7 +6,7 @@ import {
   primaryButtonClassName,
   secondaryButtonClassName,
 } from "@/components/visual/class-names";
-import type { DrawnCard, InstantReadingV2 } from "@/domain/tarot";
+import type { DrawnCard, InstantReading } from "@/domain/tarot";
 import type { TarotReadingCopy } from "../i18n";
 import type { CopyState, ShareFeedback } from "../types";
 import {
@@ -22,7 +22,7 @@ type ReadingResultProps = {
   readonly currentCustomization?: ReactNode;
   readonly hasKakaoShare: boolean;
   readonly hasUserContext: boolean;
-  readonly instantReading: InstantReadingV2 | undefined;
+  readonly instantReading: InstantReading | undefined;
   readonly instantReadingEnabled: boolean;
   readonly instantReadingStatus: InstantReadingStatus;
   readonly prompt: string;

@@ -70,18 +70,15 @@ the expected keys.
 - [Frontend structure](docs/architecture/frontend-structure.md)
 - [Visual design system](docs/product/design-system.md)
 - [Card art bible](docs/product/card-art-bible.md)
+- [Versioning and generated artifacts](docs/engineering/versioning-and-artifacts.md)
 - [Phase-gated delivery](docs/workflow/delivery-phases.md)
 - [Growth playbook](docs/product/growth-playbook.md)
 - [Revenue validation plan](docs/product/revenue-validation-plan.md)
 
-Generate future card art from the committed prompt system instead of copying or
-rewriting prompt text:
-
-```sh
-pnpm run art:prompt -- --card the-lovers
-pnpm run art:prompt -- --card the-lovers --json
-pnpm run art:check
-```
+The repository keeps only the final 78-card runtime deck and its lightweight
+integrity test. Keep future prompts, raw generations, review artifacts, and
+one-off production tools outside the application repository as described in
+the card art bible.
 
 Run the required verification gates before opening or updating a PR.
 

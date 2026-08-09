@@ -5,12 +5,14 @@ import type { CSSProperties } from "react";
 type CardOverviewProps = {
   readonly ariaLabel: string;
   readonly cards: readonly DrawnCard[];
+  readonly retryLabel: string;
   readonly revealSequence: number;
 };
 
 export function CardOverview({
   ariaLabel,
   cards,
+  retryLabel,
   revealSequence,
 }: CardOverviewProps) {
   return (
@@ -44,9 +46,8 @@ export function CardOverview({
             >
               <TarotCardArt
                 cardId={card.id}
-                cardName={card.name}
                 className="object-cover"
-                glyphClassName="h-10 w-10"
+                retryLabel={retryLabel}
                 revealSequence={revealSequence}
                 shouldReveal={revealSequence > 0}
                 sizes="3.5rem"

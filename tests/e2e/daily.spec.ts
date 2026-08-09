@@ -41,7 +41,7 @@ test("keeps today's card stable across reload and locale", async ({ page }) => {
     .getByTestId("daily-card")
     .getAttribute("data-card-id");
 
-  await page.reload();
+  await page.reload({ waitUntil: "domcontentloaded" });
   await expect(page.getByTestId("daily-card")).toHaveAttribute(
     "data-card-id",
     englishCardId ?? "",

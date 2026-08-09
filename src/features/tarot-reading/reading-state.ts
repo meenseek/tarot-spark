@@ -79,7 +79,7 @@ export function buildReadingUrl(
   }
 
   if (state.cards.length > 0) {
-    const drawStyleId = state.drawStyleId ?? state.styleId;
+    const drawStyleId = state.drawStyleId;
 
     if (drawStyleId !== state.styleId) {
       url.searchParams.set(readingDrawStyleParam, drawStyleId);

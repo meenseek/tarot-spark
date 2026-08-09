@@ -71,6 +71,6 @@ export type {
   InstantReadingRelationType,
   InstantReadingRequest,
   InstantReadingSafetyViolationId,
-  InstantReadingV2,
+  InstantReading,
 } from "./instant-reading";
 export type { InstantReadingPromptMaterials } from "./instant-reading-contract";

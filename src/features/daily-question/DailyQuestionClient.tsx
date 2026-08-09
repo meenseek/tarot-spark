@@ -109,9 +109,8 @@ export function DailyQuestionClient({
                   <div className="relative grid h-28 w-20 place-items-center overflow-hidden rounded-ts-control border border-ts-divider bg-ts-canvas text-ts-action">
                     <TarotCardArt
                       cardId={card.id}
-                      cardName={card.name}
                       className="object-cover"
-                      glyphClassName="h-12 w-12"
+                      retryLabel={copy.cardArtRetry}
                       sizes="5rem"
                     />
                   </div>

@@ -143,13 +143,15 @@ test("keeps the deep six-card reveal within the locked stagger", async ({
   await expect(lastPlane).toHaveCSS("animation-delay", "0.52s");
 });
 
-test("uses the exact named face when one approved image fails", async ({
+test("keeps the back visible and reveals only after a successful retry", async ({
   page,
 }) => {
+  let foolAttempts = 0;
+
   await page.route("**/_next/image**", async (route) => {
     const optimizedUrl = new URL(route.request().url()).searchParams.get("url");
 
-    if (optimizedUrl === "/cards/v3/the-fool.jpg") {
+    if (optimizedUrl === "/cards/v3/the-fool.jpg" && foolAttempts++ === 0) {
       await route.fulfill({
         body: "failed card art",
         contentType: "text/plain",
@@ -165,13 +167,27 @@ test("uses the exact named face when one approved image fails", async ({
   await page.getByRole("button", { name: "Draw 3 cards" }).click();
 
   const firstCard = page.getByTestId("reading-card-0");
-  const textFace = firstCard.locator('[data-card-text-face="the-fool"]');
-  await expect(textFace).toBeVisible({ timeout: 10_000 });
-  await expect(textFace).toContainText("The Fool");
+  const retryButton = firstCard.getByRole("button", { name: "Try again" });
+  await expect(retryButton).toBeVisible({ timeout: 10_000 });
+  await expect(firstCard.locator("[data-card-back]")).toBeVisible();
   await expect(firstCard.locator("[data-card-visual-state]")).toHaveAttribute(
     "data-card-visual-state",
-    /^(?:flipping-fallback|fallback)$/,
+    "error",
   );
+  await expect(firstCard.locator("[data-card-plane]")).not.toHaveClass(
+    /ts-card-plane-flip/,
+  );
+
+  await retryButton.click();
+  await expect(firstCard.locator("[data-art-id]")).toHaveAttribute(
+    "data-art-ready",
+    "true",
+  );
+  await expect(firstCard.locator("[data-card-visual-state]")).toHaveAttribute(
+    "data-card-visual-state",
+    /^(?:flipping|front)$/,
+  );
+  await expect(retryButton).toHaveCount(0);
   await expect(
     page.getByTestId("reading-card-1").locator("[data-art-id]"),
   ).toHaveAttribute("data-art-ready", "true");

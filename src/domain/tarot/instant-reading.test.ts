@@ -8,7 +8,7 @@ import {
   parseInstantReadingProviderResponse,
   parseInstantReadingRequest,
   type InstantReadingRequest,
-  type InstantReadingV2,
+  type InstantReading,
 } from "./index";
 
 const request = {
@@ -24,7 +24,7 @@ const request = {
 const sentence =
   "서두르기보다 지금 확인할 수 있는 선택과 경계를 차분히 살펴보는 흐름입니다. ";
 
-function createReading(): InstantReadingV2 {
+function createReading(): InstantReading {
   return {
     cardReadings: request.cards.map(({ cardId }) => ({
       cardId,

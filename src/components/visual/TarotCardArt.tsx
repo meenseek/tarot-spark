@@ -2,15 +2,14 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, type AnimationEvent } from "react";
-import { getTarotCardDefinition, type TarotCardId } from "@/domain/tarot";
+import type { TarotCardId } from "@/domain/tarot";
 import { TarotCardBack } from "./TarotCardBack";
 import { cardArtSources } from "./tarot-card-art-sources";
 
 type TarotCardArtProps = {
   readonly cardId: TarotCardId | undefined;
-  readonly cardName: string;
   readonly className?: string;
-  readonly glyphClassName?: string;
+  readonly retryLabel: string;
   readonly revealSequence?: number;
   readonly shouldReveal?: boolean;
   readonly sizes?: string;
@@ -18,19 +17,19 @@ type TarotCardArtProps = {
 
 export function TarotCardArt({
   cardId,
-  cardName,
   className = "object-cover",
-  glyphClassName = "h-16 w-16",
+  retryLabel,
   revealSequence = 0,
   shouldReveal = false,
   sizes = "5rem",
 }: TarotCardArtProps) {
   const artSource = cardId ? cardArtSources[cardId] : undefined;
-  const [failedArtSource, setFailedArtSource] = useState<string>();
-  const [readyArtSource, setReadyArtSource] = useState<string>();
+  const [retryAttempt, setRetryAttempt] = useState(0);
+  const [failedRequestKey, setFailedRequestKey] = useState<string>();
+  const [readyRequestKey, setReadyRequestKey] = useState<string>();
   const [completedRevealKey, setCompletedRevealKey] = useState<string>();
   const artImageRef = useRef<HTMLImageElement>(null);
-  const centeredGlyphClassName = `absolute inset-0 m-auto ${glyphClassName}`;
+  const requestKey = `${artSource ?? "prepared"}:${retryAttempt}`;
   const cardBack = <TarotCardBack className="absolute inset-0 h-full w-full" />;
 
   useEffect(() => {
@@ -41,13 +40,13 @@ export function TarotCardArt({
     }
 
     if (image.naturalWidth > 0) {
-      setReadyArtSource(artSource);
+      setReadyRequestKey(requestKey);
     } else {
-      setFailedArtSource(artSource);
+      setFailedRequestKey(requestKey);
     }
-  }, [artSource]);
+  }, [artSource, requestKey]);
 
-  if (!cardId) {
+  if (!cardId || !artSource) {
     return (
       <span className="absolute inset-0" data-card-visual-state="prepared">
         {cardBack}
@@ -55,27 +54,22 @@ export function TarotCardArt({
     );
   }
 
-  const hasNoApprovedArt = !artSource;
-  const hasArtFailed = Boolean(artSource && failedArtSource === artSource);
-  const isArtReady = readyArtSource === artSource;
-  const isTextFallback = hasNoApprovedArt || hasArtFailed;
-  const isFaceReady = isTextFallback || isArtReady;
-  const revealKey = `${cardId}:${artSource ?? "text"}:${revealSequence}`;
+  const hasArtFailed = failedRequestKey === requestKey;
+  const isArtReady = readyRequestKey === requestKey;
+  const revealKey = `${cardId}:${requestKey}:${revealSequence}`;
   const isRevealComplete = !shouldReveal || completedRevealKey === revealKey;
-  const shouldAnimate = isFaceReady && shouldReveal && !isRevealComplete;
+  const shouldAnimate = isArtReady && shouldReveal && !isRevealComplete;
   const planeClassName = shouldAnimate
     ? "ts-card-plane ts-card-plane-flip"
-    : isFaceReady
+    : isArtReady
       ? "ts-card-plane ts-card-plane-complete"
       : "ts-card-plane";
-  const visualState = !isFaceReady
-    ? "pending"
-    : shouldAnimate
-      ? isTextFallback
-        ? "flipping-fallback"
-        : "flipping"
-      : isTextFallback
-        ? "fallback"
+  const visualState = hasArtFailed
+    ? "error"
+    : !isArtReady
+      ? "pending"
+      : shouldAnimate
+        ? "flipping"
         : "front";
 
   function finishReveal(event: AnimationEvent<HTMLSpanElement>) {
@@ -107,83 +101,33 @@ export function TarotCardArt({
           className="ts-card-face ts-card-face-front bg-ts-canvas text-ts-action"
           data-card-face="front"
         >
-          {isTextFallback ? (
-            <TarotCardTextFace
-              cardId={cardId}
-              cardName={cardName}
-              className={centeredGlyphClassName}
-            />
-          ) : (
-            <Image
-              alt=""
-              aria-hidden="true"
-              className={`${className} ${isArtReady ? "" : "ts-card-art-pending"}`}
-              data-art-id={cardId}
-              data-art-ready={isArtReady}
-              fill
-              loading="eager"
-              onError={() => setFailedArtSource(artSource)}
-              onLoad={() => setReadyArtSource(artSource)}
-              ref={artImageRef}
-              sizes={sizes}
-              src={artSource}
-            />
-          )}
+          <Image
+            alt=""
+            aria-hidden="true"
+            className={`${className} ${isArtReady ? "" : "ts-card-art-pending"}`}
+            data-art-id={cardId}
+            data-art-ready={isArtReady}
+            fill
+            key={requestKey}
+            loading="eager"
+            onError={() => setFailedRequestKey(requestKey)}
+            onLoad={() => setReadyRequestKey(requestKey)}
+            ref={artImageRef}
+            sizes={sizes}
+            src={artSource}
+          />
         </span>
       </span>
+      {hasArtFailed ? (
+        <button
+          className="absolute inset-x-1 bottom-1 z-20 min-h-6 rounded-ts-inset border border-ts-divider bg-ts-surface/95 px-1 py-1 text-[0.5rem] font-semibold leading-tight text-ts-action shadow-ts-card sm:text-[0.6rem]"
+          data-card-art-retry=""
+          onClick={() => setRetryAttempt((attempt) => attempt + 1)}
+          type="button"
+        >
+          {retryLabel}
+        </button>
+      ) : null}
     </span>
   );
-}
-
-function TarotCardTextFace({
-  cardId,
-  cardName,
-  className,
-}: {
-  readonly cardId: TarotCardId;
-  readonly cardName: string;
-  readonly className: string;
-}) {
-  const definition = getTarotCardDefinition(cardId);
-  const mark =
-    definition.arcana === "major"
-      ? definition.number === 0
-        ? "0"
-        : toRomanNumeral(definition.number)
-      : `${definition.suit.slice(0, 1).toUpperCase()} · ${definition.rank.toUpperCase()}`;
-
-  return (
-    <span
-      className={`${className} grid h-auto w-[82%] place-items-center gap-1 text-center`}
-      data-card-text-face={cardId}
-    >
-      <span className="text-[0.55rem] font-semibold tracking-[0.16em] opacity-70">
-        {mark}
-      </span>
-      <span className="break-words font-ts-display text-[0.7rem] font-semibold leading-tight">
-        {cardName}
-      </span>
-    </span>
-  );
-}
-
-function toRomanNumeral(value: number) {
-  const numerals = [
-    [10, "X"],
-    [9, "IX"],
-    [5, "V"],
-    [4, "IV"],
-    [1, "I"],
-  ] as const;
-  let remaining = value;
-  let result = "";
-
-  for (const [amount, numeral] of numerals) {
-    while (remaining >= amount) {
-      result += numeral;
-      remaining -= amount;
-    }
-  }
-
-  return result;
 }

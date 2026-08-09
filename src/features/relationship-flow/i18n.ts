@@ -23,6 +23,7 @@ export type RelationshipFlowCopy = {
     readonly title: string;
     readonly description: string;
   };
+  readonly cardArtRetry: string;
   readonly eyebrow: string;
   readonly heading: string;
   readonly intro: string;

@@ -30,7 +30,7 @@ import {
   promptVersion,
   type DrawnCard,
   type InstantReadingRequest,
-  type InstantReadingV2,
+  type InstantReading,
   type LocaleTarotData,
   type ReadingStyleId,
   type SpreadId,
@@ -173,7 +173,7 @@ export function TarotExperienceClient({
     useState<DrawAnnouncementRequest>();
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const [shareFeedback, setShareFeedback] = useState<ShareFeedback>();
-  const [instantReading, setInstantReading] = useState<InstantReadingV2>();
+  const [instantReading, setInstantReading] = useState<InstantReading>();
   const [instantReadingStatus, setInstantReadingStatus] =
     useState<InstantReadingStatus>("idle");
   const drawSequenceIdRef = useRef(0);
@@ -1268,6 +1268,7 @@ export function TarotExperienceClient({
             <CardOverview
               ariaLabel={copy.cardOverviewLabel}
               cards={cards}
+              retryLabel={copy.instantReading.retry}
               revealSequence={0}
             />
             <div data-testid="shared-reading-result-content">
@@ -1455,6 +1456,7 @@ export function TarotExperienceClient({
               <CardOverview
                 ariaLabel={copy.cardOverviewLabel}
                 cards={cards}
+                retryLabel={copy.instantReading.retry}
                 revealSequence={drawSequenceId}
               />
 
@@ -1476,6 +1478,7 @@ export function TarotExperienceClient({
               cards={[]}
               cardCount={selectedSpread.cardCount}
               placeholderCardName={copy.placeholderCardName}
+              retryLabel={copy.instantReading.retry}
               revealSequence={0}
             />
           </section>
