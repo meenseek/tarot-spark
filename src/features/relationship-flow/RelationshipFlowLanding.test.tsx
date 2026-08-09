@@ -15,9 +15,20 @@ describe("RelationshipFlowLanding", () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getAllByRole("link", {
-        name: "Start the relationship-flow spread",
-      })[0],
+      screen.getByRole("link", {
+        name: "Start with three cards",
+      }),
+    ).toHaveAttribute("href", "/?topic=relationship-flow&style=relational");
+    expect(
+      screen.getByRole("heading", {
+        name: /justice \+ queen of swords \+ six of pentacles/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Observable discriminator" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Open the six-card spread" }),
     ).toHaveAttribute(
       "href",
       "/?topic=relationship-flow&spread=deep&style=relational",
@@ -40,13 +51,10 @@ describe("RelationshipFlowLanding", () => {
       "/relationship-flow",
     );
     expect(
-      screen.getAllByRole("link", {
-        name: "관계 흐름 카드 뽑으러 가기",
-      })[0],
-    ).toHaveAttribute(
-      "href",
-      "/ko?topic=relationship-flow&spread=deep&style=relational",
-    );
+      screen.getByRole("link", {
+        name: "세 장으로 시작하기",
+      }),
+    ).toHaveAttribute("href", "/ko?topic=relationship-flow&style=relational");
   });
 
   it("preserves only a typed attribution pair through locale and generator links", () => {
@@ -62,12 +70,12 @@ describe("RelationshipFlowLanding", () => {
       "/relationship-flow?source=naver&campaign=topic-guide",
     );
     expect(
-      screen.getAllByRole("link", {
-        name: "관계 흐름 카드 뽑으러 가기",
-      })[0],
+      screen.getByRole("link", {
+        name: "세 장으로 시작하기",
+      }),
     ).toHaveAttribute(
       "href",
-      "/ko?topic=relationship-flow&spread=deep&style=relational&source=naver&campaign=topic-guide",
+      "/ko?topic=relationship-flow&style=relational&source=naver&campaign=topic-guide",
     );
   });
 });

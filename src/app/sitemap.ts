@@ -1,5 +1,9 @@
 import type { MetadataRoute } from "next";
-import { getPublicPagePath, publicPageIds } from "@/features/public-pages";
+import {
+  getPublicPagePath,
+  guidePageIds,
+  publicPageIds,
+} from "@/features/public-pages";
 import { getRelationshipFlowPath } from "@/features/relationship-flow";
 import { defaultLocale, supportedLocales } from "@/i18n/config";
 import {
@@ -24,14 +28,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
       const languages = getAbsoluteAlternateLanguageUrls((locale) =>
         getPublicPagePath(locale, pageId),
       );
+      const isGuide = guidePageIds.some((guideId) => guideId === pageId);
 
       return supportedLocales.map((locale) => ({
         url: getAbsoluteSiteUrl(getPublicPagePath(locale, pageId)),
         alternates: {
           languages,
         },
-        changeFrequency: "monthly" as const,
-        priority: locale === defaultLocale ? 0.7 : 0.65,
+        changeFrequency: isGuide ? ("weekly" as const) : ("monthly" as const),
+        priority: isGuide
+          ? locale === defaultLocale
+            ? 0.9
+            : 0.85
+          : locale === defaultLocale
+            ? 0.7
+            : 0.65,
       }));
     }),
     ...supportedLocales.map((locale) => ({

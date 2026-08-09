@@ -34,11 +34,13 @@ export type RelationshipFlowCopy = {
   readonly exampleEyebrow: string;
   readonly exampleHeading: string;
   readonly exampleBody: string;
+  readonly exampleDetails: readonly RelationshipFlowItem[];
   readonly faqHeading: string;
   readonly faqs: readonly RelationshipFlowFaq[];
   readonly ctaHeading: string;
   readonly ctaBody: string;
   readonly ctaButton: string;
+  readonly deepCtaButton: string;
   readonly privacyNote: string;
   readonly disclaimer: string;
 };
@@ -66,6 +68,16 @@ export function getRelationshipFlowPath(
 }
 
 export function getRelationshipFlowReadingPath(
+  locale: Locale,
+  attribution?: ReadingUrlAttribution,
+) {
+  return appendAttribution(
+    `${getLocalePath(locale)}?topic=relationship-flow&style=relational`,
+    attribution,
+  );
+}
+
+export function getRelationshipFlowDeepReadingPath(
   locale: Locale,
   attribution?: ReadingUrlAttribution,
 ) {

@@ -6,6 +6,7 @@ import {
   brandLinkClassName,
   footerLinkClassName,
   primaryButtonClassName,
+  secondaryButtonClassName,
 } from "@/components/visual/class-names";
 import {
   getPublicPageLinks,
@@ -18,6 +19,7 @@ import {
 import { localeNames, supportedLocales, type Locale } from "@/i18n/config";
 import {
   getRelationshipFlowCopy,
+  getRelationshipFlowDeepReadingPath,
   getRelationshipFlowPath,
   getRelationshipFlowReadingPath,
 } from "./i18n";
@@ -73,32 +75,34 @@ export function RelationshipFlowLanding({
             <p className="max-w-2xl text-base leading-7 text-ts-muted">
               {copy.intro}
             </p>
-            <Link
-              className={`${primaryButtonClassName} mt-2 w-fit`}
-              href={getRelationshipFlowReadingPath(locale, attribution)}
-            >
-              {copy.ctaButton}
-            </Link>
             <p className="max-w-xl text-xs leading-5 text-ts-muted">
               {copy.privacyNote}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 items-end gap-4 rounded-ts-panel border border-ts-divider bg-ts-surface p-5 shadow-ts-paper">
+          <div className="grid grid-cols-3 items-end gap-3 rounded-ts-panel border border-ts-divider bg-ts-surface p-4 shadow-ts-paper sm:gap-4 sm:p-5">
             <div className="relative aspect-[5/7] overflow-hidden rounded-ts-control border border-ts-divider bg-ts-canvas">
               <TarotCardArt
-                cardId="the-lovers"
+                cardId="justice"
                 className="object-cover"
                 retryLabel={copy.cardArtRetry}
-                sizes="(min-width: 1024px) 14rem, 42vw"
+                sizes="(min-width: 1024px) 9rem, 28vw"
               />
             </div>
             <div className="relative aspect-[5/7] translate-y-3 overflow-hidden rounded-ts-control border border-ts-divider bg-ts-canvas">
               <TarotCardArt
-                cardId="the-star"
+                cardId="swords-queen"
                 className="object-cover"
                 retryLabel={copy.cardArtRetry}
-                sizes="(min-width: 1024px) 14rem, 42vw"
+                sizes="(min-width: 1024px) 9rem, 28vw"
+              />
+            </div>
+            <div className="relative aspect-[5/7] overflow-hidden rounded-ts-control border border-ts-divider bg-ts-canvas">
+              <TarotCardArt
+                cardId="pentacles-6"
+                className="object-cover"
+                retryLabel={copy.cardArtRetry}
+                sizes="(min-width: 1024px) 9rem, 28vw"
               />
             </div>
           </div>
@@ -150,6 +154,19 @@ export function RelationshipFlowLanding({
           <p className="max-w-4xl text-sm leading-7 text-ts-muted">
             {copy.exampleBody}
           </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            {copy.exampleDetails.map((detail) => (
+              <article
+                className="grid content-start gap-2 rounded-ts-control border border-ts-divider bg-ts-surface p-5"
+                key={detail.title}
+              >
+                <h3 className="text-base font-semibold text-ts-ink">
+                  {detail.title}
+                </h3>
+                <p className="text-sm leading-7 text-ts-muted">{detail.body}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="grid gap-6 border-b border-ts-divider py-12">
@@ -180,12 +197,20 @@ export function RelationshipFlowLanding({
           <p className="max-w-3xl text-sm leading-7 text-ts-muted">
             {copy.ctaBody}
           </p>
-          <Link
-            className={`${primaryButtonClassName} w-fit`}
-            href={getRelationshipFlowReadingPath(locale, attribution)}
-          >
-            {copy.ctaButton}
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              className={`${primaryButtonClassName} w-fit`}
+              href={getRelationshipFlowReadingPath(locale, attribution)}
+            >
+              {copy.ctaButton}
+            </Link>
+            <Link
+              className={`${secondaryButtonClassName} w-fit`}
+              href={getRelationshipFlowDeepReadingPath(locale, attribution)}
+            >
+              {copy.deepCtaButton}
+            </Link>
+          </div>
           <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>
         </section>
 

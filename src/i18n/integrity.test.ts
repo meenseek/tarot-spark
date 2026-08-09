@@ -113,12 +113,17 @@ const jsonFiles = [
 
 type JsonSchema =
   | "string"
+  | "boolean"
   | readonly [JsonSchema]
+  | JsonOptionalSchema
   | {
       readonly [key: string]: JsonSchema;
     };
 type JsonObjectSchema = {
   readonly [key: string]: JsonSchema;
+};
+type JsonOptionalSchema = {
+  readonly __optional: JsonSchema;
 };
 
 const uiCopySchema = {
@@ -256,8 +261,20 @@ const publicPageMessagesSchema = {
       {
         heading: "string",
         paragraphs: ["string"],
+        items: optionalSchema(["string"]),
+        ordered: optionalSchema("boolean"),
       },
     ],
+    disclaimer: optionalSchema("string"),
+    cta: optionalSchema({
+      heading: "string",
+      body: "string",
+      label: "string",
+    }),
+    related: optionalSchema({
+      heading: "string",
+      labels: ["string"],
+    }),
   }),
 } satisfies JsonSchema;
 
@@ -319,6 +336,12 @@ const relationshipFlowMessagesSchema = {
   exampleEyebrow: "string",
   exampleHeading: "string",
   exampleBody: "string",
+  exampleDetails: [
+    {
+      title: "string",
+      body: "string",
+    },
+  ],
   faqHeading: "string",
   faqs: [
     {
@@ -329,6 +352,7 @@ const relationshipFlowMessagesSchema = {
   ctaHeading: "string",
   ctaBody: "string",
   ctaButton: "string",
+  deepCtaButton: "string",
   privacyNote: "string",
   disclaimer: "string",
 } satisfies JsonSchema;
@@ -553,6 +577,10 @@ function exactRecordSchema(
   return Object.fromEntries(keys.map((key) => [key, itemSchema]));
 }
 
+function optionalSchema(schema: JsonSchema): JsonOptionalSchema {
+  return { __optional: schema };
+}
+
 function collectLocaleSchemaErrors<T extends Record<Locale, unknown>>(
   localizedValues: T,
   schema: JsonSchema,
@@ -568,8 +596,18 @@ function collectSchemaErrors(
   schema: JsonSchema,
   path: string,
 ): string[] {
+  if (isOptionalSchema(schema)) {
+    return value === undefined
+      ? []
+      : collectSchemaErrors(value, schema.__optional, path);
+  }
+
   if (schema === "string") {
     return typeof value === "string" ? [] : [`${path} expected string`];
+  }
+
+  if (schema === "boolean") {
+    return typeof value === "boolean" ? [] : [`${path} expected boolean`];
   }
 
   if (Array.isArray(schema)) {
@@ -595,7 +633,9 @@ function collectSchemaErrors(
   const objectSchema = schema as JsonObjectSchema;
   const expectedKeys = Object.keys(objectSchema).sort();
   const actualKeys = Object.keys(value).sort();
-  const missingKeys = expectedKeys.filter((key) => !actualKeys.includes(key));
+  const missingKeys = expectedKeys.filter(
+    (key) => !actualKeys.includes(key) && !isOptionalSchema(objectSchema[key]),
+  );
   const unexpectedKeys = actualKeys.filter(
     (key) => !expectedKeys.includes(key),
   );
@@ -616,6 +656,18 @@ function collectSchemaErrors(
       return collectSchemaErrors(value[key], childSchema, `${path}.${key}`);
     }),
   ];
+}
+
+function isOptionalSchema(
+  schema: JsonSchema | undefined,
+): schema is JsonOptionalSchema {
+  return (
+    typeof schema === "object" &&
+    schema !== null &&
+    !Array.isArray(schema) &&
+    Object.keys(schema).length === 1 &&
+    "__optional" in schema
+  );
 }
 
 function formatSchemaKeyError(

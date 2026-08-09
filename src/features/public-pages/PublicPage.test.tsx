@@ -49,6 +49,62 @@ describe("PublicPage", () => {
     );
   });
 
+  it("renders a complete English three-card method before its CTA", () => {
+    render(<PublicPage locale="en" pageId="three-card-tarot-reading" />);
+
+    expect(
+      screen.getByRole("heading", {
+        name: /complete three-card tarot reading/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        name: "Worked example: The Lovers, Two of Swords, The Star",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Alternative A: trust is rebuilding/i),
+    ).toBeVisible();
+    expect(screen.getByText(/Observable discriminator:/i)).toBeVisible();
+    expect(
+      screen.getByText(/Tarot interpretations are not evidence of facts/i),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: "Draw three cards" }),
+    ).toHaveAttribute("href", "/?spread=quick");
+    expect(
+      screen.getByRole("link", { name: "Read card combinations" }),
+    ).toHaveAttribute("href", "/tarot-card-combinations");
+  });
+
+  it("keeps the Korean question and combination guides equivalent", () => {
+    render(<PublicPage locale="ko" pageId="how-to-ask-tarot-questions" />);
+
+    expect(
+      screen.getByRole("heading", { name: "전체 예시: 탑, 펜타클 8, 절제" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/서로 다른 필요를/i)).toBeVisible();
+    expect(
+      screen.queryByRole("link", { name: "카드 뽑으러 가기" }),
+    ).not.toBeInTheDocument();
+
+    cleanup();
+    render(<PublicPage locale="ko" pageId="tarot-card-combinations" />);
+    expect(
+      screen.getByRole("heading", { name: "전체 예시: 컵 5, 완드 2, 은둔자" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/관찰 기준:/i)).toBeVisible();
+  });
+
+  it("describes the editorial method without calling the product an MVP", () => {
+    render(<PublicPage locale="en" pageId="about" />);
+
+    expect(
+      screen.getByRole("heading", { name: "How guide content is made" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/early MVP/i)).not.toBeInTheDocument();
+  });
+
   it("states the Korean privacy boundaries without overstating optional services", () => {
     render(<PublicPage locale="ko" pageId="privacy" />);
 
@@ -102,6 +158,12 @@ describe("PublicPage", () => {
     });
     expect(getPublicPagePath("en", "contact")).toBe("/contact");
     expect(getPublicPagePath("ko", "contact")).toBe("/ko/contact");
+    expect(getPublicPagePath("en", "tarot-card-combinations")).toBe(
+      "/tarot-card-combinations",
+    );
+    expect(getPublicPagePath("ko", "tarot-card-combinations")).toBe(
+      "/ko/tarot-card-combinations",
+    );
   });
 });
 

@@ -7,6 +7,9 @@ import {
 describe("localized route policy", () => {
   it("keeps every supported second-level route in the proxy allowlist", () => {
     expect(localizedSecondLevelPathSegments).toEqual([
+      "three-card-tarot-reading",
+      "how-to-ask-tarot-questions",
+      "tarot-card-combinations",
       "about",
       "privacy",
       "contact",

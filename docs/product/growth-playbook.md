@@ -73,15 +73,17 @@ and
 
 Use one clear job per post.
 
-1. Prompt education: compare a generic one-line tarot request with one Prompt
-   Pack slot and explain what changed.
+1. Prompt education: compare a predictive one-line question with the published
+   reflective-question method and explain what changed.
 2. Pick a card: show two or three symbols and ask a reflective question without
    revealing a prediction.
 3. Relationship guide: separate observation, interpretation, uncertainty, and
    user agency.
-4. Deck progress: show the Fool, Lovers, or Star from the canonical feedback
+4. Combination method: demonstrate reinforcement, tension, progression, or
+   integration with supplied upright meanings and an observable check.
+5. Deck progress: show the Fool, Lovers, or Star from the canonical feedback
    subset and ask about frame, character, symbol, and palette consistency.
-5. Build notes: share a concrete privacy or content decision, such as excluding
+6. Build notes: share a concrete privacy or content decision, such as excluding
    personal context from URLs.
 
 Every post should disclose that tarot-spark is the author's project when a link
