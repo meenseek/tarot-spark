@@ -1,5 +1,11 @@
 export { PublicPage } from "./PublicPage";
-export { isPublicPageId, publicPageIds, type PublicPageId } from "./ids";
+export {
+  guidePageIds,
+  isPublicPageId,
+  publicPageIds,
+  type GuidePageId,
+  type PublicPageId,
+} from "./ids";
 export {
   getPublicPageLinks,
   getPublicPageMetadata,

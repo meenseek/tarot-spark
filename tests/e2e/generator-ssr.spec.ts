@@ -30,3 +30,30 @@ test("renders a localized cardless preset without JavaScript", async ({
     "direct",
   );
 });
+
+test("renders the complete localized guide and CTA without JavaScript", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.goto("/ko/three-card-tarot-reading");
+
+  await expect(
+    page.getByRole("heading", {
+      name: "과거·현재·미래를 정하지 않고 3장 타로를 읽는 완결된 방법",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "전체 예시: 연인, 소드 2, 별",
+    }),
+  ).toBeVisible();
+  await expect(page.getByText(/관찰 기준:/).first()).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "카드 세 장 뽑기" }),
+  ).toHaveAttribute("href", "/ko?spread=quick");
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+});

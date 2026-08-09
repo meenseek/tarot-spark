@@ -253,6 +253,9 @@ src/domain/tarot -> src/i18n
   restored results remain usable in the initial HTML without JavaScript.
 - Keep public information routes statically generated when their content does
   not depend on request state.
+- Keep localized public guides in the typed `publicPageIds` registry. Add an
+  explicit default-locale route file, localized metadata and content for every
+  supported locale, sitemap alternates, and an exact-path test in one change.
 - Treat request-time classification as an intentional exception to static route
   generation, not permission to add a server data dependency.
 

@@ -462,6 +462,12 @@ test("serves localized SEO metadata and discovery files", async ({
       "/ko/contact",
       "/disclaimer",
       "/ko/disclaimer",
+      "/three-card-tarot-reading",
+      "/ko/three-card-tarot-reading",
+      "/how-to-ask-tarot-questions",
+      "/ko/how-to-ask-tarot-questions",
+      "/tarot-card-combinations",
+      "/ko/tarot-card-combinations",
       "/relationship-flow",
       "/ko/relationship-flow",
     ]),
@@ -481,6 +487,67 @@ test("returns 404 for unsupported or duplicate locale paths", async ({
   expect(unsupportedLocaleResponse.status()).toBe(404);
   expect(duplicateDefaultLocaleResponse.status()).toBe(404);
   expect(unsupportedPublicPageResponse.status()).toBe(404);
+});
+
+test("serves every complete tarot guide at an exact localized route", async ({
+  page,
+}) => {
+  const guideRoutePairs = [
+    ["/three-card-tarot-reading", "/ko/three-card-tarot-reading"],
+    ["/how-to-ask-tarot-questions", "/ko/how-to-ask-tarot-questions"],
+    ["/tarot-card-combinations", "/ko/tarot-card-combinations"],
+  ] as const;
+
+  for (const [englishPath, koreanPath] of guideRoutePairs) {
+    for (const currentPath of [englishPath, koreanPath]) {
+      const response = await page.goto(currentPath);
+
+      expect(response?.status()).toBe(200);
+      expectPathname(
+        await page.locator('link[rel="canonical"]').getAttribute("href"),
+        currentPath,
+      );
+      expectPathname(
+        await page
+          .locator('link[rel="alternate"][hreflang="en"]')
+          .getAttribute("href"),
+        englishPath,
+      );
+      expectPathname(
+        await page
+          .locator('link[rel="alternate"][hreflang="ko"]')
+          .getAttribute("href"),
+        koreanPath,
+      );
+      expectPathname(
+        await page
+          .locator('link[rel="alternate"][hreflang="x-default"]')
+          .getAttribute("href"),
+        englishPath,
+      );
+    }
+  }
+
+  await page.goto("/ko/three-card-tarot-reading");
+
+  await expect(
+    page.getByRole("heading", {
+      name: /과거·현재·미래를 정하지 않고 3장 타로를 읽는 완결된 방법/,
+    }),
+  ).toBeVisible();
+  await expect(page.getByText(/대안 A: 신뢰는 회복 중이지만/)).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "카드 세 장 뽑기" }),
+  ).toHaveAttribute("href", "/ko?spread=quick");
+  await page.goto("/tarot-card-combinations");
+  await expect(
+    page.getByRole("heading", {
+      name: /read tarot card combinations without a fixed pair dictionary/i,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Alternative A: the next direction/i),
+  ).toBeVisible();
 });
 
 test("preserves reading and private context when switching languages", async ({
@@ -676,12 +743,10 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
     }),
   ).toBeVisible();
   await expect(
-    page
-      .getByRole("link", { name: "Start the relationship-flow spread" })
-      .first(),
+    page.getByRole("link", { name: "Start with three cards" }).first(),
   ).toHaveAttribute(
     "href",
-    "/?topic=relationship-flow&spread=deep&style=relational&source=naver&campaign=topic-guide",
+    "/?topic=relationship-flow&style=relational&source=naver&campaign=topic-guide",
   );
   await expect(page.getByRole("link", { name: "한국어" })).toHaveAttribute(
     "href",
