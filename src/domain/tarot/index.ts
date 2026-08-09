@@ -12,6 +12,7 @@ export {
 export { drawCards, getDefaultSpread, getSpread } from "./spreads";
 export {
   getInstantReadingSafetyViolation,
+  getInstantReadingVisibleLengthRange,
   getInstantReadingVisibleText,
   instantReadingRelationTypes,
   instantReadingSafetyViolationIds,

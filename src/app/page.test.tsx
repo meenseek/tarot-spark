@@ -192,12 +192,49 @@ describe("Home", () => {
     await waitFor(() => {
       expect(screen.getByTestId("instant-reading-result")).toBeInTheDocument();
     });
+    const result = within(screen.getByTestId("instant-reading-result"));
     expect(
-      within(screen.getByTestId("instant-reading-result")).getByRole(
-        "heading",
-        { name: reading.headline },
-      ),
+      result.getByRole("heading", { name: reading.headline }),
     ).toBeInTheDocument();
+    expect(
+      result.getByRole("heading", {
+        level: 4,
+        name: "비교할 두 작업 가설",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      result.getByText(/둘 다 일부 맞거나 모두 틀릴 수 있어요/),
+    ).toBeInTheDocument();
+    expect(
+      result.getByRole("heading", { level: 5, name: "가능성 A" }).parentElement,
+    ).toHaveTextContent(reading.alternatives[0]!.trim());
+    expect(
+      result.getByRole("heading", { level: 5, name: "가능성 B" }).parentElement,
+    ).toHaveTextContent(reading.alternatives[1]!.trim());
+    expect(
+      result.getByRole("heading", {
+        level: 4,
+        name: "현실에서 확인하기",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      result.getByRole("heading", {
+        level: 5,
+        name: "아직 알 수 없는 부분",
+      }).parentElement,
+    ).toHaveTextContent(reading.realityCheck.unknown.trim());
+    expect(
+      result.getByRole("heading", {
+        level: 5,
+        name: "되돌릴 수 있는 행동",
+      }).parentElement,
+    ).toHaveTextContent(reading.nextStep.action.trim());
+    expect(
+      result.getByRole("heading", {
+        level: 5,
+        name: "멈추거나 다시 판단할 조건",
+      }).parentElement,
+    ).toHaveTextContent(reading.nextStep.stopOrReviewCondition.trim());
     expect(
       screen.getByText("생성형 AI를 활용해 작성한 해석입니다."),
     ).toBeInTheDocument();
@@ -1774,8 +1811,19 @@ function createValidInstantReading() {
       explanation: sentence.repeat(2),
       relationType: "progression",
     },
-    uncertainty: sentence.repeat(2),
-    nextStep: sentence,
+    alternatives: [
+      `표현의 속도 차이가 불확실성을 키웠을 수 있습니다. ${sentence}`,
+      `기대가 실제 신호보다 앞섰을 수 있습니다. ${sentence}`,
+    ],
+    realityCheck: {
+      unknown: sentence.repeat(2),
+      observableDiscriminator: sentence.repeat(2),
+      revisionCondition: sentence.repeat(2),
+    },
+    nextStep: {
+      action: sentence,
+      stopOrReviewCondition: sentence,
+    },
     reflection: "지금 가장 부담 없이 확인할 수 있는 선택은 무엇인가요?",
   };
 }

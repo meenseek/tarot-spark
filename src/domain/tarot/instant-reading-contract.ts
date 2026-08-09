@@ -1,5 +1,5 @@
 export const instantReadingGenerationConfig = {
-  max_output_tokens: 1800,
+  max_output_tokens: 2600,
   thinking_level: "low",
 } as const;
 
@@ -36,7 +36,10 @@ export function buildInstantReadingContractPrompt(
   const cardLines = materials.cards.map(
     ({ meaning }, index) => `${index + 1}. 제공된 정방향 핵심 의미: ${meaning}`,
   );
-  const cardLengthGuide = materials.cards.length === 3 ? "70~90자" : "45~65자";
+  const spreadDepthGuide =
+    materials.cards.length === 3
+      ? "세 장을 모두 사용해 가장 강한 연결 하나를 깊게 설명하세요."
+      : "여섯 장을 두세 개의 의미 묶음으로 정리한 뒤 가장 강한 연결을 설명하세요. 가능한 모든 카드 쌍을 나열하지 마세요.";
 
   return [
     `주제: ${materials.topicLabel}`,
@@ -52,16 +55,19 @@ export function buildInstantReadingContractPrompt(
     ...cardLines,
     "",
     "작성 기준:",
-    "- 사용자에게 보이는 모든 텍스트를 합쳐 공백 포함 한국어 500~900자로 쓰세요.",
-    `- headline 15~30자, synthesis 80~120자, 각 interpretation ${cardLengthGuide}, strongestConnection.explanation 60~90자, uncertainty 45~70자, nextStep 40~60자, reflection 30~50자를 목표로 쓰세요.`,
+    "- 글자 수를 채우기 위해 문장을 늘이지 마세요. 아래 필드를 빠짐없이 구체적으로 작성하고 같은 뜻을 반복하지 마세요.",
+    `- ${spreadDepthGuide}`,
+    "- headline은 짧은 제목으로, synthesis는 질문의 범위 안에서 모든 입력 의미를 연결한 두세 문장으로 쓰세요.",
+    "- 각 interpretation은 같은 순서에 제공된 의미가 주제에 어떻게 작동하는지 한두 문장으로 설명하세요. 뜻만 바꿔 말하고 끝내지 마세요.",
     "- 모든 카드를 입력 순서대로 한 번씩 해석하고 cardReadings도 같은 순서를 지키세요.",
-    "- 카드 해석의 근거는 각 카드 옆에 제공된 정방향 핵심 의미로만 제한하세요.",
-    "- 카드명과 순서는 화면이 붙입니다. headline, synthesis, interpretation, explanation, uncertainty, nextStep, reflection에는 카드 이름·번호·순서·'카드'라는 단어·자리/역할 이름을 반복하지 마세요.",
+    "- 각 입력 의미는 상징적 해석 재료일 뿐 현실의 사실을 증명하는 근거가 아닙니다. 해석은 제공된 의미로만 지지하세요.",
+    "- 카드명과 순서는 화면이 붙입니다. 사용자에게 보이는 응답 문자열에는 카드 이름·번호·순서·'카드'라는 단어·자리/역할 이름을 반복하지 마세요.",
     "- 번호나 순서에 시간, 원인, 장애물, 조언 같은 자리 의미를 붙이지 마세요.",
     "- 그림·이미지·일러스트·삽화를 보았다고 말하거나 그 안의 인물·동물·사물·색·상징을 추가하지 마세요.",
-    "- strongestConnection.cardIndexes에는 연결이 가장 뚜렷한 서로 다른 카드 번호 두 개 이상만 넣으세요.",
-    "- uncertainty에는 제공된 정보만으로 알 수 없고 직접 확인해야 하는 부분을 쓰세요.",
-    "- nextStep에는 작고 되돌릴 수 있는 행동 한 가지만 쓰세요.",
+    "- strongestConnection에는 강화·긴장·전개·통합 중 가장 뚜렷한 관계 하나와 이를 지지하는 서로 다른 입력 번호 두 개 이상을 넣으세요.",
+    "- alternatives에는 같은 입력 의미로 지지되는 비교용 작업 가설을 정확히 두 개 쓰세요. 둘은 배타적이거나 가능한 설명의 전체 목록이 아니므로 둘 다 일부 맞거나 둘 다 틀릴 수 있습니다. 어느 쪽도 미래나 타인의 마음에 관한 확정으로 만들지 마세요.",
+    "- realityCheck.unknown에는 제공된 정보만으로 알 수 없는 점, observableDiscriminator에는 두 가설의 상대적 비중을 바꾸거나 둘 다 버리게 할 현실의 사실이나 행동, revisionCondition에는 그 결과에 따라 해석을 어떻게 수정하거나 다시 열지 쓰세요. 억지로 승자를 고르지 마세요.",
+    "- nextStep.action에는 작고 되돌릴 수 있는 행동 하나, stopOrReviewCondition에는 어느 가설이 강해 보이는지와 별개로 비용·경계·기한 때문에 그 행동을 멈추거나 다시 판단할 조건을 쓰세요.",
     "- reflection에는 앞선 내용을 되풀이하지 않는 질문 한 개를 쓰세요.",
   ].join("\n");
 }
@@ -113,8 +119,50 @@ export function buildInstantReadingResponseSchema(cardCount: number) {
         },
         required: ["relationType", "cardIndexes", "explanation"],
       },
-      uncertainty: { type: "string" },
-      nextStep: { type: "string" },
+      alternatives: {
+        type: "array",
+        prefixItems: [
+          {
+            type: "string",
+            description:
+              "제공된 의미로 지지되며 비배타적·비완전한 비교용 첫 번째 작업 가설",
+          },
+          {
+            type: "string",
+            description:
+              "첫 번째와 실질적으로 다르고 함께 일부 맞거나 둘 다 틀릴 수 있는 두 번째 작업 가설",
+          },
+        ],
+        minItems: 2,
+        maxItems: 2,
+      },
+      realityCheck: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          unknown: { type: "string" },
+          observableDiscriminator: {
+            type: "string",
+            description:
+              "두 작업 가설의 상대적 비중을 바꾸거나 둘 다 버리게 할 현실의 관찰",
+          },
+          revisionCondition: {
+            type: "string",
+            description:
+              "관찰 결과에 따라 가설의 비중을 바꾸거나 둘 다 버리고 해석을 다시 여는 조건",
+          },
+        },
+        required: ["unknown", "observableDiscriminator", "revisionCondition"],
+      },
+      nextStep: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          action: { type: "string" },
+          stopOrReviewCondition: { type: "string" },
+        },
+        required: ["action", "stopOrReviewCondition"],
+      },
       reflection: { type: "string" },
     },
     required: [
@@ -122,7 +170,8 @@ export function buildInstantReadingResponseSchema(cardCount: number) {
       "synthesis",
       "cardReadings",
       "strongestConnection",
-      "uncertainty",
+      "alternatives",
+      "realityCheck",
       "nextStep",
       "reflection",
     ],

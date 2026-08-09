@@ -53,13 +53,24 @@
     "unavailable": "The instant reading is unavailable right now. You can still copy the prompt below and continue in another tool.",
     "disclosure": "This interpretation was created with generative AI.",
     "strongestConnection": "Strongest connection",
-    "uncertainty": "What to verify",
-    "nextStep": "Small next step",
+    "alternatives": "Two working hypotheses to compare",
+    "alternativesNote": "These are not a binary choice or a complete list. Both may partly fit, or both may fail.",
+    "alternativeLabels": {
+      "first": "Possibility A",
+      "second": "Possibility B"
+    },
+    "realityCheck": "Check against reality",
+    "unknown": "What remains unknown",
+    "observableDiscriminator": "What to observe in real life",
+    "revisionCondition": "What should reweight or reject both hypotheses",
+    "nextStep": "Run a small test",
+    "action": "Reversible action",
+    "stopOrReviewCondition": "Stop or review condition",
     "reflection": "Question to consider",
     "relationLabels": {
       "reinforcement": "Reinforcing",
       "tension": "In tension",
-      "progression": "Progressing",
+      "progression": "Condition and response",
       "integration": "Integrating"
     }
   },

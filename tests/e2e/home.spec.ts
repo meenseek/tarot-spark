@@ -721,6 +721,14 @@ test("shows an instant Korean reading without sending private context", async ({
   await page.getByRole("button", { name: "지금 바로 해석하기" }).click();
 
   await expect(page.getByTestId("instant-reading-result")).toBeVisible();
+  await expect(page.getByText("비교할 두 작업 가설")).toBeVisible();
+  await expect(page.getByText("현실에서 확인하기")).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      level: 5,
+      name: "멈추거나 다시 판단할 조건",
+    }),
+  ).toBeVisible();
   await expect(
     page.getByText("생성형 AI를 활용해 작성한 해석입니다."),
   ).toBeVisible();
@@ -1009,8 +1017,19 @@ function createValidInstantReading(cards: readonly { cardId: string }[]) {
       explanation: sentence.repeat(2),
       relationType: "progression",
     },
-    uncertainty: sentence.repeat(2),
-    nextStep: sentence,
+    alternatives: [
+      `표현의 속도 차이가 불확실성을 키웠을 수 있습니다. ${sentence}`,
+      `기대가 실제 신호보다 앞섰을 수 있습니다. ${sentence}`,
+    ],
+    realityCheck: {
+      unknown: sentence.repeat(2),
+      observableDiscriminator: sentence.repeat(2),
+      revisionCondition: sentence.repeat(2),
+    },
+    nextStep: {
+      action: sentence,
+      stopOrReviewCondition: sentence,
+    },
     reflection: "지금 가장 부담 없이 확인할 수 있는 선택은 무엇인가요?",
   };
 }

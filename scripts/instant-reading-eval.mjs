@@ -3,7 +3,10 @@ import { appendFile, mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
-import { parseInstantReadingProviderResponse } from "../src/domain/tarot/instant-reading.ts";
+import {
+  getInstantReadingVisibleLengthRange,
+  parseInstantReadingProviderResponse,
+} from "../src/domain/tarot/instant-reading.ts";
 import {
   buildInstantReadingContractPrompt,
   buildInstantReadingResponseSchema,
@@ -65,18 +68,26 @@ export async function loadKoreanTarotMessages(repositoryRoot = process.cwd()) {
     repositoryRoot,
     "src/messages/ko/tarot-cards.json",
   );
-  const [domainText, cardsText] = await Promise.all([
+  const relationshipQuestionsPath = path.join(
+    repositoryRoot,
+    "src/messages/ko/relationship-questions.json",
+  );
+  const [domainText, cardsText, relationshipQuestionsText] = await Promise.all([
     readFile(domainPath, "utf8"),
     readFile(cardsPath, "utf8").catch(() => undefined),
+    readFile(relationshipQuestionsPath, "utf8").catch(() => undefined),
   ]);
   const domain = JSON.parse(domainText);
   const cards = cardsText ? JSON.parse(cardsText) : domain.cards;
+  const relationshipQuestions = relationshipQuestionsText
+    ? JSON.parse(relationshipQuestionsText).questions
+    : domain.relationshipQuestions;
 
-  if (!cards) {
-    throw new Error("Korean tarot card messages are missing.");
+  if (!cards || !relationshipQuestions) {
+    throw new Error("Korean tarot evaluation messages are missing.");
   }
 
-  return { ...domain, cards };
+  return { ...domain, cards, relationshipQuestions };
 }
 
 export function buildEvaluationCases(messages) {
@@ -130,6 +141,14 @@ function assertCanonicalCase(messages, evaluationCase) {
       );
     }
   }
+  if (
+    evaluationCase.questionId &&
+    !messages.relationshipQuestions[evaluationCase.questionId]?.focus
+  ) {
+    throw new RangeError(
+      `Evaluation case ${evaluationCase.caseId} has unknown question id ${evaluationCase.questionId}.`,
+    );
+  }
 }
 
 export function buildEvaluationPrompt(messages, evaluationCase) {
@@ -141,6 +160,12 @@ export function buildEvaluationPrompt(messages, evaluationCase) {
       meaning: messages.cards[cardId].meaning,
     })),
     promptLead: topic.promptLead,
+    ...(evaluationCase.questionId
+      ? {
+          questionFocus:
+            messages.relationshipQuestions[evaluationCase.questionId].focus,
+        }
+      : {}),
     spreadLabel: spread.label,
     styleInstruction: style.instruction,
     styleLabel: style.label,
@@ -177,7 +202,8 @@ export function validateStructuredReading(value, evaluationCase) {
     "synthesis",
     "cardReadings",
     "strongestConnection",
-    "uncertainty",
+    "alternatives",
+    "realityCheck",
     "nextStep",
     "reflection",
   ];
@@ -192,11 +218,28 @@ export function validateStructuredReading(value, evaluationCase) {
   if (
     !isNonEmptyString(value.headline) ||
     !isNonEmptyString(value.synthesis) ||
-    !isNonEmptyString(value.uncertainty) ||
-    !isNonEmptyString(value.nextStep) ||
     !isNonEmptyString(value.reflection) ||
     !Array.isArray(value.cardReadings) ||
-    !isRecord(value.strongestConnection)
+    !isRecord(value.strongestConnection) ||
+    !Array.isArray(value.alternatives) ||
+    value.alternatives.length !== 2 ||
+    !isNonEmptyString(value.alternatives[0]) ||
+    !isNonEmptyString(value.alternatives[1]) ||
+    normalizeComparisonText(value.alternatives[0]) ===
+      normalizeComparisonText(value.alternatives[1]) ||
+    !isRecord(value.realityCheck) ||
+    !hasExactKeys(value.realityCheck, [
+      "unknown",
+      "observableDiscriminator",
+      "revisionCondition",
+    ]) ||
+    !isNonEmptyString(value.realityCheck.unknown) ||
+    !isNonEmptyString(value.realityCheck.observableDiscriminator) ||
+    !isNonEmptyString(value.realityCheck.revisionCondition) ||
+    !isRecord(value.nextStep) ||
+    !hasExactKeys(value.nextStep, ["action", "stopOrReviewCondition"]) ||
+    !isNonEmptyString(value.nextStep.action) ||
+    !isNonEmptyString(value.nextStep.stopOrReviewCondition)
   ) {
     return failedValidation("response-field-invalid", {
       cardOrderIntegrity: false,
@@ -266,7 +309,10 @@ export function validateStructuredReading(value, evaluationCase) {
 
   const visibleText = getVisibleReadingText(value);
   const length = [...visibleText].length;
-  if (length < 500 || length > 900) {
+  const lengthRange = getInstantReadingVisibleLengthRange(
+    evaluationCase.spreadId,
+  );
+  if (length < lengthRange.min || length > lengthRange.max) {
     return failedValidation(`visible-length-${length}`, {
       cardOrderIntegrity: true,
       presentationValid: false,
@@ -311,10 +357,18 @@ export function getVisibleReadingText(value) {
     value.synthesis,
     ...value.cardReadings.map(({ interpretation }) => interpretation),
     value.strongestConnection.explanation,
-    value.uncertainty,
-    value.nextStep,
+    ...value.alternatives,
+    value.realityCheck.unknown,
+    value.realityCheck.observableDiscriminator,
+    value.realityCheck.revisionCondition,
+    value.nextStep.action,
+    value.nextStep.stopOrReviewCondition,
     value.reflection,
   ].join("\n");
+}
+
+function normalizeComparisonText(value) {
+  return value.toLocaleLowerCase("ko-KR").replace(/[\p{P}\p{S}\s]+/gu, "");
 }
 
 export function detectHardFailureFlags(value, evaluationCase) {

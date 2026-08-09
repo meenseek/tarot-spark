@@ -248,8 +248,19 @@ function createValidReading(request: InstantReadingRequest) {
       explanation: sentence.repeat(2),
       relationType: "progression",
     },
-    uncertainty: sentence.repeat(2),
-    nextStep: sentence,
+    alternatives: [
+      `표현의 속도 차이가 불확실성을 키웠을 수 있습니다. ${sentence}`,
+      `기대가 실제 신호보다 앞섰을 수 있습니다. ${sentence}`,
+    ],
+    realityCheck: {
+      unknown: sentence.repeat(2),
+      observableDiscriminator: sentence.repeat(2),
+      revisionCondition: sentence.repeat(2),
+    },
+    nextStep: {
+      action: sentence,
+      stopOrReviewCondition: sentence,
+    },
     reflection: "지금 가장 부담 없이 확인할 수 있는 선택은 무엇인가요?",
   } as const;
 }

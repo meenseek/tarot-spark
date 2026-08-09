@@ -60,8 +60,16 @@ export type InstantReading = {
     readonly cardIds: readonly TarotCardId[];
     readonly explanation: string;
   };
-  readonly uncertainty: string;
-  readonly nextStep: string;
+  readonly alternatives: readonly [string, string];
+  readonly realityCheck: {
+    readonly unknown: string;
+    readonly observableDiscriminator: string;
+    readonly revisionCondition: string;
+  };
+  readonly nextStep: {
+    readonly action: string;
+    readonly stopOrReviewCondition: string;
+  };
   readonly reflection: string;
 };
 
@@ -73,7 +81,8 @@ const readingKeys = [
   "synthesis",
   "cardReadings",
   "strongestConnection",
-  "uncertainty",
+  "alternatives",
+  "realityCheck",
   "nextStep",
   "reflection",
 ] as const;
@@ -81,6 +90,19 @@ const cardReadingKeys = ["interpretation"] as const;
 const connectionKeys = ["relationType", "cardIndexes", "explanation"] as const;
 const apiCardReadingKeys = ["cardId", "interpretation"] as const;
 const apiConnectionKeys = ["relationType", "cardIds", "explanation"] as const;
+const realityCheckKeys = [
+  "unknown",
+  "observableDiscriminator",
+  "revisionCondition",
+] as const;
+const nextStepKeys = ["action", "stopOrReviewCondition"] as const;
+const instantReadingVisibleLengthRanges = {
+  deep: { max: 2800, min: 1100 },
+  quick: { max: 1800, min: 700 },
+} as const satisfies Record<
+  SpreadId,
+  { readonly max: number; readonly min: number }
+>;
 const technicalMarkerPattern =
   /```|#{1,6}\s|(^|\n)\s*[-*]\s|AI|인공지능|언어\s*모델|프롬프트|JSON|시스템\s*(지침|메시지)/iu;
 const providerOwnedCardReferencePatterns = [
@@ -248,8 +270,6 @@ export function parseInstantReadingProviderResponse(
   if (
     !isNonEmptyString(value["headline"]) ||
     !isNonEmptyString(value["synthesis"]) ||
-    !isNonEmptyString(value["uncertainty"]) ||
-    !isNonEmptyString(value["nextStep"]) ||
     !isNonEmptyString(value["reflection"]) ||
     !Array.isArray(value["cardReadings"]) ||
     !isRecord(value["strongestConnection"]) ||
@@ -257,6 +277,8 @@ export function parseInstantReadingProviderResponse(
   ) {
     return undefined;
   }
+  const methodFields = parseInstantReadingMethodFields(value);
+  if (!methodFields) return undefined;
 
   const cardReadings: InstantReading["cardReadings"][number][] = [];
   for (const [index, expectedCard] of request.cards.entries()) {
@@ -296,9 +318,9 @@ export function parseInstantReadingProviderResponse(
   }
 
   const reading: InstantReading = {
+    ...methodFields,
     cardReadings,
     headline: value["headline"],
-    nextStep: value["nextStep"],
     reflection: value["reflection"],
     strongestConnection: {
       cardIds: cardIndexes.map(
@@ -308,9 +330,8 @@ export function parseInstantReadingProviderResponse(
       relationType: connection["relationType"],
     },
     synthesis: value["synthesis"],
-    uncertainty: value["uncertainty"],
   };
-  return validateInstantReading(reading);
+  return validateInstantReading(reading, request);
 }
 
 export function parseInstantReading(
@@ -321,8 +342,6 @@ export function parseInstantReading(
   if (
     !isNonEmptyString(value["headline"]) ||
     !isNonEmptyString(value["synthesis"]) ||
-    !isNonEmptyString(value["uncertainty"]) ||
-    !isNonEmptyString(value["nextStep"]) ||
     !isNonEmptyString(value["reflection"]) ||
     !Array.isArray(value["cardReadings"]) ||
     !isRecord(value["strongestConnection"]) ||
@@ -330,6 +349,8 @@ export function parseInstantReading(
   ) {
     return undefined;
   }
+  const methodFields = parseInstantReadingMethodFields(value);
+  if (!methodFields) return undefined;
 
   const cardReadings: InstantReading["cardReadings"][number][] = [];
   for (const [index, expectedCard] of request.cards.entries()) {
@@ -370,27 +391,80 @@ export function parseInstantReading(
     return undefined;
   }
 
-  return validateInstantReading({
-    cardReadings,
-    headline: value["headline"],
-    nextStep: value["nextStep"],
-    reflection: value["reflection"],
-    strongestConnection: {
-      cardIds: connection["cardIds"],
-      explanation: connection["explanation"],
-      relationType: connection["relationType"],
+  return validateInstantReading(
+    {
+      ...methodFields,
+      cardReadings,
+      headline: value["headline"],
+      reflection: value["reflection"],
+      strongestConnection: {
+        cardIds: connection["cardIds"],
+        explanation: connection["explanation"],
+        relationType: connection["relationType"],
+      },
+      synthesis: value["synthesis"],
     },
-    synthesis: value["synthesis"],
-    uncertainty: value["uncertainty"],
-  });
+    request,
+  );
 }
 
-function validateInstantReading(reading: InstantReading) {
+function parseInstantReadingMethodFields(
+  value: Record<string, unknown>,
+):
+  | Pick<InstantReading, "alternatives" | "nextStep" | "realityCheck">
+  | undefined {
+  const alternatives = value["alternatives"];
+  const realityCheck = value["realityCheck"];
+  const nextStep = value["nextStep"];
+
+  if (
+    !Array.isArray(alternatives) ||
+    alternatives.length !== 2 ||
+    !isNonEmptyString(alternatives[0]) ||
+    !isNonEmptyString(alternatives[1]) ||
+    normalizeComparisonText(alternatives[0]) ===
+      normalizeComparisonText(alternatives[1]) ||
+    !isRecord(realityCheck) ||
+    !hasExactKeys(realityCheck, realityCheckKeys) ||
+    !isNonEmptyString(realityCheck["unknown"]) ||
+    !isNonEmptyString(realityCheck["observableDiscriminator"]) ||
+    !isNonEmptyString(realityCheck["revisionCondition"]) ||
+    !isRecord(nextStep) ||
+    !hasExactKeys(nextStep, nextStepKeys) ||
+    !isNonEmptyString(nextStep["action"]) ||
+    !isNonEmptyString(nextStep["stopOrReviewCondition"])
+  ) {
+    return undefined;
+  }
+
+  return {
+    alternatives: [alternatives[0], alternatives[1]],
+    nextStep: {
+      action: nextStep["action"],
+      stopOrReviewCondition: nextStep["stopOrReviewCondition"],
+    },
+    realityCheck: {
+      observableDiscriminator: realityCheck["observableDiscriminator"],
+      revisionCondition: realityCheck["revisionCondition"],
+      unknown: realityCheck["unknown"],
+    },
+  };
+}
+
+function normalizeComparisonText(value: string) {
+  return value.toLocaleLowerCase("ko-KR").replace(/[\p{P}\p{S}\s]+/gu, "");
+}
+
+function validateInstantReading(
+  reading: InstantReading,
+  request: InstantReadingRequest,
+) {
   const visibleText = getInstantReadingVisibleText(reading);
   const visibleLength = [...visibleText].length;
+  const lengthRange = getInstantReadingVisibleLengthRange(request.spreadId);
   if (
-    visibleLength < 500 ||
-    visibleLength > 900 ||
+    visibleLength < lengthRange.min ||
+    visibleLength > lengthRange.max ||
     technicalMarkerPattern.test(visibleText) ||
     getInstantReadingSafetyViolation(reading)
   ) {
@@ -398,6 +472,10 @@ function validateInstantReading(reading: InstantReading) {
   }
 
   return reading;
+}
+
+export function getInstantReadingVisibleLengthRange(spreadId: SpreadId) {
+  return instantReadingVisibleLengthRanges[spreadId];
 }
 
 function isAllowedCardIndex(
@@ -415,8 +493,12 @@ export function getInstantReadingVisibleText(reading: InstantReading) {
     reading.synthesis,
     ...reading.cardReadings.map(({ interpretation }) => interpretation),
     reading.strongestConnection.explanation,
-    reading.uncertainty,
-    reading.nextStep,
+    ...reading.alternatives,
+    reading.realityCheck.unknown,
+    reading.realityCheck.observableDiscriminator,
+    reading.realityCheck.revisionCondition,
+    reading.nextStep.action,
+    reading.nextStep.stopOrReviewCondition,
     reading.reflection,
   ].join("\n");
 }

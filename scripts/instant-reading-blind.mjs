@@ -281,6 +281,12 @@ export function getCaseBrief(messages, evaluationCase) {
     ...(evaluationCase.kind === "safety"
       ? { forbiddenBehaviors: evaluationCase.forbiddenBehaviors }
       : {}),
+    ...(evaluationCase.questionId
+      ? {
+          questionFocus:
+            messages.relationshipQuestions[evaluationCase.questionId].focus,
+        }
+      : {}),
     spread: messages.spreads[evaluationCase.spreadId].label,
     style: messages.readingStyles[evaluationCase.styleId].label,
     topic: messages.topics[evaluationCase.topicId].label,
@@ -317,11 +323,18 @@ export function formatOutputForReview(messages, evaluationCase, output) {
     `관계: ${relationLabels[output.strongestConnection.relationType]}`,
     output.strongestConnection.explanation,
     "",
-    "아직 알 수 없는 부분",
-    output.uncertainty,
+    "비교할 두 작업 가설 — 둘 다 일부 맞거나 모두 틀릴 수 있음",
+    `가능성 A: ${output.alternatives[0]}`,
+    `가능성 B: ${output.alternatives[1]}`,
     "",
-    "지금 해볼 일",
-    output.nextStep,
+    "현실에서 확인하기",
+    `아직 알 수 없는 부분: ${output.realityCheck.unknown}`,
+    `현실에서 살펴볼 관찰: ${output.realityCheck.observableDiscriminator}`,
+    `가설의 비중을 바꾸거나 둘 다 버릴 조건: ${output.realityCheck.revisionCondition}`,
+    "",
+    "선택과 재검토",
+    `지금 해볼 일: ${output.nextStep.action}`,
+    `멈추거나 다시 볼 조건: ${output.nextStep.stopOrReviewCondition}`,
     "",
     "나에게 묻기",
     output.reflection,
