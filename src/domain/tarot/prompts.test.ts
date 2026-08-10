@@ -27,8 +27,85 @@ function getPrompt(locale: "en" | "ko", spreadId: "quick" | "deep") {
   };
 }
 
+const promptContractMarkers = {
+  en: {
+    included: [
+      "The supplied meanings support an interpretation; they do not prove real-world facts",
+      "exactly two materially different conditional, non-predictive possibilities",
+      "could make both partly fit",
+      "what newly observed fact would set both aside",
+      "Do not mention the absence of images or discuss visual elements in the answer",
+      "professional advice",
+      "another person's hidden thoughts, feelings, motives, or actions",
+      "short connected paragraphs that read like one story",
+      "Make a deep reading deeper through the reason the choice changes",
+      "If user context exists, begin directly with that dilemma",
+      "internally draft two different story versions",
+      "Preserve the distinct idea in every supplied meaning",
+      "Mention a card name only when natural and then use its exact supplied name",
+      "Once, in one natural sentence, name the concrete unknowns",
+      "Give each possibility exactly two short sentences",
+      "one observable response, then one directly following behavior",
+      "They are neither exclusive nor exhaustive",
+      "Keep a reader response as an open option, never an inevitable outcome",
+      "invent no duration, date, count, number, or deadline absent from the supplied data",
+      "Keep detailed checking procedure inside this paragraph",
+      "one small reversible action",
+      "when a cost, boundary, or user-chosen deadline is reached",
+      "Before the ending, impose no command or obligation on the reader",
+      "Edit the final version aloud as a native-language editor",
+      "Do not repeat the same idea in adjacent paragraphs",
+      "'user' as a label for the reader are internal terms",
+      "do not append a standalone disclaimer",
+    ],
+    excluded: [
+      "reviewed upright",
+      "Close with a brief reminder",
+      "Reading sequence:",
+      "use 'number. exact card name' as each heading",
+    ],
+  },
+  ko: {
+    included: [
+      "제공된 의미는 해석을 뒷받침하는 재료일 뿐 현실의 사실을 증명하지 않습니다",
+      "가능성을 정확히 두 가지",
+      "둘이 일부 맞는지",
+      "어떤 새로 관찰한 사실이 둘 다 내려놓게 하는지",
+      "답변에서는 이미지가 없다는 점을 되풀이하거나 시각 요소 자체를 설명하지 마세요",
+      "전문 조언처럼 제시하지 마세요",
+      "상대의 숨은 생각, 감정, 동기, 행동을 사실처럼 단정하지 마세요",
+      "한 편의 이야기처럼 이어지는 짧은 문단",
+      "심화 리딩은 카드 설명을 늘리지 말고 선택이 바뀌는 이유를 더 깊게",
+      "사용자 상황이 있으면 첫 문장을 그 고민에서 바로 시작하고",
+      "서로 다른 이야기 초안 두 개를 내부적으로 만든 뒤",
+      "모든 카드의 제공된 의미가 가진 고유한 생각을 다른 의미에 합쳐 약하게 만들지 말고",
+      "카드 이름은 자연스러울 때만 정확한 이름으로 언급하며",
+      "구체적인 항목을 한 자연스러운 문장에 한 번만",
+      "각 가능성은 정확히 두 개의 짧은 문장으로",
+      "첫 문장에는 관찰 가능한 응답 하나",
+      "배타적이거나 가능한 설명의 전부가 아니며",
+      "필연적인 결과처럼 쓰지 말고 '할 수 있다'처럼 열린 선택으로",
+      "사용자 자료에 없는 기간·날짜·횟수·수치·마감은 만들지 마세요",
+      "확인 절차의 세부 내용은 이 문단에만 모으고",
+      "작고 되돌릴 수 있는 행동 하나",
+      "어느 가능성이 그럴듯해도 미리 정한 비용·경계·기한",
+      "결말 전에는 독자에게 명령이나 의무를 부과하지 마세요",
+      "최종본을 소리 내어 읽는 한국어 에디터처럼",
+      "같은 뜻을 이웃 문단에서 되풀이하거나",
+      "독자를 가리키는 '사용자'는 내부 용어",
+      "별도의 면책 안내 문장도 덧붙이지 마세요",
+    ],
+    excluded: [
+      "검수된",
+      "마지막에는 이 답변이 재미와 자기 성찰",
+      "해석 순서:",
+      "각각 '번호. 정확한 카드 이름'을 제목으로 쓰고",
+    ],
+  },
+} as const;
+
 describe("tarot prompt", () => {
-  it("serializes exact ordered card names with reviewed meanings", () => {
+  it("serializes exact ordered card names with supplied meanings", () => {
     const { cards, prompt } = getPrompt("ko", "quick");
 
     for (const [index, { card }] of cards.entries()) {
@@ -97,42 +174,19 @@ describe("tarot prompt", () => {
     );
   });
 
-  it("requires the same complete method without padding targets", () => {
+  it("keeps the grounded story contract in each locale", () => {
     for (const locale of ["en", "ko"] as const) {
-      for (const spreadId of ["quick", "deep"] as const) {
-        const prompt = getPrompt(locale, spreadId).prompt;
+      const prompt = getPrompt(locale, "quick").prompt;
+      const markers = promptContractMarkers[locale];
 
-        expect(prompt).not.toMatch(
-          /\d[\d,]*\s*(?:~|-|to)\s*\d[\d,]*\s*(?:자|words?)/i,
-        );
-        expect(prompt).toContain(
-          locale === "ko"
-            ? "상징적 해석 재료"
-            : "Symbolic interpretation material",
-        );
-        expect(prompt).toContain(
-          locale === "ko"
-            ? "비교용 작업 가설을 정확히 두 개"
-            : "exactly two materially different working hypotheses",
-        );
-        expect(prompt).toContain(
-          locale === "ko"
-            ? "둘 다 일부 맞거나 둘 다 틀릴 수"
-            : "both may partly fit or both may fail",
-        );
-        expect(prompt).toContain(
-          locale === "ko" ? "현실 확인" : "Reality check",
-        );
-        expect(prompt).toContain(
-          locale === "ko"
-            ? "답변에서는 이미지가 없다는 점을 되풀이하거나 시각 요소 자체를 설명하지 마세요"
-            : "Do not mention the absence of images or discuss visual elements in the answer",
-        );
-        expect(prompt).toContain(
-          locale === "ko"
-            ? "멈추거나 다시 판단할 조건"
-            : "stop-or-review condition",
-        );
+      expect(prompt).not.toMatch(
+        /\d[\d,]*\s*(?:~|-|to)\s*\d[\d,]*\s*(?:자|words?)/i,
+      );
+      for (const marker of markers.included) {
+        expect(prompt).toContain(marker);
+      }
+      for (const marker of markers.excluded) {
+        expect(prompt).not.toContain(marker);
       }
     }
   });
