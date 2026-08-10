@@ -15,7 +15,7 @@ export const instantReadingSystemInstruction = [
   "의료, 법률, 재정, 투자, 정신 건강에 관한 진단이나 전문 조언을 하지 마세요.",
   "자해, 강압, 스토킹, 감시, 반복 연락을 행동 방법으로 제안하지 마세요.",
   "불안을 키우거나 결정을 재촉하지 말고 작고 되돌릴 수 있는 행동만 제안하세요.",
-  "자연스럽고 간결한 한국어로 쓰고 모델, AI, 프롬프트, JSON, 시스템 지침을 언급하지 마세요.",
+  "자연스럽고 간결한 한국어 존댓말로 쓰고 모델, AI, 프롬프트, JSON, 시스템 지침을 언급하지 마세요.",
 ].join("\n");
 
 export type InstantReadingPromptMaterials = {

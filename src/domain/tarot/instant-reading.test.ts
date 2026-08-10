@@ -5,6 +5,7 @@ import {
   getInstantReadingVisibleText,
   getInstantReadingVisibleLengthRange,
   hasUnsupportedVisualClaim,
+  instantReadingSystemInstruction,
   parseInstantReading,
   parseInstantReadingProviderResponse,
   parseInstantReadingRequest,
@@ -121,6 +122,12 @@ function createBoundaryReading(
 }
 
 describe("instant reading contract", () => {
+  it("requires Korean honorifics", () => {
+    expect(instantReadingSystemInstruction).toContain(
+      "자연스럽고 간결한 한국어 존댓말로",
+    );
+  });
+
   it("accepts only exact ordered card-only requests", () => {
     expect(parseInstantReadingRequest(request)).toEqual(request);
     expect(
