@@ -3,13 +3,10 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LocaleSwitch } from "@/components/layout/LocaleSwitch";
+import { SiteShell } from "@/components/layout/SiteShell";
 import { CelestialMark } from "@/components/visual/CelestialMark";
 import { TarotCardArt } from "@/components/visual/TarotCardArt";
-import {
-  brandLinkClassName,
-  footerLinkClassName,
-  secondaryButtonClassName,
-} from "@/components/visual/class-names";
+import { secondaryButtonClassName } from "@/components/visual/class-names";
 import {
   getDailyTarotCard,
   getLocalDateKey,
@@ -46,23 +43,24 @@ export function DailyQuestionClient({
     : undefined;
 
   return (
-    <main className="min-h-screen bg-ts-canvas text-ts-ink">
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 py-6 sm:px-8 lg:py-10">
-        <header className="flex flex-col gap-4 border-b border-ts-divider pb-6 sm:flex-row sm:items-center sm:justify-between">
-          <Link className={brandLinkClassName} href={getLocalePath(locale)}>
-            {copy.brand}
-          </Link>
-          <LocaleSwitch
-            activeLocale={locale}
-            ariaLabel={copy.languageSwitchLabel}
-            links={supportedLocales.map((targetLocale) => ({
-              href: getDailyQuestionPath(targetLocale),
-              label: localeNames[targetLocale],
-              locale: targetLocale,
-            }))}
-          />
-        </header>
-
+    <SiteShell
+      brand={copy.brand}
+      brandHref={getLocalePath(locale)}
+      footerAriaLabel={publicPageNavigationLabel}
+      footerLinks={publicPageLinks}
+      localeControl={
+        <LocaleSwitch
+          activeLocale={locale}
+          ariaLabel={copy.languageSwitchLabel}
+          links={supportedLocales.map((targetLocale) => ({
+            href: getDailyQuestionPath(targetLocale),
+            label: localeNames[targetLocale],
+            locale: targetLocale,
+          }))}
+        />
+      }
+    >
+      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
         <section className="grid flex-1 gap-10 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div className="grid content-start gap-5">
             <CelestialMark className="h-8 w-16 text-ts-gold" />
@@ -180,27 +178,11 @@ export function DailyQuestionClient({
           </section>
         </section>
 
-        <p className="border-t border-ts-divider pt-6 text-xs leading-5 text-ts-muted">
+        <p className="pb-6 text-xs leading-5 text-ts-muted">
           {copy.disclaimer}
         </p>
-        <footer className="py-6">
-          <nav
-            aria-label={publicPageNavigationLabel}
-            className="flex flex-wrap gap-x-3 text-xs"
-          >
-            {publicPageLinks.map((link) => (
-              <Link
-                className={footerLinkClassName}
-                href={link.href}
-                key={link.href}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        </footer>
       </div>
-    </main>
+    </SiteShell>
   );
 }
 
