@@ -190,6 +190,26 @@ src/domain/tarot -> src/i18n
 - Put repeated tarot content, prompt text, and interpretation templates in
   `src/domain/tarot` before reusing them in multiple views.
 
+## Page Shell And Archetypes
+
+- `src/components/layout/SiteShell.tsx` owns the canonical public page frame,
+  shared header, shared footer, responsive gutters, and content slot. It stays
+  domain-free: features pass localized labels, links, and the locale control.
+- Public routes must compose their page inside `SiteShell` rather than recreate
+  `<main>`, header, footer, or outer maximum-width rules. An archetype may add a
+  narrower inner content wrapper without changing the shell boundaries.
+- Workspace pages belong to the feature that owns their state machine. They may
+  choose different internal layouts for setup, committed result, and
+  edit-next-draw while reusing the same shell.
+- Catalog pages belong to the feature that owns the typed registry and browsing
+  behavior. Shared layout components must not know category ids, question ids,
+  or selected routes.
+- Editorial pages keep route-specific prose and calls to action in their
+  feature. Readable article width is an inner layout concern, not a shell
+  variant.
+- Add a new shell prop only for a durable site-wide layout need. Do not add
+  feature modes or route names to shared layout components.
+
 ## Naming
 
 - Use framework-defined names for App Router files such as `page.tsx`,
