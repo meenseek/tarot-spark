@@ -29,7 +29,7 @@ export type TarotReadingMessages = {
   readonly selectedQuestionLabel: string;
   readonly selectedQuestionHelp: string;
   readonly selectedQuestionFocusLabel: string;
-  readonly browseQuestions: string;
+  readonly changeQuestionLabel: string;
   readonly cardCountLabel: string;
   readonly drawButton: string;
   readonly drawStatus: string;
@@ -173,7 +173,7 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     selectedQuestionLabel: copy.selectedQuestionLabel,
     selectedQuestionHelp: copy.selectedQuestionHelp,
     selectedQuestionFocusLabel: copy.selectedQuestionFocusLabel,
-    browseQuestions: copy.browseQuestions,
+    changeQuestionLabel: copy.changeQuestionLabel,
     workspaceLabel: copy.workspaceLabel,
   };
 }

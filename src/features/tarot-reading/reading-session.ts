@@ -4,6 +4,7 @@ import type {
   SpreadId,
   TopicId,
 } from "@/domain/tarot";
+import { getRelationshipQuestionDefinition } from "@/domain/tarot";
 import type { RelationshipQuestionId } from "@/features/relationship-questions/registry";
 
 export type ReadingInputs = {
@@ -34,6 +35,10 @@ export type Session =
 
 export type SessionAction =
   | { readonly type: "SET_DRAFT_TOPIC"; readonly topicId: TopicId }
+  | {
+      readonly type: "SET_DRAFT_QUESTION";
+      readonly questionId: RelationshipQuestionId;
+    }
   | { readonly type: "SET_DRAFT_SPREAD"; readonly spreadId: SpreadId }
   | { readonly type: "SET_DRAFT_STYLE"; readonly styleId: ReadingStyleId }
   | {
@@ -80,6 +85,8 @@ export function readingSessionReducer(
   switch (action.type) {
     case "SET_DRAFT_TOPIC":
       return updateDraftTopic(session, action.topicId);
+    case "SET_DRAFT_QUESTION":
+      return updateDraftQuestion(session, action.questionId);
     case "SET_DRAFT_SPREAD":
       return updateDraft(session, "spreadId", action.spreadId);
     case "SET_DRAFT_STYLE":
@@ -160,6 +167,29 @@ function updateDraftTopic(session: Session, topicId: TopicId): Session {
       styleId: session.draft.styleId,
       topicId,
     },
+  };
+}
+
+function updateDraftQuestion(
+  session: Session,
+  questionId: RelationshipQuestionId,
+): Session {
+  if (session.mode === "result") {
+    return session;
+  }
+
+  const topicId = getRelationshipQuestionDefinition(questionId).topicId;
+
+  if (
+    session.draft.questionId === questionId &&
+    session.draft.topicId === topicId
+  ) {
+    return session;
+  }
+
+  return {
+    ...session,
+    draft: { ...session.draft, questionId, topicId },
   };
 }
 

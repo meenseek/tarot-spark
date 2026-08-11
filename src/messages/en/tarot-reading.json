@@ -21,7 +21,7 @@
   "selectedQuestionLabel": "Selected reflection question",
   "selectedQuestionHelp": "The reading follows what the selected question asks first, then adds a shorter reality check.",
   "selectedQuestionFocusLabel": "Reading focus",
-  "browseQuestions": "Browse other relationship questions",
+  "changeQuestionLabel": "Choose a different relationship question",
   "cardCountLabel": "{count} cards",
   "drawButton": "Draw {count} cards",
   "drawStatus": "{count} cards drawn.",
