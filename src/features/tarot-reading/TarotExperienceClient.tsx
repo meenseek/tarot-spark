@@ -10,9 +10,9 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { SiteShell } from "@/components/layout/SiteShell";
 import { CelestialMark } from "@/components/visual/CelestialMark";
 import {
-  footerLinkClassName,
   primaryButtonClassName,
   secondaryButtonClassName,
 } from "@/components/visual/class-names";
@@ -1286,60 +1286,253 @@ export function TarotExperienceClient({
     />
   );
 
+  const generatorIntroduction = (
+    <div className="grid content-start gap-4" data-testid="generator-intro">
+      <CelestialMark className="h-8 w-16 text-ts-gold" />
+      <h1
+        className={`max-w-2xl font-ts-display text-4xl font-semibold leading-[1.12] tracking-[-0.02em] text-ts-ink sm:text-[2.75rem] lg:text-5xl ${
+          locale === "ko" ? "[word-break:keep-all]" : "[text-wrap:balance]"
+        }`}
+      >
+        {copy.heading}
+      </h1>
+      <p className="max-w-xl text-base leading-7 text-ts-muted">{copy.intro}</p>
+      <p className="max-w-xl text-sm font-medium text-ts-action">
+        {deckPreviewNote}
+      </p>
+    </div>
+  );
+
+  const readingSetupForm = session.mode !== "result" && (
+    <div className="grid gap-6" data-testid="reading-setup-form">
+      {session.mode === "edit-next-draw" && (
+        <div className="grid gap-2 rounded-ts-panel border border-ts-divider bg-ts-surface p-4">
+          <h2
+            className="font-ts-display text-2xl font-semibold text-ts-ink focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
+            ref={editHeadingRef}
+            tabIndex={-1}
+          >
+            {copy.editNextHeading}
+          </h2>
+          <p className="text-sm leading-6 text-ts-muted">
+            {copy.editNextIntro}
+          </p>
+        </div>
+      )}
+
+      {selectedQuestion ? (
+        <aside
+          className="grid gap-2 rounded-ts-panel border border-ts-gold/50 bg-ts-surface p-4"
+          data-testid="selected-relationship-question"
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-ts-action">
+            {copy.selectedQuestionLabel}
+          </p>
+          <p className="font-ts-display text-xl font-semibold leading-7 text-ts-ink">
+            {selectedQuestion.title}
+          </p>
+          <p className="text-sm leading-6 text-ts-muted">
+            {copy.selectedQuestionHelp}
+          </p>
+          <div className="grid gap-1 border-l-2 border-ts-gold pl-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.06em] text-ts-action">
+              {copy.selectedQuestionFocusLabel}
+            </p>
+            <p className="text-sm leading-6 text-ts-ink">
+              {selectedQuestion.focus}
+            </p>
+          </div>
+          <Link
+            className="w-fit text-sm font-semibold text-ts-action underline decoration-ts-gold underline-offset-4"
+            href={relationshipQuestionPath}
+          >
+            {copy.browseQuestions}
+          </Link>
+        </aside>
+      ) : null}
+
+      <TopicSelector
+        ariaLabel={copy.topicSelectorLabel}
+        onSelect={chooseTopic}
+        selectedTopicId={formInputs.topicId}
+        topics={tarotData.topics}
+      />
+
+      <SituationContextInput
+        contextCountLabel={contextCountLabel}
+        contextPlaceholder={selectedTopic.contextPlaceholder}
+        copy={copy}
+        disclosureRef={situationContextDisclosureRef}
+        onContextChange={changeDraftUserContext}
+        userContext={formInputs.privateContext}
+      />
+
+      <ReadingPreferences
+        copy={copy}
+        onSpreadChange={chooseSpread}
+        onStyleChange={chooseDraftReadingStyle}
+        readingStyles={tarotData.readingStyles}
+        selectedSpreadId={formInputs.spreadId}
+        selectedStyleId={formInputs.styleId}
+        spreads={tarotData.spreads}
+      />
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        {session.mode === "edit-next-draw" && (
+          <button
+            className={secondaryButtonClassName}
+            onClick={cancelEditNextDraw}
+            type="button"
+          >
+            {copy.cancelEdit}
+          </button>
+        )}
+        <button
+          className={primaryButtonClassName}
+          onClick={startDraw}
+          type="button"
+        >
+          {session.mode === "edit-next-draw" ? copy.drawNext : drawButtonLabel}
+        </button>
+      </div>
+      <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>
+    </div>
+  );
+
+  const readingWorkspace = (
+    <section
+      aria-label={copy.workspaceLabel}
+      className={`${session.mode === "setup" ? "hidden lg:grid" : "grid"} gap-4 rounded-ts-panel border border-ts-divider bg-ts-surface p-4 shadow-ts-paper sm:p-5`}
+      data-testid="reading-workspace"
+      ref={readingWorkspaceRef}
+    >
+      {currentResult && currentTopic && currentSpread && currentReadingStyle ? (
+        <div
+          className="grid gap-4"
+          data-testid="reading-result-observer"
+          ref={resultViewTargetRef}
+        >
+          <div className="grid gap-1">
+            <h2
+              className="font-ts-display text-2xl font-semibold text-ts-ink focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
+              ref={resultHeadingRef}
+              tabIndex={-1}
+            >
+              {copy.resultHeading}
+            </h2>
+            <p className="text-sm font-semibold text-ts-action">
+              {currentTopic.label}
+            </p>
+            {currentQuestion ? (
+              <p
+                className="text-sm font-medium leading-6 text-ts-ink"
+                data-testid="current-relationship-question"
+              >
+                {copy.selectedQuestionLabel}: {currentQuestion.title}
+              </p>
+            ) : null}
+            <p className="text-sm leading-6 text-ts-ink">
+              {currentTopic.resultFrame}
+            </p>
+            <p className="text-xs leading-5 text-ts-muted">
+              {copy.currentReadingSettings}: {currentSpread.label} ·{" "}
+              {currentReadingStyle.label}
+              {currentResult.inputs.privateContext.trim().length > 0
+                ? ` · ${copy.promptContextIncluded}`
+                : ""}
+            </p>
+          </div>
+
+          <CardOverview
+            ariaLabel={copy.cardOverviewLabel}
+            cards={cards}
+            retryLabel={copy.instantReading.retry}
+            revealSequence={drawSequenceId}
+          />
+
+          {readingResult}
+          <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>
+        </div>
+      ) : (
+        <CardSpread
+          cardMarkLabel={copy.cardMarkLabel}
+          cards={[]}
+          cardCount={selectedSpread.cardCount}
+          placeholderCardName={copy.placeholderCardName}
+          retryLabel={copy.instantReading.retry}
+          revealSequence={0}
+        />
+      )}
+    </section>
+  );
+
+  const drawStatus = (
+    <p
+      aria-atomic="true"
+      aria-live="polite"
+      className="sr-only"
+      data-draw-announcement-sequence={drawAnnouncementRequest?.sequence}
+      data-testid="draw-status"
+      role="status"
+    >
+      {drawAnnouncement}
+    </p>
+  );
+
   if (viewMode === "shared") {
     return (
-      <main
-        className="min-h-screen bg-ts-canvas text-ts-ink"
-        data-testid="shared-reading-view"
+      <SiteShell
+        brand={copy.brand}
+        brandHref={createOwnReadingHref}
+        footerAriaLabel={publicPageNavigationLabel}
+        footerLinks={publicPageLinks}
+        localeControl={
+          <LanguageSwitch
+            activeLocale={locale}
+            ariaLabel={copy.languageSwitchLabel}
+            links={languageLinks}
+            onLocaleChange={preserveContextForLocaleChange}
+          />
+        }
       >
-        <section className="mx-auto grid min-h-screen w-full max-w-4xl gap-6 px-5 py-6 sm:px-8 lg:py-10">
-          <header className="grid gap-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm font-semibold text-ts-action">
-                {copy.brand}
-              </p>
-              <LanguageSwitch
-                activeLocale={locale}
-                ariaLabel={copy.languageSwitchLabel}
-                links={languageLinks}
-                onLocaleChange={preserveContextForLocaleChange}
-              />
-            </div>
-            <div className="grid gap-3 border-b border-ts-divider pb-6">
-              <CelestialMark className="h-8 w-16 text-ts-gold" />
-              <h1
-                className={`max-w-3xl font-ts-display text-4xl font-semibold leading-[1.12] tracking-[-0.02em] text-ts-ink sm:text-5xl ${
-                  locale === "ko"
-                    ? "[word-break:keep-all]"
-                    : "[text-wrap:balance]"
-                }`}
-              >
-                {copy.sharedReading.heading}
-              </h1>
-              <p className="max-w-2xl text-base leading-7 text-ts-muted">
-                {copy.sharedReading.intro}
-              </p>
-              {currentResult &&
-                currentTopic &&
-                currentSpread &&
-                currentReadingStyle && (
-                  <div className="grid gap-1 text-sm leading-6">
-                    <p className="font-semibold text-ts-action">
-                      {currentTopic.label}
+        <section
+          className="mx-auto grid w-full max-w-4xl flex-1 gap-6 py-8"
+          data-testid="shared-reading-view"
+        >
+          <div className="grid gap-3 border-b border-ts-divider pb-6">
+            <CelestialMark className="h-8 w-16 text-ts-gold" />
+            <h1
+              className={`max-w-3xl font-ts-display text-4xl font-semibold leading-[1.12] tracking-[-0.02em] text-ts-ink sm:text-5xl ${
+                locale === "ko"
+                  ? "[word-break:keep-all]"
+                  : "[text-wrap:balance]"
+              }`}
+            >
+              {copy.sharedReading.heading}
+            </h1>
+            <p className="max-w-2xl text-base leading-7 text-ts-muted">
+              {copy.sharedReading.intro}
+            </p>
+            {currentResult &&
+              currentTopic &&
+              currentSpread &&
+              currentReadingStyle && (
+                <div className="grid gap-1 text-sm leading-6">
+                  <p className="font-semibold text-ts-action">
+                    {currentTopic.label}
+                  </p>
+                  {currentQuestion ? (
+                    <p className="font-medium text-ts-ink">
+                      {copy.selectedQuestionLabel}: {currentQuestion.title}
                     </p>
-                    {currentQuestion ? (
-                      <p className="font-medium text-ts-ink">
-                        {copy.selectedQuestionLabel}: {currentQuestion.title}
-                      </p>
-                    ) : null}
-                    <p className="text-ts-muted">
-                      {copy.currentReadingSettings}: {currentSpread.label} ·{" "}
-                      {currentReadingStyle.label}
-                    </p>
-                  </div>
-                )}
-            </div>
-          </header>
+                  ) : null}
+                  <p className="text-ts-muted">
+                    {copy.currentReadingSettings}: {currentSpread.label} ·{" "}
+                    {currentReadingStyle.label}
+                  </p>
+                </div>
+              )}
+          </div>
 
           <section
             aria-label={copy.workspaceLabel}
@@ -1358,277 +1551,78 @@ export function TarotExperienceClient({
             </div>
             <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>
           </section>
-
-          <footer className="border-t border-ts-divider py-6">
-            <nav
-              aria-label={publicPageNavigationLabel}
-              className="flex flex-wrap gap-x-3 text-xs"
-            >
-              {publicPageLinks.map((link) => (
-                <Link
-                  className={footerLinkClassName}
-                  href={link.href}
-                  key={link.href}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-          </footer>
         </section>
-      </main>
+      </SiteShell>
     );
   }
 
   return (
-    <main className="min-h-screen bg-ts-canvas text-ts-ink">
-      <section className="mx-auto grid min-h-screen w-full max-w-6xl gap-8 px-5 py-6 sm:px-8 lg:grid-cols-[0.95fr_1.25fr] lg:items-start lg:py-10">
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3">
-                <CelestialMark className="h-7 w-12 text-ts-gold" />
-                <p className="text-sm font-semibold text-ts-action">
-                  {copy.brand}
-                </p>
-              </div>
-              <LanguageSwitch
-                activeLocale={locale}
-                ariaLabel={copy.languageSwitchLabel}
-                links={languageLinks}
-                onLocaleChange={preserveContextForLocaleChange}
-              />
-            </div>
-            <h1
-              className={`max-w-2xl font-ts-display text-4xl font-semibold leading-[1.12] tracking-[-0.02em] text-ts-ink sm:text-[2.75rem] lg:text-5xl ${
-                locale === "ko"
-                  ? "[word-break:keep-all]"
-                  : "[text-wrap:balance]"
-              }`}
-            >
-              {copy.heading}
-            </h1>
-            <p className="max-w-xl text-base leading-7 text-ts-muted">
-              {copy.intro}
-            </p>
-            <p className="max-w-xl text-sm font-medium text-ts-action">
-              {deckPreviewNote}
-            </p>
+    <SiteShell
+      brand={copy.brand}
+      brandHref={createOwnReadingHref}
+      footerAriaLabel={publicPageNavigationLabel}
+      footerLinks={publicPageLinks}
+      localeControl={
+        <LanguageSwitch
+          activeLocale={locale}
+          ariaLabel={copy.languageSwitchLabel}
+          links={languageLinks}
+          onLocaleChange={preserveContextForLocaleChange}
+        />
+      }
+    >
+      <section
+        className="grid flex-1 gap-8 py-8"
+        data-layout-mode={session.mode}
+        data-testid="generator-layout"
+      >
+        <div
+          className={`w-full gap-8 ${
+            session.mode === "setup"
+              ? "grid lg:grid-cols-[0.9fr_1.1fr] lg:items-center"
+              : session.mode === "result"
+                ? "mx-auto grid max-w-5xl"
+                : "grid lg:grid-cols-[0.8fr_1.2fr] lg:items-start"
+          }`}
+          data-testid="generator-state-layout"
+        >
+          <div className="lg:col-start-1 lg:row-start-1">
+            {generatorIntroduction}
           </div>
-
-          {session.mode === "edit-next-draw" && (
-            <div className="grid gap-2 rounded-ts-panel border border-ts-divider bg-ts-surface p-4">
-              <h2
-                className="font-ts-display text-2xl font-semibold text-ts-ink focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
-                ref={editHeadingRef}
-                tabIndex={-1}
-              >
-                {copy.editNextHeading}
-              </h2>
-              <p className="text-sm leading-6 text-ts-muted">
-                {copy.editNextIntro}
-              </p>
-            </div>
-          )}
-
-          {session.mode !== "result" && (
-            <>
-              {selectedQuestion ? (
-                <aside
-                  className="grid gap-2 rounded-ts-panel border border-ts-gold/50 bg-ts-surface p-4"
-                  data-testid="selected-relationship-question"
-                >
-                  <p className="text-xs font-semibold uppercase tracking-[0.08em] text-ts-action">
-                    {copy.selectedQuestionLabel}
-                  </p>
-                  <p className="font-ts-display text-xl font-semibold leading-7 text-ts-ink">
-                    {selectedQuestion.title}
-                  </p>
-                  <p className="text-sm leading-6 text-ts-muted">
-                    {copy.selectedQuestionHelp}
-                  </p>
-                  <div className="grid gap-1 border-l-2 border-ts-gold pl-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.06em] text-ts-action">
-                      {copy.selectedQuestionFocusLabel}
-                    </p>
-                    <p className="text-sm leading-6 text-ts-ink">
-                      {selectedQuestion.focus}
-                    </p>
-                  </div>
-                  <Link
-                    className="w-fit text-sm font-semibold text-ts-action underline decoration-ts-gold underline-offset-4"
-                    href={relationshipQuestionPath}
-                  >
-                    {copy.browseQuestions}
-                  </Link>
-                </aside>
-              ) : null}
-
-              <TopicSelector
-                ariaLabel={copy.topicSelectorLabel}
-                onSelect={chooseTopic}
-                selectedTopicId={formInputs.topicId}
-                topics={tarotData.topics}
-              />
-
-              <SituationContextInput
-                contextCountLabel={contextCountLabel}
-                contextPlaceholder={selectedTopic.contextPlaceholder}
-                copy={copy}
-                disclosureRef={situationContextDisclosureRef}
-                onContextChange={changeDraftUserContext}
-                userContext={formInputs.privateContext}
-              />
-
-              <ReadingPreferences
-                copy={copy}
-                onSpreadChange={chooseSpread}
-                onStyleChange={chooseDraftReadingStyle}
-                readingStyles={tarotData.readingStyles}
-                selectedSpreadId={formInputs.spreadId}
-                selectedStyleId={formInputs.styleId}
-                spreads={tarotData.spreads}
-              />
-
-              <div className="grid gap-2 sm:grid-cols-2">
-                {session.mode === "edit-next-draw" && (
-                  <button
-                    className={secondaryButtonClassName}
-                    onClick={cancelEditNextDraw}
-                    type="button"
-                  >
-                    {copy.cancelEdit}
-                  </button>
-                )}
-                <button
-                  className={primaryButtonClassName}
-                  onClick={startDraw}
-                  type="button"
-                >
-                  {session.mode === "edit-next-draw"
-                    ? copy.drawNext
-                    : drawButtonLabel}
-                </button>
-              </div>
-              <p className="text-xs leading-5 text-ts-muted">
-                {copy.disclaimer}
-              </p>
-            </>
-          )}
-
-          <p
-            aria-atomic="true"
-            aria-live="polite"
-            className="sr-only"
-            data-draw-announcement-sequence={drawAnnouncementRequest?.sequence}
-            data-testid="draw-status"
-            role="status"
+          <section
+            className={`w-full sm:rounded-ts-panel sm:border sm:border-ts-divider sm:bg-ts-surface sm:p-7 sm:shadow-ts-paper ${
+              session.mode === "result"
+                ? "hidden"
+                : session.mode === "setup"
+                  ? "mx-auto max-w-3xl lg:col-span-2 lg:row-start-2"
+                  : "lg:col-start-1 lg:row-start-2"
+            }`}
+            data-testid="reading-setup-panel"
           >
-            {drawAnnouncement}
-          </p>
+            {readingSetupForm}
+          </section>
+          <div
+            className={
+              session.mode === "setup"
+                ? "lg:col-start-2 lg:row-start-1"
+                : session.mode === "edit-next-draw"
+                  ? "lg:col-start-2 lg:row-span-2 lg:row-start-1"
+                  : undefined
+            }
+          >
+            {readingWorkspace}
+          </div>
         </div>
 
-        {currentResult &&
-        currentTopic &&
-        currentSpread &&
-        currentReadingStyle ? (
-          <section
-            aria-label={copy.workspaceLabel}
-            className="grid gap-4 rounded-ts-panel border border-ts-divider bg-ts-surface p-4 shadow-ts-paper sm:p-5"
-            data-testid="reading-workspace"
-            ref={readingWorkspaceRef}
-          >
-            <div
-              className="grid gap-4"
-              data-testid="reading-result-observer"
-              ref={resultViewTargetRef}
-            >
-              <div className="grid gap-1">
-                <h2
-                  className="font-ts-display text-2xl font-semibold text-ts-ink focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
-                  ref={resultHeadingRef}
-                  tabIndex={-1}
-                >
-                  {copy.resultHeading}
-                </h2>
-                <p className="text-sm font-semibold text-ts-action">
-                  {currentTopic.label}
-                </p>
-                {currentQuestion ? (
-                  <p
-                    className="text-sm font-medium leading-6 text-ts-ink"
-                    data-testid="current-relationship-question"
-                  >
-                    {copy.selectedQuestionLabel}: {currentQuestion.title}
-                  </p>
-                ) : null}
-                <p className="text-sm leading-6 text-ts-ink">
-                  {currentTopic.resultFrame}
-                </p>
-                <p className="text-xs leading-5 text-ts-muted">
-                  {copy.currentReadingSettings}: {currentSpread.label} ·{" "}
-                  {currentReadingStyle.label}
-                  {currentResult.inputs.privateContext.trim().length > 0
-                    ? ` · ${copy.promptContextIncluded}`
-                    : ""}
-                </p>
-              </div>
-
-              <CardOverview
-                ariaLabel={copy.cardOverviewLabel}
-                cards={cards}
-                retryLabel={copy.instantReading.retry}
-                revealSequence={drawSequenceId}
-              />
-
-              {readingResult}
-              <p className="text-xs leading-5 text-ts-muted">
-                {copy.disclaimer}
-              </p>
-            </div>
-          </section>
-        ) : (
-          <section
-            aria-label={copy.workspaceLabel}
-            className="hidden gap-5 rounded-ts-panel border border-ts-divider bg-ts-surface p-4 shadow-ts-paper sm:p-5 lg:grid"
-            data-testid="reading-workspace"
-            ref={readingWorkspaceRef}
-          >
-            <CardSpread
-              cardMarkLabel={copy.cardMarkLabel}
-              cards={[]}
-              cardCount={selectedSpread.cardCount}
-              placeholderCardName={copy.placeholderCardName}
-              retryLabel={copy.instantReading.retry}
-              revealSequence={0}
-            />
-          </section>
-        )}
-
         <Link
-          className={`${secondaryButtonClassName} w-full`}
+          className={`${secondaryButtonClassName} mx-auto w-full max-w-5xl`}
           href={dailyQuestionPath}
         >
           {copy.dailyQuestionLink}
         </Link>
+        {drawStatus}
       </section>
-      <footer className="mx-auto w-full max-w-6xl px-5 pb-8 sm:px-8">
-        <nav
-          aria-label={publicPageNavigationLabel}
-          className="flex flex-wrap justify-center gap-x-3 text-xs sm:justify-start"
-        >
-          {publicPageLinks.map((link) => (
-            <Link
-              className={footerLinkClassName}
-              href={link.href}
-              key={link.href}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-      </footer>
-    </main>
+    </SiteShell>
   );
 }
 

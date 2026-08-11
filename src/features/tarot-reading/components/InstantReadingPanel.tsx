@@ -1,8 +1,5 @@
 import { useEffect, useRef } from "react";
-import {
-  primaryButtonClassName,
-  secondaryButtonClassName,
-} from "@/components/visual/class-names";
+import { secondaryButtonClassName } from "@/components/visual/class-names";
 import type { InstantReading } from "@/domain/tarot";
 import type { TarotReadingCopy } from "../i18n";
 
@@ -47,7 +44,7 @@ export function InstantReadingPanel({
   return (
     <section
       aria-labelledby="instant-reading-heading"
-      className="grid gap-4 rounded-ts-control border-2 border-ts-border bg-ts-blush p-4 sm:p-5"
+      className="grid gap-4 rounded-ts-control border border-ts-divider bg-ts-surface p-4 sm:p-5"
     >
       <div className="grid gap-1">
         <h2
@@ -84,9 +81,7 @@ export function InstantReadingPanel({
       ) : (
         <>
           <button
-            className={
-              isLoading ? secondaryButtonClassName : primaryButtonClassName
-            }
+            className={secondaryButtonClassName}
             onClick={isLoading ? onCancel : onGenerate}
             ref={actionRef}
             type="button"
