@@ -174,6 +174,172 @@ test.beforeEach(async ({ context }) => {
   await rejectOptionalServices(context);
 });
 
+test("keeps one canonical shell boundary across public page archetypes", async ({
+  page,
+}) => {
+  const routes = [
+    "/",
+    "/daily",
+    "/relationship-flow",
+    "/relationship-tarot-questions",
+    "/about",
+  ] as const;
+
+  for (const width of [390, 1280] as const) {
+    await page.setViewportSize({ height: 844, width });
+    let expectedBoundary:
+      | {
+          footerLeft: number;
+          footerRight: number;
+          headerLeft: number;
+          headerRight: number;
+        }
+      | undefined;
+
+    for (const route of routes) {
+      await page.goto(route);
+
+      const boundary = await page.evaluate(() => {
+        const header = document.querySelector('[data-testid="site-header"]');
+        const footer = document.querySelector('[data-testid="site-footer"]');
+
+        if (!header || !footer) {
+          throw new Error("Shared shell landmarks are missing");
+        }
+
+        const headerRect = header.getBoundingClientRect();
+        const footerRect = footer.getBoundingClientRect();
+
+        return {
+          footerLeft: footerRect.left,
+          footerRight: footerRect.right,
+          headerLeft: headerRect.left,
+          headerRight: headerRect.right,
+          viewportWidth: document.documentElement.clientWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+        };
+      });
+
+      expect(
+        boundary.scrollWidth,
+        `${route} at ${width}px`,
+      ).toBeLessThanOrEqual(boundary.viewportWidth);
+      expect(boundary.headerLeft, route).toBe(boundary.footerLeft);
+      expect(boundary.headerRight, route).toBe(boundary.footerRight);
+
+      const comparableBoundary = {
+        footerLeft: boundary.footerLeft,
+        footerRight: boundary.footerRight,
+        headerLeft: boundary.headerLeft,
+        headerRight: boundary.headerRight,
+      };
+      expectedBoundary ??= comparableBoundary;
+      expect(comparableBoundary, `${route} at ${width}px`).toEqual(
+        expectedBoundary,
+      );
+    }
+  }
+});
+
+test("uses state-specific generator layouts and one filled result action", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 900, width: 1280 });
+  await page.goto("/");
+
+  const generatorLayout = page.getByTestId("generator-layout");
+  const generatorIntro = page.getByTestId("generator-intro");
+  const setupPanel = page.getByTestId("reading-setup-panel");
+  const setupWorkspace = page.getByTestId("reading-workspace");
+
+  await expect(generatorLayout).toHaveAttribute("data-layout-mode", "setup");
+  await expect(setupWorkspace).toBeVisible();
+  const generatorIntroBox = await generatorIntro.boundingBox();
+  const setupPanelBox = await setupPanel.boundingBox();
+  const setupWorkspaceBox = await setupWorkspace.boundingBox();
+  expect(generatorIntroBox).not.toBeNull();
+  expect(setupPanelBox).not.toBeNull();
+  expect(setupWorkspaceBox).not.toBeNull();
+  expect(setupPanelBox?.y ?? 0).toBeGreaterThanOrEqual(
+    Math.max(
+      (generatorIntroBox?.y ?? 0) + (generatorIntroBox?.height ?? 0),
+      (setupWorkspaceBox?.y ?? 0) + (setupWorkspaceBox?.height ?? 0),
+    ),
+  );
+  expect(setupPanelBox?.width ?? 0).toBeLessThanOrEqual(768);
+
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
+  await expect(generatorLayout).toHaveAttribute("data-layout-mode", "result");
+  const resultWorkspace = page.getByTestId("reading-workspace");
+  const resultWorkspaceBox = await resultWorkspace.boundingBox();
+  expect(resultWorkspaceBox).not.toBeNull();
+  expect(resultWorkspaceBox?.width ?? 0).toBeGreaterThan(
+    setupPanelBox?.width ?? Number.POSITIVE_INFINITY,
+  );
+
+  const promptCopy = page.getByRole("button", { name: "Copy prompt" });
+  await expect(promptCopy).toHaveCSS("background-color", colors.action);
+
+  await page.getByRole("button", { name: "Edit next draw" }).click();
+  await expect(generatorLayout).toHaveAttribute(
+    "data-layout-mode",
+    "edit-next-draw",
+  );
+  await expect(page.getByTestId("reading-setup-form")).toBeVisible();
+  await expect(page.getByTestId("reading-workspace")).toBeVisible();
+
+  await page.goto("/ko");
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+  const localizedResultWorkspace = page.getByTestId("reading-workspace");
+  await expect(page.getByRole("button", { name: "질문 복사하기" })).toHaveCSS(
+    "background-color",
+    colors.action,
+  );
+  await page.mouse.move(0, 0);
+  await expect(
+    page.getByRole("button", { name: "지금 바로 해석하기" }),
+  ).toHaveCSS("background-color", colors.surface);
+  const filledPrimaryCount = await localizedResultWorkspace
+    .locator("button")
+    .evaluateAll(
+      (buttons, actionColor) =>
+        buttons.filter(
+          (button) => getComputedStyle(button).backgroundColor === actionColor,
+        ).length,
+      colors.action,
+    );
+  expect(filledPrimaryCount).toBe(1);
+});
+
+test("keeps the complete question catalog in stable fragment disclosures", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/ko/relationship-tarot-questions#perception");
+
+  const categories = page.getByTestId("question-category");
+  const perceptionCategory = page.locator("#perception");
+
+  await expect(categories).toHaveCount(7);
+  await expect(
+    page.locator('[data-testid="question-category"][open]'),
+  ).toHaveCount(1);
+  await expect(page.locator('a[href*="question="]')).toHaveCount(28);
+  await expect(page).toHaveURL(/#perception$/);
+  await expect
+    .poll(async () => {
+      const box = await perceptionCategory.boundingBox();
+      return Boolean(box && box.y >= 0 && box.y < 844);
+    })
+    .toBe(true);
+
+  await perceptionCategory.locator("summary").click();
+  await expect(perceptionCategory).toHaveAttribute("open", "");
+  await expect(
+    page.getByRole("link", { name: "서로에 대한 기대 보기" }),
+  ).toBeVisible();
+});
+
 test("locks the semantic token values and primary visual roles", async ({
   page,
 }) => {
@@ -312,10 +478,9 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
   await expect(reunionTopic).toHaveCSS("border-color", colors.action);
 
   await page.goto("/");
-  await page.keyboard.press("Tab");
+  await tabTo(page, englishLocale);
   await assertFocusOutline(englishLocale, page);
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
+  await tabTo(page, loveRadio);
   await assertFocusOutline(loveTopic, page, loveRadio);
   await tabTo(page, drawButton);
   await assertFocusOutline(drawButton, page);

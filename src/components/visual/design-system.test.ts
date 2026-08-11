@@ -4,17 +4,30 @@ import { describe, expect, it } from "vitest";
 
 const themedSourceFiles = [
   "src/components/layout/LocaleSwitch.tsx",
+  "src/components/layout/SiteFooter.tsx",
+  "src/components/layout/SiteHeader.tsx",
+  "src/components/layout/SiteShell.tsx",
   "src/components/visual/CelestialMark.tsx",
   "src/components/visual/TarotCardBack.tsx",
   "src/components/visual/class-names.ts",
   "src/features/daily-question/DailyQuestionClient.tsx",
   "src/features/public-pages/PublicPage.tsx",
+  "src/features/relationship-flow/RelationshipFlowLanding.tsx",
+  "src/features/relationship-questions/RelationshipQuestionExplorer.tsx",
   "src/features/tarot-reading/TarotExperienceClient.tsx",
   "src/features/tarot-reading/components/CardSpread.tsx",
   "src/features/tarot-reading/components/InstantReadingPanel.tsx",
   "src/features/tarot-reading/components/LanguageSwitch.tsx",
   "src/features/tarot-reading/components/ReadingResult.tsx",
   "src/features/tarot-reading/components/TopicSelector.tsx",
+] as const;
+
+const siteShellConsumers = [
+  "src/features/daily-question/DailyQuestionClient.tsx",
+  "src/features/public-pages/PublicPage.tsx",
+  "src/features/relationship-flow/RelationshipFlowLanding.tsx",
+  "src/features/relationship-questions/RelationshipQuestionExplorer.tsx",
+  "src/features/tarot-reading/TarotExperienceClient.tsx",
 ] as const;
 
 const legacyPalettePattern =
@@ -117,6 +130,53 @@ describe("visual design system contract", () => {
     expect(source).toMatch(
       /<span className="[^"]*bg-\[#FEE500\][^"]*">\s*<Image[\s\S]*?src="\/brand\/kakaotalk-symbol\.svg"/,
     );
+  });
+
+  it("keeps public feature surfaces inside the canonical site shell", () => {
+    siteShellConsumers.forEach((relativePath) => {
+      const source = readFileSync(resolve(process.cwd(), relativePath), "utf8");
+
+      expect(source, relativePath).toContain(
+        'import { SiteShell } from "@/components/layout/SiteShell";',
+      );
+      expect(source, relativePath).toContain("<SiteShell");
+      expect(source, relativePath).not.toMatch(/<(?:main|header|footer)\b/);
+    });
+  });
+
+  it("keeps prompt copy primary and repeated or optional reading actions secondary", () => {
+    const promptResultSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "src/features/tarot-reading/components/ReadingResult.tsx",
+      ),
+      "utf8",
+    );
+    const instantReadingSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "src/features/tarot-reading/components/InstantReadingPanel.tsx",
+      ),
+      "utf8",
+    );
+    const questionCatalogSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "src/features/relationship-questions/RelationshipQuestionExplorer.tsx",
+      ),
+      "utf8",
+    );
+
+    expect(promptResultSource).toMatch(
+      /className={`\$\{primaryButtonClassName\}[^`]*`}\s+onClick={onCopyPrompt}/,
+    );
+    expect(instantReadingSource).toContain(
+      "className={secondaryButtonClassName}",
+    );
+    expect(instantReadingSource).not.toContain("primaryButtonClassName");
+    expect(instantReadingSource).not.toContain("bg-ts-blush");
+    expect(questionCatalogSource).toContain("secondaryButtonClassName");
+    expect(questionCatalogSource).not.toContain("primaryButtonClassName");
   });
 
   it("defines each locked root token exactly once", () => {
