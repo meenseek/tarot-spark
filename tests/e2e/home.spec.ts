@@ -271,7 +271,7 @@ test("keeps every localized context example visible at 320px", async ({
       path: "/",
       topicExamples: [
         [
-          "Love",
+          "Love overview",
           "Example: I want to move a connection forward, but I am unsure whether expressing my feelings first would be healthy.",
         ],
         [
@@ -297,7 +297,7 @@ test("keeps every localized context example visible at 320px", async ({
       path: "/ko",
       topicExamples: [
         [
-          "연애",
+          "연애 전반",
           "예: 관계를 조금 더 발전시키고 싶은데 먼저 마음을 표현해도 될지 고민돼요.",
         ],
         [

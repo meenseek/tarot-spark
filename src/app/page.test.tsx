@@ -313,7 +313,7 @@ describe("Home", () => {
     const context = screen.getByLabelText(/Add your situation/);
     const topicExamples = [
       [
-        "Love",
+        "Love overview",
         "Example: I want to move a connection forward, but I am unsure whether expressing my feelings first would be healthy.",
       ],
       [
@@ -629,7 +629,7 @@ describe("Home", () => {
     expect(screen.queryByRole("radio", { name: "Reunion" })).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "Edit next draw" }));
-    expect(screen.getByRole("radio", { name: "Love" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "Love overview" })).toBeChecked();
   });
 
   it("customizes the current prompt without rewriting draw provenance", async () => {
@@ -1490,7 +1490,7 @@ describe("Home", () => {
     expect(init).toHaveBeenCalledWith("test-kakao-js-key");
     expect(sendDefault).toHaveBeenCalledWith({
       objectType: "text",
-      text: "Love tarot prompt: The Fool, The Magician, The High Priestess",
+      text: "Love overview tarot prompt: The Fool, The Magician, The High Priestess",
       link: {
         mobileWebUrl: shareUrl,
         webUrl: shareUrl,

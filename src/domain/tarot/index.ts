@@ -4,6 +4,7 @@ export {
   normalizeUserContext,
 } from "./prompts";
 export { getDefaultReadingStyle, getReadingStyle } from "./reading-styles";
+export { getAnswerTarget } from "./answer-targets";
 export {
   getDailyTarotCard,
   getDailyTarotCardId,
@@ -19,6 +20,19 @@ export {
 export { getDefaultTopic, getTopic } from "./topics";
 export { readingStyleIds, spreadIds, tarotCardIds, topicIds } from "./ids";
 export {
+  answerTargetIds,
+  careerFocusIds,
+  getReadingTaxonomy,
+  getRelationshipQuestionDefinition,
+  getTopicTaxonomy,
+  isRelationshipQuestionId,
+  readingDomainIds,
+  relationshipFocusIds,
+  relationshipQuestionDefinitions,
+  relationshipQuestionFocusIds,
+  topicTaxonomyById,
+} from "./taxonomy";
+export {
   canonicalTarotCardIds,
   getTarotCardDefinition,
   majorArcanaDefinitions,
@@ -29,6 +43,7 @@ export {
   tarotCardDefinitions,
 } from "./card-catalog";
 export type {
+  AnswerTarget,
   DrawnCard,
   LocaleTarotData,
   PromptTemplate,
@@ -50,6 +65,16 @@ export type {
   MinorArcanaSuitId,
   TarotCardDefinition,
 } from "./card-catalog";
+export type {
+  AnswerTargetId,
+  CareerFocusId,
+  ReadingDomainId,
+  ReadingTaxonomy,
+  RelationshipAnswerTargetId,
+  RelationshipFocusId,
+  RelationshipQuestionFocusId,
+  RelationshipQuestionId,
+} from "./taxonomy";
 export type {
   InstantReadingCardInput,
   InstantReadingRequest,

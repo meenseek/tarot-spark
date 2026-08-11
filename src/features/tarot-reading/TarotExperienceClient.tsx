@@ -22,6 +22,7 @@ import {
   getDefaultReadingStyle,
   getDefaultSpread,
   getDefaultTopic,
+  getAnswerTarget,
   getReadingStyle,
   getSpread,
   getTopic,
@@ -483,10 +484,17 @@ export function TarotExperienceClient({
       currentResult && currentTopic && currentSpread && currentReadingStyle
         ? buildPrompt(
             {
+              answerTarget: getAnswerTarget(
+                tarotData.answerTargets,
+                currentQuestion?.defaultAnswerTargetId ??
+                  currentTopic.taxonomy.defaultAnswerTargetId,
+              ),
               cards,
               readingStyle: currentReadingStyle,
               ...(currentQuestion
-                ? { questionFocus: currentQuestion.focus }
+                ? {
+                    questionFocus: currentQuestion.focus,
+                  }
                 : {}),
               spread: currentSpread,
               template: tarotData.promptTemplate,
@@ -504,6 +512,7 @@ export function TarotExperienceClient({
       currentSpread,
       currentTopic,
       locale,
+      tarotData.answerTargets,
       tarotData.promptTemplate,
     ],
   );

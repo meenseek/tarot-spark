@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import type { InstantReadingRequest } from "@/domain/tarot";
+import {
+  buildPrompt,
+  getAnswerTarget,
+  getDefaultReadingStyle,
+  getDefaultSpread,
+  type InstantReadingRequest,
+} from "@/domain/tarot";
 import { getTarotData } from "@/i18n/tarot-data";
 import {
   buildCloudflareInstantReadingBody,
@@ -67,7 +73,7 @@ describe("Cloudflare instant reading adapter", () => {
       "카드상 ... 가능성에 무게가 실립니다",
     );
     expect(JSON.stringify(body)).toContain(
-      "관찰 행동이나 사용자의 대응이 아니라",
+      "상대가 초점이면 서로 다른 감정적 태도",
     );
   });
 
@@ -96,6 +102,67 @@ describe("Cloudflare instant reading adapter", () => {
     expect(prompt).toContain("질문에 대한 상징적 답을 먼저 제시");
     expect(prompt).toContain("시선·호감이나 연애적 관심·망설임");
     expect(prompt).toContain("내용:'이라는 단어를 출력하지 마세요");
+  });
+
+  it("routes the prompt by the entry or public-question answer target", () => {
+    expect(buildInstantReadingPrompt(tarotData, request)).toContain(
+      "답변의 기본 초점: 두 사람 사이의 정서적 상호작용과 반복되는 관계 패턴",
+    );
+    const otherPersonPrompt = buildInstantReadingPrompt(tarotData, {
+      ...request,
+      questionId: "mutual-view",
+      topicId: "feelings",
+    });
+    expect(otherPersonPrompt).toContain(
+      "답변의 기본 초점: 상대가 독자를 보는 시선과 감정·연애적 관심·망설임",
+    );
+    expect(otherPersonPrompt).toContain(
+      "질문의 초점: 상대가 나를 어떻게 보고 있을 가능성이 있는지",
+    );
+
+    const selfPrompt = buildInstantReadingPrompt(tarotData, {
+      ...request,
+      questionId: "ignored-signals",
+      topicId: "feelings",
+    });
+    expect(selfPrompt).toContain(
+      "답변의 기본 초점: 독자의 감정·기대·선택·반복 패턴",
+    );
+    expect(selfPrompt).toContain("질문의 초점: 내가 중요하지 않다고 넘긴 신호");
+    expect(selfPrompt).not.toContain(
+      "상대가 사용자를 어떻게 볼 가능성이 있는지",
+    );
+  });
+
+  it("keeps all stable entry defaults aligned across copied and instant prompts", () => {
+    const spread = getDefaultSpread(tarotData.spreads);
+    const cards = tarotData.cards
+      .slice(0, spread.cardCount)
+      .map((card) => ({ card }));
+
+    for (const topic of tarotData.topics) {
+      const answerTarget = getAnswerTarget(
+        tarotData.answerTargets,
+        topic.taxonomy.defaultAnswerTargetId,
+      );
+      const copiedPrompt = buildPrompt({
+        answerTarget,
+        cards,
+        readingStyle: getDefaultReadingStyle(tarotData.readingStyles),
+        spread,
+        template: tarotData.promptTemplate,
+        topic,
+      });
+      const instantPrompt = buildInstantReadingPrompt(tarotData, {
+        ...request,
+        topicId: topic.id,
+      });
+
+      for (const prompt of [copiedPrompt, instantPrompt]) {
+        expect(prompt).toContain(answerTarget.instruction);
+        expect(prompt).toContain(topic.promptLead);
+      }
+    }
   });
 
   it.each([

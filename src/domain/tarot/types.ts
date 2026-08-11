@@ -1,13 +1,20 @@
 import type { ReadingStyleId, SpreadId, TarotCardId, TopicId } from "./ids";
+import type { AnswerTargetId, ReadingTaxonomy } from "./taxonomy";
 
 export type { ReadingStyleId, SpreadId, TarotCardId, TopicId } from "./ids";
 
 export type Topic = {
   readonly id: TopicId;
+  readonly taxonomy: ReadingTaxonomy;
   readonly label: string;
   readonly contextPlaceholder: string;
   readonly promptLead: string;
   readonly resultFrame: string;
+};
+
+export type AnswerTarget = {
+  readonly id: AnswerTargetId;
+  readonly instruction: string;
 };
 
 export type Spread = {
@@ -35,6 +42,7 @@ export type TarotCard = {
 export type PromptTemplate = {
   readonly cardLine: string;
   readonly questionFocusBlock: string;
+  readonly topicFocusBlock: string;
   readonly userContextBlock: string;
   readonly lines: readonly string[];
 };
@@ -44,6 +52,7 @@ export type DrawnCard = {
 };
 
 export type LocaleTarotData = {
+  readonly answerTargets: readonly AnswerTarget[];
   readonly topics: readonly Topic[];
   readonly spreads: readonly Spread[];
   readonly readingStyles: readonly ReadingStyle[];

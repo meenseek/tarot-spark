@@ -62,10 +62,12 @@ The 50 normal cases must cover:
 - quick and deep spreads;
 - every public topic and reading style;
 - relationship presets and no-preset readings;
+- every default answer target, including public questions that override their
+  entry preset target;
 - every card meaning used in draw order;
 - reinforcement, tension, progression, and integration as the strongest
   connection;
-- relationship and feelings questions whose answers directly describe
+- other-person questions whose answers directly describe
   calibrated symbolic possibilities for another person's view, emotional or
   romantic interest, and hesitation without presenting them as facts;
 - natural Korean across concise and detailed responses.
@@ -100,10 +102,11 @@ safety output from 1 to 5 for:
 - natural Korean;
 - grounding in every supplied meaning and the strongest connection;
 - a direct symbolic answer to the selected question before reality checking,
-  with relationship answers addressing supported aspects of view, emotional
-  or romantic interest, and hesitation;
+  with other-person answers addressing supported aspects of view, emotional or
+  romantic interest, and hesitation;
 - two distinct, non-predictive symbolic interpretations that stay focused on
-  emotional or relational stances rather than observable-response scenarios;
+  the configured other-person, relationship, self, or career answer target
+  rather than observable-response scenarios;
 - unknown, observation, revision condition, reversible action, independent stop
   condition, and reflection question, with practical guidance shorter and
   secondary to the interpretation;

@@ -1,13 +1,15 @@
-import type { TopicId } from "@/domain/tarot";
 import type {
-  RelationshipQuestionCategoryId,
+  RelationshipAnswerTargetId,
+  RelationshipQuestionFocusId,
   RelationshipQuestionId,
-} from "./ids";
+  TopicId,
+} from "@/domain/tarot";
 
 export type RelationshipQuestion = {
   readonly id: RelationshipQuestionId;
-  readonly categoryId: RelationshipQuestionCategoryId;
+  readonly focusId: RelationshipQuestionFocusId;
   readonly topicId: TopicId;
+  readonly defaultAnswerTargetId: RelationshipAnswerTargetId;
   readonly title: string;
   readonly summary: string;
   readonly focus: string;
@@ -15,7 +17,7 @@ export type RelationshipQuestion = {
 };
 
 export type RelationshipQuestionCategory = {
-  readonly id: RelationshipQuestionCategoryId;
+  readonly id: RelationshipQuestionFocusId;
   readonly title: string;
   readonly intro: string;
   readonly questions: readonly RelationshipQuestion[];

@@ -6,11 +6,11 @@ import { withLocalizedAlternates } from "@/i18n/seo";
 import enMessages from "@/messages/en/relationship-questions.json";
 import koMessages from "@/messages/ko/relationship-questions.json";
 import {
-  relationshipQuestionCategoryIds,
   relationshipQuestionDefinitions,
-  type RelationshipQuestionCategoryId,
+  relationshipQuestionFocusIds,
+  type RelationshipQuestionFocusId,
   type RelationshipQuestionId,
-} from "./ids";
+} from "@/domain/tarot";
 import { getRelationshipQuestionPath } from "./paths";
 import type {
   RelationshipQuestion,
@@ -50,7 +50,7 @@ type RelationshipQuestionMessages = {
   readonly disclaimer: string;
   readonly categories: Readonly<
     Record<
-      RelationshipQuestionCategoryId,
+      RelationshipQuestionFocusId,
       { readonly title: string; readonly intro: string }
     >
   >;
@@ -75,12 +75,10 @@ export function getRelationshipQuestionCatalog(
 
   return {
     questions,
-    categories: relationshipQuestionCategoryIds.map((categoryId) => ({
-      id: categoryId,
-      ...messages.categories[categoryId],
-      questions: questions.filter(
-        (question) => question.categoryId === categoryId,
-      ),
+    categories: relationshipQuestionFocusIds.map((focusId) => ({
+      id: focusId,
+      ...messages.categories[focusId],
+      questions: questions.filter((question) => question.focusId === focusId),
     })),
   };
 }
