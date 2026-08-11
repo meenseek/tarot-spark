@@ -59,6 +59,7 @@ import type { InstantReadingStatus } from "./components/InstantReadingPanel";
 import { LanguageSwitch } from "./components/LanguageSwitch";
 import { ReadingPreferences } from "./components/ReadingPreferences";
 import { ReadingResult } from "./components/ReadingResult";
+import { RelationshipQuestionSelector } from "./components/RelationshipQuestionSelector";
 import { SituationContextInput } from "./components/SituationContextInput";
 import { TopicSelector } from "./components/TopicSelector";
 import type { TarotReadingCopy } from "./i18n";
@@ -111,7 +112,6 @@ type TarotExperienceClientProps = {
   readonly kakaoJavaScriptKey: string | undefined;
   readonly publicPageLinks: readonly PublicPageLink[];
   readonly publicPageNavigationLabel: string;
-  readonly relationshipQuestionPath: string;
   readonly relationshipQuestions: readonly RelationshipQuestion[];
   readonly shareSiteUrl: string;
   readonly tarotData: LocaleTarotData;
@@ -134,7 +134,6 @@ export function TarotExperienceClient({
   kakaoJavaScriptKey,
   publicPageLinks,
   publicPageNavigationLabel,
-  relationshipQuestionPath,
   relationshipQuestions,
   shareSiteUrl,
   tarotData,
@@ -618,6 +617,33 @@ export function TarotExperienceClient({
       locale,
       topic_id: topicId,
     });
+  }
+
+  function chooseRelationshipQuestion(questionId: RelationshipQuestionId) {
+    if (session.mode === "result" || formInputs.questionId === questionId) {
+      return;
+    }
+
+    const question = relationshipQuestions.find(({ id }) => id === questionId);
+
+    if (!question) {
+      return;
+    }
+
+    dispatchSession({ type: "SET_DRAFT_QUESTION", questionId });
+    if (session.mode === "setup") {
+      replaceBrowserUrl(
+        getBrowserReadingUrl(
+          question.topicId,
+          formInputs.spreadId,
+          formInputs.styleId,
+          formInputs.styleId,
+          [],
+          questionId,
+          readingAttribution,
+        ),
+      );
+    }
   }
 
   function chooseSpread(spreadId: SpreadId) {
@@ -1322,12 +1348,12 @@ export function TarotExperienceClient({
               {selectedQuestion.focus}
             </p>
           </div>
-          <Link
-            className="w-fit text-sm font-semibold text-ts-action underline decoration-ts-gold underline-offset-4"
-            href={relationshipQuestionPath}
-          >
-            {copy.browseQuestions}
-          </Link>
+          <RelationshipQuestionSelector
+            label={copy.changeQuestionLabel}
+            onSelect={chooseRelationshipQuestion}
+            questions={relationshipQuestions}
+            selectedQuestionId={selectedQuestion.id}
+          />
         </aside>
       ) : null}
 

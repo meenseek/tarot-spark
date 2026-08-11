@@ -169,7 +169,7 @@ const uiCopySchema = {
   selectedQuestionLabel: "string",
   selectedQuestionHelp: "string",
   selectedQuestionFocusLabel: "string",
-  browseQuestions: "string",
+  changeQuestionLabel: "string",
   cardCountLabel: "string",
   drawButton: "string",
   drawStatus: "string",

@@ -114,6 +114,37 @@ describe("reading session reducer", () => {
     });
   });
 
+  it("derives the canonical topic when a preset question changes", () => {
+    const result = createResultSession({
+      inputs: {
+        ...defaultInputs,
+        topicId: "feelings",
+        questionId: "mutual-view",
+      },
+      cards: firstCards,
+    });
+    const editing = reduce(result, [
+      { type: "ENTER_EDIT" },
+      { type: "SET_DRAFT_QUESTION", questionId: "pace-of-closeness" },
+    ]);
+
+    expect(editing.mode).toBe("edit-next-draw");
+    if (editing.mode !== "edit-next-draw" || result.mode !== "result") {
+      throw new Error("Expected an editable preset-question result");
+    }
+
+    expect(editing.current).toBe(result.current);
+    expect(editing.current.inputs).toMatchObject({
+      questionId: "mutual-view",
+      topicId: "feelings",
+    });
+    expect(editing.draft).toEqual({
+      ...defaultInputs,
+      questionId: "pace-of-closeness",
+      topicId: "love",
+    });
+  });
+
   it("discards the entire draft when edit mode is canceled", () => {
     const result = createResult();
     const editing = reduce(result, [
@@ -235,6 +266,12 @@ describe("reading session reducer", () => {
 
   it.each([
     [{ type: "SET_DRAFT_TOPIC", topicId: "love" }],
+    [
+      {
+        type: "SET_DRAFT_QUESTION",
+        questionId: "pace-of-closeness",
+      },
+    ],
     [{ type: "SET_DRAFT_SPREAD", spreadId: "quick" }],
     [{ type: "SET_DRAFT_STYLE", styleId: "balanced" }],
     [
@@ -246,7 +283,11 @@ describe("reading session reducer", () => {
   ] satisfies readonly [SessionAction][])(
     "returns the identical setup session for an unchanged draft action %#",
     (action) => {
-      const setup = createSetupSession(defaultInputs);
+      const setup = createSetupSession(
+        action.type === "SET_DRAFT_QUESTION"
+          ? { ...defaultInputs, questionId: "pace-of-closeness" }
+          : defaultInputs,
+      );
 
       expect(readingSessionReducer(setup, action)).toBe(setup);
     },
@@ -285,6 +326,12 @@ describe("reading session reducer", () => {
       readingSessionReducer(result, {
         type: "SET_DRAFT_TOPIC",
         topicId: "feelings",
+      }),
+    ).toBe(result);
+    expect(
+      readingSessionReducer(result, {
+        type: "SET_DRAFT_QUESTION",
+        questionId: "mutual-view",
       }),
     ).toBe(result);
     expect(

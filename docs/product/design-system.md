@@ -168,6 +168,10 @@ instead of palette utilities or color literals.
   through edit-next-draw so users can keep or change their choices before a new
   draw replaces the committed result. Do not use browser Back as a reading
   reset or add a separate immediate-redraw path.
+- Keep preset-question changes inside the next-draw draft so cancelling restores
+  the committed result and private context. Do not use catalog navigation as a
+  draft control. Locale navigation uses the committed result and may discard an
+  uncommitted next-draw draft.
 - Start each result with a compact three-column card overview containing card
   approved card art, neutral draw order, and the exact card name.
   Keep full card meaning in the later details

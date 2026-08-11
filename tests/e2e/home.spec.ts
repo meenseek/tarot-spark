@@ -518,6 +518,7 @@ test("serves the relationship question explorer with localized SEO", async ({
 test("uses a chosen relationship question in the generated prompt", async ({
   page,
 }) => {
+  await page.setViewportSize({ height: 844, width: 320 });
   await page.goto("/ko/relationship-tarot-questions");
   await page.locator("#perception > summary").click();
   await page.getByRole("link", { name: "서로에 대한 기대 보기" }).click();
@@ -526,6 +527,31 @@ test("uses a chosen relationship question in the generated prompt", async ({
   await expect(
     page.getByTestId("selected-relationship-question"),
   ).toContainText("그 사람과 나는 서로를 어떻게 보고 있을까?");
+  const setupQuestionSelector = page.getByLabel("다른 관계 질문 고르기");
+  await expect(setupQuestionSelector).toHaveValue("mutual-view");
+  await setupQuestionSelector.selectOption("pace-of-closeness");
+  await expect(page).toHaveURL(/topic=love&question=pace-of-closeness/);
+  await expect(
+    page.getByTestId("selected-relationship-question"),
+  ).toContainText("우리 둘의 가까워지는 속도는 맞을까?");
+  await setupQuestionSelector.selectOption("mutual-view");
+  await expect(page).toHaveURL(/topic=feelings&question=mutual-view/);
+  const selectorBox = await setupQuestionSelector.boundingBox();
+  expect(selectorBox).not.toBeNull();
+  expect(selectorBox?.x ?? -1).toBeGreaterThanOrEqual(0);
+  expect(
+    (selectorBox?.x ?? 0) + (selectorBox?.width ?? 321),
+  ).toBeLessThanOrEqual(320);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+
+  await openSituationContext(page);
+  await page
+    .getByRole("textbox", { name: /내 상황 더하기/ })
+    .fill("이 내용은 다음 질문을 고르는 동안에도 유지되어야 해요.");
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
 
   await expect(page.getByTestId("current-relationship-question")).toContainText(
@@ -550,9 +576,19 @@ test("uses a chosen relationship question in the generated prompt", async ({
     );
 
   await page.getByRole("button", { name: "다음 리딩 선택하기" }).click();
+  const editQuestionSelector = page.getByLabel("다른 관계 질문 고르기");
+  await expect(editQuestionSelector).toHaveValue("mutual-view");
   await expect(
     page.getByRole("link", { name: "다른 관계 질문 둘러보기" }),
-  ).toBeVisible();
+  ).toHaveCount(0);
+  await editQuestionSelector.selectOption("pace-of-closeness");
+  await expect(editQuestionSelector).toHaveValue("pace-of-closeness");
+  await expect(
+    page.getByTestId("selected-relationship-question"),
+  ).toContainText("우리 둘의 가까워지는 속도는 맞을까?");
+  await expect(page.getByTestId("current-relationship-question")).toContainText(
+    "그 사람과 나는 서로를 어떻게 보고 있을까?",
+  );
   expect(page.url()).toBe(committedUrl);
   expect(
     await page
@@ -561,8 +597,49 @@ test("uses a chosen relationship question in the generated prompt", async ({
         elements.map((element) => element.getAttribute("data-card-id")),
       ),
   ).toEqual(committedCards);
+  await openSituationContext(page);
+  await expect(
+    page.getByRole("textbox", { name: /내 상황 더하기/ }),
+  ).toHaveValue("이 내용은 다음 질문을 고르는 동안에도 유지되어야 해요.");
+  await expect(page.getByRole("link", { name: "English" })).toHaveAttribute(
+    "href",
+    /topic=feelings.*question=mutual-view/,
+  );
+
+  await page.getByRole("button", { name: "현재 리딩으로 돌아가기" }).click();
+  await expect(editQuestionSelector).toHaveCount(0);
+  await expect(page.getByTestId("current-relationship-question")).toContainText(
+    "그 사람과 나는 서로를 어떻게 보고 있을까?",
+  );
+  expect(page.url()).toBe(committedUrl);
+  expect(
+    await page
+      .locator("[data-card-id]")
+      .evaluateAll((elements) =>
+        elements.map((element) => element.getAttribute("data-card-id")),
+      ),
+  ).toEqual(committedCards);
+
+  await page.getByRole("button", { name: "다음 리딩 선택하기" }).click();
+  await page
+    .getByLabel("다른 관계 질문 고르기")
+    .selectOption("pace-of-closeness");
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
-  await expect(page).toHaveURL(/question=mutual-view/);
+  await expect(page).toHaveURL(/topic=love.*question=pace-of-closeness/);
+  await expect(page.getByTestId("current-relationship-question")).toContainText(
+    "우리 둘의 가까워지는 속도는 맞을까?",
+  );
+  await expect(page.getByTestId("reading-card-0")).toHaveAttribute(
+    "data-reveal-sequence",
+    "2",
+  );
+  await openPromptContent(page);
+  await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
+    /관계의 속도에서 내가 편안한 지점, 상대가 행동으로 보인 속도/,
+  );
+  await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
+    /이 내용은 다음 질문을 고르는 동안에도 유지되어야 해요/,
+  );
 });
 
 test("returns 404 for unsupported or duplicate locale paths", async ({
@@ -946,6 +1023,10 @@ test("renders a shared reading first and keeps its localized share route", async
   ).toHaveCount(0);
   await expect(page.getByTestId("reading-preferences")).toHaveCount(0);
   await expect(page.getByTestId("situation-context")).toHaveCount(0);
+  await expect(page.getByTestId("relationship-question-selector")).toHaveCount(
+    0,
+  );
+  await expect(page.getByTestId("next-reading-action")).toHaveCount(0);
 
   const workspaceTop = await page
     .getByTestId("reading-result-observer")
