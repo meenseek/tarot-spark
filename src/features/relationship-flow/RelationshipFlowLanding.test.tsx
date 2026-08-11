@@ -11,7 +11,7 @@ describe("RelationshipFlowLanding", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: /see the relationship pattern without pretending/i,
+        name: /read the feelings and relationship flow suggested/i,
       }),
     ).toBeInTheDocument();
     expect(
@@ -43,7 +43,7 @@ describe("RelationshipFlowLanding", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: /상대의 속마음을 맞히려 하지 않고/i,
+        name: /카드가 시사하는 감정과 관계의 흐름/i,
       }),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "English" })).toHaveAttribute(

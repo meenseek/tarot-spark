@@ -30,8 +30,14 @@ describe("RelationshipQuestionExplorer", () => {
     ).toHaveAttribute("href", "/ko?topic=feelings&question=mutual-view");
     expect(
       screen.getByText(
-        /내가 상대에게 기대하는 모습, 상대가 행동으로 보여준 신호/,
+        /상대가 나를 어떻게 보고 있을 가능성이 있는지와 내가 상대에게 기대하는 모습/,
       ),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: "가능성을 읽는 질문" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/카드가 시사하는 답을 먼저 읽습니다/),
     ).toBeVisible();
     expect(
       screen.getByRole("link", {

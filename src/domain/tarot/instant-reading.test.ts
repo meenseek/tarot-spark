@@ -44,6 +44,126 @@ describe("instant reading domain", () => {
     ).toEqual({ text: createValidText(3) });
   });
 
+  it("accepts calibrated symbolic interest while rejecting factual certainty", () => {
+    const originalOverall =
+      "새로운 가능성을 향한 움직임과 분명한 표현이 함께 필요하지만, 아직 확인하지 않은 부분은 현실의 대화로 살펴야 기대와 관찰을 구분할 수 있습니다.";
+    const calibratedClaims = [
+      "카드상 상대의 시선에는 호감 가능성에 무게가 실리지만, 아직 연애적 관심을 분명히 표현할 준비까지 갖췄다고 단정할 수는 없습니다.",
+      "상대에게 호감이 있을 수 있지만, 그 감정이 연애적 관심으로 이어진다고 단정할 수는 없습니다.",
+      "상대에게 호감이 있는 쪽으로 읽힐 수 있지만, 관계를 시작할 의향까지는 카드로 확정할 수 없습니다.",
+      "상대는 당신을 좋아할 수 있지만, 관계를 시작할 의향까지는 카드로 확정할 수 없습니다.",
+      "그 사람은 당신에게 마음이 있을 가능성이 있지만, 그 크기까지는 단정할 수 없습니다.",
+      "상대가 당신에게 연애 감정을 느끼는 쪽으로 읽힐 수 있지만, 현실의 사실로 확정할 수는 없습니다.",
+      "상대는 당신을 좋아할 수 있어요. 다만 실제 감정으로 단정할 수는 없습니다.",
+      "그 사람은 당신에게 마음이 있을 가능성이 있어요. 그 크기까지는 단정할 수 없습니다.",
+      "상대는 당신을 좋아하게 될 가능성이 있어요. 미래의 사실로 확정할 수는 없습니다.",
+    ];
+
+    for (const claim of calibratedClaims) {
+      const calibrated = createValidText(3).replace(originalOverall, claim);
+      expect(validateInstantReadingText(calibrated, request)?.text).toBe(
+        calibrated,
+      );
+    }
+
+    const originalUnknown =
+      "아직 모르는 점: 현재 정보만으로는 서로 같은 기대와 관계의 속도를 원하는지 알 수 없습니다.";
+    const uncertaintyClaims = [
+      "아직 모르는 점: 아직 모르는 점은 상대의 마음을 카드로 알 수 없다는 것입니다.",
+      "아직 모르는 점: 다른 해석은 상대의 마음을 확정할 수 없다는 것입니다.",
+      "아직 모르는 점: 상대의 마음은 실제 대화 없이는 확인하기 어려울 거예요.",
+    ];
+
+    for (const claim of uncertaintyClaims) {
+      const uncertain = createValidText(3).replace(originalUnknown, claim);
+      expect(validateInstantReadingText(uncertain, request)?.text).toBe(
+        uncertain,
+      );
+    }
+
+    const factual = createValidText(3).replace(
+      originalOverall,
+      "상대의 마음에는 분명히 사랑이 있습니다. 그 사람은 당신과 연애하기를 원합니다.",
+    );
+    expect(validateInstantReadingText(factual, request)).toBeUndefined();
+
+    for (const bypass of [
+      "상대는 당신을 사랑합니다만 연애 가능성은 낮습니다.",
+      "상대는 당신에게 호감이 있습니다만 관계가 기울지는 않습니다.",
+      "상대에게 호감이 있을 가능성은 있지만 사랑합니다.",
+      "상대는 당신을 좋아합니다.",
+      "그 사람은 당신에게 마음이 있습니다.",
+      "상대는 당신에게 연애 감정을 느낍니다.",
+      "상대는 당신을 좋아해요.",
+      "그 사람은 당신에게 마음이 있어요.",
+      "상대는 당신을 좋아하게 될 것입니다.",
+    ]) {
+      const factualBeforeQualifier = createValidText(3).replace(
+        originalOverall,
+        bypass,
+      );
+      expect(
+        validateInstantReadingText(factualBeforeQualifier, request),
+      ).toBeUndefined();
+    }
+
+    const factualReality = createValidText(3).replace(
+      originalUnknown,
+      "아직 모르는 점: 상대는 당신을 좋아해요. 이 관계의 답은 정해져 있습니다.",
+    );
+    expect(validateInstantReadingText(factualReality, request)).toBeUndefined();
+
+    const calibratedInterest = createValidText(3).replace(
+      originalOverall,
+      "상대에게 연애적 관심이 있을 가능성이 있습니다. 다만 그 관심의 크기나 관계를 시작할 의향까지는 단정할 수 없습니다.",
+    );
+    expect(validateInstantReadingText(calibratedInterest, request)?.text).toBe(
+      calibratedInterest,
+    );
+
+    const factualInterest = createValidText(3).replace(
+      originalOverall,
+      "상대에게 연애적 관심이 있습니다. 그 관심은 관계를 더 이어가려는 태도로 연결되어 있습니다.",
+    );
+    expect(
+      validateInstantReadingText(factualInterest, request),
+    ).toBeUndefined();
+
+    const originalFirstPossibility =
+      "서로 표현하는 속도가 달라서 같은 행동을 다르게 받아들이며 불확실성이 커졌을 수 있습니다.";
+    const implicitCalibrated = createValidText(3).replace(
+      originalFirstPossibility,
+      "한 가지 해석은 당신을 좋아할 가능성이 있다는 것입니다. 다만 실제 감정으로 확정할 수는 없습니다.",
+    );
+    expect(validateInstantReadingText(implicitCalibrated, request)?.text).toBe(
+      implicitCalibrated,
+    );
+
+    const implicitFactual = createValidText(3).replace(
+      originalFirstPossibility,
+      "한 가지 해석은 당신을 좋아한다는 것입니다. 이 감정은 분명하게 이어지고 있습니다.",
+    );
+    expect(
+      validateInstantReadingText(implicitFactual, request),
+    ).toBeUndefined();
+
+    for (const topicId of [
+      "love",
+      "feelings",
+      "reunion",
+      "relationship-flow",
+    ] as const) {
+      const relationshipRequest = { ...request, topicId };
+      expect(
+        validateInstantReadingText(implicitCalibrated, relationshipRequest)
+          ?.text,
+      ).toBe(implicitCalibrated);
+      expect(
+        validateInstantReadingText(implicitFactual, relationshipRequest),
+      ).toBeUndefined();
+    }
+  });
+
   it.each([
     createValidText(3).replace("[가능성 B]", "[다른 가능성]"),
     createValidText(3).replace(

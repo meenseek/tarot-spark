@@ -27,20 +27,30 @@
 Use one method across public guides, copied prompts, question presets, and any
 server-generated reading:
 
-1. Focus the question on one situation and the reader's agency.
+1. Focus on the reader's actual question and answer its emotional core first.
+   For relationship questions, directly describe what the cards symbolically
+   suggest about the other person's view, emotional or romantic interest, and
+   hesitation when the supplied meanings support those ideas.
 2. Use every drawn card's reviewed upright meaning as symbolic interpretation
-   material, never as proof of a real-world fact.
+   material, never as proof of a real-world fact. Use calibrated language such
+   as "the cards lean toward" or "may suggest" for another person's feelings;
+   do not replace the interpretation with a refusal to know their mind.
 3. Develop the strongest reinforcement, tension, progression, or integration
    among the meanings instead of listing every possible pair.
-4. Compare exactly two materially different, non-predictive working
-   hypotheses. They are non-exclusive and non-exhaustive: both may partly fit,
-   or both may fail.
-5. State what remains unknown, an observable reality check that can change the
-   relative weight of the hypotheses or reject both, and how the reading should
-   be revised or reopened. Do not force the observation to choose a winner.
-6. End with one reversible action, a stop-or-review condition based on cost,
-   boundary, or deadline independently of which hypothesis seems stronger, and
-   a reflection question that adds a new angle instead of repeating the answer.
+4. Compare exactly two materially different, non-predictive symbolic
+   interpretations of that question. For relationship questions, make these
+   interpretations about possible emotional or relational stances rather than
+   observable-response scenarios. They are non-exclusive and non-exhaustive:
+   both may partly fit, or both may fail.
+5. Only after the symbolic answer, state what remains unknown and a concise
+   observable reality check that can change the relative weight of the
+   interpretations or reject both. Do not force the observation to choose a
+   winner or let this check replace the tarot reading.
+6. Keep practical guidance shorter than the interpretation. End with one
+   reversible action, a stop-or-review condition based on cost, boundary, or
+   deadline independently of which interpretation seems stronger, and a
+   reflection question that adds a new angle instead of returning the original
+   question to the reader.
 
 Keep the two evidence layers separate: card meanings ground the symbolic
 interpretation; observable words, behavior, and outcomes test it in reality.

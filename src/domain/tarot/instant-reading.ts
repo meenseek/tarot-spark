@@ -46,13 +46,26 @@ const requestKeys = ["topicId", "spreadId", "styleId", "cards"] as const;
 const requestKeysWithQuestion = [...requestKeys, "questionId"] as const;
 const cardInputKeys = ["cardId"] as const;
 const responseKeys = ["text"] as const;
+const relationshipTopicIds = [
+  "love",
+  "feelings",
+  "reunion",
+  "relationship-flow",
+] as const satisfies readonly TopicId[];
 const technicalPattern =
   /```|<\/?[a-z][^>]*>|\bJSON\b|프롬프트|시스템\s*메시지|언어\s*모델|인공지능|\bAI\b/iu;
+const hiddenFeelingSubjectPattern = /(?:상대(?:방)?|그\s*사람)/u;
+const hiddenFeelingClaimPattern =
+  /(?:사랑|호감|그리움|그리워|후회|좋아|마음|감정)(.{0,24}?)(?:있습니다|없습니다|합니다|느낍니다|원합니다|남아\s*있습니다|읽힙니다|있어요|없어요|해요|느껴요|원해요|남아\s*있어요|읽혀요|것입니다|거예요)/gu;
+const possibleFeelingPattern =
+  /(?:가능성|수\s*있|읽힐|읽힙|읽혀|시사|기울|보일|보입|것\s*같)/u;
+const uncertainFeelingPattern =
+  /(?:수\s*없|알기?\s*어(?:렵|려)|확인.{0,8}어(?:렵|려)|확정.{0,8}(?:않|못|없)|단정.{0,8}(?:않|못|없)|모르)/u;
+const contrastPattern = /(?:지만|으나|반면|다만|그러나|하지만|는데)/u;
 const unsafePatterns = [
   /(?:반드시|틀림없이|확실히).{0,32}(?:연락|재회|성공|합격|결혼|일어납니다|됩니다)/u,
   /(?:상대|그 사람).{0,24}(?:분명히|확실히).{0,24}(?:사랑|후회|그리워|마음|감정)/u,
   /(?:다시\s*만나|재회|연락|결혼|합격|성공|돌아오).{0,20}(?:게\s*됩니다|하게\s*됩니다|할\s*것입니다|될\s*것입니다|이\s*옵니다|이\s*올\s*것입니다|합니다|옵니다)/u,
-  /(?:상대(?:방)?|그\s*사람).{0,32}(?:사랑|호감|그리움|그리워|후회).{0,16}(?:있습니다|합니다|느낍니다|원합니다|남아\s*있습니다)/u,
   /우울증|불안\s*장애|공황\s*장애|양극성\s*장애|조울증|주의력\s*결핍|\bADHD\b|정신\s*질환|정신병|성격\s*장애|외상\s*후\s*스트레스|\bPTSD\b/iu,
   /(?:약물|항우울제|정신과|심리\s*치료|상담\s*치료|병원|전문의).{0,24}(?:가세요|받으세요|하세요|해야|필요합니다|권합니다)/u,
   /(?:주식|코인|가상화폐|부동산|투자).{0,24}(?:매수|매도|사세요|파세요|투자하세요)/u,
@@ -185,6 +198,26 @@ export function validateInstantReadingText(
   const action = sections.get("[다음 행동]");
   const reflection = sections.get("[성찰 질문]");
 
+  const interpretationSections = [overall, firstHypothesis, secondHypothesis];
+  const supportingSections = [cards, connection, reality, action, reflection];
+  const isRelationshipTopic = relationshipTopicIds.includes(
+    request.topicId as (typeof relationshipTopicIds)[number],
+  );
+  if (
+    (isRelationshipTopic &&
+      interpretationSections.some(
+        (section) =>
+          !section ||
+          !possibleFeelingPattern.test(section) ||
+          hasUnsafeHiddenFeelingClaim(section, false, false),
+      )) ||
+    supportingSections.some(
+      (section) => section && hasUnsafeHiddenFeelingClaim(section, true, true),
+    )
+  ) {
+    return undefined;
+  }
+
   if (
     !hasBoundedLength(overall, 40, 420) ||
     !hasBoundedLength(connection, 30, 360) ||
@@ -212,6 +245,35 @@ export function validateInstantReadingText(
   }
 
   return { text };
+}
+
+function hasUnsafeHiddenFeelingClaim(
+  value: string,
+  allowExplicitUncertainty: boolean,
+  requireExplicitSubject: boolean,
+) {
+  const sentences = value.split(/[.!?！？\n]+/u);
+  const hasSectionPossibility = possibleFeelingPattern.test(value);
+
+  return sentences.some((sentence) => {
+    if (requireExplicitSubject && !hiddenFeelingSubjectPattern.test(sentence)) {
+      return false;
+    }
+
+    for (const match of sentence.matchAll(hiddenFeelingClaimPattern)) {
+      const assertion = match[0];
+      const finalClause = assertion.split(contrastPattern).at(-1) ?? assertion;
+      const isPossible = possibleFeelingPattern.test(finalClause);
+      const isExplicitlyUncertain = uncertainFeelingPattern.test(finalClause);
+      const mayUseUncertainty =
+        allowExplicitUncertainty || hasSectionPossibility;
+      if (!isPossible && !(mayUseUncertainty && isExplicitlyUncertain)) {
+        return true;
+      }
+    }
+
+    return false;
+  });
 }
 
 function splitSections(text: string) {

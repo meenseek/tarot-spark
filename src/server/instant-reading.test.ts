@@ -63,6 +63,12 @@ describe("Cloudflare instant reading adapter", () => {
     expect(JSON.stringify(body)).toContain("입력에 없는 사건");
     expect(JSON.stringify(body)).toContain("이 행동을 멈추고 다시 판단");
     expect(JSON.stringify(body)).toContain("'내용'이라는 단어");
+    expect(JSON.stringify(body)).toContain(
+      "카드상 ... 가능성에 무게가 실립니다",
+    );
+    expect(JSON.stringify(body)).toContain(
+      "관찰 행동이나 사용자의 대응이 아니라",
+    );
   });
 
   it("uses the exact direct endpoint", () => {
@@ -83,10 +89,12 @@ describe("Cloudflare instant reading adapter", () => {
       prompt.indexOf(meanings[2]!),
     );
     expect(prompt).toContain("사전식 뜻풀이를 반복하지 마세요");
-    expect(prompt).toContain("비예측적 원인 가설 두 개");
+    expect(prompt).toContain("비예측적 해석 두 개");
     expect(prompt).toContain("기간·비용·경계 중 하나가 명시된");
     expect(prompt).toContain("현재 상태를 사실처럼 서술");
-    expect(prompt).toContain("어느 가설의 비중을 바꿀지");
+    expect(prompt).toContain("어느 해석의 비중을 바꿀지");
+    expect(prompt).toContain("질문에 대한 상징적 답을 먼저 제시");
+    expect(prompt).toContain("시선·호감이나 연애적 관심·망설임");
     expect(prompt).toContain("내용:'이라는 단어를 출력하지 마세요");
   });
 

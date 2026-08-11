@@ -5,7 +5,7 @@
   },
   "cardArtRetry": "Try again",
   "eyebrow": "Relationship reflection guide",
-  "heading": "See the relationship pattern without pretending to know the other person’s mind.",
+  "heading": "Read the feelings and relationship flow suggested by the cards without treating them as facts.",
   "intro": "Start with three cards with no assigned position meanings. The result keeps their exact names in draw order and prepares one relationship prompt that uses upright meanings as symbolic interpretation material. A six-card spread remains optional when three meanings are not enough to compare several aspects of the question.",
   "benefitsHeading": "Built for a more useful AI conversation",
   "benefits": [
@@ -18,8 +18,8 @@
       "body": "The prompt sends the exact card names in draw order plus the site's reviewed nonvisual upright meanings, without invented position labels or image descriptions."
     },
     {
-      "title": "Agency before prediction",
-      "body": "The reading separates your choices from uncertain outcomes and another person’s private thoughts."
+      "title": "Symbolic feelings first",
+      "body": "The reading first describes the feelings and relationship direction suggested by the cards, then briefly connects them to what can be checked and chosen."
     }
   ],
   "stepsHeading": "How the relationship-flow reading works",
@@ -39,11 +39,11 @@
   ],
   "exampleEyebrow": "Example, not a prediction",
   "exampleHeading": "Justice + Queen of Swords + Six of Pentacles: testing whether a relationship is becoming more balanced",
-  "exampleBody": "This example starts from a question that can be compared with behavior. It does not use the cards to prove hidden feelings or guarantee an outcome.",
+  "exampleBody": "This example begins with the relationship answer suggested by the cards, then compares it with behavior. It does not establish another person's feelings or guarantee an outcome as fact.",
   "exampleDetails": [
     {
       "title": "Starting question",
-      "body": "“How can I tell whether this relationship is becoming more balanced without pretending to know the other person's feelings?”"
+      "body": "“How do these cards suggest that this relationship could become more balanced, and what can I check in reality?”"
     },
     {
       "title": "Symbolic interpretation material",
@@ -54,7 +54,7 @@
       "body": "All three meanings reinforce accountable reciprocity: fairness needs a clear boundary and a pattern of giving and receiving that can be observed. The cards do not establish that this pattern already exists."
     },
     {
-      "title": "Two working hypotheses to compare",
+      "title": "Two symbolic interpretations to compare",
       "body": "The current imbalance may be temporary and improve once one responsibility is made explicit. It may also be a stable pattern in which one person's needs and effort repeatedly carry more weight. These are neither exclusive nor exhaustive, so both may partly fit or both may fail."
     },
     {
@@ -82,7 +82,7 @@
   "faqs": [
     {
       "question": "Can this tell me exactly what another person feels?",
-      "answer": "No. Tarot symbols can support reflection, but they cannot verify another person’s hidden feelings, motives, or future actions."
+      "answer": "Not as a verified fact. By connecting the supplied meanings, a reading can describe which emotional and relational direction seems more strongly suggested, while keeping that interpretation distinct from the person's actual words and behavior."
     },
     {
       "question": "Where does my situation text go?",
