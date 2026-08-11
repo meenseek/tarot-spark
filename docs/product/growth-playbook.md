@@ -190,9 +190,9 @@ If a condition fails, improve the vertical slice and collect another cohort.
 > 타로 카드 뜻을 길게 붙여도 AI 답변이 짧고 비슷해지는 이유는 "무엇을
 > 비교하고 어떻게 답할지"가 빠져 있기 때문이었습니다.
 >
-> 그래서 카드 의미를 사실의 증거로 쓰지 않고, 가장 강한 연결 하나와
-> 서로 다른 두 가능성, 현실에서 확인할 기준, 멈출 조건까지 이어지는
-> 여섯 단계 질문으로 바꿨습니다.
+> 그래서 질문에 대한 카드상 답을 먼저 말하게 하고, 그 답을 사실의
+> 증거로 쓰지 않은 채 서로 다른 두 해석과 현실에서 확인할 기준,
+> 멈출 조건까지 이어지게 바꿨습니다.
 >
 > 관계 리딩에서 카드명 외에 꼭 필요하다고 느끼는 정보는 무엇인가요?
 
@@ -207,14 +207,14 @@ Opening:
 
 > "이 카드가 연애에서 무슨 뜻인가요?"만 입력하면 카드별 일반 의미가
 > 반복되기 쉽습니다. 관계 흐름을 살펴볼 때는 뽑힌 카드명을 정확한 순서로
-> 적고, 확인한 사실과 아직 모르는 부분을 구분해 달라고 요청하는 편이
-> 낫습니다.
+> 적고, 질문에 대한 상징적 답을 먼저 준 뒤 확인한 사실과 아직 모르는
+> 부분을 구분해 달라고 요청하는 편이 낫습니다.
 
 Body order:
 
 1. Short prompt and detailed prompt comparison.
 2. Why card numbers mean draw order only.
-3. Symbolic meanings, two alternatives, and a reality-check example.
+3. A direct symbolic answer, two interpretations, and a reality-check example.
 4. One prompt with exact card names, reviewed nonvisual meanings, the no-image
    rule, a revision condition, and a reversible action.
 5. Maker disclosure, relationship-flow link, and disclaimer.
@@ -226,7 +226,7 @@ Title: `카드 뜻 나열 대신 스프레드 전체를 연결하는 질문 방�
 > 카드별 뜻을 하나씩 묻는 것보다 "강화, 긴장, 전개, 통합 중 어떤 관계가
 > 가장 강한지"를 먼저 고르게 하니 답변의 반복이 줄었습니다.
 >
-> 여기에 같은 카드 의미로 가능한 비배타적 작업 가설을 정확히 두 개
+> 여기에 같은 카드 의미로 가능한 비배타적 상징 해석을 정확히 두 개
 > 남기고, 무엇을 확인하면 둘의 비중을 바꾸거나 모두 버려야 하는지와
 > 해석의 승패와 별개로 멈출 조건까지 정리하게 했습니다.
 > 여러분은 여러 장 리딩에서 카드 사이의 연결을 어떤 질문으로
@@ -237,9 +237,9 @@ self-promotion.
 
 ### Instagram Carousel: Lovers Pilot
 
-1. `상대의 속마음을 단정하지 않는 관계 타로 질문`
+1. `상대의 마음을 카드상 가능성으로 먼저 읽는 관계 타로 질문`
 2. `카드 의미는 해석 재료이지 사실의 증거가 아니다`
-3. `양자택일이 아닌 두 작업 가설`
+3. `양자택일이 아닌 두 상징적 해석`
 4. `무엇을 보면 둘의 비중을 바꾸거나 모두 버릴까?`
 5. `관찰과 별개로 언제 시험을 멈출까?`
 6. `작은 행동 하나와 멈출 조건 하나`
@@ -251,16 +251,16 @@ claims.
 
 ### English Reddit: Native Text Case Study
 
-Title: `I rebuilt a tarot prompt around two alternatives and a reality check`
+Title: `I rebuilt a tarot prompt to answer first, then reality-check the reading`
 
 > I was getting the same pattern from AI tarot prompts: three isolated card
 > definitions, a vague conclusion, and no distinction between evidence and
 > projection.
 >
 > I changed the structure so the prompt uses exact card names in draw order,
-> treats their meanings as symbolic material rather than proof, develops one
-> strong connection, keeps exactly two non-exclusive working hypotheses open,
-> and names what would reweight them or reject both, plus an independent reason
+> treats their meanings as symbolic material rather than proof, answers the
+> actual question first, keeps exactly two non-exclusive interpretations open,
+> and then names what would reweight or reject both, plus an independent reason
 > to stop the test.
 >
 > I built the free prototype, tarot-spark. I am looking for feedback on whether

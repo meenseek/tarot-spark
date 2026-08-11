@@ -1,40 +1,40 @@
 {
   "metadata": {
     "title": "28 Relationship Tarot Questions for Dating, Contact, Reunion, and Boundaries",
-    "description": "Explore 28 relationship tarot questions about dating, mutual expectations, communication, conflict, reunion, boundaries, and your own patterns without claiming access to hidden feelings."
+    "description": "Explore 28 relationship tarot questions that read possible feelings and romantic interest suggested by the cards, then consider dating, communication, conflict, reunion, and boundaries."
   },
   "eyebrow": "Relationship question explorer",
   "title": "What should I ask about this person and our relationship?",
-  "intro": "A compelling question can begin with curiosity. It becomes more useful when tarot is not asked to prove another person's hidden mind or the future, and instead separates observed behavior, your interpretation, what remains unknown, and one next step you can actually check.",
+  "intro": "A compelling question can begin with curiosity. When you want to know how someone feels, the reading can first explore the interest, romantic direction, and hesitation suggested by the cards, then briefly compare that symbolic answer with actual words and behavior without treating it as fact.",
   "methodHeading": "Six steps from curiosity to a complete reading",
   "methodIntro": "Choosing a question starts a quick three-card reading with the existing 78-card deck. The selected question becomes the first-step focus, and the next five steps connect card meanings to one action you can check in real life. The choice is passed only as a public preset; names and personal circumstances are never placed in the URL.",
   "methodGuideLinkLabel": "Read all six steps in the three-card guide",
   "methodSteps": [
-    "Question focus: choose one relationship moment that matters now and the part you can influence.",
+    "Question focus: name the feeling or relationship direction you most want to understand now.",
     "Symbolic interpretation material: use the established upright meanings of all three cards without treating them as factual proof.",
     "Strongest connection: develop one pattern of reinforcement, tension, progression, or integration among the meanings.",
-    "Two working hypotheses: keep exactly two materially different explanations grounded in the same meanings. They are non-exclusive and not a complete list.",
-    "Reality check: name what remains unknown, an observation that can reweight or reject both hypotheses, and a condition that should revise or reopen the reading.",
+    "Two interpretations: answer the question symbolically first, then keep exactly two materially different emotional or relational readings grounded in the same meanings.",
+    "Reality check: after the card-based answer, briefly name what remains unknown and an observation that can reweight or reject both readings.",
     "Choice: leave one reversible action, an independent cost, boundary, or deadline stop condition, and a non-repetitive reflection question."
   ],
-  "comparisonHeading": "Turn a hidden-feelings question into a checkable one",
-  "weakQuestionLabel": "Vague question",
-  "weakQuestion": "“Does this person really like me?” asks the cards to prove someone else's private feelings.",
-  "strongQuestionLabel": "Workable question",
-  "strongQuestion": "“Which behavior have I read as interest, what other explanation such as kindness or familiarity fits, and what respectful conversation could help us clarify our intentions?”",
+  "comparisonHeading": "Keep a feelings question symbolically open",
+  "weakQuestionLabel": "Question demanding certainty",
+  "weakQuestion": "“Does this person really like me?” is a natural question, but treating the cards as proof mixes interpretation with fact.",
+  "strongQuestionLabel": "Question exploring possibilities",
+  "strongQuestion": "“What do these cards suggest about how this person sees me, their interest and romantic hesitation, and what could revise that reading?”",
   "browseHeading": "Choose the question closest to what you feel now",
   "categoryNavigationLabel": "Relationship question categories",
   "focusLabel": "What this question explores",
   "workedExampleHeading": "Example: How do this person and I see each other?",
-  "workedExampleBody": "The title is intriguing, but the reading does not enter another person's mind. Imagine drawing the Moon, Ace of Swords, and Two of Pentacles: their meanings become symbolic material for two different explanations and a reality-based check.",
+  "workedExampleBody": "Imagine drawing the Moon, Ace of Swords, and Two of Pentacles. The reading first gives the answer they suggest about the other person's view and interest, then connects two emotional interpretations with a brief reality-based check.",
   "workedExampleItems": [
-    "Question focus: examine the gap between the relationship I expect and the signals I can actually observe, without claiming hidden knowledge.",
+    "Question focus: explore how the other person may see me and what emotional distance may be present.",
     "Symbolic interpretation material: use the Moon's uncertainty, the Ace of Swords' clear conversation, and the Two of Pentacles' adjustment. These meanings do not prove another person's feelings.",
     "Strongest connection: The Moon's uncertainty makes the Ace of Swords' clear confirmation useful, and whatever is confirmed makes the Two of Pentacles' adjustment relevant. This is a conditional relationship, not a timeline based on draw order.",
-    "Alternative A: expectations may be similar while different expression speeds have amplified uncertainty.",
-    "Alternative B: one person's expectation may be ahead of the available signals, and clear conversation may expose that difference.",
+    "Alternative A: interest or a wish to know the relationship more deeply may be present, while expression and adjustment remain unclear.",
+    "Alternative B: the interest may be closer to resolving ambiguity and restoring balance than to romantic attraction.",
     "Scope of the hypotheses: these are not a binary choice. Both may partly fit, or a different reason may explain the observed behavior.",
-    "Unknown: the cards cannot establish hidden feelings or the future of the relationship.",
+    "Unknown: the cards can suggest an emotional direction, but cannot establish that the person feels it in fact or intends to begin a relationship.",
     "Real-world observation: during one naturally occurring contact or plan in the next week, record only whether intent becomes clear without prompting and whether words and behavior align.",
     "Revision condition: a spontaneous consistent response raises A; recurring ambiguity or a words-actions gap raises B. If neither explains the behavior, discard both and reopen the question.",
     "Next action and stop condition: first write your own criterion for contact or a meeting, then ask once when relevant. Independently of the interpretation, stop pursuing after a clear refusal, no response, boundary violation, pressure, or the one-week review point.",
@@ -48,7 +48,7 @@
     },
     "perception": {
       "title": "Mutual perceptions and expectations",
-      "intro": "Instead of guessing a hidden mind, compare the person you hope to see with the signals you can actually observe."
+      "intro": "Read the view and emotional expectations suggested by the cards first, then compare them with observable signals."
     },
     "communication": {
       "title": "Contact and conversation",
@@ -75,7 +75,7 @@
     "interest-or-kindness": {
       "title": "Is this interest, or simply kindness?",
       "summary": "Separate exciting signals from kindness the person may show to anyone.",
-      "focus": "Compare the behavior I have interpreted as interest with alternatives such as kindness or habit, and identify a low-pressure signal I can check.",
+      "focus": "First read how strongly the supplied cards lean toward interest or romantic attention through exactly two symbolic interpretations, then briefly name a real-world signal that could revise them.",
       "ctaLabel": "Explore the signals"
     },
     "pace-of-closeness": {
@@ -98,8 +98,8 @@
     },
     "mutual-view": {
       "title": "How do this person and I see each other?",
-      "summary": "Compare expectations with observed behavior rather than entering either person's mind.",
-      "focus": "Separate the role I expect this person to play, the signals they have shown through behavior, another plausible interpretation, and one conversation that could clarify the difference.",
+      "summary": "Read each person's possible view and emotional expectations symbolically.",
+      "focus": "First connect the supplied meanings to how this person may see me and what I expect from them, then briefly add another interpretation and a conversation that could clarify the difference.",
       "ctaLabel": "Explore mutual expectations"
     },
     "unspoken-expectations": {
@@ -195,7 +195,7 @@
     "continue-slow-stop": {
       "title": "Should I continue, slow down, or stop?",
       "summary": "Compare three choices using behavior rather than emotional intensity.",
-      "focus": "Separate real-world information for continuing, slowing down, and stopping the relationship, then identify the smallest reversible choice that could test the decision. These three are action options, a different layer from the reading's two working hypotheses.",
+      "focus": "Separate real-world information for continuing, slowing down, and stopping the relationship, then identify the smallest reversible choice that could test the decision. These three are action options, a different layer from the reading's two symbolic interpretations.",
       "ctaLabel": "Compare the three choices"
     },
     "effort-balance": {

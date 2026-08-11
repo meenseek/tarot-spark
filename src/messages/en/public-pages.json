@@ -12,13 +12,13 @@
       },
       "linkLabel": "Three-card method",
       "title": "A complete three-card tarot reading without past-present-future positions",
-      "intro": "A three-card spread does not need fixed positions to be specific. Use each reviewed upright meaning as symbolic interpretation material, compare how the meanings interact, then turn the pattern into alternatives you can check against real life.",
+      "intro": "A three-card spread does not need fixed positions to be specific. Connect each reviewed upright meaning, give the symbolic answer most strongly suggested by the spread first, then add two interpretations, a brief reality check, and a reversible choice.",
       "sections": [
         {
           "heading": "What a no-position spread changes",
           "paragraphs": [
             "In a fixed spread, the first card may be called the past and the third the future. A no-position spread makes a smaller claim: the numbers record draw order only. Meaning comes from the approved upright meanings and the relationship among them, not from an invented timeline.",
-            "This approach is useful when a question has missing information. It keeps the reading reflective: cards can suggest a tension or a useful distinction, but they cannot verify another person's thoughts, guarantee an outcome, or replace evidence."
+            "This approach is useful when a question has missing information. Cards can symbolically suggest the direction of another person's thoughts or feelings, but they cannot verify that direction as fact, guarantee an outcome, or replace evidence."
           ]
         },
         {
@@ -28,19 +28,19 @@
           ],
           "ordered": true,
           "items": [
-            "Question: name the decision or pattern you can influence, and set a time or situation boundary.",
+            "Question and first answer: name one feeling, relationship direction, or decision you want to understand, then state the answer most strongly suggested by all the cards.",
             "Interpretation material: paraphrase the supplied upright meaning of every card without adding image details or position roles. These meanings support an interpretation; they do not prove a real-world fact.",
             "Connection: identify the strongest reinforcement, tension, progression, or integration among at least two cards.",
-            "Alternatives: write exactly two materially different working hypotheses supported by the same meanings. They are non-exclusive and not a complete list of explanations.",
-            "Reality check: separate what remains unknown, one observation that could reweight the hypotheses or reject both, and how that finding should revise or reopen the interpretation.",
+            "Two interpretations: do not turn the first answer into fact. Write exactly two materially different symbolic readings supported by the same meanings; for a relationship question, compare possible emotional or relational stances rather than response scenarios.",
+            "Reality check: after the symbolic answer, briefly separate what remains unknown, one observation that could reweight or reject both interpretations, and how that finding should revise the reading.",
             "Choice: take one small, reversible action with a stop-or-review condition based independently on cost, boundary, or deadline, then end with a reflection question that does not repeat the answer."
           ]
         },
         {
-          "heading": "Weak question versus workable question",
+          "heading": "Open a certainty-seeking question symbolically",
           "paragraphs": [
-            "Weak: “Will this relationship definitely work?” This asks the cards to certify another person and a future result.",
-            "Workable: “What pattern can I observe in our communication this month, what remains unknown, and what respectful boundary can I test?” The second question creates something the reader can compare with behavior."
+            "Certainty-seeking: “Will this relationship definitely work?” This asks the cards to certify another person and a future result.",
+            "Symbolically open: “Which direction do these cards suggest for our feelings and relationship potential, and what could revise that reading?” This starts with the tarot answer and compares it with behavior afterward."
           ]
         },
         {
@@ -48,7 +48,7 @@
           "paragraphs": [
             "Question: “What should I examine before deciding whether to rebuild trust?” No temporal or advice positions are assigned.",
             "Interpretation material: The Lovers points to connection, aligned values, and a responsible choice. Two of Swords points to indecision caused by missing information or unclear criteria. The Star points to renewed hope, recovery, and honest trust after difficulty. These meanings support reflection; they do not prove that trust has recovered.",
-            "Connection: choice and hope reinforce the possibility of repair, while indecision creates a tension: hope alone is not a decision criterion. All three cards contribute to that reading; none is treated as a prediction."
+            "Card-based answer and connection: the spread leans toward trust having room to rebuild, but missing shared criteria make it too early to treat hope as completed repair. Choice and hope support the possibility, while Two of Swords adds the unresolved condition."
           ],
           "items": [
             "Alternative A: trust is rebuilding, but both people need an explicit standard for what repair looks like.",
@@ -75,9 +75,9 @@
           ],
           "items": [
             "Every drawn card appears and uses its supplied upright meaning as symbolic interpretation material.",
-            "No image, reversed meaning, hidden-feelings claim, timeline, or fixed position was invented.",
+            "No image, reversed meaning, factual hidden-feelings claim, timeline, or fixed position was invented.",
             "At least one relationship among cards is explained with the exact meanings that support it.",
-            "Exactly two materially different working hypotheses are present and identified as non-exclusive and non-exhaustive.",
+            "The card-based answer comes before reality checking, followed by exactly two materially different interpretations identified as non-exclusive and non-exhaustive.",
             "Unknowns and a reality check that can reweight or reject both hypotheses are separated from interpretation.",
             "The action is small and reversible, with an independent cost, boundary, or deadline stop condition and a distinct reflection question."
           ]
@@ -101,37 +101,37 @@
     },
     "how-to-ask-tarot-questions": {
       "metadata": {
-        "title": "How to Ask Tarot Questions: From Prediction to Reflection",
-        "description": "Rewrite yes-no and hidden-feelings tarot questions into specific, observable, agency-centered questions with examples."
+        "title": "How to Ask Tarot Questions That Read Possibilities Directly",
+        "description": "Give yes-no and feelings questions a card-based answer first, then connect uncertainty and reality checks without turning the reading into fact."
       },
       "linkLabel": "Tarot question guide",
       "title": "How to ask tarot questions that lead to useful reflection",
-      "intro": "A strong tarot question does not ask a symbolic tool to prove a fact. It defines what you can observe, what you can choose, and what uncertainty must remain open.",
+      "intro": "A strong tarot question does not avoid what you really want to know. It asks for the answer most strongly suggested by the cards first, then keeps that answer distinct from fact, uncertainty, and what can be checked in reality.",
       "sections": [
         {
           "heading": "The four boundaries of a strong question",
           "paragraphs": [
-            "Use tarot to organize attention, not to obtain private information or professional advice. A workable question stays inside four boundaries."
+            "Tarot may explore another person's feelings as symbolic possibilities, but it does not obtain private information or replace professional advice. A workable question stays inside four boundaries."
           ],
           "items": [
-            "Agency: focus on your choices, communication, preparation, or boundary.",
-            "Observability: ask what behavior, evidence, or criterion you can actually check.",
-            "Uncertainty: compare exactly two non-exclusive, non-exhaustive working hypotheses and name what the cards cannot establish.",
+            "Directness: state what the cards suggest about the question before saying what remains unknowable.",
+            "Separation: read another person's feelings as possibilities and keep them distinct from behavior or evidence that can actually be checked.",
+            "Uncertainty: compare exactly two non-exclusive, non-exhaustive symbolic interpretations and name what the cards cannot establish.",
             "Scope: limit the question to a situation or near-term review point instead of an unlimited future."
           ]
         },
         {
           "heading": "A reusable question formula",
           "paragraphs": [
-            "Use: “What pattern should I examine in [situation], what observation could reweight or reject both of two non-exclusive working hypotheses, and what small choice can I test before [review point]?”",
-            "The formula is not magic wording. Its value is structural: it keeps symbolic interpretation material, real-world evidence, two working hypotheses, a revision condition, and action separate."
+            "Use: “What answer do these cards most strongly suggest about [question], what are two different interpretations supported by the same meanings, and what could revise both?”",
+            "The formula is not magic wording. Its value is structural: it puts the symbolic answer first while keeping two interpretations and real-world evidence separate."
           ]
         },
         {
-          "heading": "Prediction-to-reflection rewrites",
+          "heading": "Certainty-to-possibility rewrites",
           "paragraphs": [],
           "items": [
-            "Instead of “Does my ex still love me?” ask “What evidence would show that renewed contact is mutual, respectful, and different from the old pattern?”",
+            "For “Does my ex still love me?” ask “Do these cards lean more toward remaining love or emotional distance, and what hesitation do they suggest alongside it?”",
             "Instead of “Will I get the job?” ask “What can I strengthen before the interview, what hiring factors remain outside my control, and when should I reassess?”",
             "Instead of “Is this person lying?” ask “Which inconsistencies can I verify directly, and what boundary protects me while the facts are unclear?”",
             "Instead of “When will money improve?” ask “Which spending or income assumption should I review with real records, and which decision needs qualified financial advice?”",
@@ -144,7 +144,7 @@
             "Starting question: “Will this career setback ruin my future?” Rewrite: “Which assumption did the setback expose, which skill can I improve, and how can I balance recovery with a practical next attempt?”",
             "Interpretation material: The Tower means disruption that exposes assumptions and requires an honest reset, not a prediction of disaster. Eight of Pentacles points to skill improving through consistent practice. Temperance points to patiently balancing and integrating different needs. These meanings do not prove how a particular employer will decide.",
             "Connection: The Tower and Eight of Pentacles form a reset-to-practice progression, while Temperance prevents practice from becoming a rushed attempt to erase the setback. Together, the cards frame the decision as learning from exposed assumptions while balancing recovery with deliberate skill-building.",
-            "Two working hypotheses are useful for comparison: the setback may reveal a preparation gap that practice can address, or the role itself may conflict with a need that was previously ignored. They are not exclusive or exhaustive: both may partly fit, or feedback may reveal a different constraint altogether."
+            "Two interpretations are useful for comparison: the setback may reveal a preparation gap that practice can address, or the role itself may conflict with a need that was previously ignored. They are not exclusive or exhaustive: both may partly fit, or feedback may reveal a different constraint altogether."
           ],
           "items": [
             "Unknown: whether a particular employer will make an offer.",
@@ -167,8 +167,8 @@
           "paragraphs": [],
           "items": [
             "Can I answer part of this question through my own observation or choice?",
-            "Does it avoid claiming access to another person's hidden mind?",
-            "Does it allow exactly two materially different, non-exclusive and non-exhaustive working hypotheses?",
+            "Does it express another person's possible feelings symbolically without turning them into real-world facts?",
+            "Does it allow exactly two materially different, non-exclusive and non-exhaustive symbolic interpretations?",
             "Does it name an observation that can reweight or reject both hypotheses and a condition that should reopen the interpretation?",
             "Is the next action small enough to reverse, with an independent cost, boundary, or deadline stop condition?",
             "Have I moved professional or safety decisions outside tarot?"
@@ -198,12 +198,12 @@
       },
       "linkLabel": "Card combinations",
       "title": "How to read tarot card combinations without a fixed pair dictionary",
-      "intro": "A card combination is not a secret phrase attached to two names. It is a relationship you can explain by using the supplied upright meanings as symbolic interpretation material for this question.",
+      "intro": "A card combination is not a secret phrase attached to two names. It uses the relationship among supplied upright meanings to give the strongest symbolic answer to the question first.",
       "sections": [
         {
           "heading": "Four useful relationship types",
           "paragraphs": [
-            "Choose the relationship that best fits the meanings; do not force every pair into a story."
+            "Choose the relationship that best fits the meanings, state its answer to the question first, and do not force every pair into a story."
           ],
           "items": [
             "Reinforcement: two meanings point toward the same need, resource, or risk.",
@@ -215,7 +215,7 @@
         {
           "heading": "A connection sentence that shows its material",
           "paragraphs": [
-            "Write the connection as: “Because [meaning A] and [meaning B], the spread may be asking us to compare [specific pattern].” Then quote or paraphrase the exact parts of both meanings that support the claim.",
+            "Start with: “Because [meaning A] and [meaning B], this question leans toward [strongest symbolic answer].” Then add two interpretations supported by the same meanings and paraphrase the exact parts that ground them.",
             "If you cannot finish that sentence without image symbolism, a fixed position, or outside card lore, the supplied meanings do not support the connection well enough yet."
           ]
         },
@@ -223,7 +223,7 @@
           "heading": "Worked example: Five of Cups, Two of Wands, The Hermit",
           "paragraphs": [
             "Question: “What will help me choose a direction after a disappointing project?” Five of Cups points to acknowledging loss and working through disappointment. Two of Wands points to planning and choosing a direction. The Hermit points to stepping back and reflecting on your own guidance.",
-            "Strongest connection—progression, not chronology: disappointment needs acknowledgment before planning becomes honest, and quiet reflection can supply a personal criterion for the plan. This does not mean the cards occupy past, present, and future positions."
+            "Answer to the question: acknowledge the disappointment, then choose direction through your own criterion rather than outside approval. The strongest connection is progression, not chronology, and the cards do not occupy past, present, and future positions."
           ],
           "items": [
             "Alternative A: the next direction is unclear because disappointment has not been named precisely.",
@@ -249,11 +249,11 @@
             "Question: “What should I check before deciding whether to accept a new collaboration?” The six numbers record draw order only; they carry no position or timeline meaning.",
             "Interpretation material: The Moon points to uncertainty and the need to separate intuition, fear, fact, and assumption. Ace of Swords points to clarity, truth, and precise judgment. Three of Pentacles points to skill, collaboration, and improving quality through learning. Six of Pentacles points to fairness and balance in giving and receiving support. Nine of Wands points to resilience and cautious persistence despite fatigue. Justice points to fair judgment, accountability, and the consequences of choice. These meanings do not prove the collaboration's real outcome.",
             "Compress the six meanings into three clusters. Information and criteria: The Moon, Ace of Swords, and Justice. Collaboration and reciprocity: Three of Pentacles and Six of Pentacles. Sustainability and boundaries: Nine of Wands and Justice. Justice contributes to two clusters because it concerns both fair terms and the responsibility you can carry.",
-            "The strongest connection is integration. Reducing uncertainty through clear facts and fair terms, learning together with balanced resource exchange, and protecting current capacity all need to hold at once for the proposal to become a sustainable trial. This is not a progression based on draw order."
+            "Answer to the question: narrow the proposal to a small trial that can test clear terms, fair exchange, and sustainable capacity together before accepting it fully. The strongest connection is integration, not a progression based on draw order."
           ],
           "items": [
-            "Working hypothesis A: explicit roles, feedback, and resource sharing may reduce uncertainty, allowing the collaboration to continue if a small trial shows consistency.",
-            "Working hypothesis B: even with fair terms, current fatigue and capacity may make a full commitment unsustainable, so narrowing or postponing it may be better.",
+            "Interpretation A: explicit roles, feedback, and resource sharing may reduce uncertainty, allowing the collaboration to continue if a small trial shows consistency.",
+            "Interpretation B: even with fair terms, current fatigue and capacity may make a full commitment unsustainable, so narrowing or postponing it may be better.",
             "Scope of the hypotheses: they are neither exclusive nor exhaustive. The terms may be good while the workload is too high, and a trial may reveal a different problem altogether.",
             "Unknown: the cards cannot establish actual reliability, workload, feedback dynamics, or energy cost after work begins.",
             "Real-world observation: in one 30-minute planning conversation or explicitly scoped sample, record only whether roles and deadlines are clear, feedback and resources are reciprocal, and the energy cost afterward is manageable.",
@@ -281,8 +281,8 @@
           "items": [
             "The relationship type is named and uses exact meanings as symbolic interpretation material.",
             "Every card contributes to the synthesis.",
-            "The interpretation fits the question without inventing personal facts.",
-            "Exactly two working hypotheses are materially different and identified as non-exclusive and non-exhaustive.",
+            "The strongest symbolic answer to the question appears before reality checking and invents no personal facts.",
+            "Exactly two symbolic interpretations are materially different and identified as non-exclusive and non-exhaustive.",
             "One real-world observation can reweight the hypotheses or reject both.",
             "Unknowns, a revision condition, a reversible action, and an independent cost, boundary, or deadline stop condition are explicit."
           ]
@@ -330,7 +330,7 @@
         {
           "heading": "How guide content is made",
           "paragraphs": [
-            "The guides use tarot-spark's reviewed nonvisual upright meanings as symbolic interpretation material. Examples separate that material, the connection, exactly two non-exclusive and non-exhaustive working hypotheses, unknowns, reality checks that can reweight or reject both, revision conditions, reversible choices, and independent stop conditions. They do not use unprovided image details, reversed meanings, fixed positions, or claims about hidden feelings unless a page explicitly explains why those claims are unsupported.",
+            "The guides use tarot-spark's reviewed nonvisual upright meanings as symbolic interpretation material. Examples give the card-based answer first, then separate exactly two non-exclusive and non-exhaustive interpretations, unknowns, reality checks that can reweight or reject both, reversible choices, and independent stop conditions. They may read another person's feelings as possibilities but not facts, and they do not use unprovided image details, reversed meanings, or fixed positions.",
             "We review Korean and English pages for the same method and example coverage before publishing them. Material corrections update the page directly instead of preserving numbered content editions. Feedback can be sent to tarotspark.app@gmail.com."
           ]
         }

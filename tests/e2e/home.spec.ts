@@ -528,7 +528,10 @@ test("uses a chosen relationship question in the generated prompt", async ({
     .locator("summary")
     .click();
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
-    /선택한 성찰 질문: 내가 상대에게 기대하는 모습, 상대가 행동으로 보여준 신호/,
+    /선택한 성찰 질문: 상대가 나를 어떻게 보고 있을 가능성이 있는지와 내가 상대에게 기대하는 모습을 카드 의미로 먼저 연결하고/,
+  );
+  await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
+    /첫 두 문장 안에 카드가 그 질문에 가장 강하게 시사하는 답을 먼저 제시하세요/,
   );
   await expect(page).toHaveURL(/question=mutual-view/);
 });
@@ -806,7 +809,7 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
 
   await expect(
     page.getByRole("heading", {
-      name: /see the relationship pattern without pretending/i,
+      name: /read the feelings and relationship flow suggested/i,
     }),
   ).toBeVisible();
   await expect(

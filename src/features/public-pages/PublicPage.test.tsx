@@ -88,6 +88,9 @@ describe("PublicPage", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/서로 다른 필요를/i)).toBeVisible();
     expect(
+      screen.getByText(/카드들이 가장 강하게 시사하는 답은 무엇이고/i),
+    ).toBeVisible();
+    expect(
       screen.queryByRole("link", { name: "카드 뽑으러 가기" }),
     ).not.toBeInTheDocument();
 
@@ -101,6 +104,9 @@ describe("PublicPage", () => {
         name: /6장 전체 예시: 달, 소드 에이스, 펜타클 3/i,
       }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(/가장 강한 상징적 답이 현실 확인보다 먼저/i),
+    ).toBeVisible();
     expect(screen.getByText(/둘 다 버리고 질문을 다시 엽니다/i)).toBeVisible();
   });
 
