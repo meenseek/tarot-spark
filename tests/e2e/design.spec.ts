@@ -719,10 +719,14 @@ test("keeps failed-art retry UI inside the enlarged frame", async ({
 
 for (const width of [320, 390] as const) {
   test(`reserves the hydrated Daily panel height at ${width}px`, async ({
+    baseURL,
     browser,
   }) => {
+    if (!baseURL) {
+      throw new Error("Playwright baseURL is required");
+    }
     const contextOptions = {
-      baseURL: "http://127.0.0.1:3000",
+      baseURL,
       viewport: { height: 844, width },
     };
     const staticContext = await browser.newContext({
