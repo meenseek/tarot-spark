@@ -512,6 +512,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
   page,
 }) => {
   await page.goto("/ko/relationship-tarot-questions");
+  await page.locator("#perception > summary").click();
   await page.getByRole("link", { name: "서로에 대한 기대 보기" }).click();
 
   await expect(page).toHaveURL(/topic=feelings&question=mutual-view/);
