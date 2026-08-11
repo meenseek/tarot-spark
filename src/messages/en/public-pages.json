@@ -349,7 +349,7 @@
           "heading": "Information you provide",
           "paragraphs": [
             "tarot-spark does not require an account. If you add optional situation or relationship context, do not include names, birth dates, contact details, workplace secrets, or other information that identifies a person.",
-            "Optional context stays in your browser and is omitted from reading URLs and analytics. A one-time same-tab browser handoff preserves it when you switch languages or when changing a privacy choice requires the page to reload. It leaves the site only when you choose to copy the generated prompt and paste or share it elsewhere.",
+            "Optional context stays in your browser and is omitted from reading URLs and analytics. A temporary same-tab browser handoff preserves it for up to 60 seconds when you switch languages or when changing a privacy choice requires the page to reload. It is deleted after the destination page successfully restores it and otherwise expires within 60 seconds. It leaves the site only when you choose to copy the generated prompt and paste or share it elsewhere.",
             "If you email tarotspark.app@gmail.com, the email address and message content you send are used to read and respond to your message."
           ]
         },
@@ -372,7 +372,7 @@
           "paragraphs": [
             "The site may be hosted on Vercel. When the corresponding services and identifiers are enabled, Google Analytics and Google AdSense remain off until you allow those optional services in the privacy choices. Advertising delivery may also be disabled site-wide. When enabled, AdSense loads only on the reviewed relationship content pages (/relationship-flow, /ko/relationship-flow, /relationship-tarot-questions, and /ko/relationship-tarot-questions).",
             "Google AdSense and its partners may use cookies or other local storage and process device, page, and ad interaction data to serve, measure, and, where permitted, personalize ads.",
-            "When instant readings are available, the selected topic, card count, answer tone, tarot-spark's predefined nonvisual upright meanings, and—if one was chosen—the predefined public reflection-question focus are sent in input order to the Google Gemini API to create the interpretation. Card names, card images, invented position meanings, optional situation text, names, birth dates, contact details, and personal free-form questions are not sent. Requests are configured not to be stored, but Google may process requests and results under the applicable terms and project settings.",
+            "When instant readings are available, the selected topic, card count, answer tone, tarot-spark's predefined nonvisual upright meanings, and—if one was chosen—the predefined public reflection-question focus are sent in input order to Cloudflare Workers AI. Card names, card images, invented position meanings, optional situation text, names, birth dates, contact details, and personal free-form questions are not sent. This site does not save the request or generated interpretation and does not include them in analytics, URLs, or shared links. No separate storage service is connected to this request path. Cloudflare may process requests and results under the applicable terms and actual Workers AI account settings.",
             "Your optional-service choices are stored in this browser and can be revised through the Privacy choices control. Those providers process technical, analytics, and advertising data according to their own terms and privacy policies."
           ]
         },
@@ -380,7 +380,7 @@
           "heading": "Contact",
           "paragraphs": [
             "For privacy questions or deletion requests related to emails you sent, contact tarotspark.app@gmail.com.",
-            "Last updated: July 31, 2026."
+            "Last updated: August 11, 2026."
           ]
         }
       ]

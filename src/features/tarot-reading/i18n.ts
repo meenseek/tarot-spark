@@ -1,7 +1,6 @@
 import "server-only";
 
 import type { Metadata } from "next";
-import type { InstantReadingRelationType } from "@/domain/tarot";
 import type { Locale } from "@/i18n/config";
 import { getAbsoluteSiteUrl, withLocalizedAlternates } from "@/i18n/seo";
 import enCopy from "@/messages/en/tarot-reading.json";
@@ -55,30 +54,13 @@ export type TarotReadingMessages = {
   readonly instantReading: {
     readonly heading: string;
     readonly intro: string;
-    readonly eligibility: string;
     readonly generate: string;
     readonly loading: string;
+    readonly cancel: string;
     readonly retry: string;
     readonly unavailable: string;
     readonly disclosure: string;
-    readonly strongestConnection: string;
-    readonly alternatives: string;
-    readonly alternativesNote: string;
-    readonly alternativeLabels: {
-      readonly first: string;
-      readonly second: string;
-    };
-    readonly realityCheck: string;
-    readonly unknown: string;
-    readonly observableDiscriminator: string;
-    readonly revisionCondition: string;
-    readonly nextStep: string;
-    readonly action: string;
-    readonly stopOrReviewCondition: string;
-    readonly reflection: string;
-    readonly relationLabels: Readonly<
-      Record<InstantReadingRelationType, string>
-    >;
+    readonly resultHeading: string;
   };
   readonly promptReady: string;
   readonly promptContextIncluded: string;

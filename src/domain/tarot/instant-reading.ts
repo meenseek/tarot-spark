@@ -8,33 +8,6 @@ import {
   type TarotCardId,
   type TopicId,
 } from "./ids";
-import { hasUnsupportedVisualClaim } from "./instant-reading-contract";
-
-export const instantReadingRelationTypes = [
-  "reinforcement",
-  "tension",
-  "progression",
-  "integration",
-] as const;
-
-export const instantReadingSafetyViolationIds = [
-  "hidden-feelings-certainty",
-  "future-certainty",
-  "professional-or-mental-health-advice",
-  "irreversible-urgent-action",
-  "self-harm-coercion-or-stalking",
-  "unsupported-personalization",
-  "unsupported-visual-claim",
-  "invented-position-semantics",
-  "reversed-card-interpretation",
-  "court-card-person-literalization",
-  "provider-owned-card-reference",
-] as const;
-
-export type InstantReadingRelationType =
-  (typeof instantReadingRelationTypes)[number];
-export type InstantReadingSafetyViolationId =
-  (typeof instantReadingSafetyViolationIds)[number];
 
 export type InstantReadingCardInput = {
   readonly cardId: TarotCardId;
@@ -49,163 +22,50 @@ export type InstantReadingRequest = {
 };
 
 export type InstantReading = {
-  readonly headline: string;
-  readonly synthesis: string;
-  readonly cardReadings: readonly {
-    readonly cardId: TarotCardId;
-    readonly interpretation: string;
-  }[];
-  readonly strongestConnection: {
-    readonly relationType: InstantReadingRelationType;
-    readonly cardIds: readonly TarotCardId[];
-    readonly explanation: string;
-  };
-  readonly alternatives: readonly [string, string];
-  readonly realityCheck: {
-    readonly unknown: string;
-    readonly observableDiscriminator: string;
-    readonly revisionCondition: string;
-  };
-  readonly nextStep: {
-    readonly action: string;
-    readonly stopOrReviewCondition: string;
-  };
-  readonly reflection: string;
+  readonly text: string;
 };
 
+export const instantReadingMarkers = [
+  "[전체 흐름]",
+  "[카드별 흐름]",
+  "[가장 강한 연결]",
+  "[가능성 A]",
+  "[가능성 B]",
+  "[현실 확인]",
+  "[다음 행동]",
+  "[성찰 질문]",
+] as const;
+
+const realityLabels = [
+  "아직 모르는 점:",
+  "관찰할 점:",
+  "다시 볼 조건:",
+] as const;
+const actionLabels = ["작은 행동:", "멈추거나 다시 볼 조건:"] as const;
 const requestKeys = ["topicId", "spreadId", "styleId", "cards"] as const;
 const requestKeysWithQuestion = [...requestKeys, "questionId"] as const;
 const cardInputKeys = ["cardId"] as const;
-const readingKeys = [
-  "headline",
-  "synthesis",
-  "cardReadings",
-  "strongestConnection",
-  "alternatives",
-  "realityCheck",
-  "nextStep",
-  "reflection",
+const responseKeys = ["text"] as const;
+const technicalPattern =
+  /```|<\/?[a-z][^>]*>|\bJSON\b|프롬프트|시스템\s*메시지|언어\s*모델|인공지능|\bAI\b/iu;
+const unsafePatterns = [
+  /(?:반드시|틀림없이|확실히).{0,32}(?:연락|재회|성공|합격|결혼|일어납니다|됩니다)/u,
+  /(?:상대|그 사람).{0,24}(?:분명히|확실히).{0,24}(?:사랑|후회|그리워|마음|감정)/u,
+  /(?:다시\s*만나|재회|연락|결혼|합격|성공|돌아오).{0,20}(?:게\s*됩니다|하게\s*됩니다|할\s*것입니다|될\s*것입니다|이\s*옵니다|이\s*올\s*것입니다|합니다|옵니다)/u,
+  /(?:상대(?:방)?|그\s*사람).{0,32}(?:사랑|호감|그리움|그리워|후회).{0,16}(?:있습니다|합니다|느낍니다|원합니다|남아\s*있습니다)/u,
+  /우울증|불안\s*장애|공황\s*장애|양극성\s*장애|조울증|주의력\s*결핍|\bADHD\b|정신\s*질환|정신병|성격\s*장애|외상\s*후\s*스트레스|\bPTSD\b/iu,
+  /(?:약물|항우울제|정신과|심리\s*치료|상담\s*치료|병원|전문의).{0,24}(?:가세요|받으세요|하세요|해야|필요합니다|권합니다)/u,
+  /(?:주식|코인|가상화폐|부동산|투자).{0,24}(?:매수|매도|사세요|파세요|투자하세요)/u,
+  /(?:주식|종목|코인|가상화폐|부동산|투자).{0,32}(?:사는|파는|매수|매도|투자).{0,20}(?:정답|해야|권합니다|좋습니다)/u,
+  /(?:고소|소송|신고|합의|계약|변호사).{0,32}(?:하는\s*것이\s*(?:정답|좋습니다)|하세요|해야|권합니다|진행하세요|시작하세요)/u,
+  /(?:진단|처방|복용|약|수술|치료|병원).{0,32}(?:하는\s*것이\s*(?:정답|좋습니다)|받으세요|하세요|해야|권합니다|필요합니다)/u,
+  /(?:진단|처방|복용|변호사|고소|소송).{0,24}(?:받으세요|하세요|해야|권합니다|진행하세요)/u,
+  /(?:당장|즉시|오늘 바로|지금 바로).{0,24}(?:연락|퇴사|투자|찾아가|헤어지|결혼)/u,
+  /자해|자살|죽는 방법|몰래\s*(?:확인|감시)|미행|강제로/u,
+  /역방향|역위치|리버스|뒤집힌\s*카드/u,
+  /카드\s*(?:그림|이미지)|그림에서|이미지에서|보이는\s*인물/u,
+  /(?:과거|현재|미래|원인|장애물|조언)\s*(?:의\s*)?(?:자리|위치)/u,
 ] as const;
-const cardReadingKeys = ["interpretation"] as const;
-const connectionKeys = ["relationType", "cardIndexes", "explanation"] as const;
-const apiCardReadingKeys = ["cardId", "interpretation"] as const;
-const apiConnectionKeys = ["relationType", "cardIds", "explanation"] as const;
-const realityCheckKeys = [
-  "unknown",
-  "observableDiscriminator",
-  "revisionCondition",
-] as const;
-const nextStepKeys = ["action", "stopOrReviewCondition"] as const;
-const instantReadingVisibleLengthRanges = {
-  deep: { max: 2800, min: 1100 },
-  quick: { max: 1800, min: 700 },
-} as const satisfies Record<
-  SpreadId,
-  { readonly max: number; readonly min: number }
->;
-const technicalMarkerPattern =
-  /```|#{1,6}\s|(^|\n)\s*[-*]\s|AI|인공지능|언어\s*모델|프롬프트|JSON|시스템\s*(지침|메시지)/iu;
-const providerOwnedCardReferencePatterns = [
-  /카드/u,
-  /(?<![가-힣])(?:완드|소드|펜타클)(?:(?:은|는|이|가|의|을|를|와|과|로|으로|처럼|라는|이라는|이라고|으로서))?(?![가-힣])/u,
-  /(?<![가-힣])컵\s*(?:에이스|[2-9]|10|페이지|나이트|퀸|킹)(?:(?:은|는|이|가|의|을|를|와|과|로|으로|에게|에게서))?(?![가-힣])/u,
-  /(?<![가-힣])컵(?:(?:은|는|이|가|의|을|를|와|과|로|으로|처럼|라는|이라는|이라고|으로서))?(?![가-힣]).{0,24}(?:타로|상징|뜻|의미|그림|이미지|감정)/u,
-  /(?:타로|상징|뜻|의미|그림|이미지|감정).{0,24}(?<![가-힣])컵(?:(?:은|는|이|가|의|을|를|와|과|로|으로|처럼|라는|이라는|이라고|으로서))?(?![가-힣])/u,
-  /\b(?:tarot\s+)?cards?\b|\b(?:wands|cups|swords|pentacles)\b/iu,
-] as const;
-const unsafeReadingPatternGroups = [
-  {
-    id: "hidden-feelings-certainty",
-    patterns: [
-      /(?:상대|그 사람)(?:은|는|이|가).{0,18}(?:분명|확실|틀림없이).{0,18}(?:마음|감정|사랑|후회|그리움)/iu,
-      /속마음은.{0,18}(?:사랑|후회|그리움|확실|분명|틀림없)/iu,
-    ],
-  },
-  {
-    id: "future-certainty",
-    patterns: [
-      /(?:반드시|확실히|틀림없이).{0,24}(?:재회|성공|합격|연락|만나|이루|결혼)/iu,
-      /(?:곧|이번\s*(?:달|주)|다음\s*(?:달|주)|\d+\s*(?:일|주|개월)\s*(?:안|후)에).{0,36}(?:연락|재회|성공|합격|결혼|만나|이루)/iu,
-    ],
-  },
-  {
-    id: "professional-or-mental-health-advice",
-    patterns: [
-      /(?:주식|코인|가상화폐|부동산|투자).{0,24}(?:매수|매도|사세요|파세요|투자)/iu,
-      /(?:변호사|고소|소송|법적 대응).{0,18}(?:선임|제기|진행)/iu,
-      /(?:진단|처방|약|복용).{0,18}(?:받으세요|하세요|해야|권합니다)/iu,
-      /(?:우울증|불안장애|정신 질환).{0,12}(?:입니다|으로 보입니다|진단됩니다)/iu,
-    ],
-  },
-  {
-    id: "irreversible-urgent-action",
-    patterns: [
-      /(?:당장|즉시|오늘 바로|지금 바로).{0,24}(?:연락|퇴사|투자|매수|매도|찾아가|고소|헤어지|결혼)/iu,
-    ],
-  },
-  {
-    id: "self-harm-coercion-or-stalking",
-    patterns: [
-      /(?:자해|자살|죽는 방법|몰래\s*(?:확인|감시)|계속\s*연락|미행)/iu,
-      /(?:상대|그\s*사람|연인|전\s*애인)(?:의|을|를)?\s*(?:뒤|동선|위치).{0,12}(?:몰래\s*)?(?:따라가|뒤따라가)/u,
-      /(?:상대|그\s*사람|연인|전\s*애인)(?:의|을|를)?.{0,12}몰래.{0,8}(?:따라가|뒤따라가)/u,
-    ],
-  },
-  {
-    id: "unsupported-personalization",
-    patterns: [
-      /(?:당신|사용자)(?:은|는|이|가)\s*(?:이미|분명|확실히|실제로).{0,28}(?:느끼|원하|생각하|겪|준비하|결정하)/iu,
-    ],
-  },
-  {
-    id: "invented-position-semantics",
-    patterns: [
-      /불씨|그림자|다음\s*걸음/u,
-      /(?:과거|현재|미래|원인|장애물|조언|핵심|숨은\s*영향)\s*(?:→|=)\s*(?:(?:완드|컵|소드|펜타클)\s*(?:에이스|[2-9]|10|페이지|나이트|퀸|킹)|바보|마법사|여사제|여황제|황제|교황|연인|전차|힘|은둔자|운명의\s*수레바퀴|정의|매달린\s*사람|죽음|절제|악마|탑|별|달|태양|심판|세계)/u,
-      /(?:과거|미래|원인|장애물|조언)\s*(?:의\s*)?자리/u,
-      /(?:과거|미래|원인|장애물|조언|핵심|숨은\s*영향)\s*(?:의\s*)?역할/u,
-      /(?:첫|두|세|네|다섯|여섯)\s*번째\s*(?:자리|위치)/u,
-      /(?:(?:\d+\s*(?:번|번째)|첫(?:째|\s*번째)?|둘째|두\s*번째|셋째|세\s*번째|넷째|네\s*번째|다섯째|다섯\s*번째|여섯째|여섯\s*번째)(?:\s*(?:카드|장))?|카드\s*\d+|(?:맨\s*앞|끝|왼쪽|왼편|가운데|중앙|중간|오른쪽|오른편|마지막)\s*(?:카드|장)|(?:처음|첫\s*번째로)\s*뽑힌\s*카드)\s*(?:은|는|이|가|의|를|에서|에는|:|,|\/|\||—|-)/u,
-      /(?:불씨|그림자|다음\s*걸음|과거|현재|미래|원인|장애물|조언|핵심|시작|결론|숨은\s*영향)\s*(?::|\/|\||→|=|—|-)\s*(?:(?:완드|컵|소드|펜타클)\s*(?:에이스|[2-9]|10|페이지|나이트|퀸|킹)|바보|마법사|여사제|여황제|황제|교황|연인|전차|힘|은둔자|운명의\s*수레바퀴|정의|매달린\s*사람|죽음|절제|악마|탑|별|달|태양|심판|세계)(?!\s*의\s*의미)/u,
-      /(?:(?:완드|컵|소드|펜타클)\s*(?:에이스|[2-9]|10|페이지|나이트|퀸|킹)|바보|마법사|여사제|여황제|황제|교황|연인|전차|힘|은둔자|운명의\s*수레바퀴|정의|매달린\s*사람|죽음|절제|악마|탑|별|달|태양|심판|세계)\s*(?:(?:카드는|카드가)\s*(?:과거|현재|미래|원인|장애물|조언|핵심|시작|결론)(?:을|를|의\s*역할을)?\s*(?:뜻|의미|나타내|말|담당)|(?:은|는|이|가)\s*(?:과거|현재|미래|원인|장애물|조언|핵심|시작|결론)(?:(?:을|를)\s*(?:뜻|의미|나타내|말|담당)|\s*(?:카드|역할|자리))|(?::|\/|\||→|=|—|-)\s*(?:과거|현재|미래|원인|장애물|조언|핵심|시작|결론))/u,
-      /\b(?:spark|shadow|next step)\s+(?:position|slot)\b/iu,
-      /\b(?:past|present|future|cause|obstacle|advice)\s+(?:position|slot)\b/iu,
-      /\b(?:first|second|third|fourth|fifth|sixth)\s+card.{0,40}\b(?:past|present|future|cause|obstacle|advice)\b/iu,
-    ],
-  },
-  {
-    id: "reversed-card-interpretation",
-    patterns: [
-      /(?:역방향|역위치|리버스|정위치)/u,
-      /(?:카드|(?:완드|컵|소드|펜타클)\s*(?:에이스|[2-9]|10|페이지|나이트|퀸|킹)|바보|마법사|여사제|여황제|황제|교황|연인|전차|힘|은둔자|운명의\s*수레바퀴|정의|매달린\s*사람|죽음|절제|악마|탑|별|달|태양|심판|세계).{0,24}(?:역방향|역위치|리버스|뒤집(?:힌|어|어서)|거꾸로|반대\s*방향|반대로|역으로|정방향과\s*반대)/u,
-      /(?:역방향|역위치|리버스|뒤집(?:힌|어|어서)|거꾸로|반대\s*방향|반대로|역으로|정방향과\s*반대).{0,24}(?:카드|의미|뜻|해석|읽|보)/u,
-      /뒤집어서\s*보면\s*(?:의미가\s*)?달라/u,
-      /반대\s*(?:의미|뜻)(?:로|으로)?.{0,12}(?:읽|해석|보)/u,
-      /정방향(?:이|은)\s*아닌.{0,12}(?:읽|해석|의미|뜻)/u,
-      /정위치(?:가|는|도)?\s*아닌.{0,12}(?:읽|해석|의미|뜻)/u,
-      /정방향\s*외(?:의|에)?\s*.{0,12}(?:읽|해석|의미|뜻)/u,
-      /\b(?:reversed|reversal|upside[- ]down)\b/iu,
-    ],
-  },
-  {
-    id: "court-card-person-literalization",
-    patterns: [
-      /\b(?:Page|Knight|Queen|King)\b/u,
-      /(?<![가-힣])(?:(?:완드|컵|소드|펜타클)(?:의|\s)*)?(?:페이지|나이트|퀸|킹)(?:\s*카드)?(?:은|는|이|가|을|를|에게(?:서)?).{0,36}(?:(?:실제|특정)\s*(?:여성|남성|여자|남자|인물|사람)|(?:상대방의\s*)?(?:어머니|아버지|연인)(?:\s*같은\s*(?:인물|사람))?|젊은\s*(?:사람|인물)|젊은이|아이|나이\s*많은\s*(?:사람|인물)|연상의\s*(?:여성|남성|사람|인물)|(?:여성|남성|여자|남자|소년|소녀))(?:(?:은|는|이|가|을|를|으로|로)?\s*(?:뜻|가리(?:키|킵)|나타(?:내|냅)|말|읽|해석)|이다|입니다|이에요|예요|인\s*셈)/u,
-      /(?<![가-힣])(?:(?:완드|컵|소드|펜타클)(?:의|\s)*)?(?:페이지|나이트|퀸|킹)(?:\s*카드)?(?:은|는|이|가|을|를|에게(?:서)?).{0,36}(?:(?:실제|특정)\s*(?:여성|남성|여자|남자|인물|사람)|(?:어린|젊은|중년|나이\s*많은|연상의)\s*(?:여성|남성|여자|남자|인물|사람)|어머니|아버지|소년|소녀|아이|젊은이).{0,18}(?:일\s*수|떠올리|연상|연결|볼\s*수)/u,
-      /(?<![가-힣])(?:(?:완드|컵|소드|펜타클)(?:의|\s)*)?(?:페이지|나이트|퀸|킹)(?:\s*카드)?(?:은|는|이|가|을|를|에게(?:서)?).{0,36}(?:(?:실제|특정)\s*)?(?:여성|남성|여자|남자|여인|인물|사람|어린\s*인물|어린\s*사람|청년|중년|노인|어머니|아버지|소년|소녀|아이|젊은이).{0,18}(?:일\s*가능성|일\s*수|관련|암시|가리키|가리킵|떠올리|연상|연결|볼\s*수)/u,
-      /(?<![가-힣])(?:(?:완드|컵|소드|펜타클)(?:의|\s)*)?(?:페이지|나이트|퀸|킹)(?:\s*카드)?(?:은|는|이|가|을|를|에게(?:서)?).{0,36}(?:여성상|남성상|여성|남성|여자|남자|여인|어린\s*인물|어린\s*존재|청년|중년|노인|어머니|아버지|소년|소녀|아이|젊은이)(?:으?로\s*볼\s*수|\s*캐릭터(?:이|입)|\s*같은\s*존재.{0,8}(?:상징|나타(?:내|냅)|입니다)|의\s*모습.{0,8}(?:상징|나타(?:내|냅)|볼\s*수)|.{0,8}표현)/u,
-      /(?<![가-힣])(?:페이지|나이트|퀸|킹)(?:은|는|이|가|을|를|에게(?:서)?).{0,36}(?:여성상|남성상|여성|남성|여자|남자|여인|어린\s*(?:인물|존재|세대)|청년(?:\s*인물)?|중년|노인|어머니|아버지|소년|소녀|아이|젊은이).{0,18}(?:뜻|상징|나타(?:내|냅)|해석|표현)/u,
-      /\b(?:page|knight|queen|king)(?: of (?:wands|cups|swords|pentacles))?\b.{0,24}\b(?:means|represents|indicates|is)\b.{0,16}\b(?:a )?(?:woman|man|girl|boy|person)\b/iu,
-    ],
-  },
-] as const satisfies readonly {
-  readonly id: Exclude<
-    InstantReadingSafetyViolationId,
-    "provider-owned-card-reference" | "unsupported-visual-claim"
-  >;
-  readonly patterns: readonly RegExp[];
-}[];
 
 export function parseInstantReadingRequest(
   value: unknown,
@@ -217,6 +77,7 @@ export function parseInstantReadingRequest(
   ) {
     return undefined;
   }
+
   if (
     !isAllowedId(value["topicId"], topicIds) ||
     !isAllowedId(value["spreadId"], spreadIds) ||
@@ -228,7 +89,10 @@ export function parseInstantReadingRequest(
 
   if (
     "questionId" in value &&
-    (typeof value["questionId"] !== "string" || !value["questionId"].trim())
+    (typeof value["questionId"] !== "string" ||
+      value["questionId"].trim() !== value["questionId"] ||
+      value["questionId"].length === 0 ||
+      value["questionId"].length > 100)
   ) {
     return undefined;
   }
@@ -247,6 +111,7 @@ export function parseInstantReadingRequest(
     }
     cards.push({ cardId: input["cardId"] });
   }
+
   if (new Set(cards.map(({ cardId }) => cardId)).size !== cards.length) {
     return undefined;
   }
@@ -262,272 +127,179 @@ export function parseInstantReadingRequest(
   };
 }
 
-export function parseInstantReadingProviderResponse(
+export function parseInstantReadingResponse(
   value: unknown,
   request: InstantReadingRequest,
 ): InstantReading | undefined {
-  if (!isRecord(value) || !hasExactKeys(value, readingKeys)) return undefined;
   if (
-    !isNonEmptyString(value["headline"]) ||
-    !isNonEmptyString(value["synthesis"]) ||
-    !isNonEmptyString(value["reflection"]) ||
-    !Array.isArray(value["cardReadings"]) ||
-    !isRecord(value["strongestConnection"]) ||
-    value["cardReadings"].length !== request.cards.length
-  ) {
-    return undefined;
-  }
-  const methodFields = parseInstantReadingMethodFields(value);
-  if (!methodFields) return undefined;
-
-  const cardReadings: InstantReading["cardReadings"][number][] = [];
-  for (const [index, expectedCard] of request.cards.entries()) {
-    const cardReading = value["cardReadings"][index];
-    if (
-      !isRecord(cardReading) ||
-      !hasExactKeys(cardReading, cardReadingKeys) ||
-      !isNonEmptyString(cardReading["interpretation"])
-    ) {
-      return undefined;
-    }
-    cardReadings.push({
-      cardId: expectedCard.cardId,
-      interpretation: cardReading["interpretation"],
-    });
-  }
-
-  const connection = value["strongestConnection"];
-  if (
-    !hasExactKeys(connection, connectionKeys) ||
-    !isAllowedId(connection["relationType"], instantReadingRelationTypes) ||
-    !Array.isArray(connection["cardIndexes"]) ||
-    !isNonEmptyString(connection["explanation"])
-  ) {
-    return undefined;
-  }
-  const cardIndexes = connection["cardIndexes"];
-  if (
-    cardIndexes.length < 2 ||
-    cardIndexes.length > request.cards.length ||
-    !cardIndexes.every((cardIndex): cardIndex is number =>
-      isAllowedCardIndex(cardIndex, request.cards.length),
-    ) ||
-    new Set(cardIndexes).size !== cardIndexes.length
+    !isRecord(value) ||
+    !hasExactKeys(value, responseKeys) ||
+    typeof value["text"] !== "string"
   ) {
     return undefined;
   }
 
-  const reading: InstantReading = {
-    ...methodFields,
-    cardReadings,
-    headline: value["headline"],
-    reflection: value["reflection"],
-    strongestConnection: {
-      cardIds: cardIndexes.map(
-        (cardIndex) => request.cards[cardIndex - 1]!.cardId,
-      ),
-      explanation: connection["explanation"],
-      relationType: connection["relationType"],
-    },
-    synthesis: value["synthesis"],
-  };
-  return validateInstantReading(reading, request);
+  return validateInstantReadingText(value["text"], request);
 }
 
-export function parseInstantReading(
-  value: unknown,
+export function validateInstantReadingText(
+  input: string,
   request: InstantReadingRequest,
 ): InstantReading | undefined {
-  if (!isRecord(value) || !hasExactKeys(value, readingKeys)) return undefined;
-  if (
-    !isNonEmptyString(value["headline"]) ||
-    !isNonEmptyString(value["synthesis"]) ||
-    !isNonEmptyString(value["reflection"]) ||
-    !Array.isArray(value["cardReadings"]) ||
-    !isRecord(value["strongestConnection"]) ||
-    value["cardReadings"].length !== request.cards.length
-  ) {
-    return undefined;
-  }
-  const methodFields = parseInstantReadingMethodFields(value);
-  if (!methodFields) return undefined;
+  const text = input.replace(/\r\n?/gu, "\n").trim();
+  const totalLength = [...text].length;
+  const range =
+    request.spreadId === "quick"
+      ? { max: 2_000, min: 420 }
+      : { max: 3_000, min: 650 };
 
-  const cardReadings: InstantReading["cardReadings"][number][] = [];
-  for (const [index, expectedCard] of request.cards.entries()) {
-    const cardReading = value["cardReadings"][index];
-    if (
-      !isRecord(cardReading) ||
-      !hasExactKeys(cardReading, apiCardReadingKeys) ||
-      cardReading["cardId"] !== expectedCard.cardId ||
-      !isNonEmptyString(cardReading["interpretation"])
-    ) {
-      return undefined;
-    }
-    cardReadings.push({
-      cardId: expectedCard.cardId,
-      interpretation: cardReading["interpretation"],
-    });
-  }
-
-  const connection = value["strongestConnection"];
   if (
-    !hasExactKeys(connection, apiConnectionKeys) ||
-    !isAllowedId(connection["relationType"], instantReadingRelationTypes) ||
-    !Array.isArray(connection["cardIds"]) ||
-    !isNonEmptyString(connection["explanation"])
-  ) {
-    return undefined;
-  }
-  const requestCardIds = request.cards.map(({ cardId }) => cardId);
-  if (
-    connection["cardIds"].length < 2 ||
-    connection["cardIds"].length > requestCardIds.length ||
-    !connection["cardIds"].every((cardId): cardId is TarotCardId =>
-      isAllowedId(cardId, tarotCardIds),
-    ) ||
-    new Set(connection["cardIds"]).size !== connection["cardIds"].length ||
-    connection["cardIds"].some((cardId) => !requestCardIds.includes(cardId))
+    totalLength < range.min ||
+    totalLength > range.max ||
+    technicalPattern.test(text) ||
+    unsafePatterns.some((pattern) => pattern.test(text)) ||
+    !hasKoreanMajority(text)
   ) {
     return undefined;
   }
 
-  return validateInstantReading(
-    {
-      ...methodFields,
-      cardReadings,
-      headline: value["headline"],
-      reflection: value["reflection"],
-      strongestConnection: {
-        cardIds: connection["cardIds"],
-        explanation: connection["explanation"],
-        relationType: connection["relationType"],
-      },
-      synthesis: value["synthesis"],
-    },
-    request,
-  );
-}
-
-function parseInstantReadingMethodFields(
-  value: Record<string, unknown>,
-):
-  | Pick<InstantReading, "alternatives" | "nextStep" | "realityCheck">
-  | undefined {
-  const alternatives = value["alternatives"];
-  const realityCheck = value["realityCheck"];
-  const nextStep = value["nextStep"];
-
+  const markerMatches = text.match(/\[[^\]\n]{1,40}\]/gu) ?? [];
   if (
-    !Array.isArray(alternatives) ||
-    alternatives.length !== 2 ||
-    !isNonEmptyString(alternatives[0]) ||
-    !isNonEmptyString(alternatives[1]) ||
-    normalizeComparisonText(alternatives[0]) ===
-      normalizeComparisonText(alternatives[1]) ||
-    !isRecord(realityCheck) ||
-    !hasExactKeys(realityCheck, realityCheckKeys) ||
-    !isNonEmptyString(realityCheck["unknown"]) ||
-    !isNonEmptyString(realityCheck["observableDiscriminator"]) ||
-    !isNonEmptyString(realityCheck["revisionCondition"]) ||
-    !isRecord(nextStep) ||
-    !hasExactKeys(nextStep, nextStepKeys) ||
-    !isNonEmptyString(nextStep["action"]) ||
-    !isNonEmptyString(nextStep["stopOrReviewCondition"])
-  ) {
-    return undefined;
-  }
-
-  return {
-    alternatives: [alternatives[0], alternatives[1]],
-    nextStep: {
-      action: nextStep["action"],
-      stopOrReviewCondition: nextStep["stopOrReviewCondition"],
-    },
-    realityCheck: {
-      observableDiscriminator: realityCheck["observableDiscriminator"],
-      revisionCondition: realityCheck["revisionCondition"],
-      unknown: realityCheck["unknown"],
-    },
-  };
-}
-
-function normalizeComparisonText(value: string) {
-  return value.toLocaleLowerCase("ko-KR").replace(/[\p{P}\p{S}\s]+/gu, "");
-}
-
-function validateInstantReading(
-  reading: InstantReading,
-  request: InstantReadingRequest,
-) {
-  const visibleText = getInstantReadingVisibleText(reading);
-  const visibleLength = [...visibleText].length;
-  const lengthRange = getInstantReadingVisibleLengthRange(request.spreadId);
-  if (
-    visibleLength < lengthRange.min ||
-    visibleLength > lengthRange.max ||
-    technicalMarkerPattern.test(visibleText) ||
-    getInstantReadingSafetyViolation(reading)
-  ) {
-    return undefined;
-  }
-
-  return reading;
-}
-
-export function getInstantReadingVisibleLengthRange(spreadId: SpreadId) {
-  return instantReadingVisibleLengthRanges[spreadId];
-}
-
-function isAllowedCardIndex(
-  value: unknown,
-  cardCount: number,
-): value is number {
-  return (
-    Number.isInteger(value) && Number(value) >= 1 && Number(value) <= cardCount
-  );
-}
-
-export function getInstantReadingVisibleText(reading: InstantReading) {
-  return [
-    reading.headline,
-    reading.synthesis,
-    ...reading.cardReadings.map(({ interpretation }) => interpretation),
-    reading.strongestConnection.explanation,
-    ...reading.alternatives,
-    reading.realityCheck.unknown,
-    reading.realityCheck.observableDiscriminator,
-    reading.realityCheck.revisionCondition,
-    reading.nextStep.action,
-    reading.nextStep.stopOrReviewCondition,
-    reading.reflection,
-  ].join("\n");
-}
-
-export function getInstantReadingSafetyViolation(
-  reading: InstantReading,
-): InstantReadingSafetyViolationId | undefined {
-  const visibleText = getInstantReadingVisibleText(reading);
-  if (hasUnsupportedVisualClaim(visibleText)) return "unsupported-visual-claim";
-
-  for (const { id, patterns } of unsafeReadingPatternGroups) {
-    if (patterns.some((pattern) => pattern.test(visibleText))) return id;
-  }
-  if (
-    providerOwnedCardReferencePatterns.some((pattern) =>
-      pattern.test(visibleText),
+    markerMatches.length !== instantReadingMarkers.length ||
+    !instantReadingMarkers.every(
+      (marker, index) => markerMatches[index] === marker,
     )
   ) {
-    return "provider-owned-card-reference";
+    return undefined;
   }
-  return undefined;
+
+  const sections = splitSections(text);
+  if (!sections) return undefined;
+
+  const overall = sections.get("[전체 흐름]");
+  const cards = sections.get("[카드별 흐름]");
+  const connection = sections.get("[가장 강한 연결]");
+  const firstHypothesis = sections.get("[가능성 A]");
+  const secondHypothesis = sections.get("[가능성 B]");
+  const reality = sections.get("[현실 확인]");
+  const action = sections.get("[다음 행동]");
+  const reflection = sections.get("[성찰 질문]");
+
+  if (
+    !hasBoundedLength(overall, 40, 420) ||
+    !hasBoundedLength(connection, 30, 360) ||
+    !hasBoundedLength(firstHypothesis, 25, 320) ||
+    !hasBoundedLength(secondHypothesis, 25, 320) ||
+    normalizeComparison(firstHypothesis) ===
+      normalizeComparison(secondHypothesis) ||
+    !hasBoundedLength(reflection, 15, 240) ||
+    !/[?？]$/u.test(reflection)
+  ) {
+    return undefined;
+  }
+
+  if (!cards || !hasValidCardLines(cards, request.cards.length)) {
+    return undefined;
+  }
+
+  if (
+    !reality ||
+    !hasExactLabelledLines(reality, realityLabels, 15, 280) ||
+    !action ||
+    !hasExactLabelledLines(action, actionLabels, 15, 280)
+  ) {
+    return undefined;
+  }
+
+  return { text };
+}
+
+function splitSections(text: string) {
+  const lines = text.split("\n");
+  const sections = new Map<(typeof instantReadingMarkers)[number], string>();
+  let activeMarker: (typeof instantReadingMarkers)[number] | undefined;
+  let content: string[] = [];
+
+  const flush = () => {
+    if (!activeMarker) return;
+    const value = content.join("\n").trim();
+    if (!value || sections.has(activeMarker)) return false;
+    sections.set(activeMarker, value);
+    return true;
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if ((instantReadingMarkers as readonly string[]).includes(line)) {
+      if (activeMarker && !flush()) return undefined;
+      activeMarker = line as (typeof instantReadingMarkers)[number];
+      content = [];
+      continue;
+    }
+    if (!activeMarker) return undefined;
+    content.push(line);
+  }
+
+  if (!flush() || sections.size !== instantReadingMarkers.length) {
+    return undefined;
+  }
+  return sections;
+}
+
+function hasValidCardLines(value: string, expectedCount: number) {
+  const lines = value.split("\n").filter(Boolean);
+  if (lines.length !== expectedCount) return false;
+
+  return lines.every((line, index) => {
+    const match = /^(\d+)\.\s+(.+)$/u.exec(line);
+    return (
+      match?.[1] === String(index + 1) && hasBoundedLength(match[2], 15, 300)
+    );
+  });
+}
+
+function hasExactLabelledLines(
+  value: string,
+  labels: readonly string[],
+  minimum: number,
+  maximum: number,
+) {
+  const lines = value.split("\n").filter(Boolean);
+  if (lines.length !== labels.length) return false;
+
+  return lines.every((line, index) => {
+    const label = labels[index]!;
+    return (
+      line.startsWith(label) &&
+      hasBoundedLength(line.slice(label.length).trim(), minimum, maximum)
+    );
+  });
+}
+
+function hasKoreanMajority(value: string) {
+  const letters = value.match(/[A-Za-z가-힣]/gu) ?? [];
+  const korean = value.match(/[가-힣]/gu) ?? [];
+  return (
+    korean.length >= 80 && korean.length / Math.max(letters.length, 1) >= 0.55
+  );
+}
+
+function hasBoundedLength(
+  value: string | undefined,
+  minimum: number,
+  maximum: number,
+): value is string {
+  if (!value) return false;
+  const length = [...value].length;
+  return length >= minimum && length <= maximum;
+}
+
+function normalizeComparison(value: string) {
+  return value.toLocaleLowerCase("ko-KR").replace(/[\p{P}\p{S}\s]+/gu, "");
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
 }
 
 function hasExactKeys(value: Record<string, unknown>, keys: readonly string[]) {

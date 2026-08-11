@@ -1,30 +1,58 @@
 import "server-only";
 
 import {
-  buildInstantReadingContractPrompt,
-  buildInstantReadingResponseSchema,
   getReadingStyle,
   getSpread,
   getTopic,
-  instantReadingGenerationConfig,
-  instantReadingSystemInstruction,
-  parseInstantReadingProviderResponse,
-  type InstantReadingPromptMaterials,
+  validateInstantReadingText,
   type InstantReadingRequest,
   type InstantReading,
   type LocaleTarotData,
 } from "@/domain/tarot";
 import { getRelationshipQuestionCatalog } from "@/features/relationship-questions";
+import {
+  cloudflareInstantReadingModel,
+  type InstantReadingProviderConfig,
+} from "./instant-reading-config";
 
-export const geminiInteractionsApiVersion = "v1";
-export const instantReadingRequestTimeoutMs = 12_000;
+export const instantReadingRequestTimeoutMs = 20_000;
+export const maximumInstantReadingProviderBytes = 32_768;
+export const instantReadingGenerationConfig = {
+  max_tokens: 1_400,
+  stream: false,
+  temperature: 0.3,
+  top_p: 0.9,
+} as const;
 
-const defaultModel = "gemini-3.5-flash";
+const instantReadingSystemInstruction = `당신은 한국어 타로 성찰문을 작성합니다.
+카드 뜻은 현실의 사실이나 타인의 속마음에 대한 증거가 아니라 상징적 재료입니다.
+의료·법률·재정·투자·정신건강 조언, 확정적 예측, 긴급하거나 되돌릴 수 없는 행동을 제안하지 마세요.
+카드 그림, 카드명, 역방향, 임의의 자리 의미, 사용자 개인정보를 추측하지 마세요.
+사용자가 지금 무엇을 하거나 느끼는지 아는 것처럼 서술하지 말고, 카드 의미를 사용자가 점검할 관점으로 제시하세요.
+입력에 없는 사건, 상대의 행동, 직장 변화, 관계 상태나 괄호 속 예시를 만들지 마세요.
+모든 문장은 자연스러운 존댓말 문장으로 완결하세요.
+아래 표식과 순서를 정확히 한 번씩 사용하고 다른 머리말이나 맺음말은 쓰지 마세요.
+[전체 흐름]
+[카드별 흐름]
+[가장 강한 연결]
+[가능성 A]
+[가능성 B]
+[현실 확인]
+[다음 행동]
+[성찰 질문]
+전체 흐름은 '이 카드 흐름은 ...을 함께 점검하라고 제안합니다.'처럼 사용자의 현재 상태를 단정하지 않는 문장으로 시작하세요.
+카드별 흐름에는 입력된 의미 수만큼 번호와 문장 한 줄을 순서대로 쓰세요. '1. 내용:'처럼 '내용'이라는 단어를 쓰지 말고 '1. 이 의미는 ...을 점검하는 관점입니다.'처럼 이 주제에 적용하세요.
+가장 강한 연결은 미래 결과를 말하지 말고 두 의미가 무엇을 함께 보게 하는지 설명하세요.
+가능성 A는 '한 가지 해석은 ...일 수 있다는 것입니다.', 가능성 B는 '다른 해석은 ...일 수 있다는 것입니다.'로 시작하세요. 둘은 같은 현실의 모호함을 설명하는 서로 다른 현재 원인 가설이어야 합니다. 입력에 없는 사례를 붙이지 말며, 둘 다 일부 맞거나 모두 틀릴 수 있게 쓰세요.
+현실 확인에는 '아직 모르는 점:', '관찰할 점:', '다시 볼 조건:'을 각각 한 줄로 쓰세요. 모르는 점은 카드로 확인할 수 없는 사실, 관찰할 점은 말·행동·약속처럼 직접 확인할 신호, 다시 볼 조건은 어떤 새 사실이 A나 B의 비중을 바꾸거나 둘 다 버리게 하는지 완전한 문장으로 쓰세요.
+다음 행동에는 '작은 행동:', '멈추거나 다시 볼 조건:'을 각각 한 줄로 쓰세요. 행동은 작고 되돌릴 수 있어야 하며, 중단 조건에는 상대의 반응과 무관하게 적용할 수 있는 구체적인 기간·비용·경계 중 하나를 반드시 명시하세요.
+중단 조건은 단순히 다시 확인하라는 말로 끝내지 말고 반드시 '...이면 이 행동을 멈추고 다시 판단하세요.'로 끝내세요.
+성찰 질문은 양자택일로 몰지 않는 질문 하나로 쓰고 물음표로 끝내세요.`;
 
 type RequestOptions = {
-  readonly apiKey: string;
+  readonly providerConfig: InstantReadingProviderConfig;
   readonly fetchImpl?: typeof fetch;
-  readonly model?: string;
+  readonly signal?: AbortSignal;
   readonly timeoutMs?: number;
 };
 
@@ -45,6 +73,20 @@ export class InstantReadingResponseError extends Error {
   }
 }
 
+export class InstantReadingTimeoutError extends Error {
+  constructor() {
+    super("Instant reading provider timed out.");
+    this.name = "InstantReadingTimeoutError";
+  }
+}
+
+export class InstantReadingAbortedError extends Error {
+  constructor() {
+    super("Instant reading request was aborted.");
+    this.name = "InstantReadingAbortedError";
+  }
+}
+
 export function isInstantReadingRequestConsistent(
   tarotData: LocaleTarotData,
   request: InstantReadingRequest,
@@ -61,86 +103,131 @@ export function buildInstantReadingPrompt(
   tarotData: LocaleTarotData,
   request: InstantReadingRequest,
 ) {
-  return buildInstantReadingContractPrompt(
-    getRequestMaterials(tarotData, request),
-  );
+  const materials = getRequestMaterials(tarotData, request);
+  const meaningLines = materials.cardMeanings
+    .map((meaning, index) => `의미 ${index + 1}: ${meaning}`)
+    .join("\n");
+
+  return [
+    "아래 공개 설정과 검토된 카드 의미만 사용해 하나의 한국어 성찰문을 작성하세요.",
+    `주제: ${materials.topicLabel}`,
+    `질문의 초점: ${materials.promptLead}`,
+    `카드 수: ${materials.spreadLabel}`,
+    `답변 분위기: ${materials.styleLabel}`,
+    `분위기 지침: ${materials.styleInstruction}`,
+    ...(materials.questionFocus
+      ? [`공개 성찰 질문의 초점: ${materials.questionFocus}`]
+      : []),
+    "카드 의미:",
+    meaningLines,
+    "모든 의미를 입력 순서대로 현재 주제에 적용하고, 사전식 뜻풀이를 반복하지 마세요.",
+    "카드별 문장은 번호 다음에 바로 쓰고 '내용:'이라는 단어를 출력하지 마세요.",
+    "사용자의 현재 상태를 사실처럼 서술하거나 입력에 없는 구체적인 사례를 만들지 마세요.",
+    "가장 강한 보강·긴장·진행·통합 관계 하나를 고르고, 같은 현실을 설명하는 비예측적 원인 가설 두 개를 비교하세요.",
+    "현실에서 직접 확인할 신호와 어느 가설의 비중을 바꿀지 판단할 새 근거를 구체적으로 분리하세요.",
+    "작고 되돌릴 수 있는 행동 하나와 기간·비용·경계 중 하나가 명시된 독립적인 중단 조건을 제시하고, 중단 문장은 '이면 이 행동을 멈추고 다시 판단하세요.'로 끝내세요.",
+  ].join("\n");
 }
 
-export function buildGeminiInteractionBody(
+export function buildCloudflareInstantReadingBody(
   tarotData: LocaleTarotData,
   request: InstantReadingRequest,
-  model = process.env["TAROT_READING_MODEL"]?.trim() || defaultModel,
 ) {
   return {
-    model,
-    input: buildInstantReadingPrompt(tarotData, request),
-    system_instruction: instantReadingSystemInstruction,
-    store: false,
-    generation_config: instantReadingGenerationConfig,
-    response_format: {
-      type: "text",
-      mime_type: "application/json",
-      schema: buildInstantReadingResponseSchema(request.cards.length),
-    },
+    ...instantReadingGenerationConfig,
+    messages: [
+      { content: instantReadingSystemInstruction, role: "system" },
+      { content: buildInstantReadingPrompt(tarotData, request), role: "user" },
+    ],
   };
+}
+
+export function getCloudflareInstantReadingUrl(accountId: string) {
+  return `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(
+    accountId,
+  )}/ai/run/${cloudflareInstantReadingModel}`;
 }
 
 export async function requestInstantReading(
   tarotData: LocaleTarotData,
   request: InstantReadingRequest,
   {
-    apiKey,
+    providerConfig,
     fetchImpl = fetch,
-    model = process.env["TAROT_READING_MODEL"]?.trim() || defaultModel,
+    signal: callerSignal,
     timeoutMs = instantReadingRequestTimeoutMs,
   }: RequestOptions,
 ): Promise<InstantReading> {
-  const response = await fetchImpl(
-    `https://generativelanguage.googleapis.com/${geminiInteractionsApiVersion}/interactions`,
-    {
-      body: JSON.stringify(
-        buildGeminiInteractionBody(tarotData, request, model),
-      ),
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey,
+  const timeoutController = new AbortController();
+  const timeoutId = setTimeout(() => timeoutController.abort(), timeoutMs);
+  const signal = callerSignal
+    ? AbortSignal.any([callerSignal, timeoutController.signal])
+    : timeoutController.signal;
+
+  try {
+    const response = await fetchImpl(
+      getCloudflareInstantReadingUrl(providerConfig.accountId),
+      {
+        body: JSON.stringify(
+          buildCloudflareInstantReadingBody(tarotData, request),
+        ),
+        headers: {
+          Authorization: `Bearer ${providerConfig.apiToken}`,
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        signal,
       },
-      method: "POST",
-      signal: AbortSignal.timeout(timeoutMs),
-    },
-  );
+    );
 
-  if (!response.ok) throw new InstantReadingProviderError(response.status);
+    if (!response.ok) {
+      void response.body?.cancel();
+      throw new InstantReadingProviderError(response.status);
+    }
 
-  let providerPayload: unknown;
-  try {
-    providerPayload = await response.json();
-  } catch {
-    throw new InstantReadingResponseError();
+    const responseText = await readBoundedResponseText(
+      response,
+      maximumInstantReadingProviderBytes,
+    );
+    let payload: unknown;
+    try {
+      payload = JSON.parse(responseText);
+    } catch {
+      throw new InstantReadingResponseError();
+    }
+
+    const text = extractCloudflareResponse(payload);
+    if (!text) throw new InstantReadingResponseError();
+
+    const reading = validateInstantReadingText(text, request);
+    if (!reading) throw new InstantReadingResponseError();
+    return reading;
+  } catch (error) {
+    if (
+      error instanceof InstantReadingProviderError ||
+      error instanceof InstantReadingResponseError
+    ) {
+      throw error;
+    }
+    if (callerSignal?.aborted) throw new InstantReadingAbortedError();
+    if (timeoutController.signal.aborted) {
+      throw new InstantReadingTimeoutError();
+    }
+    throw new InstantReadingProviderError(0);
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  if (
-    isRecord(providerPayload) &&
-    typeof providerPayload["status"] === "string" &&
-    providerPayload["status"] !== "completed"
-  ) {
-    throw new InstantReadingResponseError();
-  }
-
-  const text = extractInteractionText(providerPayload);
-  if (!text) throw new InstantReadingResponseError();
-
-  let value: unknown;
-  try {
-    value = JSON.parse(text);
-  } catch {
-    throw new InstantReadingResponseError();
-  }
-
-  const reading = parseInstantReadingProviderResponse(value, request);
-  if (!reading) throw new InstantReadingResponseError();
-  return reading;
 }
+
+type InstantReadingPromptMaterials = {
+  readonly cardMeanings: readonly string[];
+  readonly promptLead: string;
+  readonly questionFocus?: string;
+  readonly spreadLabel: string;
+  readonly styleInstruction: string;
+  readonly styleLabel: string;
+  readonly topicLabel: string;
+};
 
 function getRequestMaterials(
   tarotData: LocaleTarotData,
@@ -163,21 +250,20 @@ function getRequestMaterials(
       "Instant reading request contains an incompatible question.",
     );
   }
-
   if (request.cards.length !== spread.cardCount) {
     throw new RangeError("Instant reading request has the wrong card count.");
   }
 
-  const cards = request.cards.map(({ cardId }) => {
+  const cardMeanings = request.cards.map(({ cardId }) => {
     const card = tarotData.cards.find((candidate) => candidate.id === cardId);
     if (!card) {
       throw new RangeError("Instant reading request contains an unknown card.");
     }
-    return { meaning: card.meaning };
+    return card.meaning;
   });
 
   return {
-    cards,
+    cardMeanings,
     promptLead: topic.promptLead,
     ...(question ? { questionFocus: question.focus } : {}),
     spreadLabel: spread.label,
@@ -187,29 +273,56 @@ function getRequestMaterials(
   };
 }
 
-function extractInteractionText(payload: unknown) {
-  if (!isRecord(payload) || !Array.isArray(payload["steps"])) return undefined;
-
-  for (const step of payload["steps"].toReversed()) {
-    if (
-      !isRecord(step) ||
-      step["type"] !== "model_output" ||
-      !Array.isArray(step["content"])
-    ) {
-      continue;
-    }
-    const text = step["content"]
-      .filter(
-        (content) =>
-          isRecord(content) &&
-          content["type"] === "text" &&
-          typeof content["text"] === "string",
-      )
-      .map((content) => content["text"] as string)
-      .join("");
-    if (text) return text;
+function extractCloudflareResponse(payload: unknown) {
+  if (
+    !isRecord(payload) ||
+    payload["success"] !== true ||
+    !isRecord(payload["result"]) ||
+    typeof payload["result"]["response"] !== "string"
+  ) {
+    return undefined;
   }
-  return undefined;
+
+  return payload["result"]["response"];
+}
+
+async function readBoundedResponseText(
+  response: Response,
+  maximumBytes: number,
+) {
+  const declaredLength = Number(response.headers.get("content-length"));
+  if (Number.isFinite(declaredLength) && declaredLength > maximumBytes) {
+    void response.body?.cancel();
+    throw new InstantReadingResponseError();
+  }
+  if (!response.body) throw new InstantReadingResponseError();
+
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > maximumBytes) {
+        await reader.cancel();
+        throw new InstantReadingResponseError();
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(bytes);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
