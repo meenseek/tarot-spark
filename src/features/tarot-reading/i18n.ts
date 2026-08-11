@@ -42,8 +42,6 @@ export type TarotReadingMessages = {
   readonly editNextHeading: string;
   readonly editNextIntro: string;
   readonly cancelEdit: string;
-  readonly redrawCurrent: string;
-  readonly drawNext: string;
   readonly workspaceLabel: string;
   readonly cardMarkLabel: string;
   readonly sharedReading: {
@@ -132,7 +130,6 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     deckPreviewNote: copy.deckPreviewNote,
     disclaimer: copy.disclaimer,
     drawButton: copy.drawButton,
-    drawNext: copy.drawNext,
     drawStatus: copy.drawStatus,
     editNextHeading: copy.editNextHeading,
     editNextIntro: copy.editNextIntro,
@@ -160,7 +157,6 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     promptContentClose: copy.promptContentClose,
     promptCopyBlockedAction: copy.promptCopyBlockedAction,
     readingStyleSelectorLabel: copy.readingStyleSelectorLabel,
-    redrawCurrent: copy.redrawCurrent,
     resultHeading: copy.resultHeading,
     cardOverviewLabel: copy.cardOverviewLabel,
     sharedReading: copy.sharedReading,

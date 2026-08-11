@@ -164,6 +164,10 @@ instead of palette utilities or color literals.
 - Treat setup, committed result, and edit-next-draw as distinct modes. Editing
   the next draw must keep the committed cards and prompt visible; cancelling
   must discard the draft and restore focus to the edit trigger.
+- Offer one next-reading action after the primary prompt action. Route it
+  through edit-next-draw so users can keep or change their choices before a new
+  draw replaces the committed result. Do not use browser Back as a reading
+  reset or add a separate immediate-redraw path.
 - Start each result with a compact three-column card overview containing card
   approved card art, neutral draw order, and the exact card name.
   Keep full card meaning in the later details

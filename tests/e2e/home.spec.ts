@@ -180,7 +180,7 @@ for (const readingCase of [
   });
 }
 
-test("keeps edit-next-draw cancelable without replacing the current mobile result", async ({
+test("keeps next-reading choices cancelable without replacing the current mobile result", async ({
   page,
 }) => {
   await page.setViewportSize({ height: 844, width: 390 });
@@ -193,9 +193,16 @@ test("keeps edit-next-draw cancelable without replacing the current mobile resul
     );
   const committedUrl = page.url();
 
-  await page.getByRole("button", { name: "Edit next draw" }).click();
+  const nextReadingAction = page.getByRole("button", {
+    name: "Choose your next reading",
+  });
+  await expect(nextReadingAction).toBeInViewport();
   await expect(
-    page.getByRole("heading", { name: "Set up your next draw" }),
+    page.getByRole("button", { name: "Redraw with current settings" }),
+  ).toHaveCount(0);
+  await nextReadingAction.click();
+  await expect(
+    page.getByRole("heading", { name: "Choose your next reading" }),
   ).toBeFocused();
   await page.getByRole("radio", { name: "Reunion" }).check({ force: true });
   expect(page.url()).toBe(committedUrl);
@@ -207,9 +214,9 @@ test("keeps edit-next-draw cancelable without replacing the current mobile resul
       ),
   ).toEqual(currentCards);
 
-  await page.getByRole("button", { name: "Cancel" }).click();
+  await page.getByRole("button", { name: "Back to current reading" }).click();
   await expect(
-    page.getByRole("button", { name: "Edit next draw" }),
+    page.getByRole("button", { name: "Choose your next reading" }),
   ).toBeFocused();
   await expect(page.getByTestId("card-overview")).toBeVisible();
 });
@@ -534,6 +541,27 @@ test("uses a chosen relationship question in the generated prompt", async ({
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
     /첫 두 문장 안에 카드가 그 질문에 가장 강하게 시사하는 답을 먼저 제시하세요/,
   );
+  await expect(page).toHaveURL(/question=mutual-view/);
+  const committedUrl = page.url();
+  const committedCards = await page
+    .locator("[data-card-id]")
+    .evaluateAll((elements) =>
+      elements.map((element) => element.getAttribute("data-card-id")),
+    );
+
+  await page.getByRole("button", { name: "다음 리딩 선택하기" }).click();
+  await expect(
+    page.getByRole("link", { name: "다른 관계 질문 둘러보기" }),
+  ).toBeVisible();
+  expect(page.url()).toBe(committedUrl);
+  expect(
+    await page
+      .locator("[data-card-id]")
+      .evaluateAll((elements) =>
+        elements.map((element) => element.getAttribute("data-card-id")),
+      ),
+  ).toEqual(committedCards);
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
   await expect(page).toHaveURL(/question=mutual-view/);
 });
 

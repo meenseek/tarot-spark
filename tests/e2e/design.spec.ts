@@ -280,7 +280,7 @@ test("uses state-specific generator layouts and one filled result action", async
   const promptCopy = page.getByRole("button", { name: "Copy prompt" });
   await expect(promptCopy).toHaveCSS("background-color", colors.action);
 
-  await page.getByRole("button", { name: "Edit next draw" }).click();
+  await page.getByRole("button", { name: "Choose your next reading" }).click();
   await expect(generatorLayout).toHaveAttribute(
     "data-layout-mode",
     "edit-next-draw",
@@ -581,9 +581,8 @@ test("stages only a user-initiated card reveal with locked timing", async ({
   });
   expect(flipKeyframes).toEqual(["rotateY(0deg)", "rotateY(180deg)"]);
 
-  await page
-    .getByRole("button", { name: "Redraw with current settings" })
-    .click();
+  await page.getByRole("button", { name: "Choose your next reading" }).click();
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
   await expect(page.getByTestId("reading-card-0")).toHaveAttribute(
     "data-reveal-sequence",
     "2",

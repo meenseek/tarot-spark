@@ -182,8 +182,6 @@ const uiCopySchema = {
   editNextHeading: "string",
   editNextIntro: "string",
   cancelEdit: "string",
-  redrawCurrent: "string",
-  drawNext: "string",
   workspaceLabel: "string",
   cardMarkLabel: "string",
   sharedReading: {

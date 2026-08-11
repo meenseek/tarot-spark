@@ -239,9 +239,8 @@ test("drops stale motion and announcements on a rapid redraw", async ({
 
   const drawButton = page.getByRole("button", { name: "Draw 3 cards" });
   await drawButton.click();
-  await page
-    .getByRole("button", { name: "Redraw with current settings" })
-    .click();
+  await page.getByRole("button", { name: "Choose your next reading" }).click();
+  await drawButton.click();
 
   await expect(page.getByTestId("reading-card-0")).toHaveAttribute(
     "data-reveal-sequence",
