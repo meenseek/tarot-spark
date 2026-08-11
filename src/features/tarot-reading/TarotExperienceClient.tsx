@@ -195,7 +195,7 @@ export function TarotExperienceClient({
   const shareOperationIdRef = useRef(0);
   const emittedResultViewKeysRef = useRef(new Set<string>());
   const resultViewCurrentlyVisibleRef = useRef(false);
-  const resultViewTargetRef = useRef<HTMLDivElement | null>(null);
+  const resultViewTargetRef = useRef<HTMLElement | null>(null);
   const readingWorkspaceRef = useRef<HTMLElement | null>(null);
   const resultHeadingRef = useRef<HTMLHeadingElement | null>(null);
   const editHeadingRef = useRef<HTMLHeadingElement | null>(null);
@@ -735,11 +735,14 @@ export function TarotExperienceClient({
 
   function preserveContextForLocaleChange(targetLocale: Locale) {
     if (targetLocale !== locale) {
-      resultViewTargetRef.current
-        ?.querySelectorAll("details")
-        .forEach((details) => {
-          details.open = false;
-        });
+      const resultContentRoot =
+        viewMode === "generator"
+          ? readingWorkspaceRef.current
+          : resultViewTargetRef.current;
+
+      resultContentRoot?.querySelectorAll("details").forEach((details) => {
+        details.open = false;
+      });
     }
 
     if (viewMode === "generator" && targetLocale !== locale) {
@@ -1229,68 +1232,83 @@ export function TarotExperienceClient({
         "copy",
       )
     : "";
-  const readingResult = (
-    <ReadingResult
-      afterPromptAction={
-        viewMode === "shared" ? (
-          <a
-            className={`${secondaryButtonClassName} w-full sm:w-fit`}
-            data-testid="shared-create-own"
-            href={createOwnReadingHref}
-          >
-            {copy.sharedReading.createOwn}
-          </a>
-        ) : undefined
-      }
-      cards={cards}
-      copy={copy}
-      copyState={copyState}
-      currentCustomization={
-        viewMode === "generator" && session.mode === "result" ? (
-          <CurrentPromptCustomization
-            contextCountLabel={contextCountLabel}
-            contextPlaceholder={currentTopic?.contextPlaceholder ?? ""}
-            copy={copy}
-            onContextChange={changeCurrentUserContext}
-            onStyleChange={chooseCurrentReadingStyle}
-            readingStyles={tarotData.readingStyles}
-            selectedStyleId={currentResult?.inputs.styleId ?? "balanced"}
-            userContext={currentResult?.inputs.privateContext ?? ""}
-          />
-        ) : undefined
-      }
-      hasKakaoShare={hasKakaoShare}
-      hasUserContext={Boolean(
-        currentResult?.inputs.privateContext.trim().length,
-      )}
-      instantReading={instantReading}
-      instantReadingEnabled={viewMode === "generator" && instantReadingEnabled}
-      instantReadingStatus={instantReadingStatus}
-      onCancelInstantReading={cancelInstantReading}
-      onGenerateInstantReading={generateInstantReading}
-      onInstagramShare={copyInstagramShareUrl}
-      onKakaoShare={shareToKakaoTalk}
-      onCopyPrompt={copyPrompt}
-      onCopyUrl={copyShareUrl}
-      onShareReading={shareReading}
-      prompt={prompt}
-      resultActions={
-        viewMode === "generator" && session.mode === "result" ? (
-          <button
-            className={`${secondaryButtonClassName} w-full sm:w-fit`}
-            data-testid="next-reading-action"
-            onClick={enterEditNextDraw}
-            ref={editTriggerRef}
-            type="button"
-          >
-            {copy.editNextReading}
-          </button>
-        ) : undefined
-      }
-      shareFeedback={shareFeedback}
-      shareUrl={manualShareUrl}
-    />
-  );
+  function renderReadingResult() {
+    return (
+      <ReadingResult
+        afterPromptAction={
+          viewMode === "shared" ? (
+            <a
+              className={`${secondaryButtonClassName} w-full sm:w-fit`}
+              data-testid="shared-create-own"
+              href={createOwnReadingHref}
+            >
+              {copy.sharedReading.createOwn}
+            </a>
+          ) : undefined
+        }
+        cards={cards}
+        copy={copy}
+        copyState={copyState}
+        currentCustomization={
+          viewMode === "generator" && session.mode === "result" ? (
+            <CurrentPromptCustomization
+              contextCountLabel={contextCountLabel}
+              contextPlaceholder={currentTopic?.contextPlaceholder ?? ""}
+              copy={copy}
+              onContextChange={changeCurrentUserContext}
+              onStyleChange={chooseCurrentReadingStyle}
+              readingStyles={tarotData.readingStyles}
+              selectedStyleId={currentResult?.inputs.styleId ?? "balanced"}
+              userContext={currentResult?.inputs.privateContext ?? ""}
+            />
+          ) : undefined
+        }
+        hasKakaoShare={hasKakaoShare}
+        hasUserContext={Boolean(
+          currentResult?.inputs.privateContext.trim().length,
+        )}
+        instantReading={instantReading}
+        instantReadingEnabled={
+          viewMode === "generator" && instantReadingEnabled
+        }
+        instantReadingStatus={instantReadingStatus}
+        onCancelInstantReading={cancelInstantReading}
+        onGenerateInstantReading={generateInstantReading}
+        onInstagramShare={copyInstagramShareUrl}
+        onKakaoShare={shareToKakaoTalk}
+        onCopyPrompt={copyPrompt}
+        onCopyUrl={copyShareUrl}
+        onShareReading={shareReading}
+        prompt={prompt}
+        {...(viewMode === "generator"
+          ? { promptReadyRef: resultViewTargetRef }
+          : {})}
+        resultActions={
+          viewMode === "generator" && session.mode === "result" ? (
+            <button
+              className={`${secondaryButtonClassName} w-full sm:w-fit`}
+              data-testid="next-reading-action"
+              onClick={enterEditNextDraw}
+              ref={editTriggerRef}
+              type="button"
+            >
+              {copy.editNextReading}
+            </button>
+          ) : viewMode === "generator" && session.mode === "edit-next-draw" ? (
+            <section
+              aria-labelledby="edit-next-reading-heading"
+              className="grid gap-6 rounded-ts-panel border border-ts-divider bg-ts-canvas p-4 sm:p-5"
+              data-testid="next-reading-editor"
+            >
+              {readingSetupForm}
+            </section>
+          ) : undefined
+        }
+        shareFeedback={shareFeedback}
+        shareUrl={manualShareUrl}
+      />
+    );
+  }
 
   const generatorIntroduction = (
     <div className="grid content-start gap-4" data-testid="generator-intro">
@@ -1312,9 +1330,10 @@ export function TarotExperienceClient({
   const readingSetupForm = session.mode !== "result" && (
     <div className="grid gap-6" data-testid="reading-setup-form">
       {session.mode === "edit-next-draw" && (
-        <div className="grid gap-2 rounded-ts-panel border border-ts-divider bg-ts-surface p-4">
+        <div className="grid gap-2">
           <h2
             className="font-ts-display text-2xl font-semibold text-ts-ink focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
+            id="edit-next-reading-heading"
             ref={editHeadingRef}
             tabIndex={-1}
           >
@@ -1401,7 +1420,9 @@ export function TarotExperienceClient({
           {drawButtonLabel}
         </button>
       </div>
-      <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>
+      {session.mode === "setup" && (
+        <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>
+      )}
     </div>
   );
 
@@ -1413,11 +1434,7 @@ export function TarotExperienceClient({
       ref={readingWorkspaceRef}
     >
       {currentResult && currentTopic && currentSpread && currentReadingStyle ? (
-        <div
-          className="grid gap-4"
-          data-testid="reading-result-observer"
-          ref={resultViewTargetRef}
-        >
+        <div className="grid gap-4" data-testid="reading-result-observer">
           <div className="grid gap-1">
             <h2
               className="font-ts-display text-2xl font-semibold text-ts-ink focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
@@ -1456,7 +1473,7 @@ export function TarotExperienceClient({
             revealSequence={drawSequenceId}
           />
 
-          {readingResult}
+          {renderReadingResult()}
           <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>
         </div>
       ) : (
@@ -1553,7 +1570,7 @@ export function TarotExperienceClient({
               revealSequence={0}
             />
             <div data-testid="shared-reading-result-content">
-              {readingResult}
+              {renderReadingResult()}
             </div>
             <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>
           </section>
@@ -1586,34 +1603,26 @@ export function TarotExperienceClient({
           className={`w-full gap-8 ${
             session.mode === "setup"
               ? "grid lg:grid-cols-[0.9fr_1.1fr] lg:items-center"
-              : session.mode === "result"
-                ? "mx-auto grid max-w-5xl"
-                : "grid lg:grid-cols-[0.8fr_1.2fr] lg:items-start"
+              : "mx-auto grid max-w-5xl"
           }`}
           data-testid="generator-state-layout"
         >
           <div className="lg:col-start-1 lg:row-start-1">
             {generatorIntroduction}
           </div>
-          <section
-            className={`w-full sm:rounded-ts-panel sm:border sm:border-ts-divider sm:bg-ts-surface sm:p-7 sm:shadow-ts-paper ${
-              session.mode === "result"
-                ? "hidden"
-                : session.mode === "setup"
-                  ? "mx-auto max-w-3xl lg:col-span-2 lg:row-start-2"
-                  : "lg:col-start-1 lg:row-start-2"
-            }`}
-            data-testid="reading-setup-panel"
-          >
-            {readingSetupForm}
-          </section>
+          {session.mode === "setup" && (
+            <section
+              className="mx-auto w-full max-w-3xl sm:rounded-ts-panel sm:border sm:border-ts-divider sm:bg-ts-surface sm:p-7 sm:shadow-ts-paper lg:col-span-2 lg:row-start-2"
+              data-testid="reading-setup-panel"
+            >
+              {readingSetupForm}
+            </section>
+          )}
           <div
             className={
               session.mode === "setup"
                 ? "lg:col-start-2 lg:row-start-1"
-                : session.mode === "edit-next-draw"
-                  ? "lg:col-start-2 lg:row-span-2 lg:row-start-1"
-                  : undefined
+                : undefined
             }
           >
             {readingWorkspace}
