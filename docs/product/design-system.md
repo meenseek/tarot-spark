@@ -87,6 +87,69 @@ instead of palette utilities or color literals.
 - Keep hover and pressed states within the action and blush token families.
 - Reduce animation and transition durations when reduced motion is requested.
 
+## Page Architecture
+
+- Wrap every public page in the shared `SiteShell`. The shell owns the canvas,
+  the canonical `max-w-6xl` frame, responsive page gutters, the brand home
+  link, locale switch, and footer navigation.
+- Keep the shell width stable across routes. Editorial pages may constrain
+  their article inside the shell, but must not narrow or reimplement the header
+  or footer.
+- Use one of three page archetypes inside the shell:
+  - Workspace pages organize mutable setup, committed results, and editing
+    states around the user's current task.
+  - Catalog pages put browsable choices before supporting methodology and keep
+    repeated choices visually quieter than the selected destination.
+  - Editorial pages use a readable inner measure for guides and daily content
+    without changing the surrounding shell.
+- Treat setup, result, and edit-next-draw as separate workspace layouts. Do not
+  reserve a short or empty result column beside a substantially taller setup
+  form. A result may use the full content width; edit-next-draw may use two
+  columns while the committed result remains visible.
+
+## Action Hierarchy
+
+- Use at most one filled primary action in one task region. A region is a
+  visually bounded form, result panel, or call-to-action section.
+- While Tarot Spark is a prompt generator, prompt copy is the primary result
+  action. Optional instant interpretation remains secondary. If the product
+  contract changes to interpretation-first, invert that hierarchy everywhere
+  in one change instead of presenting both actions as primary.
+- Use secondary or text-link treatment for repeated catalog choices, locale
+  controls, disclosures, navigation, and supporting actions.
+- Do not use blush fill or a two-pixel action border to make an optional panel
+  compete with the primary task. Reserve that emphasis for selection,
+  reflection content, or the single dominant call to action in a region.
+
+## Catalog Browsing
+
+- Put the question catalog immediately after its introduction. Supporting
+  method, comparison, and worked-example content follows the catalog.
+- Group a long catalog by stable category in native disclosure elements. Open
+  only the first category by default, keep every category summary visible, and
+  keep all question links in server-rendered HTML.
+- Preserve stable category fragment ids when changing presentation so existing
+  deep links still land on the corresponding category summary.
+- Use card shadows sparingly in repeated lists and keep every repeated question
+  action secondary. Density should communicate a browsable collection, not a
+  wall of competing primary actions.
+
+## Structural Regression Prevention
+
+- Test the shared shell at 390px and 1280px. Header and footer boundaries must
+  use the same gutters on every public route, and no route may overflow
+  horizontally.
+- Cover Korean and English plus workspace setup, result, and edit-next-draw
+  states. Check structure and action hierarchy as well as copy and state
+  transitions.
+- Keep a source-level adoption test for the shared shell and a component test
+  for its brand link, locale control, landmarks, and footer navigation.
+- For catalog changes, test stable fragment ids, default disclosure state,
+  disclosure interaction, and the complete server-rendered link set.
+- When a new action or panel is added, review the whole task region at mobile
+  and desktop widths. A passing token audit alone does not prove that page
+  hierarchy or density remains coherent.
+
 ## Reading Flow
 
 - Present topics as one labeled radio group. Keep the selected state native and
