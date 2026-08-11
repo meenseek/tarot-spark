@@ -22,6 +22,21 @@ type RectGeometry = {
   readonly width: number;
 };
 
+async function getDocumentRect(locator: Locator): Promise<RectGeometry> {
+  return locator.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+
+    return {
+      bottom: rect.bottom + scrollY,
+      height: rect.height,
+      left: rect.left,
+      right: rect.right,
+      top: rect.top + scrollY,
+      width: rect.width,
+    };
+  });
+}
+
 async function serveCardArtFixture(page: Page, delayMs = 0) {
   await page.route("**/_next/image**", async (route) => {
     if (delayMs > 0) {
@@ -279,14 +294,64 @@ test("uses state-specific generator layouts and one filled result action", async
 
   const promptCopy = page.getByRole("button", { name: "Copy prompt" });
   await expect(promptCopy).toHaveCSS("background-color", colors.action);
+  const resultWorkspaceRect = await getDocumentRect(resultWorkspace);
+  const cardOverview = page.getByTestId("card-overview");
+  const promptReady = page.getByTestId("prompt-ready");
+  const cardOverviewRect = await getDocumentRect(cardOverview);
+  const promptReadyRect = await getDocumentRect(promptReady);
 
   await page.getByRole("button", { name: "Choose your next reading" }).click();
   await expect(generatorLayout).toHaveAttribute(
     "data-layout-mode",
     "edit-next-draw",
   );
-  await expect(page.getByTestId("reading-setup-form")).toBeVisible();
-  await expect(page.getByTestId("reading-workspace")).toBeVisible();
+  const nextReadingEditor = page.getByRole("region", {
+    name: "Choose your next reading",
+  });
+  await expect(nextReadingEditor).toBeVisible();
+  await expect(page.getByTestId("reading-setup-panel")).toHaveCount(0);
+  await expect(resultWorkspace).toBeVisible();
+  await expect(cardOverview).toBeVisible();
+  await expect(promptReady).toBeVisible();
+  expect(await getDocumentRect(resultWorkspace)).toMatchObject({
+    left: resultWorkspaceRect.left,
+    right: resultWorkspaceRect.right,
+    top: resultWorkspaceRect.top,
+    width: resultWorkspaceRect.width,
+  });
+  expect(await getDocumentRect(cardOverview)).toEqual(cardOverviewRect);
+  expect(await getDocumentRect(promptReady)).toEqual(promptReadyRect);
+  expect(
+    await page.evaluate(() => {
+      const prompt = document.querySelector('[data-testid="prompt-ready"]');
+      const editor = document.querySelector(
+        '[data-testid="next-reading-editor"]',
+      );
+      const details = document.querySelector(
+        '[data-testid="prompt-content-disclosure"]',
+      );
+
+      return Boolean(
+        prompt &&
+        editor &&
+        details &&
+        prompt.compareDocumentPosition(editor) &
+          Node.DOCUMENT_POSITION_FOLLOWING &&
+        editor.compareDocumentPosition(details) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+    }),
+  ).toBe(true);
+  const editorFilledPrimaryCount = await nextReadingEditor
+    .locator("button")
+    .evaluateAll(
+      (buttons, actionColor) =>
+        buttons.filter(
+          (button) => getComputedStyle(button).backgroundColor === actionColor,
+        ).length,
+      colors.action,
+    );
+  expect(editorFilledPrimaryCount).toBe(1);
 
   await page.goto("/ko");
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();

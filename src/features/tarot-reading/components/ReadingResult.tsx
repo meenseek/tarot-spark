@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, type Ref, useEffect, useRef } from "react";
 import {
   primaryButtonClassName,
   secondaryButtonClassName,
@@ -26,6 +26,7 @@ type ReadingResultProps = {
   readonly instantReadingEnabled: boolean;
   readonly instantReadingStatus: InstantReadingStatus;
   readonly prompt: string;
+  readonly promptReadyRef?: Ref<HTMLElement>;
   readonly resultActions?: ReactNode;
   readonly shareFeedback: ShareFeedback | undefined;
   readonly shareUrl: string;
@@ -50,6 +51,7 @@ export function ReadingResult({
   instantReadingEnabled,
   instantReadingStatus,
   prompt,
+  promptReadyRef,
   resultActions,
   shareFeedback,
   shareUrl,
@@ -100,7 +102,9 @@ export function ReadingResult({
           <section
             aria-labelledby="prompt-ready-heading"
             className="flex flex-col gap-3 rounded-ts-control border-2 border-ts-action bg-ts-blush p-4 sm:flex-row sm:items-center sm:justify-between"
+            data-analytics-result-view-target=""
             data-testid="prompt-ready"
+            ref={promptReadyRef}
           >
             <div className="grid gap-1">
               <h2

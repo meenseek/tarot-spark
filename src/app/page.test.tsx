@@ -606,6 +606,9 @@ describe("Home", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
     const firstCard = screen.getByTestId("reading-card-0");
+    const firstWorkspace = screen.getByTestId("reading-workspace");
+    const firstPrompt = screen.getByLabelText("Generated prompt");
+    const committedPrompt = (firstPrompt as HTMLTextAreaElement).value;
     const committedUrl = window.location.href;
     expect(screen.queryByText("Redraw with current settings")).toBeNull();
     const editTrigger = screen.getByRole("button", {
@@ -618,9 +621,36 @@ describe("Home", () => {
         screen.getByRole("heading", { name: "Choose your next reading" }),
       ).toHaveFocus();
     });
+    const editor = screen.getByRole("region", {
+      name: "Choose your next reading",
+    });
+    const promptReady = screen.getByTestId("prompt-ready");
+    const promptDisclosure = screen.getByTestId("prompt-content-disclosure");
+
+    expect(screen.getByTestId("reading-workspace")).toBe(firstWorkspace);
+    expect(screen.getByTestId("reading-card-0")).toBe(firstCard);
+    expect(screen.getByTestId("prompt-ready")).toBe(promptReady);
+    expect(firstPrompt).toHaveValue(committedPrompt);
+    expect(
+      promptReady.compareDocumentPosition(editor) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      editor.compareDocumentPosition(promptDisclosure) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(screen.queryByTestId("reading-setup-panel")).toBeNull();
+    expect(screen.queryByText("Customize current prompt")).toBeNull();
+    expect(
+      screen.getAllByText(
+        "Tarot content is for entertainment and self-reflection only. It is not medical, legal, financial, investment, or mental-health advice.",
+      ),
+    ).toHaveLength(1);
+
     fireEvent.click(screen.getByRole("radio", { name: "Reunion" }));
 
     expect(screen.getByTestId("reading-card-0")).toBe(firstCard);
+    expect(firstPrompt).toHaveValue(committedPrompt);
     expect(window.location.href).toBe(committedUrl);
 
     fireEvent.click(
@@ -1127,9 +1157,24 @@ describe("Home", () => {
       await waitFor(() => {
         expect(testIntersectionObservers.size).toBeGreaterThan(0);
       });
+      const promptReady = screen.getByTestId("prompt-ready");
+      expect(
+        Array.from(testIntersectionObservers).some((observer) =>
+          observer.observes(promptReady),
+        ),
+      ).toBe(true);
 
       setReadingResultIntersection(true);
       setReadingResultIntersection(false);
+      fireEvent.click(
+        screen.getByRole("button", { name: "Choose your next reading" }),
+      );
+      const nextReadingEditor = screen.getByTestId("next-reading-editor");
+      expect(
+        Array.from(testIntersectionObservers).some((observer) =>
+          observer.observes(nextReadingEditor),
+        ),
+      ).toBe(false);
       announceAnalyticsReady();
 
       expect(events.filter(({ name }) => name === "result_view")).toHaveLength(
@@ -1160,6 +1205,19 @@ describe("Home", () => {
       fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
       setReadingResultIntersection(true);
       setReadingResultIntersection(true);
+
+      fireEvent.click(
+        screen.getByRole("button", { name: "Choose your next reading" }),
+      );
+      setReadingResultIntersection(true);
+      fireEvent.click(
+        screen.getByRole("button", { name: "Back to current reading" }),
+      );
+      setReadingResultIntersection(true);
+
+      expect(events.filter(({ name }) => name === "result_view")).toHaveLength(
+        1,
+      );
 
       fireEvent.click(
         screen.getByRole("button", { name: "Choose your next reading" }),
@@ -1745,6 +1803,10 @@ class TestIntersectionObserver {
 
   observe(target: Element) {
     this.targets.add(target);
+  }
+
+  observes(target: Element) {
+    return this.targets.has(target);
   }
 
   takeRecords() {

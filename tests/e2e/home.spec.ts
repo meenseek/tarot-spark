@@ -204,6 +204,45 @@ test("keeps next-reading choices cancelable without replacing the current mobile
   await expect(
     page.getByRole("heading", { name: "Choose your next reading" }),
   ).toBeFocused();
+  const nextReadingEditor = page.getByRole("region", {
+    name: "Choose your next reading",
+  });
+  await expect(nextReadingEditor).toBeVisible();
+  await expect(page.getByTestId("reading-setup-panel")).toHaveCount(0);
+  await expect(page.getByTestId("card-overview")).toBeVisible();
+  await expect(page.getByTestId("prompt-ready")).toBeVisible();
+  await expect(
+    page.getByText(
+      "Tarot content is for entertainment and self-reflection only. It is not medical, legal, financial, investment, or mental-health advice.",
+      { exact: true },
+    ),
+  ).toHaveCount(1);
+  expect(
+    await page.evaluate(() => {
+      const prompt = document.querySelector('[data-testid="prompt-ready"]');
+      const editor = document.querySelector(
+        '[data-testid="next-reading-editor"]',
+      );
+      const details = document.querySelector(
+        '[data-testid="prompt-content-disclosure"]',
+      );
+
+      return Boolean(
+        prompt &&
+        editor &&
+        details &&
+        prompt.compareDocumentPosition(editor) &
+          Node.DOCUMENT_POSITION_FOLLOWING &&
+        editor.compareDocumentPosition(details) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+    }),
+  ).toBe(true);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
   await page.getByRole("radio", { name: "Reunion" }).check({ force: true });
   expect(page.url()).toBe(committedUrl);
   expect(
@@ -576,6 +615,22 @@ test("uses a chosen relationship question in the generated prompt", async ({
     );
 
   await page.getByRole("button", { name: "다음 리딩 선택하기" }).click();
+  await expect(
+    page.getByRole("region", { name: "다음 리딩 선택하기" }),
+  ).toBeVisible();
+  await expect(page.getByTestId("card-overview")).toBeVisible();
+  await expect(page.getByTestId("prompt-ready")).toBeVisible();
+  await expect(
+    page.getByText(
+      "타로는 재미와 자기 성찰을 위한 도구입니다. 의료·법률·재정·투자·정신 건강에 관한 전문 조언을 대신하지 않습니다.",
+      { exact: true },
+    ),
+  ).toHaveCount(1);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
   const editQuestionSelector = page.getByLabel("다른 관계 질문 고르기");
   await expect(editQuestionSelector).toHaveValue("mutual-view");
   await expect(
