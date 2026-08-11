@@ -36,7 +36,9 @@
 ## Data And Content Structure
 
 - Keep card, spread, topic, prompt template, and interpretation data typed.
-- Add new tarot topics through the existing data shape and routing pattern.
+- Keep public tarot topic entry points separate from the internal
+  [reading taxonomy](../architecture/reading-taxonomy.md), and add either one
+  only through its documented extension rules.
 - Keep SEO metadata, visible headings, analytics events, and public copy aligned
   when adding or changing a user-facing topic.
 - Move repeated tarot content, UI copy, or prompt text to one source of truth

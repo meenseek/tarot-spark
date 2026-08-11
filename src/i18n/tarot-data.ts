@@ -6,12 +6,16 @@ import koTarotMessages from "@/messages/ko/tarot-domain.json";
 import enCards from "@/messages/en/tarot-cards.json";
 import koCards from "@/messages/ko/tarot-cards.json";
 import {
+  answerTargetIds,
+  getTopicTaxonomy,
   readingStyleIds,
   spreadIds,
   tarotCardIds,
   topicIds,
 } from "@/domain/tarot";
 import type {
+  AnswerTarget,
+  AnswerTargetId,
   LocaleTarotData,
   PromptTemplate,
   ReadingStyle,
@@ -25,8 +29,9 @@ import type {
 } from "@/domain/tarot";
 
 type RawLocaleTarotMessages = {
+  readonly answerTargets: Record<AnswerTargetId, Omit<AnswerTarget, "id">>;
   readonly promptTemplate: PromptTemplate;
-  readonly topics: Record<TopicId, Omit<Topic, "id">>;
+  readonly topics: Record<TopicId, Omit<Topic, "id" | "taxonomy">>;
   readonly readingStyles: Record<ReadingStyleId, Omit<ReadingStyle, "id">>;
   readonly spreads: Record<SpreadId, Omit<Spread, "id" | "cardCount">>;
 };
@@ -56,9 +61,14 @@ function normalizeLocaleMessages(
   cards: Record<TarotCardId, Omit<TarotCard, "id">>,
 ): LocaleTarotData {
   return {
+    answerTargets: answerTargetIds.map((id) => ({
+      id,
+      ...messages.answerTargets[id],
+    })),
     promptTemplate: messages.promptTemplate,
     topics: topicIds.map((id) => ({
       id,
+      taxonomy: getTopicTaxonomy(id),
       ...messages.topics[id],
     })),
     spreads: spreadIds.map((id) => ({

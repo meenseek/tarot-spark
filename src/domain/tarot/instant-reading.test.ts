@@ -32,6 +32,23 @@ describe("instant reading domain", () => {
     expect(
       parseInstantReadingRequest({ ...request, questionId: " padded " }),
     ).toBeUndefined();
+    expect(
+      parseInstantReadingRequest({ ...request, questionId: "unknown" }),
+    ).toBeUndefined();
+    expect(
+      parseInstantReadingRequest({ ...request, questionId: "mutual-view" }),
+    ).toBeUndefined();
+    expect(
+      parseInstantReadingRequest({
+        ...request,
+        questionId: "mutual-view",
+        topicId: "feelings",
+      }),
+    ).toEqual({
+      ...request,
+      questionId: "mutual-view",
+      topicId: "feelings",
+    });
   });
 
   it("accepts the exact marker grammar and normalizes line endings", () => {
@@ -97,6 +114,8 @@ describe("instant reading domain", () => {
       "상대는 당신을 좋아해요.",
       "그 사람은 당신에게 마음이 있어요.",
       "상대는 당신을 좋아하게 될 것입니다.",
+      "상대는 당신을 연애 대상으로 봅니다.",
+      "상대에게 연애적 망설임이 있습니다.",
     ]) {
       const factualBeforeQualifier = createValidText(3).replace(
         originalOverall,
@@ -162,6 +181,24 @@ describe("instant reading domain", () => {
         validateInstantReadingText(implicitFactual, relationshipRequest),
       ).toBeUndefined();
     }
+  });
+
+  it("uses a question answer target instead of a broad topic default", () => {
+    const selfFocused = createValidText(3).replace(
+      "새로운 가능성을 향한 움직임과 분명한 표현이 함께 필요하지만, 아직 확인하지 않은 부분은 현실의 대화로 살펴야 기대와 관찰을 구분할 수 있습니다.",
+      "카드 의미는 내가 크게 읽은 신호와 실제로 확인한 행동 사이의 차이를 중심으로 차분하게 살펴보게 합니다.",
+    );
+    const feelingsRequest = { ...request, topicId: "feelings" } as const;
+
+    expect(
+      validateInstantReadingText(selfFocused, feelingsRequest),
+    ).toBeUndefined();
+    expect(
+      validateInstantReadingText(selfFocused, {
+        ...feelingsRequest,
+        questionId: "ignored-signals",
+      })?.text,
+    ).toBe(selfFocused);
   });
 
   it.each([

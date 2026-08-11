@@ -1,11 +1,11 @@
 export {
   getRelationshipQuestionDefinition,
   isRelationshipQuestionId,
-  relationshipQuestionCategoryIds,
   relationshipQuestionDefinitions,
-  type RelationshipQuestionCategoryId,
+  relationshipQuestionFocusIds,
+  type RelationshipQuestionFocusId,
   type RelationshipQuestionId,
-} from "./ids";
+} from "@/domain/tarot";
 export type {
   RelationshipQuestion,
   RelationshipQuestionCatalog,

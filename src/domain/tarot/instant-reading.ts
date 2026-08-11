@@ -8,6 +8,12 @@ import {
   type TarotCardId,
   type TopicId,
 } from "./ids";
+import {
+  getReadingTaxonomy,
+  getRelationshipQuestionDefinition,
+  isRelationshipQuestionId,
+  type RelationshipQuestionId,
+} from "./taxonomy";
 
 export type InstantReadingCardInput = {
   readonly cardId: TarotCardId;
@@ -18,7 +24,7 @@ export type InstantReadingRequest = {
   readonly spreadId: SpreadId;
   readonly styleId: ReadingStyleId;
   readonly cards: readonly InstantReadingCardInput[];
-  readonly questionId?: string;
+  readonly questionId?: RelationshipQuestionId;
 };
 
 export type InstantReading = {
@@ -46,17 +52,11 @@ const requestKeys = ["topicId", "spreadId", "styleId", "cards"] as const;
 const requestKeysWithQuestion = [...requestKeys, "questionId"] as const;
 const cardInputKeys = ["cardId"] as const;
 const responseKeys = ["text"] as const;
-const relationshipTopicIds = [
-  "love",
-  "feelings",
-  "reunion",
-  "relationship-flow",
-] as const satisfies readonly TopicId[];
 const technicalPattern =
   /```|<\/?[a-z][^>]*>|\bJSON\b|프롬프트|시스템\s*메시지|언어\s*모델|인공지능|\bAI\b/iu;
 const hiddenFeelingSubjectPattern = /(?:상대(?:방)?|그\s*사람)/u;
 const hiddenFeelingClaimPattern =
-  /(?:사랑|호감|그리움|그리워|후회|좋아|마음|감정)(.{0,24}?)(?:있습니다|없습니다|합니다|느낍니다|원합니다|남아\s*있습니다|읽힙니다|있어요|없어요|해요|느껴요|원해요|남아\s*있어요|읽혀요|것입니다|거예요)/gu;
+  /(?:사랑|호감|관심|망설임|연애\s*대상|그리움|그리워|후회|좋아|마음|감정)(.{0,24}?)(?:있습니다|없습니다|합니다|느낍니다|원합니다|봅니다|여깁니다|생각합니다|남아\s*있습니다|읽힙니다|있어요|없어요|해요|느껴요|원해요|봐요|여겨요|생각해요|남아\s*있어요|읽혀요|것입니다|거예요)/gu;
 const possibleFeelingPattern =
   /(?:가능성|수\s*있|읽힐|읽힙|읽혀|시사|기울|보일|보입|것\s*같)/u;
 const uncertainFeelingPattern =
@@ -100,12 +100,18 @@ export function parseInstantReadingRequest(
     return undefined;
   }
 
-  if (
+  const questionId =
     "questionId" in value &&
-    (typeof value["questionId"] !== "string" ||
-      value["questionId"].trim() !== value["questionId"] ||
-      value["questionId"].length === 0 ||
-      value["questionId"].length > 100)
+    typeof value["questionId"] === "string" &&
+    isRelationshipQuestionId(value["questionId"])
+      ? value["questionId"]
+      : undefined;
+
+  if (
+    ("questionId" in value && !questionId) ||
+    (questionId &&
+      getRelationshipQuestionDefinition(questionId).topicId !==
+        value["topicId"])
   ) {
     return undefined;
   }
@@ -134,9 +140,7 @@ export function parseInstantReadingRequest(
     spreadId: value["spreadId"],
     styleId: value["styleId"],
     topicId: value["topicId"],
-    ...(typeof value["questionId"] === "string"
-      ? { questionId: value["questionId"] }
-      : {}),
+    ...(questionId ? { questionId } : {}),
   };
 }
 
@@ -200,15 +204,21 @@ export function validateInstantReadingText(
 
   const interpretationSections = [overall, firstHypothesis, secondHypothesis];
   const supportingSections = [cards, connection, reality, action, reflection];
-  const isRelationshipTopic = relationshipTopicIds.includes(
-    request.topicId as (typeof relationshipTopicIds)[number],
-  );
+  let taxonomy;
+  try {
+    taxonomy = getReadingTaxonomy(request.topicId, request.questionId);
+  } catch {
+    return undefined;
+  }
+  const isRelationshipReading = taxonomy.domainId === "relationship";
+  const requiresPossibleAnswer =
+    taxonomy.defaultAnswerTargetId === "other-person";
   if (
-    (isRelationshipTopic &&
+    (isRelationshipReading &&
       interpretationSections.some(
         (section) =>
           !section ||
-          !possibleFeelingPattern.test(section) ||
+          (requiresPossibleAnswer && !possibleFeelingPattern.test(section)) ||
           hasUnsafeHiddenFeelingClaim(section, false, false),
       )) ||
     supportingSections.some(

@@ -212,7 +212,7 @@ test("locks the semantic token values and primary visual roles", async ({
     colors.action,
   );
   await expect(
-    page.getByRole("radio", { name: "Love" }).locator(".."),
+    page.getByRole("radio", { name: "Love overview" }).locator(".."),
   ).toHaveCSS("background-color", colors.blush);
   await expect(page.getByTestId("reading-workspace")).toHaveCSS(
     "background-color",
@@ -234,7 +234,7 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
     exact: true,
     name: "English",
   });
-  const loveRadio = page.getByRole("radio", { name: "Love" });
+  const loveRadio = page.getByRole("radio", { name: "Love overview" });
   const loveTopic = loveRadio.locator("..");
   const reunionRadio = page.getByRole("radio", { name: "Reunion" });
   const reunionTopic = reunionRadio.locator("..");

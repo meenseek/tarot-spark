@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  answerTargetIds,
+  getTopicTaxonomy,
   readingStyleIds,
   spreadIds,
   tarotCardIds,
@@ -9,8 +11,8 @@ import {
 } from "@/domain/tarot";
 import { publicPageIds } from "@/features/public-pages";
 import {
-  relationshipQuestionCategoryIds,
   relationshipQuestionDefinitions,
+  relationshipQuestionFocusIds,
 } from "@/features/relationship-questions/registry";
 import enDailyQuestion from "@/messages/en/daily-question.json";
 import enPublicPages from "@/messages/en/public-pages.json";
@@ -238,9 +240,13 @@ const uiCopySchema = {
 } as const satisfies JsonSchema;
 
 const tarotMessagesSchema = {
+  answerTargets: exactRecordSchema(answerTargetIds, {
+    instruction: "string",
+  }),
   promptTemplate: {
     cardLine: "string",
     questionFocusBlock: "string",
+    topicFocusBlock: "string",
     userContextBlock: "string",
     lines: ["string"],
   },
@@ -400,7 +406,7 @@ const relationshipQuestionMessagesSchema = {
   workedExampleBody: "string",
   workedExampleItems: ["string"],
   disclaimer: "string",
-  categories: exactRecordSchema(relationshipQuestionCategoryIds, {
+  categories: exactRecordSchema(relationshipQuestionFocusIds, {
     title: "string",
     intro: "string",
   }),
@@ -530,9 +536,17 @@ describe("i18n integrity", () => {
       const data = getTarotData(locale);
 
       expect(
+        data.answerTargets.map((answerTarget) => answerTarget.id),
+        `answer target order for ${locale}`,
+      ).toEqual(answerTargetIds);
+      expect(
         data.topics.map((topic) => topic.id),
         `topic order for ${locale}`,
       ).toEqual(topicIds);
+      expect(
+        data.topics.map(({ id, taxonomy }) => [id, taxonomy]),
+        `topic taxonomy for ${locale}`,
+      ).toEqual(topicIds.map((id) => [id, getTopicTaxonomy(id)]));
       expect(
         data.spreads.map((spread) => spread.id),
         `spread order for ${locale}`,
@@ -585,6 +599,11 @@ describe("i18n integrity", () => {
           ["questionFocus"],
         ),
         ...collectTemplatePlaceholderErrors(
+          `${locale} tarot promptTemplate.topicFocusBlock`,
+          tarotMessages.promptTemplate.topicFocusBlock,
+          ["topicPromptLead"],
+        ),
+        ...collectTemplatePlaceholderErrors(
           `${locale} tarot promptTemplate.userContextBlock`,
           tarotMessages.promptTemplate.userContextBlock,
           ["userContext"],
@@ -593,9 +612,9 @@ describe("i18n integrity", () => {
           `${locale} tarot promptTemplate.lines`,
           tarotMessages.promptTemplate.lines.join("\n"),
           [
+            "answerTargetInstruction",
             "cards",
-            "promptLead",
-            "questionFocusBlock",
+            "readingFocusBlock",
             "readingStyleInstruction",
             "readingStyleLabel",
             "spreadLabel",
