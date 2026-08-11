@@ -698,15 +698,14 @@ test("creates a direct six-card prompt while keeping context private", async ({
 test("shows an instant Korean reading without sending private context", async ({
   page,
 }) => {
+  await page.setViewportSize({ height: 844, width: 390 });
   let providerRequest: Record<string, unknown> | undefined;
   await page.route("**/api/reading", async (route) => {
     providerRequest = route.request().postDataJSON() as Record<string, unknown>;
     const cards = providerRequest["cards"] as { cardId: string }[];
 
     await route.fulfill({
-      body: JSON.stringify({
-        reading: createValidInstantReading(cards),
-      }),
+      body: JSON.stringify({ text: createValidInstantReading(cards.length) }),
       contentType: "application/json",
       status: 200,
     });
@@ -721,14 +720,15 @@ test("shows an instant Korean reading without sending private context", async ({
   await page.getByRole("button", { name: "지금 바로 해석하기" }).click();
 
   await expect(page.getByTestId("instant-reading-result")).toBeVisible();
-  await expect(page.getByText("비교할 두 작업 가설")).toBeVisible();
-  await expect(page.getByText("현실에서 확인하기")).toBeVisible();
   await expect(
-    page.getByRole("heading", {
-      level: 5,
-      name: "멈추거나 다시 판단할 조건",
-    }),
-  ).toBeVisible();
+    page.getByRole("heading", { name: "AI 카드 흐름 해석" }),
+  ).toBeFocused();
+  await expect(page.getByTestId("instant-reading-result")).toContainText(
+    "[가능성 A]",
+  );
+  await expect(page.getByTestId("instant-reading-result")).toContainText(
+    "멈추거나 다시 볼 조건:",
+  );
   await expect(
     page.getByText("생성형 AI를 활용해 작성한 해석입니다."),
   ).toBeVisible();
@@ -739,6 +739,9 @@ test("shows an instant Korean reading without sending private context", async ({
   );
   expect(JSON.stringify(providerRequest)).not.toContain("민감한 개인 상황");
   expect(JSON.stringify(providerRequest)).not.toContain("userContext");
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(390);
 });
 
 test("draws tarot cards and copies the generated prompt", async ({ page }) => {
@@ -1001,35 +1004,36 @@ function getSitemapLocPathnames(sitemapXml: string) {
   );
 }
 
-function createValidInstantReading(cards: readonly { cardId: string }[]) {
-  const sentence =
-    "서두르기보다 지금 확인할 수 있는 선택과 경계를 차분히 살펴보는 흐름입니다. ";
+function createValidInstantReading(cardCount: number) {
+  const cardLines = [
+    "새로운 시도를 열어 두되 아직 확인하지 않은 기대를 사실처럼 단정하지 않는 태도를 살펴봅니다.",
+    "표현할 수 있는 선택과 자원을 구체적으로 사용하면 원하는 경계를 더 분명히 전할 수 있습니다.",
+    "아픈 감정을 서둘러 지우기보다 실제로 확인한 행동과 해석을 나누어 바라볼 필요가 있습니다.",
+    "서로 주고받는 균형이 한쪽의 희생으로 기울지 않는지 현실의 부담을 함께 확인해 봅니다.",
+    "감정의 친밀함과 실제 약속의 범위가 같은 방향인지 행동을 통해 천천히 살펴봅니다.",
+    "공정함을 원하는 마음이 단단한 경계로 이어지는지 같은 기준을 적용하는지 봅니다.",
+  ]
+    .slice(0, cardCount)
+    .map((line, index) => `${index + 1}. ${line}`)
+    .join("\n");
 
-  return {
-    headline: "멈춤과 움직임 사이의 선택",
-    synthesis: sentence.repeat(3),
-    cardReadings: cards.map(({ cardId }) => ({
-      cardId,
-      interpretation: sentence.repeat(2),
-    })),
-    strongestConnection: {
-      cardIds: [cards[0]?.cardId, cards[1]?.cardId],
-      explanation: sentence.repeat(2),
-      relationType: "progression",
-    },
-    alternatives: [
-      `표현의 속도 차이가 불확실성을 키웠을 수 있습니다. ${sentence}`,
-      `기대가 실제 신호보다 앞섰을 수 있습니다. ${sentence}`,
-    ],
-    realityCheck: {
-      unknown: sentence.repeat(2),
-      observableDiscriminator: sentence.repeat(2),
-      revisionCondition: sentence.repeat(2),
-    },
-    nextStep: {
-      action: sentence,
-      stopOrReviewCondition: sentence,
-    },
-    reflection: "지금 가장 부담 없이 확인할 수 있는 선택은 무엇인가요?",
-  };
+  return `[전체 흐름]
+새로운 가능성과 분명한 표현이 함께 필요하지만 확인하지 않은 부분은 현실의 대화로 살펴야 기대와 관찰을 구분할 수 있습니다.
+[카드별 흐름]
+${cardLines}
+[가장 강한 연결]
+열린 가능성과 능동적인 표현이 서로 힘을 보태지만 감정을 건너뛰면 속도가 현실보다 앞설 수 있다는 긴장이 두드러집니다.
+[가능성 A]
+서로 표현하는 속도가 달라서 같은 행동을 다르게 받아들이며 불확실성이 커졌을 수 있습니다.
+[가능성 B]
+기대가 실제로 확인한 신호보다 앞서서 관계의 빈칸을 스스로 채우고 있을 수 있습니다.
+[현실 확인]
+아직 모르는 점: 현재 정보만으로는 서로 같은 기대와 관계의 속도를 원하는지 알 수 없습니다.
+관찰할 점: 다음 대화에서 질문에 대한 답과 이후 행동이 일정하게 이어지는지 살펴보세요.
+다시 볼 조건: 말과 행동이 계속 어긋나면 두 가능성을 모두 내려놓고 다시 살펴보세요.
+[다음 행동]
+작은 행동: 부담이 적은 질문 하나를 골라 서로 확인할 수 있는 범위에서 짧게 대화해 보세요.
+멈추거나 다시 볼 조건: 대화가 반복해서 경계를 넘거나 일상에 큰 비용을 만들면 이 행동을 멈추고 다시 판단하세요.
+[성찰 질문]
+지금 내가 기대와 실제 관찰을 구분하기 위해 가장 먼저 확인할 수 있는 것은 무엇인가요?`;
 }

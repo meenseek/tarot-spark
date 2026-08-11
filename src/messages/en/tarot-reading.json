@@ -46,33 +46,13 @@
   "instantReading": {
     "heading": "Read the card flow",
     "intro": "Create one connected interpretation from the drawn cards and selected reading options. Optional situation text is not sent or used.",
-    "eligibility": "This test feature is available to people aged 18 and over.",
     "generate": "Read these cards now",
     "loading": "Reading the flow of the cards…",
+    "cancel": "Cancel reading",
     "retry": "Try again",
     "unavailable": "The instant reading is unavailable right now. You can still copy the prompt below and continue in another tool.",
     "disclosure": "This interpretation was created with generative AI.",
-    "strongestConnection": "Strongest connection",
-    "alternatives": "Two working hypotheses to compare",
-    "alternativesNote": "These are not a binary choice or a complete list. Both may partly fit, or both may fail.",
-    "alternativeLabels": {
-      "first": "Possibility A",
-      "second": "Possibility B"
-    },
-    "realityCheck": "Check against reality",
-    "unknown": "What remains unknown",
-    "observableDiscriminator": "What to observe in real life",
-    "revisionCondition": "What should reweight or reject both hypotheses",
-    "nextStep": "Run a small test",
-    "action": "Reversible action",
-    "stopOrReviewCondition": "Stop or review condition",
-    "reflection": "Question to consider",
-    "relationLabels": {
-      "reinforcement": "Reinforcing",
-      "tension": "In tension",
-      "progression": "Condition and response",
-      "integration": "Integrating"
-    }
+    "resultHeading": "AI card-flow interpretation"
   },
   "promptReady": "Your prompt for an AI tool is ready.",
   "promptContextIncluded": "Your situation is included in the prompt.",

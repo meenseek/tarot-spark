@@ -26,7 +26,7 @@ import {
   getSpread,
   getTopic,
   maxUserContextLength,
-  parseInstantReading,
+  parseInstantReadingResponse,
   type DrawnCard,
   type InstantReadingRequest,
   type InstantReading,
@@ -89,6 +89,7 @@ const kakaoSdkScriptUrl =
   "https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js";
 const kakaoSdkIntegrity =
   "sha384-OL+ylM/iuPLtW5U3XcvLSGhE8JzReKDank5InqlHGWPhb4140/yrBw0bg0y7+C9J";
+const instantReadingClientTimeoutMs = 22_000;
 const emptyDrawnCards: readonly DrawnCard[] = [];
 
 let kakaoSdkLoadPromise: Promise<KakaoSdk> | undefined;
@@ -818,6 +819,11 @@ export function TarotExperienceClient({
 
     setInstantReading(undefined);
     setInstantReadingStatus("loading");
+    let timedOut = false;
+    const timeoutId = window.setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, instantReadingClientTimeoutMs);
 
     try {
       const response = await fetch("/api/reading", {
@@ -834,12 +840,7 @@ export function TarotExperienceClient({
       }
 
       const payload: unknown = await response.json();
-      const nextReading =
-        isRecord(payload) &&
-        Object.keys(payload).length === 1 &&
-        "reading" in payload
-          ? parseInstantReading(payload["reading"], readingRequest)
-          : undefined;
+      const nextReading = parseInstantReadingResponse(payload, readingRequest);
 
       if (!nextReading) {
         throw new Error("Instant reading response is invalid.");
@@ -850,10 +851,14 @@ export function TarotExperienceClient({
         setInstantReadingStatus("success");
       }
     } catch (error) {
+      if (instantReadingRequestRef.current !== controller) {
+        return;
+      }
+
       if (
-        controller.signal.aborted ||
-        getErrorName(error) === "AbortError" ||
-        instantReadingRequestRef.current !== controller
+        controller.signal.aborted &&
+        !timedOut &&
+        getErrorName(error) === "AbortError"
       ) {
         return;
       }
@@ -861,10 +866,19 @@ export function TarotExperienceClient({
       setInstantReading(undefined);
       setInstantReadingStatus("unavailable");
     } finally {
+      window.clearTimeout(timeoutId);
       if (instantReadingRequestRef.current === controller) {
         instantReadingRequestRef.current = undefined;
       }
     }
+  }
+
+  function cancelInstantReading() {
+    const controller = instantReadingRequestRef.current;
+    instantReadingRequestRef.current = undefined;
+    controller?.abort();
+    setInstantReading(undefined);
+    setInstantReadingStatus("idle");
   }
 
   function resetInstantReading() {
@@ -1226,6 +1240,7 @@ export function TarotExperienceClient({
       instantReading={instantReading}
       instantReadingEnabled={viewMode === "generator" && instantReadingEnabled}
       instantReadingStatus={instantReadingStatus}
+      onCancelInstantReading={cancelInstantReading}
       onGenerateInstantReading={generateInstantReading}
       onInstagramShare={copyInstagramShareUrl}
       onKakaoShare={shareToKakaoTalk}
@@ -1652,10 +1667,6 @@ function getErrorName(error: unknown) {
 
   const { name } = error;
   return typeof name === "string" ? name : "";
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function getShareText(

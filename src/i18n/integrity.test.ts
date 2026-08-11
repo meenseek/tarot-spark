@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
-  instantReadingRelationTypes,
   readingStyleIds,
   spreadIds,
   tarotCardIds,
@@ -193,28 +192,13 @@ const uiCopySchema = {
   instantReading: {
     heading: "string",
     intro: "string",
-    eligibility: "string",
     generate: "string",
     loading: "string",
+    cancel: "string",
     retry: "string",
     unavailable: "string",
     disclosure: "string",
-    strongestConnection: "string",
-    alternatives: "string",
-    alternativesNote: "string",
-    alternativeLabels: {
-      first: "string",
-      second: "string",
-    },
-    realityCheck: "string",
-    unknown: "string",
-    observableDiscriminator: "string",
-    revisionCondition: "string",
-    nextStep: "string",
-    action: "string",
-    stopOrReviewCondition: "string",
-    reflection: "string",
-    relationLabels: exactRecordSchema(instantReadingRelationTypes, "string"),
+    resultHeading: "string",
   },
   promptReady: "string",
   promptContextIncluded: "string",

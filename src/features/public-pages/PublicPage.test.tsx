@@ -23,7 +23,10 @@ describe("PublicPage", () => {
     expect(
       screen.getByText(/does not require an account/i),
     ).toBeInTheDocument();
+    expect(screen.getByText(/for up to 60 seconds/i)).toBeVisible();
     expect(screen.getByText(/Google AdSense and its partners/i)).toBeVisible();
+    expect(screen.getByText(/sent.*to Cloudflare Workers AI/i)).toBeVisible();
+    expect(screen.queryByText(/Google Gemini API/i)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "About" })).toHaveAttribute(
       "href",
       "/about",
@@ -114,7 +117,10 @@ describe("PublicPage", () => {
     render(<PublicPage locale="ko" pageId="privacy" />);
 
     expect(screen.getByText(/계정을 만들 필요가 없습니다/i)).toBeVisible();
-    expect(screen.getByText(/같은 탭에서 최대 60초 동안/i)).toBeVisible();
+    expect(screen.getByText(/같은 탭.*최대 60초 동안/i)).toBeVisible();
+    expect(
+      screen.getByText(/설명 복원을 완료하면 삭제되고.*60초 안에 만료/i),
+    ).toBeVisible();
     expect(
       screen.getByText(/클립보드에 복사하는 것만으로는 외부 서비스/i),
     ).toBeVisible();
@@ -124,6 +130,8 @@ describe("PublicPage", () => {
     expect(
       screen.getByText(/공개 성찰 질문의 미리 작성된 초점 문구/i),
     ).toBeVisible();
+    expect(screen.getByText(/Cloudflare Workers AI에 보내/i)).toBeVisible();
+    expect(screen.queryByText(/Google Gemini API/i)).not.toBeInTheDocument();
     expect(
       screen.getByText(
         /사용자가 직접 작성한 자유 형식 질문은 보내지 않습니다/i,

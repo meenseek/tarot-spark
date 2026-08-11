@@ -30,6 +30,7 @@ type ReadingResultProps = {
   readonly shareFeedback: ShareFeedback | undefined;
   readonly shareUrl: string;
   readonly onInstagramShare: () => void;
+  readonly onCancelInstantReading: () => void;
   readonly onGenerateInstantReading: () => void;
   readonly onKakaoShare: () => void;
   readonly onCopyPrompt: () => void;
@@ -53,6 +54,7 @@ export function ReadingResult({
   shareFeedback,
   shareUrl,
   onInstagramShare,
+  onCancelInstantReading,
   onGenerateInstantReading,
   onKakaoShare,
   onCopyPrompt,
@@ -157,8 +159,8 @@ export function ReadingResult({
 
           {instantReadingEnabled && (
             <InstantReadingPanel
-              cards={cards}
               copy={copy.instantReading}
+              onCancel={onCancelInstantReading}
               onGenerate={onGenerateInstantReading}
               reading={instantReading}
               status={instantReadingStatus}
