@@ -69,6 +69,7 @@ test("renders all relationship question choices at 320px without JavaScript", as
       name: "그 사람과 나 사이, 무엇을 물어보면 좋을까요?",
     }),
   ).toBeVisible();
+  await page.locator("#perception > summary").click();
   await expect(
     page.getByRole("heading", {
       exact: true,

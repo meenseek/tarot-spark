@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   getRelationshipQuestionCatalog,
@@ -18,16 +18,35 @@ describe("RelationshipQuestionExplorer", () => {
         name: "그 사람과 나 사이, 무엇을 물어보면 좋을까요?",
       }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", {
-        name: "그 사람과 나는 서로를 어떻게 보고 있을까?",
-      }),
-    ).toBeInTheDocument();
+    const categoryDisclosures = Array.from(
+      container.querySelectorAll<HTMLDetailsElement>(
+        '[data-testid="question-category"]',
+      ),
+    );
+    const catalog = getRelationshipQuestionCatalog("ko");
+
+    expect(categoryDisclosures).toHaveLength(7);
+    expect(categoryDisclosures.map(({ id }) => id)).toEqual(
+      catalog.categories.map(({ id }) => id),
+    );
+    expect(categoryDisclosures.filter(({ open }) => open)).toHaveLength(1);
+    expect(categoryDisclosures[0]).toHaveAttribute("open");
     expect(container.querySelectorAll('a[href*="question="]')).toHaveLength(28);
     expect(screen.getAllByText("이 질문으로 살펴볼 것")).toHaveLength(28);
     expect(
+      container.querySelector('a[href*="question=mutual-view"]'),
+    ).toHaveTextContent("서로에 대한 기대 보기");
+
+    const perceptionCategory =
+      container.querySelector<HTMLDetailsElement>("#perception");
+    expect(perceptionCategory).not.toBeNull();
+    fireEvent.click(
+      perceptionCategory?.querySelector("summary") as HTMLElement,
+    );
+    expect(perceptionCategory).toHaveAttribute("open");
+    expect(
       screen.getByRole("link", { name: "서로에 대한 기대 보기" }),
-    ).toHaveAttribute("href", "/ko?topic=feelings&question=mutual-view");
+    ).toBeVisible();
     expect(
       screen.getByText(
         /상대가 나를 어떻게 보고 있을 가능성이 있는지와 내가 상대에게 기대하는 모습/,
@@ -59,13 +78,12 @@ describe("RelationshipQuestionExplorer", () => {
     expect(screen.getByText(/수정 조건:/)).toBeVisible();
     expect(screen.getByText(/성찰 질문:/)).toBeVisible();
 
-    const catalog = getRelationshipQuestionCatalog("ko");
     expect(catalog.categories).toHaveLength(7);
     expect(catalog.questions).toHaveLength(28);
   });
 
   it("keeps the English page equivalent and localized", () => {
-    render(<RelationshipQuestionExplorer locale="en" />);
+    const { container } = render(<RelationshipQuestionExplorer locale="en" />);
 
     expect(
       screen.getByRole("heading", {
@@ -73,8 +91,8 @@ describe("RelationshipQuestionExplorer", () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "Explore mutual expectations" }),
-    ).toHaveAttribute("href", "/?topic=feelings&question=mutual-view");
+      container.querySelector('a[href*="question=mutual-view"]'),
+    ).toHaveTextContent("Explore mutual expectations");
     expect(screen.getByRole("link", { name: "한국어" })).toHaveAttribute(
       "href",
       "/ko/relationship-tarot-questions",
