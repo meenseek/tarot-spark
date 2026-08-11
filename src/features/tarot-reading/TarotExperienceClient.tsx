@@ -733,21 +733,12 @@ export function TarotExperienceClient({
       return;
     }
 
-    performDraw(event, formInputs, "DRAW_COMMIT");
-  }
-
-  function redrawCurrent(event: MouseEvent<HTMLButtonElement>) {
-    if (!currentResult || session.mode !== "result") {
-      return;
-    }
-
-    performDraw(event, currentResult.inputs, "REDRAW_CURRENT");
+    performDraw(event, formInputs);
   }
 
   function performDraw(
     event: MouseEvent<HTMLButtonElement>,
     inputs: typeof formInputs,
-    actionType: "DRAW_COMMIT" | "REDRAW_CURRENT",
   ) {
     resetInstantReading();
     shouldScrollToResultRef.current = true;
@@ -773,7 +764,7 @@ export function TarotExperienceClient({
       cardCount: drawnCards.length,
       sequence: nextDrawSequenceId,
     });
-    dispatchSession({ type: actionType, cards: drawnCards });
+    dispatchSession({ type: "DRAW_COMMIT", cards: drawnCards });
     setCopyState("idle");
     setShareFeedback(undefined);
     replaceBrowserUrl(
@@ -1259,26 +1250,15 @@ export function TarotExperienceClient({
       prompt={prompt}
       resultActions={
         viewMode === "generator" && session.mode === "result" ? (
-          <div
-            className="grid gap-2 sm:grid-cols-2"
-            data-testid="result-actions"
+          <button
+            className={`${secondaryButtonClassName} w-full sm:w-fit`}
+            data-testid="next-reading-action"
+            onClick={enterEditNextDraw}
+            ref={editTriggerRef}
+            type="button"
           >
-            <button
-              className={secondaryButtonClassName}
-              onClick={redrawCurrent}
-              type="button"
-            >
-              {copy.redrawCurrent}
-            </button>
-            <button
-              className={secondaryButtonClassName}
-              onClick={enterEditNextDraw}
-              ref={editTriggerRef}
-              type="button"
-            >
-              {copy.editNextReading}
-            </button>
-          </div>
+            {copy.editNextReading}
+          </button>
         ) : undefined
       }
       shareFeedback={shareFeedback}
@@ -1392,7 +1372,7 @@ export function TarotExperienceClient({
           onClick={startDraw}
           type="button"
         >
-          {session.mode === "edit-next-draw" ? copy.drawNext : drawButtonLabel}
+          {drawButtonLabel}
         </button>
       </div>
       <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>

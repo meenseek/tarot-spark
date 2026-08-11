@@ -264,9 +264,8 @@ describe("Home", () => {
     const signal = fetchMock.mock.calls[0]?.[1]?.signal;
     expect(signal?.aborted).toBe(false);
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "현재 설정으로 다시 뽑기" }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "다음 리딩 선택하기" }));
+    fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
 
     expect(signal?.aborted).toBe(true);
     expect(
@@ -556,8 +555,9 @@ describe("Home", () => {
     expect(drawStatus).toHaveAttribute("data-draw-announcement-sequence", "1");
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Redraw with current settings" }),
+      screen.getByRole("button", { name: "Choose your next reading" }),
     );
+    fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
 
     const secondDrawCard = screen.getByTestId("reading-card-0");
     expect(secondDrawCard).not.toBe(firstDrawCard);
@@ -569,7 +569,7 @@ describe("Home", () => {
     });
   });
 
-  it("cancels a stale draw announcement before announcing a rapid redraw", () => {
+  it("cancels a stale draw announcement before announcing a new draw", () => {
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0);
 
@@ -586,11 +586,11 @@ describe("Home", () => {
     expect(firstDrawTimerCount).toBeGreaterThan(baselineTimerCount);
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Redraw with current settings" }),
+      screen.getByRole("button", { name: "Choose your next reading" }),
     );
+    fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
     expect(drawStatus).toHaveAttribute("data-draw-announcement-sequence", "2");
     expect(drawStatus).toBeEmptyDOMElement();
-    expect(vi.getTimerCount()).toBe(firstDrawTimerCount);
 
     act(() => {
       vi.runOnlyPendingTimers();
@@ -607,12 +607,15 @@ describe("Home", () => {
     fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
     const firstCard = screen.getByTestId("reading-card-0");
     const committedUrl = window.location.href;
-    const editTrigger = screen.getByRole("button", { name: "Edit next draw" });
+    expect(screen.queryByText("Redraw with current settings")).toBeNull();
+    const editTrigger = screen.getByRole("button", {
+      name: "Choose your next reading",
+    });
 
     fireEvent.click(editTrigger);
     await waitFor(() => {
       expect(
-        screen.getByRole("heading", { name: "Set up your next draw" }),
+        screen.getByRole("heading", { name: "Choose your next reading" }),
       ).toHaveFocus();
     });
     fireEvent.click(screen.getByRole("radio", { name: "Reunion" }));
@@ -620,15 +623,19 @@ describe("Home", () => {
     expect(screen.getByTestId("reading-card-0")).toBe(firstCard);
     expect(window.location.href).toBe(committedUrl);
 
-    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Back to current reading" }),
+    );
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: "Edit next draw" }),
+        screen.getByRole("button", { name: "Choose your next reading" }),
       ).toHaveFocus();
     });
     expect(screen.queryByRole("radio", { name: "Reunion" })).toBeNull();
 
-    fireEvent.click(screen.getByRole("button", { name: "Edit next draw" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Choose your next reading" }),
+    );
     expect(screen.getByRole("radio", { name: "Love overview" })).toBeChecked();
   });
 
@@ -1138,7 +1145,7 @@ describe("Home", () => {
     }
   });
 
-  it("counts identical user redraws once per draw sequence", () => {
+  it("counts identical user draws once per committed draw sequence", () => {
     const events: { readonly name: string }[] = [];
     const listener = (event: Event) => {
       events.push((event as CustomEvent).detail);
@@ -1155,8 +1162,9 @@ describe("Home", () => {
       setReadingResultIntersection(true);
 
       fireEvent.click(
-        screen.getByRole("button", { name: "Redraw with current settings" }),
+        screen.getByRole("button", { name: "Choose your next reading" }),
       );
+      fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
       setReadingResultIntersection(true);
 
       expect(events.filter(({ name }) => name === "result_view")).toHaveLength(

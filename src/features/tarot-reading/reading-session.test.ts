@@ -184,38 +184,6 @@ describe("reading session reducer", () => {
     });
   });
 
-  it("redraws with committed inputs", () => {
-    const changed = reduce(createResult(), [
-      { type: "SET_CURRENT_STYLE", styleId: "relational" },
-      {
-        type: "SET_CURRENT_PRIVATE_CONTEXT",
-        privateContext: "Updated current context",
-      },
-    ]);
-    const redrawn = readingSessionReducer(changed, {
-      type: "REDRAW_CURRENT",
-      cards: secondCards,
-    });
-
-    expect(redrawn.mode).toBe("result");
-    if (redrawn.mode !== "result" || changed.mode !== "result") {
-      throw new Error("Expected a result after redraw");
-    }
-
-    expect(redrawn.current.inputs).toEqual(changed.current.inputs);
-    expect(redrawn.current.cards).toBe(secondCards);
-    expect(redrawn.current.drawStyleId).toBe("relational");
-    expect(redrawn.current.cardInstanceId).toBe(
-      changed.current.cardInstanceId + 1,
-    );
-    expect(redrawn.current.shareChangeId).toBe(
-      changed.current.shareChangeId + 1,
-    );
-    expect(redrawn.current.promptChangeId).toBe(
-      changed.current.promptChangeId + 1,
-    );
-  });
-
   it("changes current style while preserving the draw snapshot identity", () => {
     const result = createResult();
     const changed = readingSessionReducer(result, {
@@ -304,7 +272,6 @@ describe("reading session reducer", () => {
   it("treats actions outside their owning mode as total no-ops", () => {
     const setup = createSetupSession(defaultInputs);
     const result = createResult();
-    const editing = readingSessionReducer(result, { type: "ENTER_EDIT" });
 
     expect(readingSessionReducer(setup, { type: "CANCEL_EDIT" })).toBe(setup);
     expect(readingSessionReducer(setup, { type: "ENTER_EDIT" })).toBe(setup);
@@ -326,12 +293,6 @@ describe("reading session reducer", () => {
         cards: secondCards,
       }),
     ).toBe(result);
-    expect(
-      readingSessionReducer(editing, {
-        type: "REDRAW_CURRENT",
-        cards: secondCards,
-      }),
-    ).toBe(editing);
   });
 });
 

@@ -157,6 +157,8 @@ export function ReadingResult({
 
           {afterPromptAction}
 
+          {resultActions}
+
           {instantReadingEnabled && (
             <InstantReadingPanel
               copy={copy.instantReading}
@@ -355,8 +357,6 @@ export function ReadingResult({
               )}
             </div>
           </details>
-
-          {resultActions}
         </>
       ) : (
         <div className="rounded-ts-control border border-ts-divider bg-ts-canvas p-4">
