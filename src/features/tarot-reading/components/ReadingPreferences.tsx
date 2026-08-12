@@ -1,3 +1,4 @@
+import { Radio, RadioGroup } from "@measure-twice/react";
 import type {
   ReadingStyle,
   ReadingStyleId,
@@ -68,75 +69,43 @@ export function ReadingPreferences({
           {copy.personalizationIntro}
         </p>
 
-        <fieldset className="grid gap-2">
-          <legend className="mb-2 text-sm font-semibold text-ts-ink">
-            {copy.spreadSelectorLabel}
-          </legend>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {spreads.map((spread) => (
-              <label
-                className={`flex min-h-20 cursor-pointer gap-3 rounded-ts-control border-2 p-3 text-sm transition-colors duration-[var(--ts-motion-fast)] ${
-                  spread.id === selectedSpreadId
-                    ? "border-ts-action bg-ts-blush"
-                    : "border-ts-border bg-ts-canvas hover:border-ts-action hover:bg-ts-blush"
-                }`}
-                key={spread.id}
-              >
-                <input
-                  checked={spread.id === selectedSpreadId}
-                  className="mt-1 h-4 w-4 shrink-0 accent-ts-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
-                  name="tarot-spread"
-                  onChange={() => onSpreadChange(spread.id)}
-                  type="radio"
-                  value={spread.id}
-                />
-                <span>
-                  <span className="block font-semibold text-ts-ink">
-                    {spread.label}
-                  </span>
-                  <span className="mt-1 block leading-5 text-ts-muted">
-                    {spread.description}
-                  </span>
-                </span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <RadioGroup
+          announceError={false}
+          className="tarot-mt-radio-group tarot-mt-radio-group--two-column"
+          legend={copy.spreadSelectorLabel}
+          name="tarot-spread"
+          onValueChange={(value) => onSpreadChange(value as SpreadId)}
+          value={selectedSpreadId}
+        >
+          {spreads.map((spread) => (
+            <Radio
+              description={spread.description}
+              key={spread.id}
+              label={spread.label}
+              value={spread.id}
+              wrapperClassName="tarot-mt-radio-card tarot-mt-radio-card--spread"
+            />
+          ))}
+        </RadioGroup>
 
-        <fieldset className="grid gap-2">
-          <legend className="mb-2 text-sm font-semibold text-ts-ink">
-            {copy.readingStyleSelectorLabel}
-          </legend>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {readingStyles.map((style) => (
-              <label
-                className={`flex min-h-24 cursor-pointer gap-3 rounded-ts-control border-2 p-3 text-sm transition-colors duration-[var(--ts-motion-fast)] ${
-                  style.id === selectedStyleId
-                    ? "border-ts-action bg-ts-blush"
-                    : "border-ts-border bg-ts-canvas hover:border-ts-action hover:bg-ts-blush"
-                }`}
-                key={style.id}
-              >
-                <input
-                  checked={style.id === selectedStyleId}
-                  className="mt-1 h-4 w-4 shrink-0 accent-ts-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
-                  name="reading-style"
-                  onChange={() => onStyleChange(style.id)}
-                  type="radio"
-                  value={style.id}
-                />
-                <span>
-                  <span className="block font-semibold text-ts-ink">
-                    {style.label}
-                  </span>
-                  <span className="mt-1 block leading-5 text-ts-muted">
-                    {style.description}
-                  </span>
-                </span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <RadioGroup
+          announceError={false}
+          className="tarot-mt-radio-group tarot-mt-radio-group--two-column"
+          legend={copy.readingStyleSelectorLabel}
+          name="reading-style"
+          onValueChange={(value) => onStyleChange(value as ReadingStyleId)}
+          value={selectedStyleId}
+        >
+          {readingStyles.map((style) => (
+            <Radio
+              description={style.description}
+              key={style.id}
+              label={style.label}
+              value={style.id}
+              wrapperClassName="tarot-mt-radio-card tarot-mt-radio-card--style"
+            />
+          ))}
+        </RadioGroup>
       </div>
     </details>
   );

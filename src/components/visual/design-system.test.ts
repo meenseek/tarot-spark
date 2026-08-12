@@ -231,7 +231,8 @@ describe("visual design system contract", () => {
       /<Button\s+className="tarot-mt-button tarot-mt-button--primary[^\"]*"\s+onClick={onCopyPrompt}/,
     );
     expect(instantReadingSource).toContain('className="tarot-mt-button"');
-    expect(promptResultSource).toContain("Button, InlineMessage");
+    expect(promptResultSource).toContain("Button,");
+    expect(promptResultSource).toContain("InlineMessage,");
     expect(instantReadingSource).toContain("Button, InlineMessage");
     expect(promptResultSource).not.toContain("<InlineMessage role=");
     expect(instantReadingSource).not.toContain("<InlineMessage role=");
@@ -326,6 +327,97 @@ describe("visual design system contract", () => {
     expect(css).toMatch(
       /\.tarot-mt-skip-link\.mt-skip-link\s*{[^}]*border-width:\s*2px;[^}]*box-shadow:\s*none;/,
     );
+    expect(css).toMatch(
+      /\.tarot-mt-checkbox \.mt-checkbox-field__label\s*{[^}]*width:\s*100%;[^}]*min-height:\s*5rem;[^}]*padding:\s*0\.75rem;[^}]*border:\s*1px solid var\(--ts-color-divider\);[^}]*background:\s*var\(--ts-color-canvas\);/,
+    );
+    expect(css).toMatch(
+      /\.tarot-mt-checkbox\.mt-checkbox-field\s*{[^}]*gap:\s*0;[^}]*}/,
+    );
+    expect(css).toMatch(
+      /\.tarot-mt-checkbox \.mt-checkbox-field__input\s*{[^}]*border-width:\s*2px;/,
+    );
+    expect(css).toMatch(
+      /\.tarot-mt-radio-card\.mt-radio\s*{[^}]*width:\s*100%;[^}]*border:\s*2px solid var\(--ts-color-border\);/,
+    );
+    expect(css).toMatch(
+      /\.tarot-mt-textarea \.mt-textarea__control,[\s\S]*\.tarot-mt-text-field \.mt-text-field__control\s*{[^}]*border-width:\s*2px;/,
+    );
+    expect(css).toMatch(
+      /\.tarot-mt-text-field--manual-share \.mt-text-field__control\s*{[^}]*min-height:\s*44px;/,
+    );
+    expect(css).toMatch(
+      /@media \(forced-colors: none\)[\s\S]*\.tarot-mt-checkbox \.mt-checkbox-field__input:focus-visible,[\s\S]*outline:\s*2px solid var\(--ts-color-action\);[^}]*outline-offset:\s*2px;/,
+    );
+    expect(css).toMatch(
+      /@media \(forced-colors: none\)[\s\S]*\.tarot-mt-textarea \.mt-textarea__control:focus-within,[\s\S]*outline:\s*2px solid var\(--ts-color-action\);[^}]*outline-offset:\s*2px;/,
+    );
+  });
+
+  it("adopts compatible Measure Twice fields without adding live regions", () => {
+    const packageManifest = JSON.parse(
+      readFileSync(resolve(process.cwd(), "package.json"), "utf8"),
+    ) as { dependencies: Record<string, string> };
+    const lockfile = readFileSync(
+      resolve(process.cwd(), "pnpm-lock.yaml"),
+      "utf8",
+    );
+    const adoptedFieldSources = {
+      "src/features/privacy-consent/PrivacyConsent.tsx": {
+        announceErrorCount: 2,
+        imports: ["Checkbox"],
+        rejectedNativeTags: ["<input"],
+      },
+      "src/features/tarot-reading/components/CurrentPromptCustomization.tsx": {
+        announceErrorCount: 2,
+        imports: ["Radio", "RadioGroup", "Textarea"],
+        rejectedNativeTags: ["<input", "<textarea"],
+      },
+      "src/features/tarot-reading/components/ReadingPreferences.tsx": {
+        announceErrorCount: 2,
+        imports: ["Radio", "RadioGroup"],
+        rejectedNativeTags: ["<input"],
+      },
+      "src/features/tarot-reading/components/ReadingResult.tsx": {
+        announceErrorCount: 2,
+        imports: ["Textarea", "TextField"],
+        rejectedNativeTags: ["<input", "<textarea"],
+      },
+      "src/features/tarot-reading/components/SituationContextInput.tsx": {
+        announceErrorCount: 1,
+        imports: ["Textarea"],
+        rejectedNativeTags: ["<textarea"],
+      },
+    } as const;
+
+    expect(packageManifest.dependencies["@measure-twice/react"]).toBe("0.3.0");
+    expect(lockfile).toContain("specifier: 0.3.0");
+    expect(lockfile).toMatch(/["']@measure-twice\/react@0\.3\.0["']:/);
+    expect(lockfile).not.toMatch(/["']@measure-twice\/react@0\.2\.0["']:/);
+
+    Object.entries(adoptedFieldSources).forEach(([relativePath, contract]) => {
+      const source = readFileSync(resolve(process.cwd(), relativePath), "utf8");
+
+      contract.imports.forEach((componentName) => {
+        expect(source, relativePath).toContain(componentName);
+      });
+      expect(
+        source.match(/announceError={false}/g) ?? [],
+        relativePath,
+      ).toHaveLength(contract.announceErrorCount);
+      contract.rejectedNativeTags.forEach((tag) => {
+        expect(source, relativePath).not.toContain(tag);
+      });
+    });
+
+    const topicSelectorSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "src/features/tarot-reading/components/TopicSelector.tsx",
+      ),
+      "utf8",
+    );
+    expect(topicSelectorSource).toContain("<input\n                checked=");
+    expect(topicSelectorSource).toContain('className="sr-only"');
   });
 
   it("adopts the Measure Twice skip link at the canonical shell boundary", () => {

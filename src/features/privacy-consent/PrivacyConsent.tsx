@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@measure-twice/react";
+import { Button, Checkbox } from "@measure-twice/react";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { interactiveFocusClassName } from "@/components/visual/class-names";
@@ -165,44 +165,28 @@ export function PrivacyConsent({
 
             <div className="grid gap-3 sm:grid-cols-2">
               {hasAnalytics && (
-                <label className="flex min-h-20 gap-3 rounded-ts-control border border-ts-divider bg-ts-canvas p-3 text-sm text-ts-ink">
-                  <input
-                    checked={analyticsSelected}
-                    className={`${interactiveFocusClassName} mt-1 h-5 w-5 shrink-0 accent-ts-action`}
-                    onChange={(event) =>
-                      setAnalyticsSelected(event.currentTarget.checked)
-                    }
-                    type="checkbox"
-                  />
-                  <span>
-                    <span className="block font-semibold">
-                      {copy.analyticsLabel}
-                    </span>
-                    <span className="mt-1 block leading-5 text-ts-muted">
-                      {copy.analyticsDescription}
-                    </span>
-                  </span>
-                </label>
+                <Checkbox
+                  announceError={false}
+                  checked={analyticsSelected}
+                  description={copy.analyticsDescription}
+                  label={copy.analyticsLabel}
+                  onChange={(event) =>
+                    setAnalyticsSelected(event.currentTarget.checked)
+                  }
+                  wrapperClassName="tarot-mt-checkbox tarot-mt-checkbox--privacy"
+                />
               )}
               {hasAdvertising && (
-                <label className="flex min-h-20 gap-3 rounded-ts-control border border-ts-divider bg-ts-canvas p-3 text-sm text-ts-ink">
-                  <input
-                    checked={advertisingSelected}
-                    className={`${interactiveFocusClassName} mt-1 h-5 w-5 shrink-0 accent-ts-action`}
-                    onChange={(event) =>
-                      setAdvertisingSelected(event.currentTarget.checked)
-                    }
-                    type="checkbox"
-                  />
-                  <span>
-                    <span className="block font-semibold">
-                      {copy.advertisingLabel}
-                    </span>
-                    <span className="mt-1 block leading-5 text-ts-muted">
-                      {copy.advertisingDescription}
-                    </span>
-                  </span>
-                </label>
+                <Checkbox
+                  announceError={false}
+                  checked={advertisingSelected}
+                  description={copy.advertisingDescription}
+                  label={copy.advertisingLabel}
+                  onChange={(event) =>
+                    setAdvertisingSelected(event.currentTarget.checked)
+                  }
+                  wrapperClassName="tarot-mt-checkbox tarot-mt-checkbox--privacy"
+                />
               )}
             </div>
 

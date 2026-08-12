@@ -1,6 +1,11 @@
 "use client";
 
-import { Button, InlineMessage } from "@measure-twice/react";
+import {
+  Button,
+  InlineMessage,
+  Textarea,
+  TextField,
+} from "@measure-twice/react";
 import Image from "next/image";
 import { type ReactNode, type Ref, useEffect, useRef } from "react";
 import { secondaryButtonClassName } from "@/components/visual/class-names";
@@ -187,19 +192,17 @@ export function ReadingResult({
               <DisclosureChevron />
             </summary>
             <div className="border-t border-ts-divider p-4">
-              <label className="grid gap-2 text-sm font-semibold text-ts-ink">
-                {copy.generatedPromptLabel}
-                <textarea
-                  aria-describedby={
-                    copyState === "failed" ? "prompt-copy-failure" : undefined
-                  }
-                  aria-label={copy.generatedPromptLabel}
-                  className="min-h-56 resize-y rounded-ts-control border-2 border-ts-border bg-ts-surface p-4 font-ts-sans text-sm font-normal leading-6 text-ts-ink outline-none transition-colors duration-[var(--ts-motion-fast)] focus:border-ts-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
-                  readOnly
-                  ref={promptTextareaRef}
-                  value={prompt}
-                />
-              </label>
+              <Textarea
+                announceError={false}
+                aria-describedby={
+                  copyState === "failed" ? "prompt-copy-failure" : undefined
+                }
+                label={copy.generatedPromptLabel}
+                readOnly
+                ref={promptTextareaRef}
+                value={prompt}
+                wrapperClassName="tarot-mt-textarea tarot-mt-textarea--prompt"
+              />
             </div>
           </details>
 
@@ -337,17 +340,15 @@ export function ReadingResult({
                       {copy.shareBlockedAction}
                     </InlineMessage>
                   </div>
-                  <label className="grid gap-2 text-sm font-semibold text-ts-ink">
-                    {copy.manualShareUrlLabel}
-                    <input
-                      aria-describedby="share-failure"
-                      aria-label={copy.manualShareUrlLabel}
-                      className="min-h-11 rounded-ts-control border-2 border-ts-border bg-ts-surface px-3 py-2 font-ts-sans text-sm font-normal text-ts-ink outline-none focus:border-ts-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
-                      readOnly
-                      ref={manualShareUrlRef}
-                      value={shareUrl}
-                    />
-                  </label>
+                  <TextField
+                    announceError={false}
+                    aria-describedby="share-failure"
+                    label={copy.manualShareUrlLabel}
+                    readOnly
+                    ref={manualShareUrlRef}
+                    value={shareUrl}
+                    wrapperClassName="tarot-mt-text-field tarot-mt-text-field--manual-share"
+                  />
                 </div>
               )}
             </div>
