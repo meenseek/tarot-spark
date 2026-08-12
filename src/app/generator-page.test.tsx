@@ -86,4 +86,18 @@ describe("generator route server state", () => {
     expect(markup).toContain("마법사");
     expect(markup).toContain("여사제");
   });
+
+  it("renders a selected career question in the initial HTML", async () => {
+    const page = await GeneratorRoute({
+      locale: "ko",
+      searchParams: Promise.resolve({
+        question: "career-underused-strength",
+        topic: "career-direction",
+      }),
+    });
+    const markup = renderToStaticMarkup(page);
+
+    expect(markup).toContain("내가 놓치고 있는 강점은?");
+    expect(markup).toContain("이 질문으로 볼 것");
+  });
 });

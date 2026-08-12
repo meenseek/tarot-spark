@@ -69,7 +69,7 @@ test("uses one true two-sided flip without making cards interactive", async ({
   });
   expect(keyframeTransforms).toEqual(["rotateY(0deg)", "rotateY(180deg)"]);
   const resultHeading = page.getByRole("heading", {
-    name: "Your cards and AI prompt",
+    name: "Your cards and AI question",
   });
   await expect(resultHeading).toBeFocused();
   await expect(resultHeading).toBeInViewport();
@@ -224,7 +224,7 @@ test("keeps restored and reduced-motion faces static", async ({ page }) => {
     "front",
   );
   const resultHeading = page.getByRole("heading", {
-    name: "Your cards and AI prompt",
+    name: "Your cards and AI question",
   });
   await expect(resultHeading).toBeFocused();
   await expect(resultHeading).toBeInViewport();
@@ -239,7 +239,7 @@ test("drops stale motion and announcements on a rapid redraw", async ({
 
   const drawButton = page.getByRole("button", { name: "Draw 3 cards" });
   await drawButton.click();
-  await page.getByRole("button", { name: "Choose your next reading" }).click();
+  await page.getByRole("button", { name: "Prepare the next draw" }).click();
   await drawButton.click();
 
   await expect(page.getByTestId("reading-card-0")).toHaveAttribute(

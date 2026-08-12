@@ -12,10 +12,10 @@ test("loads the app shell", async ({ page }) => {
   await expect(page.getByRole("main")).toBeVisible();
   await expect(
     page.getByRole("heading", {
-      name: "Turn your situation and a tarot spread into a stronger AI prompt.",
+      name: "Draw cards and create a question for your AI tool.",
     }),
   ).toBeVisible();
-  await expect(page.getByText(/complete 78-card deck/i)).toBeVisible();
+  await expect(page.getByText(/full 78-card deck/i)).toBeVisible();
 });
 
 test("serves stable card art and redirects the issued deck path", async ({
@@ -43,13 +43,13 @@ test("loads Korean localized content", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "ko");
   await expect(
     page.getByRole("heading", {
-      name: "지금 고민을 카드로 펼쳐보고, AI에 물어볼 질문까지 만들어보세요.",
+      name: "카드를 뽑고, AI에 물어볼 질문을 만들어보세요.",
     }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "카드 3장 뽑기" }),
   ).toBeVisible();
-  await expect(page.getByText(/78장 전체 덱/)).toBeVisible();
+  await expect(page.getByText(/78장 덱/)).toBeVisible();
 });
 
 test("keeps optional situation context discoverable before drawing", async ({
@@ -194,7 +194,7 @@ test("keeps next-reading choices cancelable without replacing the current mobile
   const committedUrl = page.url();
 
   const nextReadingAction = page.getByRole("button", {
-    name: "Choose your next reading",
+    name: "Prepare the next draw",
   });
   await expect(nextReadingAction).toBeInViewport();
   await expect(
@@ -202,10 +202,10 @@ test("keeps next-reading choices cancelable without replacing the current mobile
   ).toHaveCount(0);
   await nextReadingAction.click();
   await expect(
-    page.getByRole("heading", { name: "Choose your next reading" }),
+    page.getByRole("heading", { name: "Prepare the next draw" }),
   ).toBeFocused();
   const nextReadingEditor = page.getByRole("region", {
-    name: "Choose your next reading",
+    name: "Prepare the next draw",
   });
   await expect(nextReadingEditor).toBeVisible();
   await expect(page.getByTestId("reading-setup-panel")).toHaveCount(0);
@@ -253,9 +253,9 @@ test("keeps next-reading choices cancelable without replacing the current mobile
       ),
   ).toEqual(currentCards);
 
-  await page.getByRole("button", { name: "Back to current reading" }).click();
+  await page.getByRole("button", { name: "Back to this result" }).click();
   await expect(
-    page.getByRole("button", { name: "Choose your next reading" }),
+    page.getByRole("button", { name: "Prepare the next draw" }),
   ).toBeFocused();
   await expect(page.getByTestId("card-overview")).toBeVisible();
 });
@@ -560,22 +560,43 @@ test("uses a chosen relationship question in the generated prompt", async ({
   await page.setViewportSize({ height: 844, width: 320 });
   await page.goto("/ko/relationship-tarot-questions");
   await page.locator("#perception > summary").click();
-  await page.getByRole("link", { name: "서로에 대한 기대 보기" }).click();
+  await page.getByRole("link", { name: "서로의 기대 보기" }).click();
 
   await expect(page).toHaveURL(/topic=feelings&question=mutual-view/);
-  await expect(
-    page.getByTestId("selected-relationship-question"),
-  ).toContainText("그 사람과 나는 서로를 어떻게 보고 있을까?");
-  const setupQuestionSelector = page.getByLabel("다른 관계 질문 고르기");
-  await expect(setupQuestionSelector).toHaveValue("mutual-view");
-  await setupQuestionSelector.selectOption("pace-of-closeness");
+  await expect(page.getByTestId("selected-public-question")).toContainText(
+    "우리는 서로를 어떻게 보고 있을까?",
+  );
+
+  await page.locator('label:has(input[value="love"])').click();
+  await page
+    .getByTestId("public-question-picker")
+    .locator("summary")
+    .first()
+    .click();
+  await page
+    .getByRole("button", { name: /우리 속도는 서로에게 맞을까/ })
+    .click();
   await expect(page).toHaveURL(/topic=love&question=pace-of-closeness/);
-  await expect(
-    page.getByTestId("selected-relationship-question"),
-  ).toContainText("우리 둘의 가까워지는 속도는 맞을까?");
-  await setupQuestionSelector.selectOption("mutual-view");
+  await expect(page.getByTestId("selected-public-question")).toContainText(
+    "우리 속도는 서로에게 맞을까?",
+  );
+
+  await page.locator('label:has(input[value="feelings"])').click();
+  await page
+    .getByTestId("public-question-picker")
+    .locator("summary")
+    .first()
+    .click();
+  await page.getByText("서로의 생각과 기대", { exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: /우리는 서로를 어떻게 보고 있을까/,
+    })
+    .click();
   await expect(page).toHaveURL(/topic=feelings&question=mutual-view/);
-  const selectorBox = await setupQuestionSelector.boundingBox();
+  const selectorBox = await page
+    .getByTestId("public-question-picker")
+    .boundingBox();
   expect(selectorBox).not.toBeNull();
   expect(selectorBox?.x ?? -1).toBeGreaterThanOrEqual(0);
   expect(
@@ -593,15 +614,15 @@ test("uses a chosen relationship question in the generated prompt", async ({
     .fill("이 내용은 다음 질문을 고르는 동안에도 유지되어야 해요.");
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
 
-  await expect(page.getByTestId("current-relationship-question")).toContainText(
-    "그 사람과 나는 서로를 어떻게 보고 있을까?",
+  await expect(page.getByTestId("current-public-question")).toContainText(
+    "우리는 서로를 어떻게 보고 있을까?",
   );
   await page
     .getByTestId("prompt-content-disclosure")
     .locator("summary")
     .click();
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
-    /선택한 성찰 질문: 상대가 나를 어떻게 보고 있을 가능성이 있는지와 내가 상대에게 기대하는 모습을 카드 의미로 먼저 연결하고/,
+    /고른 질문: 상대가 나를 어떻게 보고 있을 가능성이 있는지와 내가 상대에게 기대하는 모습을 카드 의미로 먼저 연결하고/,
   );
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
     /첫 두 문장 안에 카드가 그 질문에 가장 강하게 시사하는 답을 먼저 제시하세요/,
@@ -614,9 +635,9 @@ test("uses a chosen relationship question in the generated prompt", async ({
       elements.map((element) => element.getAttribute("data-card-id")),
     );
 
-  await page.getByRole("button", { name: "다음 리딩 선택하기" }).click();
+  await page.getByRole("button", { name: "다음 카드 준비하기" }).click();
   await expect(
-    page.getByRole("region", { name: "다음 리딩 선택하기" }),
+    page.getByRole("region", { name: "다음 카드 준비하기" }),
   ).toBeVisible();
   await expect(page.getByTestId("card-overview")).toBeVisible();
   await expect(page.getByTestId("prompt-ready")).toBeVisible();
@@ -631,18 +652,23 @@ test("uses a chosen relationship question in the generated prompt", async ({
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
-  const editQuestionSelector = page.getByLabel("다른 관계 질문 고르기");
-  await expect(editQuestionSelector).toHaveValue("mutual-view");
   await expect(
     page.getByRole("link", { name: "다른 관계 질문 둘러보기" }),
   ).toHaveCount(0);
-  await editQuestionSelector.selectOption("pace-of-closeness");
-  await expect(editQuestionSelector).toHaveValue("pace-of-closeness");
-  await expect(
-    page.getByTestId("selected-relationship-question"),
-  ).toContainText("우리 둘의 가까워지는 속도는 맞을까?");
-  await expect(page.getByTestId("current-relationship-question")).toContainText(
-    "그 사람과 나는 서로를 어떻게 보고 있을까?",
+  await page.locator('label:has(input[value="love"])').click();
+  await page
+    .getByTestId("public-question-picker")
+    .locator("summary")
+    .first()
+    .click();
+  await page
+    .getByRole("button", { name: /우리 속도는 서로에게 맞을까/ })
+    .click();
+  await expect(page.getByTestId("selected-public-question")).toContainText(
+    "우리 속도는 서로에게 맞을까?",
+  );
+  await expect(page.getByTestId("current-public-question")).toContainText(
+    "우리는 서로를 어떻게 보고 있을까?",
   );
   expect(page.url()).toBe(committedUrl);
   expect(
@@ -661,10 +687,10 @@ test("uses a chosen relationship question in the generated prompt", async ({
     /topic=feelings.*question=mutual-view/,
   );
 
-  await page.getByRole("button", { name: "현재 리딩으로 돌아가기" }).click();
-  await expect(editQuestionSelector).toHaveCount(0);
-  await expect(page.getByTestId("current-relationship-question")).toContainText(
-    "그 사람과 나는 서로를 어떻게 보고 있을까?",
+  await page.getByRole("button", { name: "지금 결과로 돌아가기" }).click();
+  await expect(page.getByTestId("public-question-picker")).toHaveCount(0);
+  await expect(page.getByTestId("current-public-question")).toContainText(
+    "우리는 서로를 어떻게 보고 있을까?",
   );
   expect(page.url()).toBe(committedUrl);
   expect(
@@ -675,14 +701,20 @@ test("uses a chosen relationship question in the generated prompt", async ({
       ),
   ).toEqual(committedCards);
 
-  await page.getByRole("button", { name: "다음 리딩 선택하기" }).click();
+  await page.getByRole("button", { name: "다음 카드 준비하기" }).click();
+  await page.locator('label:has(input[value="love"])').click();
   await page
-    .getByLabel("다른 관계 질문 고르기")
-    .selectOption("pace-of-closeness");
+    .getByTestId("public-question-picker")
+    .locator("summary")
+    .first()
+    .click();
+  await page
+    .getByRole("button", { name: /우리 속도는 서로에게 맞을까/ })
+    .click();
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
   await expect(page).toHaveURL(/topic=love.*question=pace-of-closeness/);
-  await expect(page.getByTestId("current-relationship-question")).toContainText(
-    "우리 둘의 가까워지는 속도는 맞을까?",
+  await expect(page.getByTestId("current-public-question")).toContainText(
+    "우리 속도는 서로에게 맞을까?",
   );
   await expect(page.getByTestId("reading-card-0")).toHaveAttribute(
     "data-reveal-sequence",
@@ -695,6 +727,80 @@ test("uses a chosen relationship question in the generated prompt", async ({
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
     /이 내용은 다음 질문을 고르는 동안에도 유지되어야 해요/,
   );
+});
+
+test("offers distinctive career questions under one optional hierarchy", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 844, width: 320 });
+  await page.goto("/ko");
+  await page.locator('label:has(input[value="career-direction"])').click();
+  await page
+    .getByTestId("public-question-picker")
+    .locator("summary")
+    .first()
+    .click();
+
+  await expect(
+    page.getByTestId("public-question-groups").locator(":scope > details"),
+  ).toHaveCount(3);
+  await expect(page.getByTestId("public-question-option")).toHaveCount(6);
+  await page.getByText("내 강점과 성장", { exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: /내가 놓치고 있는 강점은/,
+    })
+    .click();
+
+  await expect(page).toHaveURL(
+    /topic=career-direction&question=career-underused-strength/,
+  );
+  await expect(page.getByTestId("selected-public-question")).toContainText(
+    "너무 익숙해 몰랐던 내 강점",
+  );
+  await expect(page.getByRole("link", { name: "English" })).toHaveAttribute(
+    "href",
+    /topic=career-direction.*question=career-underused-strength/,
+  );
+
+  await page.getByRole("button", { name: "질문 없이 보기" }).click();
+  await expect(page).toHaveURL(/\/ko\?topic=career-direction$/);
+  await expect(page.getByTestId("selected-public-question")).toHaveCount(0);
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+  await expect(page.getByTestId("current-public-question")).toHaveCount(0);
+  await openPromptContent(page);
+  await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
+    /주제의 세부 초점: 일에서 어디에 힘을 쏟고 있는지/,
+  );
+
+  await page.getByRole("button", { name: "다음 카드 준비하기" }).click();
+  await page
+    .getByTestId("public-question-picker")
+    .locator("summary")
+    .first()
+    .click();
+  await page.getByText("내 강점과 성장", { exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: /내가 놓치고 있는 강점은/,
+    })
+    .click();
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+  await expect(page.getByTestId("current-public-question")).toContainText(
+    "내가 놓치고 있는 강점은?",
+  );
+  await openPromptContent(page);
+  await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
+    /고른 질문: 익숙해서 지나치고 있을 수 있는 강점/,
+  );
+  await expect(page.getByLabel("AI에 붙여 넣을 질문")).not.toHaveValue(
+    /주제의 세부 초점: 일에서 어디에 힘을 쏟고 있는지/,
+  );
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
 });
 
 test("returns 404 for unsupported or duplicate locale paths", async ({
@@ -807,10 +913,10 @@ test("preserves reading and private context when switching languages", async ({
 
   await expect(
     page.getByRole("heading", {
-      name: "지금 고민을 카드로 펼쳐보고, AI에 물어볼 질문까지 만들어보세요.",
+      name: "카드를 뽑고, AI에 물어볼 질문을 만들어보세요.",
     }),
   ).toBeVisible();
-  await page.getByText("현재 질문 수정").click();
+  await page.getByText("질문 다듬기").click();
   await openPromptContent(page);
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toBeVisible();
   await expect(
@@ -1069,7 +1175,7 @@ test("renders a shared reading first and keeps its localized share route", async
   );
 
   expect(await response?.text()).toContain(
-    "A tarot-spark reading was shared with you.",
+    "Someone shared a tarot-spark reading.",
   );
   await expect(page.getByTestId("shared-reading-view")).toBeVisible();
   await expect(page.locator('[data-testid^="reading-card-"]')).toHaveCount(3);
@@ -1078,9 +1184,7 @@ test("renders a shared reading first and keeps its localized share route", async
   ).toHaveCount(0);
   await expect(page.getByTestId("reading-preferences")).toHaveCount(0);
   await expect(page.getByTestId("situation-context")).toHaveCount(0);
-  await expect(page.getByTestId("relationship-question-selector")).toHaveCount(
-    0,
-  );
+  await expect(page.getByTestId("public-question-picker")).toHaveCount(0);
   await expect(page.getByTestId("next-reading-action")).toHaveCount(0);
 
   const workspaceTop = await page
@@ -1089,7 +1193,7 @@ test("renders a shared reading first and keeps its localized share route", async
   expect(workspaceTop).toBeLessThan(844);
 
   await expect(
-    page.getByRole("link", { name: "Create your own reading" }),
+    page.getByRole("link", { name: "Draw my cards" }),
   ).toHaveAttribute("href", "/?source=instagram&campaign=vertical-slice");
   expect(
     await page.evaluate(() => {

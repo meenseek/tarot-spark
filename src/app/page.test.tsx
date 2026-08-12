@@ -102,10 +102,10 @@ describe("Home", () => {
     expect(screen.getByRole("main")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
-        name: "Turn your situation and a tarot spread into a stronger AI prompt.",
+        name: "Draw cards and create a question for your AI tool.",
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/complete 78-card deck/i)).toBeInTheDocument();
+    expect(screen.getByText(/full 78-card deck/i)).toBeInTheDocument();
     expect(
       screen.getByText(/entertainment and self-reflection only/i),
     ).toBeInTheDocument();
@@ -146,7 +146,7 @@ describe("Home", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "지금 고민을 카드로 펼쳐보고, AI에 물어볼 질문까지 만들어보세요.",
+        name: "카드를 뽑고, AI에 물어볼 질문을 만들어보세요.",
       }),
     ).toBeInTheDocument();
     expect(
@@ -154,7 +154,7 @@ describe("Home", () => {
         name: /카드 \d장 뽑기/,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/78장 전체 덱/)).toBeInTheDocument();
+    expect(screen.getByText(/78장 덱/)).toBeInTheDocument();
     expect(screen.getByText(/의료·법률·재정/i)).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -264,7 +264,7 @@ describe("Home", () => {
     const signal = fetchMock.mock.calls[0]?.[1]?.signal;
     expect(signal?.aborted).toBe(false);
 
-    fireEvent.click(screen.getByRole("button", { name: "다음 리딩 선택하기" }));
+    fireEvent.click(screen.getByRole("button", { name: "다음 카드 준비하기" }));
     fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
 
     expect(signal?.aborted).toBe(true);
@@ -344,7 +344,7 @@ describe("Home", () => {
 
     const situationDisclosure = screen.getByTestId("situation-context");
     expect(situationDisclosure).not.toHaveAttribute("open");
-    expect(screen.getByText("Make the prompt more specific")).toBeVisible();
+    expect(screen.getByText("Make the question clearer")).toBeVisible();
 
     openSituationContext();
     fireEvent.change(screen.getByLabelText("Add your situation"), {
@@ -544,7 +544,7 @@ describe("Home", () => {
       expect(drawStatus).toHaveTextContent("3 cards drawn.");
     });
 
-    fireEvent.click(screen.getByText("Customize current prompt"));
+    fireEvent.click(screen.getByText("Edit this question"));
     fireEvent.click(
       screen.getByRole("radio", { name: /Direct, not deterministic/ }),
     );
@@ -555,7 +555,7 @@ describe("Home", () => {
     expect(drawStatus).toHaveAttribute("data-draw-announcement-sequence", "1");
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Choose your next reading" }),
+      screen.getByRole("button", { name: "Prepare the next draw" }),
     );
     fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
 
@@ -586,7 +586,7 @@ describe("Home", () => {
     expect(firstDrawTimerCount).toBeGreaterThan(baselineTimerCount);
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Choose your next reading" }),
+      screen.getByRole("button", { name: "Prepare the next draw" }),
     );
     fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
     expect(drawStatus).toHaveAttribute("data-draw-announcement-sequence", "2");
@@ -612,17 +612,17 @@ describe("Home", () => {
     const committedUrl = window.location.href;
     expect(screen.queryByText("Redraw with current settings")).toBeNull();
     const editTrigger = screen.getByRole("button", {
-      name: "Choose your next reading",
+      name: "Prepare the next draw",
     });
 
     fireEvent.click(editTrigger);
     await waitFor(() => {
       expect(
-        screen.getByRole("heading", { name: "Choose your next reading" }),
+        screen.getByRole("heading", { name: "Prepare the next draw" }),
       ).toHaveFocus();
     });
     const editor = screen.getByRole("region", {
-      name: "Choose your next reading",
+      name: "Prepare the next draw",
     });
     const promptReady = screen.getByTestId("prompt-ready");
     const promptDisclosure = screen.getByTestId("prompt-content-disclosure");
@@ -640,7 +640,7 @@ describe("Home", () => {
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(screen.queryByTestId("reading-setup-panel")).toBeNull();
-    expect(screen.queryByText("Customize current prompt")).toBeNull();
+    expect(screen.queryByText("Edit this question")).toBeNull();
     expect(
       screen.getAllByText(
         "Tarot content is for entertainment and self-reflection only. It is not medical, legal, financial, investment, or mental-health advice.",
@@ -654,17 +654,17 @@ describe("Home", () => {
     expect(window.location.href).toBe(committedUrl);
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Back to current reading" }),
+      screen.getByRole("button", { name: "Back to this result" }),
     );
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: "Choose your next reading" }),
+        screen.getByRole("button", { name: "Prepare the next draw" }),
       ).toHaveFocus();
     });
     expect(screen.queryByRole("radio", { name: "Reunion" })).toBeNull();
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Choose your next reading" }),
+      screen.getByRole("button", { name: "Prepare the next draw" }),
     );
     expect(screen.getByRole("radio", { name: "Love overview" })).toBeChecked();
   });
@@ -686,7 +686,7 @@ describe("Home", () => {
       expect(screen.getByRole("button", { name: "URL copied" })).toBeVisible();
     });
 
-    fireEvent.click(screen.getByText("Customize current prompt"));
+    fireEvent.click(screen.getByText("Edit this question"));
     fireEvent.click(
       screen.getByRole("radio", { name: /Direct, not deterministic/ }),
     );
@@ -724,7 +724,7 @@ describe("Home", () => {
       announceAnalyticsReady();
       renderDrawnReading();
       fireEvent.click(screen.getByRole("button", { name: "Copy prompt" }));
-      fireEvent.click(screen.getByText("Customize current prompt"));
+      fireEvent.click(screen.getByText("Edit this question"));
       fireEvent.click(
         screen.getByRole("radio", { name: /Direct, not deterministic/ }),
       );
@@ -867,7 +867,7 @@ describe("Home", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "A tarot-spark reading was shared with you.",
+        name: "Someone shared a tarot-spark reading.",
       }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Generated prompt")).toBeInTheDocument();
@@ -875,7 +875,7 @@ describe("Home", () => {
     expect(screen.queryByTestId("reading-preferences")).toBeNull();
 
     const createOwnLink = screen.getByRole("link", {
-      name: "Create your own reading",
+      name: "Draw my cards",
     });
     expect(createOwnLink).toHaveAttribute(
       "href",
@@ -1040,7 +1040,7 @@ describe("Home", () => {
         <TarotExperience locale="ko" />
       </StrictMode>,
     );
-    fireEvent.click(screen.getByText("현재 질문 수정"));
+    fireEvent.click(screen.getByText("질문 다듬기"));
 
     await waitFor(() => {
       expect(
@@ -1167,7 +1167,7 @@ describe("Home", () => {
       setReadingResultIntersection(true);
       setReadingResultIntersection(false);
       fireEvent.click(
-        screen.getByRole("button", { name: "Choose your next reading" }),
+        screen.getByRole("button", { name: "Prepare the next draw" }),
       );
       const nextReadingEditor = screen.getByTestId("next-reading-editor");
       expect(
@@ -1207,11 +1207,11 @@ describe("Home", () => {
       setReadingResultIntersection(true);
 
       fireEvent.click(
-        screen.getByRole("button", { name: "Choose your next reading" }),
+        screen.getByRole("button", { name: "Prepare the next draw" }),
       );
       setReadingResultIntersection(true);
       fireEvent.click(
-        screen.getByRole("button", { name: "Back to current reading" }),
+        screen.getByRole("button", { name: "Back to this result" }),
       );
       setReadingResultIntersection(true);
 
@@ -1220,7 +1220,7 @@ describe("Home", () => {
       );
 
       fireEvent.click(
-        screen.getByRole("button", { name: "Choose your next reading" }),
+        screen.getByRole("button", { name: "Prepare the next draw" }),
       );
       fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
       setReadingResultIntersection(true);
