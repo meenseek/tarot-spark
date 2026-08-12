@@ -32,10 +32,9 @@ describe("RelationshipQuestionExplorer", () => {
     expect(categoryDisclosures.filter(({ open }) => open)).toHaveLength(1);
     expect(categoryDisclosures[0]).toHaveAttribute("open");
     expect(container.querySelectorAll('a[href*="question="]')).toHaveLength(28);
-    expect(screen.getAllByText("이 질문으로 살펴볼 것")).toHaveLength(28);
     expect(
       container.querySelector('a[href*="question=mutual-view"]'),
-    ).toHaveTextContent("서로에 대한 기대 보기");
+    ).toHaveTextContent("서로의 기대 보기");
 
     const perceptionCategory =
       container.querySelector<HTMLDetailsElement>("#perception");
@@ -45,13 +44,11 @@ describe("RelationshipQuestionExplorer", () => {
     );
     expect(perceptionCategory).toHaveAttribute("open");
     expect(
-      screen.getByRole("link", { name: "서로에 대한 기대 보기" }),
+      screen.getByRole("link", { name: "서로의 기대 보기" }),
     ).toBeVisible();
-    expect(
-      screen.getByText(
-        /상대가 나를 어떻게 보고 있을 가능성이 있는지와 내가 상대에게 기대하는 모습/,
-      ),
-    ).toBeVisible();
+    expect(container).not.toHaveTextContent(
+      catalog.questions.find(({ id }) => id === "mutual-view")?.focus ?? "",
+    );
     expect(
       screen.getByRole("heading", { name: "가능성을 읽는 질문" }),
     ).toBeInTheDocument();
@@ -92,7 +89,7 @@ describe("RelationshipQuestionExplorer", () => {
     ).toBeInTheDocument();
     expect(
       container.querySelector('a[href*="question=mutual-view"]'),
-    ).toHaveTextContent("Explore mutual expectations");
+    ).toHaveTextContent("Read our views");
     expect(screen.getByRole("link", { name: "한국어" })).toHaveAttribute(
       "href",
       "/ko/relationship-tarot-questions",

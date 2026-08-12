@@ -43,7 +43,6 @@ type RelationshipQuestionMessages = {
   readonly strongQuestion: string;
   readonly browseHeading: string;
   readonly categoryNavigationLabel: string;
-  readonly focusLabel: string;
   readonly workedExampleHeading: string;
   readonly workedExampleBody: string;
   readonly workedExampleItems: readonly string[];

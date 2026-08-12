@@ -230,7 +230,7 @@ describe("tarot prompt", () => {
       topic: data.topics[0]!,
     };
 
-    expect(buildPrompt(base)).not.toContain("선택한 성찰 질문:");
+    expect(buildPrompt(base)).not.toContain("고른 질문:");
     expect(buildPrompt(base)).toContain(
       `주제의 세부 초점: ${base.topic.promptLead}`,
     );
@@ -244,7 +244,7 @@ describe("tarot prompt", () => {
     });
 
     expect(prompt).toContain(
-      "선택한 성찰 질문: 관찰한 행동과 다른 설명을 나누고 확인할 대화를 찾는다.",
+      "고른 질문: 관찰한 행동과 다른 설명을 나누고 확인할 대화를 찾는다.",
     );
     expect(prompt).toContain(`기본 답변 대상: ${answerTarget.instruction}`);
     expect(prompt).not.toContain(`기본 답변 대상: ${base.topic.promptLead}`);
