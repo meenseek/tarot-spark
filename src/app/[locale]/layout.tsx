@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { OptionalGoogleServices } from "@/features/privacy-consent";
 import { isPrefixedLocale } from "@/i18n/config";
 import { GoogleAdSenseAccountMetadata } from "@/integrations/google-adsense";
+import "@measure-twice/react/styles.css";
 import "../globals.css";
 
 type LocaleRootLayoutProps = {

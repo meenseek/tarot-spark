@@ -16,10 +16,13 @@ const themedSourceFiles = [
   "src/features/relationship-questions/RelationshipQuestionExplorer.tsx",
   "src/features/tarot-reading/TarotExperienceClient.tsx",
   "src/features/tarot-reading/components/CardSpread.tsx",
+  "src/features/tarot-reading/components/CurrentPromptCustomization.tsx",
   "src/features/tarot-reading/components/InstantReadingPanel.tsx",
   "src/features/tarot-reading/components/LanguageSwitch.tsx",
   "src/features/tarot-reading/components/ReadingResult.tsx",
+  "src/features/tarot-reading/components/SituationContextInput.tsx",
   "src/features/tarot-reading/components/TopicSelector.tsx",
+  "src/features/privacy-consent/PrivacyConsent.tsx",
 ] as const;
 
 const siteShellConsumers = [
@@ -95,6 +98,63 @@ const themeAliases = {
   "--shadow-ts-card": "--ts-shadow-card",
 } as const;
 
+const measureTwiceAliases = {
+  "--mt-color-bg-canvas": "--ts-color-canvas",
+  "--mt-color-bg-surface": "--ts-color-surface",
+  "--mt-color-bg-subtle": "--ts-color-blush",
+  "--mt-color-bg-emphasis": "--ts-color-ink",
+  "--mt-color-text": "--ts-color-ink",
+  "--mt-color-text-muted": "--ts-color-muted",
+  "--mt-color-text-subtle": "--ts-color-muted",
+  "--mt-color-text-inverse": "--ts-color-on-action",
+  "--mt-color-border": "--ts-color-divider",
+  "--mt-color-border-strong": "--ts-color-border",
+  "--mt-color-control-border": "--ts-color-border",
+  "--mt-color-control-border-hover": "--ts-color-action",
+  "--mt-color-control-placeholder": "--ts-color-muted",
+  "--mt-color-action": "--ts-color-action",
+  "--mt-color-action-hover": "--ts-color-action-hover",
+  "--mt-color-action-pressed": "--ts-color-action-pressed",
+  "--mt-color-action-soft": "--ts-color-blush",
+  "--mt-color-action-soft-hover": "--ts-color-blush-strong",
+  "--mt-color-action-soft-pressed": "--ts-color-blush-strong",
+  "--mt-color-action-border": "--ts-color-action",
+  "--mt-color-action-text": "--ts-color-action",
+  "--mt-color-neutral": "--ts-color-ink",
+  "--mt-color-neutral-hover": "--ts-color-action-hover",
+  "--mt-color-neutral-pressed": "--ts-color-action-pressed",
+  "--mt-color-neutral-soft": "--ts-color-blush",
+  "--mt-color-neutral-soft-hover": "--ts-color-blush-strong",
+  "--mt-color-neutral-soft-pressed": "--ts-color-blush-strong",
+  "--mt-color-neutral-border": "--ts-color-border",
+  "--mt-color-neutral-text": "--ts-color-ink",
+  "--mt-color-focus": "--ts-color-action",
+  "--mt-color-danger": "--ts-color-danger",
+  "--mt-color-danger-hover": "--ts-color-danger",
+  "--mt-color-danger-pressed": "--ts-color-danger",
+  "--mt-color-danger-soft": "--ts-color-blush",
+  "--mt-color-danger-soft-hover": "--ts-color-blush-strong",
+  "--mt-color-danger-soft-pressed": "--ts-color-blush-strong",
+  "--mt-color-danger-border": "--ts-color-danger",
+  "--mt-color-danger-text": "--ts-color-danger",
+  "--mt-color-feedback-success-bg": "--ts-color-surface",
+  "--mt-color-feedback-success-border": "--ts-color-success",
+  "--mt-color-feedback-success-text": "--ts-color-success",
+  "--mt-color-feedback-danger-bg": "--ts-color-surface",
+  "--mt-color-feedback-danger-border": "--ts-color-danger",
+  "--mt-color-feedback-danger-text": "--ts-color-danger",
+  "--mt-color-disabled-bg": "--ts-color-divider",
+  "--mt-color-disabled-text": "--ts-color-muted",
+  "--mt-color-loading-indicator": "--ts-color-muted",
+  "--mt-radius-control": "--ts-radius-control",
+  "--mt-radius-md": "--ts-radius-control",
+  "--mt-radius-surface": "--ts-radius-panel",
+  "--mt-font-sans": "--ts-font-sans",
+  "--mt-duration-fast": "--ts-motion-fast",
+  "--mt-duration-normal": "--ts-motion-base",
+  "--mt-ease-standard": "--ts-motion-ease",
+} as const;
+
 function escapeRegularExpression(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -168,11 +228,13 @@ describe("visual design system contract", () => {
     );
 
     expect(promptResultSource).toMatch(
-      /className={`\$\{primaryButtonClassName\}[^`]*`}\s+onClick={onCopyPrompt}/,
+      /<Button\s+className="tarot-mt-button tarot-mt-button--primary[^\"]*"\s+onClick={onCopyPrompt}/,
     );
-    expect(instantReadingSource).toContain(
-      "className={secondaryButtonClassName}",
-    );
+    expect(instantReadingSource).toContain('className="tarot-mt-button"');
+    expect(promptResultSource).toContain("Button, InlineMessage");
+    expect(instantReadingSource).toContain("Button, InlineMessage");
+    expect(promptResultSource).not.toContain("<InlineMessage role=");
+    expect(instantReadingSource).not.toContain("<InlineMessage role=");
     expect(instantReadingSource).not.toContain("primaryButtonClassName");
     expect(instantReadingSource).not.toContain("bg-ts-blush");
     expect(questionCatalogSource).toContain("secondaryButtonClassName");
@@ -216,5 +278,65 @@ describe("visual design system contract", () => {
 
       expect(css.match(aliasDeclaration) ?? [], alias).toHaveLength(1);
     });
+  });
+
+  it("maps every adopted Measure Twice role to the Tarot Spark theme", () => {
+    const css = readFileSync(
+      resolve(process.cwd(), "src/app/globals.css"),
+      "utf8",
+    );
+
+    Object.entries(measureTwiceAliases).forEach(([alias, rootToken]) => {
+      const aliasDeclaration = new RegExp(
+        `^\\s*${escapeRegularExpression(alias)}:\\s*var\\(${escapeRegularExpression(rootToken)}\\);\\s*$`,
+        "gm",
+      );
+
+      expect(css.match(aliasDeclaration) ?? [], alias).toHaveLength(1);
+    });
+
+    expect(css.match(/^\s*--mt-shadow-sm:\s*none;\s*$/gm) ?? []).toHaveLength(
+      1,
+    );
+    expect(
+      css.match(
+        /^\s*--mt-focus-ring:\s*2px solid var\(--ts-color-action\);\s*$/gm,
+      ) ?? [],
+    ).toHaveLength(1);
+  });
+
+  it("preserves Tarot control boundaries and focus around adopted components", () => {
+    const css = readFileSync(
+      resolve(process.cwd(), "src/app/globals.css"),
+      "utf8",
+    );
+
+    expect(css).toMatch(
+      /\.tarot-mt-button\.mt-button\s*{[^}]*min-height:\s*44px;[^}]*border-width:\s*2px;/,
+    );
+    expect(css).toMatch(
+      /\.tarot-mt-button--primary\.mt-button\s*{[^}]*min-height:\s*48px;[^}]*border-color:\s*var\(--ts-color-action\);/,
+    );
+    expect(css).toMatch(
+      /@media \(forced-colors: none\)[\s\S]*\.tarot-mt-button\.mt-button:focus-visible\s*{[^}]*outline:\s*2px solid var\(--ts-color-action\);[^}]*outline-offset:\s*2px;/,
+    );
+  });
+
+  it("loads Measure Twice styles before Tarot Spark's consumer overrides", () => {
+    ["src/app/(root)/layout.tsx", "src/app/[locale]/layout.tsx"].forEach(
+      (relativePath) => {
+        const source = readFileSync(
+          resolve(process.cwd(), relativePath),
+          "utf8",
+        );
+        const measureTwiceImport = source.indexOf(
+          'import "@measure-twice/react/styles.css";',
+        );
+        const tarotImport = source.indexOf('import "../globals.css";');
+
+        expect(measureTwiceImport, relativePath).toBeGreaterThanOrEqual(0);
+        expect(tarotImport, relativePath).toBeGreaterThan(measureTwiceImport);
+      },
+    );
   });
 });

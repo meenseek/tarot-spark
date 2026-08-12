@@ -35,6 +35,64 @@
   --ts-motion-card-stagger: 80ms;
   --ts-motion-card-flip-offset: 120ms;
   --ts-motion-ease: cubic-bezier(0.2, 0.75, 0.25, 1);
+
+  /* Measure Twice consumes Tarot Spark's semantic visual contract. */
+  --mt-color-bg-canvas: var(--ts-color-canvas);
+  --mt-color-bg-surface: var(--ts-color-surface);
+  --mt-color-bg-subtle: var(--ts-color-blush);
+  --mt-color-bg-emphasis: var(--ts-color-ink);
+  --mt-color-text: var(--ts-color-ink);
+  --mt-color-text-muted: var(--ts-color-muted);
+  --mt-color-text-subtle: var(--ts-color-muted);
+  --mt-color-text-inverse: var(--ts-color-on-action);
+  --mt-color-border: var(--ts-color-divider);
+  --mt-color-border-strong: var(--ts-color-border);
+  --mt-color-control-border: var(--ts-color-border);
+  --mt-color-control-border-hover: var(--ts-color-action);
+  --mt-color-control-placeholder: var(--ts-color-muted);
+  --mt-color-action: var(--ts-color-action);
+  --mt-color-action-hover: var(--ts-color-action-hover);
+  --mt-color-action-pressed: var(--ts-color-action-pressed);
+  --mt-color-action-soft: var(--ts-color-blush);
+  --mt-color-action-soft-hover: var(--ts-color-blush-strong);
+  --mt-color-action-soft-pressed: var(--ts-color-blush-strong);
+  --mt-color-action-border: var(--ts-color-action);
+  --mt-color-action-text: var(--ts-color-action);
+  --mt-color-neutral: var(--ts-color-ink);
+  --mt-color-neutral-hover: var(--ts-color-action-hover);
+  --mt-color-neutral-pressed: var(--ts-color-action-pressed);
+  --mt-color-neutral-soft: var(--ts-color-blush);
+  --mt-color-neutral-soft-hover: var(--ts-color-blush-strong);
+  --mt-color-neutral-soft-pressed: var(--ts-color-blush-strong);
+  --mt-color-neutral-border: var(--ts-color-border);
+  --mt-color-neutral-text: var(--ts-color-ink);
+  --mt-color-focus: var(--ts-color-action);
+  --mt-color-danger: var(--ts-color-danger);
+  --mt-color-danger-hover: var(--ts-color-danger);
+  --mt-color-danger-pressed: var(--ts-color-danger);
+  --mt-color-danger-soft: var(--ts-color-blush);
+  --mt-color-danger-soft-hover: var(--ts-color-blush-strong);
+  --mt-color-danger-soft-pressed: var(--ts-color-blush-strong);
+  --mt-color-danger-border: var(--ts-color-danger);
+  --mt-color-danger-text: var(--ts-color-danger);
+  --mt-color-feedback-success-bg: var(--ts-color-surface);
+  --mt-color-feedback-success-border: var(--ts-color-success);
+  --mt-color-feedback-success-text: var(--ts-color-success);
+  --mt-color-feedback-danger-bg: var(--ts-color-surface);
+  --mt-color-feedback-danger-border: var(--ts-color-danger);
+  --mt-color-feedback-danger-text: var(--ts-color-danger);
+  --mt-color-disabled-bg: var(--ts-color-divider);
+  --mt-color-disabled-text: var(--ts-color-muted);
+  --mt-color-loading-indicator: var(--ts-color-muted);
+  --mt-radius-control: var(--ts-radius-control);
+  --mt-radius-md: var(--ts-radius-control);
+  --mt-radius-surface: var(--ts-radius-panel);
+  --mt-font-sans: var(--ts-font-sans);
+  --mt-shadow-sm: none;
+  --mt-duration-fast: var(--ts-motion-fast);
+  --mt-duration-normal: var(--ts-motion-base);
+  --mt-ease-standard: var(--ts-motion-ease);
+  --mt-focus-ring: 2px solid var(--ts-color-action);
 }
 
 @theme inline {
@@ -72,6 +130,56 @@ body {
   background: var(--ts-color-canvas);
   color: var(--ts-color-ink);
   font-family: var(--ts-font-sans);
+}
+
+/* Preserve Tarot Spark's control hierarchy around adopted Measure Twice APIs. */
+.tarot-mt-button.mt-button {
+  min-height: 44px;
+  border-width: 2px;
+  border-color: var(--ts-color-border);
+  border-radius: var(--ts-radius-control);
+  background: var(--ts-color-surface);
+  color: var(--ts-color-ink);
+  box-shadow: none;
+}
+
+.tarot-mt-button.mt-button:hover:not(:disabled) {
+  border-color: var(--ts-color-action);
+  background: var(--ts-color-blush);
+}
+
+.tarot-mt-button.mt-button:active:not(:disabled) {
+  border-color: var(--ts-color-action-pressed);
+  background: var(--ts-color-blush-strong);
+}
+
+.tarot-mt-button--primary.mt-button {
+  min-height: 48px;
+  border-color: var(--ts-color-action);
+  background: var(--ts-color-action);
+  color: var(--ts-color-on-action);
+}
+
+.tarot-mt-button--primary.mt-button:hover:not(:disabled) {
+  border-color: var(--ts-color-action-hover);
+  background: var(--ts-color-action-hover);
+}
+
+.tarot-mt-button--primary.mt-button:active:not(:disabled) {
+  border-color: var(--ts-color-action-pressed);
+  background: var(--ts-color-action-pressed);
+}
+
+.tarot-mt-feedback.mt-inline-message {
+  font-weight: 500;
+  line-height: 1.5rem;
+}
+
+@media (forced-colors: none) {
+  .tarot-mt-button.mt-button:focus-visible {
+    outline: 2px solid var(--ts-color-action);
+    outline-offset: 2px;
+  }
 }
 
 ::selection {
