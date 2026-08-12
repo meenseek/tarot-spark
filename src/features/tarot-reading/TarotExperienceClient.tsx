@@ -1311,7 +1311,10 @@ export function TarotExperienceClient({
   }
 
   const generatorIntroduction = (
-    <div className="grid content-start gap-4" data-testid="generator-intro">
+    <div
+      className="grid content-start gap-3 sm:gap-4"
+      data-testid="generator-intro"
+    >
       <CelestialMark className="h-8 w-16 text-ts-gold" />
       <h1
         className={`max-w-2xl font-ts-display text-4xl font-semibold leading-[1.12] tracking-[-0.02em] text-ts-ink sm:text-[2.75rem] lg:text-5xl ${
@@ -1328,7 +1331,7 @@ export function TarotExperienceClient({
   );
 
   const readingSetupForm = session.mode !== "result" && (
-    <div className="grid gap-6" data-testid="reading-setup-form">
+    <div className="grid gap-3 sm:gap-6" data-testid="reading-setup-form">
       {session.mode === "edit-next-draw" && (
         <div className="grid gap-2">
           <h2
