@@ -264,26 +264,58 @@ test("uses state-specific generator layouts and one filled result action", async
 
   const generatorLayout = page.getByTestId("generator-layout");
   const generatorIntro = page.getByTestId("generator-intro");
+  const generatorStateLayout = page.getByTestId("generator-state-layout");
   const setupPanel = page.getByTestId("reading-setup-panel");
   const setupWorkspace = page.getByTestId("reading-workspace");
+  const dailyQuestionLink = page.getByTestId("daily-question-link");
+  const setupActions = page.getByTestId("reading-setup-actions");
+  const setupDrawButton = page.getByRole("button", {
+    name: "Draw 3 cards",
+  });
+  const topicOptions = page.getByTestId("topic-options");
 
   await expect(generatorLayout).toHaveAttribute("data-layout-mode", "setup");
   await expect(setupWorkspace).toBeVisible();
   const generatorIntroBox = await generatorIntro.boundingBox();
+  const generatorStateLayoutBox = await generatorStateLayout.boundingBox();
   const setupPanelBox = await setupPanel.boundingBox();
   const setupWorkspaceBox = await setupWorkspace.boundingBox();
+  const dailyQuestionLinkBox = await dailyQuestionLink.boundingBox();
+  const setupActionsBox = await setupActions.boundingBox();
+  const setupDrawButtonBox = await setupDrawButton.boundingBox();
+  const topicOptionsBox = await topicOptions.boundingBox();
   expect(generatorIntroBox).not.toBeNull();
+  expect(generatorStateLayoutBox).not.toBeNull();
   expect(setupPanelBox).not.toBeNull();
   expect(setupWorkspaceBox).not.toBeNull();
+  expect(dailyQuestionLinkBox).not.toBeNull();
+  expect(setupActionsBox).not.toBeNull();
+  expect(setupDrawButtonBox).not.toBeNull();
+  expect(topicOptionsBox).not.toBeNull();
   expect(setupPanelBox?.y ?? 0).toBeGreaterThanOrEqual(
     Math.max(
       (generatorIntroBox?.y ?? 0) + (generatorIntroBox?.height ?? 0),
       (setupWorkspaceBox?.y ?? 0) + (setupWorkspaceBox?.height ?? 0),
     ),
   );
-  expect(setupPanelBox?.width ?? 0).toBeLessThanOrEqual(768);
+  expect(setupPanelBox?.width ?? 0).toBeLessThanOrEqual(896);
+  expect(setupPanelBox).toMatchObject({
+    x: dailyQuestionLinkBox?.x,
+    width: dailyQuestionLinkBox?.width,
+  });
+  expect(generatorStateLayoutBox?.width ?? 0).toBeGreaterThan(
+    setupPanelBox?.width ?? Number.POSITIVE_INFINITY,
+  );
+  expect(setupActionsBox).toMatchObject({
+    x: topicOptionsBox?.x,
+    width: topicOptionsBox?.width,
+  });
+  expect(setupDrawButtonBox).toMatchObject({
+    x: setupActionsBox?.x,
+    width: setupActionsBox?.width,
+  });
 
-  await page.getByRole("button", { name: "Draw 3 cards" }).click();
+  await setupDrawButton.click();
   await expect(generatorLayout).toHaveAttribute("data-layout-mode", "result");
   const resultWorkspace = page.getByTestId("reading-workspace");
   const resultWorkspaceBox = await resultWorkspace.boundingBox();
@@ -352,7 +384,58 @@ test("uses state-specific generator layouts and one filled result action", async
       colors.action,
     );
   expect(editorFilledPrimaryCount).toBe(1);
+  const cancelEditButton = page.getByRole("button", {
+    name: "Back to current reading",
+  });
+  const editDrawButton = page.getByRole("button", { name: "Draw 3 cards" });
+  const cancelEditButtonBox = await cancelEditButton.boundingBox();
+  const editDrawButtonBox = await editDrawButton.boundingBox();
+  expect(cancelEditButtonBox).not.toBeNull();
+  expect(editDrawButtonBox).not.toBeNull();
+  expect(cancelEditButtonBox?.y).toBe(editDrawButtonBox?.y);
+  expect(cancelEditButtonBox?.width).toBe(editDrawButtonBox?.width);
 
+  for (const width of [390, 639, 640] as const) {
+    await page.setViewportSize({ height: 844, width });
+    const responsiveCancelEditButtonBox = await cancelEditButton.boundingBox();
+    const responsiveEditDrawButtonBox = await editDrawButton.boundingBox();
+    expect(
+      responsiveCancelEditButtonBox,
+      `${width}px cancel action`,
+    ).not.toBeNull();
+    expect(
+      responsiveEditDrawButtonBox,
+      `${width}px draw action`,
+    ).not.toBeNull();
+
+    if (width < 640) {
+      expect(
+        responsiveEditDrawButtonBox?.y ?? 0,
+        `${width}px stacked edit actions`,
+      ).toBeGreaterThanOrEqual(
+        (responsiveCancelEditButtonBox?.y ?? 0) +
+          (responsiveCancelEditButtonBox?.height ?? 0),
+      );
+    } else {
+      expect(
+        responsiveCancelEditButtonBox?.y,
+        `${width}px paired edit actions`,
+      ).toBe(responsiveEditDrawButtonBox?.y);
+      expect(
+        responsiveCancelEditButtonBox?.width,
+        `${width}px equal edit actions`,
+      ).toBe(responsiveEditDrawButtonBox?.width);
+    }
+
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+      `${width}px edit action overflow`,
+    ).toBe(true);
+  }
+
+  await page.setViewportSize({ height: 900, width: 1280 });
   await page.goto("/ko");
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
   const localizedResultWorkspace = page.getByTestId("reading-workspace");
@@ -374,6 +457,176 @@ test("uses state-specific generator layouts and one filled result action", async
       colors.action,
     );
   expect(filledPrimaryCount).toBe(1);
+});
+
+test("keeps the setup hierarchy balanced across responsive boundaries", async ({
+  page,
+}) => {
+  for (const width of [320, 390, 1023, 1024, 1280] as const) {
+    await page.setViewportSize({ height: 900, width });
+    await page.goto("/ko");
+
+    const setupPanelBox = await page
+      .getByTestId("reading-setup-panel")
+      .boundingBox();
+    const dailyQuestionLinkBox = await page
+      .getByTestId("daily-question-link")
+      .boundingBox();
+    const setupActionsBox = await page
+      .getByTestId("reading-setup-actions")
+      .boundingBox();
+    const drawButtonBox = await page
+      .getByRole("button", { name: "카드 3장 뽑기" })
+      .boundingBox();
+    const topicOptions = page.getByTestId("topic-options");
+    const topicOptionsBox = await topicOptions.boundingBox();
+    const preferencesToggle = page.getByTestId("reading-preferences-toggle");
+    const preferencesHeading = preferencesToggle.getByText(
+      "카드 수와 답변 분위기",
+      { exact: true },
+    );
+    const preferencesSelection = page.getByTestId(
+      "reading-preferences-selection",
+    );
+    const preferencesHeadingMetrics = await preferencesHeading.evaluate(
+      (element) => {
+        const box = element.getBoundingClientRect();
+        const lineHeight = Number.parseFloat(
+          getComputedStyle(element).lineHeight,
+        );
+
+        return { height: box.height, lineHeight, top: box.top };
+      },
+    );
+    const preferencesSelectionBox = await preferencesSelection.boundingBox();
+    const preferencesHasNoOverflow = await preferencesToggle.evaluate(
+      (element) => element.scrollWidth <= element.clientWidth,
+    );
+    const topicBoxes = await topicOptions
+      .locator('input[name="tarot-topic"]')
+      .evaluateAll((inputs) =>
+        inputs.map((input) => {
+          const rect = input.parentElement?.getBoundingClientRect();
+
+          if (!rect) {
+            throw new Error("A tarot topic label is missing");
+          }
+
+          return {
+            height: rect.height,
+            left: rect.left,
+            right: rect.right,
+            top: rect.top,
+            width: rect.width,
+          };
+        }),
+      );
+
+    expect(setupPanelBox, `${width}px setup panel`).not.toBeNull();
+    expect(dailyQuestionLinkBox, `${width}px daily link`).not.toBeNull();
+    expect(setupActionsBox, `${width}px action group`).not.toBeNull();
+    expect(drawButtonBox, `${width}px draw button`).not.toBeNull();
+    expect(topicOptionsBox, `${width}px topic options`).not.toBeNull();
+    expect(
+      preferencesSelectionBox,
+      `${width}px preference selection`,
+    ).not.toBeNull();
+    expect(topicBoxes, `${width}px topic count`).toHaveLength(5);
+    expect(
+      preferencesHeadingMetrics.height,
+      `${width}px preference heading line count`,
+    ).toBeLessThanOrEqual(preferencesHeadingMetrics.lineHeight + 0.5);
+    expect(
+      preferencesHasNoOverflow,
+      `${width}px preference summary overflow`,
+    ).toBe(true);
+    expect(setupPanelBox, `${width}px focused-section alignment`).toMatchObject(
+      {
+        x: dailyQuestionLinkBox?.x,
+        width: dailyQuestionLinkBox?.width,
+      },
+    );
+    expect(drawButtonBox, `${width}px full-width primary action`).toMatchObject(
+      {
+        x: setupActionsBox?.x,
+        width: setupActionsBox?.width,
+      },
+    );
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+      `${width}px horizontal overflow`,
+    ).toBe(true);
+
+    if (width < 1024) {
+      expect(topicBoxes[0]?.top, `${width}px first topic row`).toBe(
+        topicBoxes[1]?.top,
+      );
+      expect(topicBoxes[2]?.top, `${width}px second topic row`).toBe(
+        topicBoxes[3]?.top,
+      );
+      expect(topicBoxes[4]?.left, `${width}px final topic alignment`).toBe(
+        topicBoxes[0]?.left,
+      );
+      continue;
+    }
+
+    expect(
+      preferencesHeadingMetrics.top,
+      `${width}px desktop preference summary row`,
+    ).toBe(preferencesSelectionBox?.y);
+
+    expect(topicBoxes.slice(0, 3).map(({ top }) => top)).toEqual([
+      topicBoxes[0]?.top,
+      topicBoxes[0]?.top,
+      topicBoxes[0]?.top,
+    ]);
+    expect(topicBoxes.slice(3).map(({ top }) => top)).toEqual([
+      topicBoxes[3]?.top,
+      topicBoxes[3]?.top,
+    ]);
+    topicBoxes.forEach(({ width: topicWidth }) => {
+      expect(
+        Math.abs(topicWidth - (topicBoxes[0]?.width ?? 0)),
+        `${width}px equal topic width`,
+      ).toBeLessThanOrEqual(0.1);
+    });
+    const finalRowCenter =
+      ((topicBoxes[3]?.left ?? 0) + (topicBoxes[4]?.right ?? 0)) / 2;
+    const optionsCenter =
+      (topicOptionsBox?.x ?? 0) + (topicOptionsBox?.width ?? 0) / 2;
+    expect(
+      Math.abs(finalRowCenter - optionsCenter),
+      `${width}px centered final topic row`,
+    ).toBeLessThanOrEqual(0.1);
+  }
+
+  await page.setViewportSize({ height: 900, width: 320 });
+  await page.goto("/");
+  const englishPreferencesToggle = page.getByTestId(
+    "reading-preferences-toggle",
+  );
+  const englishPreferencesHeading = englishPreferencesToggle.getByText(
+    "Card count and reading style",
+    { exact: true },
+  );
+  const englishHeadingIsOneLine = await englishPreferencesHeading.evaluate(
+    (element) => {
+      const box = element.getBoundingClientRect();
+      const lineHeight = Number.parseFloat(
+        getComputedStyle(element).lineHeight,
+      );
+
+      return box.height <= lineHeight + 0.5;
+    },
+  );
+  expect(englishHeadingIsOneLine).toBe(true);
+  expect(
+    await englishPreferencesToggle.evaluate(
+      (element) => element.scrollWidth <= element.clientWidth,
+    ),
+  ).toBe(true);
 });
 
 test("keeps the complete question catalog in stable fragment disclosures", async ({
