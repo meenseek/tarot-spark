@@ -1,3 +1,4 @@
+import { Textarea } from "@measure-twice/react";
 import { maxUserContextLength } from "@/domain/tarot";
 import type { RefObject } from "react";
 import type { TarotReadingCopy } from "../i18n";
@@ -52,20 +53,16 @@ export function SituationContextInput({
       </summary>
 
       <div className="grid gap-2 border-t border-ts-divider p-4">
-        <label
-          className="text-sm font-semibold text-ts-ink"
-          htmlFor="tarot-user-context"
-        >
-          {copy.contextLabel}
-        </label>
-        <textarea
+        <Textarea
+          announceError={false}
           aria-describedby="tarot-context-help tarot-context-count"
-          className="min-h-40 resize-y rounded-ts-control border-2 border-ts-border bg-ts-canvas p-3 text-sm leading-6 text-ts-ink outline-none transition-colors duration-[var(--ts-motion-fast)] placeholder:text-ts-muted focus:border-ts-action focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action sm:min-h-28"
           id="tarot-user-context"
+          label={copy.contextLabel}
           maxLength={maxUserContextLength}
           onChange={(event) => onContextChange(event.currentTarget.value)}
           placeholder={contextPlaceholder}
           value={userContext}
+          wrapperClassName="tarot-mt-textarea tarot-mt-textarea--context"
         />
         <div className="flex flex-col justify-between gap-1 text-xs leading-5 text-ts-muted sm:flex-row">
           <p id="tarot-context-help">{copy.contextHelp}</p>

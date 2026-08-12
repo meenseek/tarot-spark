@@ -51,6 +51,7 @@ describe("PrivacyConsent", () => {
         name: "Optional privacy choices",
       }),
     ).toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
     expect(getGoogleScripts()).toHaveLength(0);
   });
 

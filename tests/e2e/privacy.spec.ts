@@ -9,6 +9,29 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
+test("keeps the full privacy option card clickable", async ({ page }) => {
+  await page.goto("/");
+
+  const analytics = page.getByRole("checkbox", { name: /Analytics/ });
+  const card = analytics.locator(
+    "xpath=ancestor::div[contains(@class, 'tarot-mt-checkbox')]",
+  );
+
+  await expect(card).toBeVisible();
+  const cardSize = await card.evaluate((element) => ({
+    height: element.clientHeight,
+    width: element.clientWidth,
+  }));
+
+  await card.click({
+    position: {
+      x: cardSize.width - 4,
+      y: cardSize.height / 2,
+    },
+  });
+  await expect(analytics).toBeChecked();
+});
+
 test("revokes analytics without losing private reading context", async ({
   page,
 }) => {

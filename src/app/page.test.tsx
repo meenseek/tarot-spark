@@ -969,12 +969,20 @@ describe("Home", () => {
     openReadingPreferences();
     openSituationContext();
 
-    fireEvent.click(screen.getByRole("radio", { name: /Deep 6-card/ }));
     fireEvent.click(
-      screen.getByRole("radio", {
-        name: /Direct, not deterministic/,
-      }),
+      screen.getByText(
+        /Draw six cards with no assigned position meanings to explore shared patterns/,
+      ),
     );
+    expect(screen.getByRole("radio", { name: /Deep 6-card/ })).toBeChecked();
+    fireEvent.click(
+      screen.getByText(
+        /Name the clearest theme without softening it into vagueness/,
+      ),
+    );
+    expect(
+      screen.getByRole("radio", { name: /Direct, not deterministic/ }),
+    ).toBeChecked();
     fireEvent.change(
       screen.getByRole("textbox", {
         name: /Add your situation/,
