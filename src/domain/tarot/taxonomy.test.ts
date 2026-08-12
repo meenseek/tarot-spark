@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { topicIds } from "./ids";
 import {
+  careerQuestionDefinitions,
+  careerFocusIds,
   getReadingTaxonomy,
+  publicQuestionDefinitions,
   relationshipFocusIds,
   relationshipQuestionDefinitions,
   relationshipQuestionFocusIds,
@@ -42,6 +45,32 @@ describe("tarot reading taxonomy", () => {
     ]);
     expect(relationshipQuestionFocusIds).not.toContain("general");
     expect(relationshipQuestionFocusIds).not.toContain("dynamics");
+    expect(careerFocusIds).toEqual([
+      "direction",
+      "decision-tradeoffs",
+      "strengths-growth",
+      "collaboration-boundaries",
+    ]);
+  });
+
+  it("gives every career question one compatible career taxonomy", () => {
+    expect(careerQuestionDefinitions).toHaveLength(6);
+    expect(publicQuestionDefinitions).toHaveLength(34);
+    expect(new Set(publicQuestionDefinitions.map(({ id }) => id)).size).toBe(
+      publicQuestionDefinitions.length,
+    );
+
+    for (const question of careerQuestionDefinitions) {
+      expect(getReadingTaxonomy(question.topicId, question.id)).toStrictEqual({
+        domainId: "career",
+        focusId: question.focusId,
+        defaultAnswerTargetId: "career",
+      });
+    }
+
+    expect(() => getReadingTaxonomy("love", "career-stay-or-prepare")).toThrow(
+      "incompatible",
+    );
   });
 
   it("gives every relationship question one compatible primary taxonomy", () => {

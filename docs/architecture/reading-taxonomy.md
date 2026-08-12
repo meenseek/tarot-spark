@@ -17,7 +17,9 @@ Classify a reading with three axes:
 
 Relationship focuses are `general`, `starting`, `perception`, `communication`,
 `dynamics`, `distance-conflict`, `reunion`, `choice-boundaries`, and
-`self-patterns`. Career currently uses `direction`.
+`self-patterns`. Career uses `direction` for the broad entry and
+`decision-tradeoffs`, `strengths-growth`, and `collaboration-boundaries` for
+public question presets.
 
 Use one primary focus for navigation and prompt routing. Do not add secondary
 tags until a concrete UI, analytics, or retrieval consumer requires them.
@@ -41,11 +43,17 @@ specific primary focuses.
 
 ## Question Resolution
 
-Public question presets provide a more specific relationship `focusId` and
-`defaultAnswerTargetId`. When a valid question is selected, use its taxonomy in
-place of the entry preset defaults. Continue to require the question's declared
-`topicId` so existing URLs stay canonical and incompatible topic-question pairs
-are rejected.
+Public question presets provide a more specific `focusId` and
+`defaultAnswerTargetId`. Relationship questions keep their existing compatible
+relationship entry preset. Career questions use the `career-direction` entry
+and one of the three career question focuses. When a valid question is selected,
+use its taxonomy in place of the entry preset defaults. Continue to require the
+question's declared `topicId` so existing URLs stay canonical and incompatible
+topic-question pairs are rejected.
+
+Question groups are navigation only. Do not add group, domain, or category
+parameters to reading URLs or analytics. Keep a broad topic sufficient for a
+reading and treat a public question as an optional refinement.
 
 Treat `defaultAnswerTargetId` as a routing default, not a claim about free-form
 text. A free-form question remains model-visible quoted data: its natural

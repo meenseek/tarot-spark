@@ -10,9 +10,9 @@ import {
 } from "./ids";
 import {
   getReadingTaxonomy,
-  getRelationshipQuestionDefinition,
-  isRelationshipQuestionId,
-  type RelationshipQuestionId,
+  getPublicQuestionDefinition,
+  isPublicQuestionId,
+  type PublicQuestionId,
 } from "./taxonomy";
 
 export type InstantReadingCardInput = {
@@ -24,7 +24,7 @@ export type InstantReadingRequest = {
   readonly spreadId: SpreadId;
   readonly styleId: ReadingStyleId;
   readonly cards: readonly InstantReadingCardInput[];
-  readonly questionId?: RelationshipQuestionId;
+  readonly questionId?: PublicQuestionId;
 };
 
 export type InstantReading = {
@@ -64,6 +64,8 @@ const uncertainFeelingPattern =
 const contrastPattern = /(?:지만|으나|반면|다만|그러나|하지만|는데)/u;
 const unsafePatterns = [
   /(?:반드시|틀림없이|확실히).{0,32}(?:연락|재회|성공|합격|결혼|일어납니다|됩니다)/u,
+  /(?:반드시|틀림없이|확실히).{0,32}(?:승진|채용|퇴사|연봉|수익)/u,
+  /(?:합격|승진|채용|퇴사|연봉|수익).{0,24}(?:보장|확정|할\s*것입니다|될\s*것입니다|하게\s*됩니다|오를\s*것입니다|이미\s*정해졌)/u,
   /(?:상대|그 사람).{0,24}(?:분명히|확실히).{0,24}(?:사랑|후회|그리워|마음|감정)/u,
   /(?:다시\s*만나|재회|연락|결혼|합격|성공|돌아오).{0,20}(?:게\s*됩니다|하게\s*됩니다|할\s*것입니다|될\s*것입니다|이\s*옵니다|이\s*올\s*것입니다|합니다|옵니다)/u,
   /우울증|불안\s*장애|공황\s*장애|양극성\s*장애|조울증|주의력\s*결핍|\bADHD\b|정신\s*질환|정신병|성격\s*장애|외상\s*후\s*스트레스|\bPTSD\b/iu,
@@ -103,15 +105,14 @@ export function parseInstantReadingRequest(
   const questionId =
     "questionId" in value &&
     typeof value["questionId"] === "string" &&
-    isRelationshipQuestionId(value["questionId"])
+    isPublicQuestionId(value["questionId"])
       ? value["questionId"]
       : undefined;
 
   if (
     ("questionId" in value && !questionId) ||
     (questionId &&
-      getRelationshipQuestionDefinition(questionId).topicId !==
-        value["topicId"])
+      getPublicQuestionDefinition(questionId).topicId !== value["topicId"])
   ) {
     return undefined;
   }

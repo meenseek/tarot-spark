@@ -3,6 +3,8 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   answerTargetIds,
+  careerQuestionDefinitions,
+  careerQuestionFocusIds,
   getTopicTaxonomy,
   readingStyleIds,
   spreadIds,
@@ -15,6 +17,7 @@ import {
   relationshipQuestionFocusIds,
 } from "@/features/relationship-questions/registry";
 import enDailyQuestion from "@/messages/en/daily-question.json";
+import enCareerQuestions from "@/messages/en/career-questions.json";
 import enPublicPages from "@/messages/en/public-pages.json";
 import enPrivacyConsent from "@/messages/en/privacy-consent.json";
 import enRelationshipFlow from "@/messages/en/relationship-flow.json";
@@ -22,6 +25,7 @@ import enRelationshipQuestions from "@/messages/en/relationship-questions.json";
 import enTarotMessages from "@/messages/en/tarot-domain.json";
 import enCopy from "@/messages/en/tarot-reading.json";
 import koDailyQuestion from "@/messages/ko/daily-question.json";
+import koCareerQuestions from "@/messages/ko/career-questions.json";
 import koPublicPages from "@/messages/ko/public-pages.json";
 import koPrivacyConsent from "@/messages/ko/privacy-consent.json";
 import koRelationshipFlow from "@/messages/ko/relationship-flow.json";
@@ -70,6 +74,11 @@ const relationshipFlowMessagesByLocale = {
 const relationshipQuestionMessagesByLocale = {
   en: enRelationshipQuestions,
   ko: koRelationshipQuestions,
+} satisfies Record<Locale, unknown>;
+
+const careerQuestionMessagesByLocale = {
+  en: enCareerQuestions,
+  ko: koCareerQuestions,
 } satisfies Record<Locale, unknown>;
 
 const jsonFiles = [
@@ -128,6 +137,14 @@ const jsonFiles = [
   {
     label: "messages/ko/relationship-questions.json",
     path: "src/messages/ko/relationship-questions.json",
+  },
+  {
+    label: "messages/en/career-questions.json",
+    path: "src/messages/en/career-questions.json",
+  },
+  {
+    label: "messages/ko/career-questions.json",
+    path: "src/messages/ko/career-questions.json",
   },
 ] as const;
 
@@ -418,6 +435,22 @@ const relationshipQuestionMessagesSchema = {
   ),
 } satisfies JsonSchema;
 
+const careerQuestionMessagesSchema = {
+  categories: exactRecordSchema(careerQuestionFocusIds, {
+    title: "string",
+    intro: "string",
+  }),
+  questions: exactRecordSchema(
+    careerQuestionDefinitions.map(({ id }) => id),
+    {
+      title: "string",
+      summary: "string",
+      focus: "string",
+      ctaLabel: "string",
+    },
+  ),
+} satisfies JsonSchema;
+
 describe("i18n integrity", () => {
   it("keeps locale files aligned with supported locales", () => {
     expect(Object.keys(uiCopyByLocale).sort()).toEqual(
@@ -439,6 +472,9 @@ describe("i18n integrity", () => {
       [...supportedLocales].sort(),
     );
     expect(Object.keys(relationshipQuestionMessagesByLocale).sort()).toEqual(
+      [...supportedLocales].sort(),
+    );
+    expect(Object.keys(careerQuestionMessagesByLocale).sort()).toEqual(
       [...supportedLocales].sort(),
     );
   });
@@ -490,6 +526,12 @@ describe("i18n integrity", () => {
     );
   });
 
+  it("keeps career question message keys identical across locales", () => {
+    expect(collectShapePaths(koCareerQuestions)).toEqual(
+      collectShapePaths(enCareerQuestions),
+    );
+  });
+
   it("matches supported locale JSON schemas exactly", () => {
     const schemaErrors = [
       ...collectLocaleSchemaErrors(uiCopyByLocale, uiCopySchema, "$.uiCopy"),
@@ -522,6 +564,11 @@ describe("i18n integrity", () => {
         relationshipQuestionMessagesByLocale,
         relationshipQuestionMessagesSchema,
         "$.relationshipQuestionMessages",
+      ),
+      ...collectLocaleSchemaErrors(
+        careerQuestionMessagesByLocale,
+        careerQuestionMessagesSchema,
+        "$.careerQuestionMessages",
       ),
     ];
 
@@ -660,6 +707,10 @@ describe("i18n integrity", () => {
       ...collectBlankStringPaths(
         relationshipQuestionMessagesByLocale,
         "$.relationshipQuestionMessages",
+      ),
+      ...collectBlankStringPaths(
+        careerQuestionMessagesByLocale,
+        "$.careerQuestionMessages",
       ),
     ];
 

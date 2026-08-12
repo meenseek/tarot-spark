@@ -1,0 +1,54 @@
+{
+  "categories": {
+    "decision-tradeoffs": {
+      "title": "Stay or move",
+      "intro": "Weigh what each path could give and take."
+    },
+    "strengths-growth": {
+      "title": "Strengths and growth",
+      "intro": "See the strengths you use and the gaps ahead."
+    },
+    "collaboration-boundaries": {
+      "title": "Teamwork and limits",
+      "intro": "Look at the roles you repeat and the limits you need."
+    }
+  },
+  "questions": {
+    "career-stay-or-prepare": {
+      "title": "Should I stay or get ready to move?",
+      "summary": "Compare what is worth trying here with the effort of moving.",
+      "focus": "Compare what may still be worth testing in the current role with the effort and tradeoffs involved in preparing for change. Do not treat either path as a settled outcome; name evidence to check first and one low-cost preparation step.",
+      "ctaLabel": "Compare two paths"
+    },
+    "career-opportunity-cost": {
+      "title": "What would I give up for this opportunity?",
+      "summary": "Compare what you gain with time, focus, or freedom you lose.",
+      "focus": "Read both the choices this opportunity may open and the time, attention, or role flexibility it may reduce. Do not predict compensation or success; identify a condition to verify and one small exploratory action before committing.",
+      "ctaLabel": "Weigh gain and cost"
+    },
+    "career-underused-strength": {
+      "title": "Which strength am I overlooking?",
+      "summary": "Find where a familiar skill already helps your work.",
+      "focus": "Explore a strength I may overlook because it feels familiar and the work conditions in which it becomes useful. Do not define my personality as fact; connect the reading to a small record or experiment that could reveal evidence of that strength.",
+      "ctaLabel": "Find my strength"
+    },
+    "career-growth-experience": {
+      "title": "What experience do I need next?",
+      "summary": "Find the next experience that builds on what you do well.",
+      "focus": "Read what experience may be missing between my current strengths and the next stage I want to explore. Do not predict a promotion or selection result; suggest a small, reversible attempt that can reveal learning rather than guarantee an outcome.",
+      "ctaLabel": "Find the next experience"
+    },
+    "career-collaboration-role": {
+      "title": "What role do I repeat when teamwork gets hard?",
+      "summary": "Look past who is right to the roles and assumptions that repeat.",
+      "focus": "Explore the role I may repeatedly take in collaboration and the expectations people may understand differently. Do not claim to know another person's intent; suggest one word or action that could clarify responsibilities.",
+      "ctaLabel": "Review my role"
+    },
+    "career-sustainable-boundary": {
+      "title": "Which work limit should I set first?",
+      "summary": "Find one lasting limit for time, responsibility, or communication.",
+      "focus": "Read the pattern that may be consuming energy at work and the first boundary to clarify around time, responsibility, or communication. Do not assess my health; name one small boundary and a review point if it is not respected.",
+      "ctaLabel": "Choose one limit"
+    }
+  }
+}

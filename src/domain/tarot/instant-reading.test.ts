@@ -49,6 +49,17 @@ describe("instant reading domain", () => {
       questionId: "mutual-view",
       topicId: "feelings",
     });
+    expect(
+      parseInstantReadingRequest({
+        ...request,
+        questionId: "career-stay-or-prepare",
+        topicId: "career-direction",
+      }),
+    ).toEqual({
+      ...request,
+      questionId: "career-stay-or-prepare",
+      topicId: "career-direction",
+    });
   });
 
   it("accepts the exact marker grammar and normalizes line endings", () => {
@@ -232,6 +243,14 @@ describe("instant reading domain", () => {
     createValidText(3).replace(
       "서로 표현하는 속도가 달라서 같은 행동을 다르게 받아들이며 불확실성이 커졌을 수 있습니다.",
       "상대를 고소하는 것이 정답입니다. 법적 절차를 바로 시작해야 합니다.",
+    ),
+    createValidText(3).replace(
+      "서로 표현하는 속도가 달라서 같은 행동을 다르게 받아들이며 불확실성이 커졌을 수 있습니다.",
+      "이번 선택으로 반드시 승진하게 됩니다. 연봉 상승도 확정될 것입니다.",
+    ),
+    createValidText(3).replace(
+      "서로 표현하는 속도가 달라서 같은 행동을 다르게 받아들이며 불확실성이 커졌을 수 있습니다.",
+      "이번 선택을 이어가면 승진할 것입니다. 이 결과는 이미 정해졌으니 그대로 밀어붙이세요.",
     ),
     createValidText(3).replace("[전체 흐름]", "[전체 흐름]\nJSON 결과입니다."),
   ])("rejects malformed or unsafe output", (text) => {

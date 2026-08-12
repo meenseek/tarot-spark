@@ -7,7 +7,7 @@ import type {
   TopicId,
 } from "@/domain/tarot";
 import type { Locale } from "@/i18n/config";
-import type { RelationshipQuestionId } from "@/features/relationship-questions/registry";
+import type { PublicQuestionId } from "@/features/reading-questions/registry";
 import type { ReadingUrlAttribution } from "./reading-state";
 
 export type AnalyticsEventName =
@@ -52,7 +52,7 @@ type DrawAnalyticsContext = ReadingAnalyticsContext & {
   readonly draw_style_id: ReadingStyleId;
   readonly spread_id: SpreadId;
   readonly style_id: ReadingStyleId;
-  readonly question_id?: RelationshipQuestionId;
+  readonly question_id?: PublicQuestionId;
 };
 
 type AnalyticsEventPayloads = {

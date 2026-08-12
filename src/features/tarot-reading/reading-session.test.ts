@@ -145,6 +145,31 @@ describe("reading session reducer", () => {
     });
   });
 
+  it("selects and clears a career question without changing the broad topic", () => {
+    const selected = readingSessionReducer(createSetupSession(defaultInputs), {
+      type: "SET_DRAFT_QUESTION",
+      questionId: "career-growth-experience",
+    });
+    const cleared = readingSessionReducer(selected, {
+      type: "CLEAR_DRAFT_QUESTION",
+    });
+
+    expect(selected).toMatchObject({
+      mode: "setup",
+      draft: {
+        questionId: "career-growth-experience",
+        topicId: "career-direction",
+      },
+    });
+    expect(cleared).toMatchObject({
+      mode: "setup",
+      draft: { topicId: "career-direction" },
+    });
+    expect(
+      cleared.mode === "setup" && cleared.draft.questionId,
+    ).toBeUndefined();
+  });
+
   it("discards the entire draft when edit mode is canceled", () => {
     const result = createResult();
     const editing = reduce(result, [

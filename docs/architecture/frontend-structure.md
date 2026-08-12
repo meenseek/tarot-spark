@@ -232,11 +232,12 @@ src/domain/tarot -> src/i18n
   TypeScript as the canonical source of truth; materialize localized arrays
   from those ids. A spread records only card count and never assigns semantic
   position names.
-- Keep relationship question ids, category ids, and topic mappings in one typed
-  feature registry. Materialize Korean and English copy from those ids, render
-  one static explorer route per locale, and pass only the stable selected id
-  through reading and share URLs. Never place localized question text or
-  personal context in those URLs.
+- Keep public question ids, focus ids, and topic mappings in one typed domain
+  registry. Materialize Korean and English copy from those ids, keep each
+  domain's discovery UI in its owning feature, and pass only the stable selected
+  id through reading and share URLs. Treat question groups as display-only
+  navigation. Never place localized question text, group ids, or personal
+  context in those URLs.
 - Keep browser storage, analytics, and clipboard helpers behind small wrapper
   functions in the feature or `src/lib`.
 - Model the reading workflow as a feature-local tagged session with `setup`,
