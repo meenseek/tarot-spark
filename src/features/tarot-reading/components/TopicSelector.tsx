@@ -22,13 +22,20 @@ export function TopicSelector({
       <legend className="text-base font-semibold text-ts-ink">
         {ariaLabel}
       </legend>
-      <div className="grid grid-cols-2 gap-2 sm:gap-3">
-        {topics.map((topic) => {
+      <div
+        className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-6"
+        data-testid="topic-options"
+      >
+        {topics.map((topic, index) => {
           const isSelected = topic.id === selectedTopicId;
+          const startsCenteredFinalPair =
+            topics.length % 3 === 2 && index === topics.length - 2;
 
           return (
             <label
-              className={`${interactiveFocusClassName} ${interactiveMotionClassName} has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ts-action flex min-h-14 cursor-pointer items-center justify-between gap-2 rounded-ts-control border-2 px-3 py-3 text-left text-sm text-ts-ink sm:px-4 ${
+              className={`${interactiveFocusClassName} ${interactiveMotionClassName} has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ts-action flex min-h-14 cursor-pointer items-center justify-between gap-2 rounded-ts-control border-2 px-3 py-3 text-left text-sm text-ts-ink sm:px-4 lg:col-span-2 ${
+                startsCenteredFinalPair ? "lg:col-start-2" : ""
+              } ${
                 isSelected
                   ? "border-ts-action bg-ts-blush hover:bg-ts-blush-strong active:border-ts-action-pressed active:bg-ts-blush-strong"
                   : "border-ts-border bg-ts-surface hover:border-ts-action hover:bg-ts-blush active:border-ts-action-pressed active:bg-ts-blush-strong"
