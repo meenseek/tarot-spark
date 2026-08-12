@@ -56,13 +56,14 @@ export function SituationContextInput({
         <Textarea
           announceError={false}
           aria-describedby="tarot-context-help tarot-context-count"
+          className="ts-textarea-input ts-textarea-input--context"
           id="tarot-user-context"
           label={copy.contextLabel}
           maxLength={maxUserContextLength}
           onChange={(event) => onContextChange(event.currentTarget.value)}
           placeholder={contextPlaceholder}
           value={userContext}
-          wrapperClassName="tarot-mt-textarea tarot-mt-textarea--context"
+          wrapperClassName="ts-field"
         />
         <div className="flex flex-col justify-between gap-1 text-xs leading-5 text-ts-muted sm:flex-row">
           <p id="tarot-context-help">{copy.contextHelp}</p>

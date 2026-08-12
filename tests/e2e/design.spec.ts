@@ -977,6 +977,145 @@ test("locks the semantic token values and primary visual roles", async ({
   );
 });
 
+test("preserves app-owned textarea geometry after package styles", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/");
+  await page.getByTestId("situation-context-toggle").click();
+
+  const setupContext = page.getByLabel("Add your situation", { exact: true });
+  await expect(setupContext).toBeVisible();
+  await expect(setupContext).toHaveCSS("min-height", "160px");
+  await expect(setupContext).toHaveCSS("padding", "12px");
+  await expect(setupContext).toHaveCSS("font-size", "14px");
+  await expect(setupContext).toHaveCSS("line-height", "24px");
+
+  await page.setViewportSize({ height: 900, width: 640 });
+  await expect(setupContext).toHaveCSS("min-height", "112px");
+
+  await page.goto(
+    "/?topic=love&cards=the-fool,the-magician,the-high-priestess",
+  );
+  await page
+    .getByTestId("current-prompt-customization")
+    .locator("summary")
+    .click();
+
+  const currentContext = page.getByLabel("Add your situation (Optional)");
+  await expect(currentContext).toBeVisible();
+  await expect(currentContext).toHaveCSS("min-height", "112px");
+  await expect(currentContext).toHaveCSS("padding", "12px");
+
+  await page
+    .getByTestId("prompt-content-disclosure")
+    .locator("summary")
+    .click();
+
+  const generatedPrompt = page.getByLabel("Generated prompt");
+  await expect(generatedPrompt).toBeVisible();
+  await expect(generatedPrompt).toHaveCSS("min-height", "224px");
+  await expect(generatedPrompt).toHaveCSS("padding", "16px");
+});
+
+test("leaves choice-card colors with the package in forced-colors mode", async ({
+  page,
+}) => {
+  await page.emulateMedia({ forcedColors: "active" });
+  await page.goto("/");
+  await page.getByTestId("reading-preferences-toggle").click();
+
+  const quick = page.getByRole("radio", { name: /Quick 3-card/ });
+  const quickCard = page.locator(".ts-choice-card").filter({ has: quick });
+
+  expect(
+    await quickCard.evaluate((element) => {
+      const style = getComputedStyle(element);
+
+      return {
+        background: style.getPropertyValue("--mt-radio-card-background").trim(),
+        border: style.getPropertyValue("--mt-radio-card-border-color").trim(),
+        borderWidth: style
+          .getPropertyValue("--mt-radio-card-border-width")
+          .trim(),
+        selectedBackground: style
+          .getPropertyValue("--mt-radio-card-background-selected")
+          .trim(),
+        selectedBorder: style
+          .getPropertyValue("--mt-radio-card-border-color-selected")
+          .trim(),
+      };
+    }),
+  ).toEqual({
+    background: "Canvas",
+    border: "CanvasText",
+    borderWidth: "1px",
+    selectedBackground: "Canvas",
+    selectedBorder: "Highlight",
+  });
+});
+
+test("keeps adopted choice cards on public tokens and full-card activation", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/");
+  await page.getByTestId("reading-preferences-toggle").click();
+
+  const quick = page.getByRole("radio", { name: /Quick 3-card/ });
+  const deep = page.getByRole("radio", { name: /Deep 6-card/ });
+  const quickCard = page.locator(".ts-choice-card").filter({ has: quick });
+  const deepCard = page.locator(".ts-choice-card").filter({ has: deep });
+
+  await expect(quick).toBeChecked();
+  await expect(quickCard).toBeVisible();
+  await expect(deepCard).toBeVisible();
+  await expect
+    .poll(() =>
+      quickCard.evaluate((element) =>
+        getComputedStyle(element)
+          .getPropertyValue("--mt-radio-card-border-width")
+          .trim(),
+      ),
+    )
+    .toBe("2px");
+  expect(
+    await quickCard.evaluate((element) => {
+      const style = getComputedStyle(element);
+
+      return {
+        background: style.getPropertyValue("--mt-radio-card-background").trim(),
+        border: style.getPropertyValue("--mt-radio-card-border-color").trim(),
+        borderWidth: style
+          .getPropertyValue("--mt-radio-card-border-width")
+          .trim(),
+        selectedBackground: style
+          .getPropertyValue("--mt-radio-card-background-selected")
+          .trim(),
+        selectedBorder: style
+          .getPropertyValue("--mt-radio-card-border-color-selected")
+          .trim(),
+      };
+    }),
+  ).toEqual({
+    background: "#fbf7f2",
+    border: "#8b737f",
+    borderWidth: "2px",
+    selectedBackground: "#e9d2dd",
+    selectedBorder: "#704158",
+  });
+
+  const deepSize = await deepCard.evaluate((element) => ({
+    height: element.clientHeight,
+    width: element.clientWidth,
+  }));
+  await deepCard.click({
+    position: { x: deepSize.width - 4, y: deepSize.height / 2 },
+  });
+  await expect(deep).toBeChecked();
+  await expect(quick).not.toBeChecked();
+});
+
 test("keeps active, hover, pressed, and keyboard-focus states explicit", async ({
   page,
 }) => {

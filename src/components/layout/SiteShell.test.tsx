@@ -35,7 +35,7 @@ describe("SiteShell", () => {
 
     expect(screen.getAllByRole("link")[0]).toBe(skipLink);
     expect(skipLink).toHaveAttribute("href", "#site-main-content");
-    expect(skipLink).toHaveClass("mt-skip-link", "tarot-mt-skip-link");
+    expect(skipLink).toHaveClass("ts-skip-link");
     expect(main).toHaveAttribute("id", "site-main-content");
     expect(main).toHaveAttribute("tabindex", "-1");
     expect(main).toHaveAttribute("data-testid", "site-main");

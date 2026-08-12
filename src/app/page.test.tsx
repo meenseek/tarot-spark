@@ -231,11 +231,9 @@ describe("Home", () => {
     fireEvent.click(screen.getByRole("button", { name: "지금 바로 해석하기" }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/지금은 바로 해석을 불러오지 못했어요/, {
-          selector: ".mt-inline-message__text",
-        }),
-      ).toBeInTheDocument();
+      expect(document.querySelector(".ts-feedback")).toHaveTextContent(
+        /지금은 바로 해석을 불러오지 못했어요/,
+      );
     });
     expect(
       screen.getByRole("button", { name: "다시 시도하기" }),
@@ -1309,9 +1307,9 @@ describe("Home", () => {
       });
       const successMessage = screen.getByTestId("prompt-copy-success");
       expect(successMessage).toHaveAttribute("role", "status");
-      expect(
-        successMessage.querySelector(".mt-inline-message--success"),
-      ).not.toHaveAttribute("role");
+      expect(successMessage.querySelector(".ts-feedback")).not.toHaveAttribute(
+        "role",
+      );
       expect(events).toContainEqual({
         name: "prompt_copy",
         payload: {
@@ -1346,7 +1344,7 @@ describe("Home", () => {
       const failureTarget = document.getElementById("prompt-copy-failure");
       expect(failureTarget).toHaveAttribute("role", "status");
       expect(failureTarget).toContainElement(failureMessage);
-      expect(failureMessage.closest(".mt-inline-message")).not.toHaveAttribute(
+      expect(failureMessage.closest(".ts-feedback")).not.toHaveAttribute(
         "role",
       );
     });
@@ -1491,7 +1489,7 @@ describe("Home", () => {
       const failureTarget = document.getElementById("share-failure");
       expect(failureTarget).toHaveAttribute("role", "status");
       expect(failureTarget).toContainElement(failureMessage);
-      expect(failureMessage.closest(".mt-inline-message")).not.toHaveAttribute(
+      expect(failureMessage.closest(".ts-feedback")).not.toHaveAttribute(
         "role",
       );
     });

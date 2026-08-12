@@ -167,32 +167,34 @@ export function PrivacyConsent({
               {hasAnalytics && (
                 <Checkbox
                   announceError={false}
+                  appearance="card"
                   checked={analyticsSelected}
                   description={copy.analyticsDescription}
                   label={copy.analyticsLabel}
                   onChange={(event) =>
                     setAnalyticsSelected(event.currentTarget.checked)
                   }
-                  wrapperClassName="tarot-mt-checkbox tarot-mt-checkbox--privacy"
+                  wrapperClassName="ts-privacy-option"
                 />
               )}
               {hasAdvertising && (
                 <Checkbox
                   announceError={false}
+                  appearance="card"
                   checked={advertisingSelected}
                   description={copy.advertisingDescription}
                   label={copy.advertisingLabel}
                   onChange={(event) =>
                     setAdvertisingSelected(event.currentTarget.checked)
                   }
-                  wrapperClassName="tarot-mt-checkbox tarot-mt-checkbox--privacy"
+                  wrapperClassName="ts-privacy-option"
                 />
               )}
             </div>
 
             <div className="grid gap-2 sm:grid-cols-2">
               <Button
-                className="tarot-mt-button"
+                className="ts-secondary-action"
                 onClick={() =>
                   savePreferences({
                     analytics: hasAnalytics && analyticsSelected,
@@ -206,7 +208,7 @@ export function PrivacyConsent({
                 {copy.saveChoices}
               </Button>
               <Button
-                className="tarot-mt-button"
+                className="ts-secondary-action"
                 onClick={() =>
                   savePreferences({
                     analytics: false,
@@ -223,7 +225,7 @@ export function PrivacyConsent({
           </section>
         ) : (
           <Button
-            className="tarot-mt-button fixed right-4 bottom-4 z-40 px-3 text-xs"
+            className="ts-secondary-action fixed right-4 bottom-4 z-40 px-3 text-xs"
             onClick={() => {
               shouldFocusEditingPanelRef.current = true;
               setIsEditing(true);

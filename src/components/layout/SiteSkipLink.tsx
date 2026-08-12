@@ -8,7 +8,7 @@ type SiteSkipLinkProps = {
 
 export function SiteSkipLink({ label }: SiteSkipLinkProps) {
   return (
-    <SkipLink className="tarot-mt-skip-link" href="#site-main-content">
+    <SkipLink className="ts-skip-link" href="#site-main-content">
       {label}
     </SkipLink>
   );

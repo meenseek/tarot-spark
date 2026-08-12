@@ -14,7 +14,7 @@ test("keeps the full privacy option card clickable", async ({ page }) => {
 
   const analytics = page.getByRole("checkbox", { name: /Analytics/ });
   const card = analytics.locator(
-    "xpath=ancestor::div[contains(@class, 'tarot-mt-checkbox')]",
+    "xpath=ancestor::div[contains(@class, 'ts-privacy-option')]",
   );
 
   await expect(card).toBeVisible();
@@ -30,6 +30,40 @@ test("keeps the full privacy option card clickable", async ({ page }) => {
     },
   });
   await expect(analytics).toBeChecked();
+});
+
+test("leaves privacy-card colors with the package in forced-colors mode", async ({
+  page,
+}) => {
+  await page.emulateMedia({ forcedColors: "active" });
+  await page.goto("/");
+
+  const analytics = page.getByRole("checkbox", { name: /Analytics/ });
+  const card = analytics.locator(
+    "xpath=ancestor::div[contains(@class, 'ts-privacy-option')]",
+  );
+
+  expect(
+    await card.evaluate((element) => {
+      const style = getComputedStyle(element);
+
+      return {
+        background: style
+          .getPropertyValue("--mt-checkbox-card-background")
+          .trim(),
+        border: style
+          .getPropertyValue("--mt-checkbox-card-border-color")
+          .trim(),
+        borderWidth: style
+          .getPropertyValue("--mt-checkbox-card-border-width")
+          .trim(),
+      };
+    }),
+  ).toEqual({
+    background: "Canvas",
+    border: "CanvasText",
+    borderWidth: "1px",
+  });
 });
 
 test("revokes analytics without losing private reading context", async ({

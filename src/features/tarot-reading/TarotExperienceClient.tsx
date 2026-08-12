@@ -1318,7 +1318,7 @@ export function TarotExperienceClient({
         resultActions={
           viewMode === "generator" && session.mode === "result" ? (
             <Button
-              className="tarot-mt-button w-full sm:w-fit"
+              className="ts-secondary-action w-full sm:w-fit"
               data-testid="next-reading-action"
               onClick={enterEditNextDraw}
               ref={editTriggerRef}
@@ -1425,7 +1425,7 @@ export function TarotExperienceClient({
       >
         {session.mode === "edit-next-draw" && (
           <Button
-            className="tarot-mt-button"
+            className="ts-secondary-action"
             onClick={cancelEditNextDraw}
             tone="neutral"
             type="button"
@@ -1434,11 +1434,7 @@ export function TarotExperienceClient({
             {copy.cancelEdit}
           </Button>
         )}
-        <Button
-          className="tarot-mt-button tarot-mt-button--primary"
-          onClick={startDraw}
-          type="button"
-        >
+        <Button className="ts-primary-action" onClick={startDraw} type="button">
           {drawButtonLabel}
         </Button>
       </div>

@@ -48,7 +48,7 @@ export function CurrentPromptCustomization({
 
         <RadioGroup
           announceError={false}
-          className="tarot-mt-radio-group tarot-mt-radio-group--two-column"
+          className="ts-choice-group ts-choice-group--two-column"
           legend={copy.readingStyleSelectorLabel}
           name="current-reading-style"
           onValueChange={(value) => onStyleChange(value as ReadingStyleId)}
@@ -56,11 +56,12 @@ export function CurrentPromptCustomization({
         >
           {readingStyles.map((style) => (
             <Radio
+              appearance="card"
               description={style.description}
               key={style.id}
               label={style.label}
               value={style.id}
-              wrapperClassName="tarot-mt-radio-card tarot-mt-radio-card--compact"
+              wrapperClassName="ts-choice-card ts-choice-card--compact"
             />
           ))}
         </RadioGroup>
@@ -68,12 +69,13 @@ export function CurrentPromptCustomization({
         <Textarea
           announceError={false}
           aria-describedby="current-context-help current-context-count"
+          className="ts-textarea-input ts-textarea-input--current"
           label={`${copy.contextLabel} (${copy.contextOptional})`}
           maxLength={maxUserContextLength}
           onChange={(event) => onContextChange(event.currentTarget.value)}
           placeholder={contextPlaceholder}
           value={userContext}
-          wrapperClassName="tarot-mt-textarea tarot-mt-textarea--current"
+          wrapperClassName="ts-field"
         />
         <div className="flex flex-col justify-between gap-1 text-xs leading-5 text-ts-muted sm:flex-row">
           <p id="current-context-help">{copy.contextHelp}</p>
