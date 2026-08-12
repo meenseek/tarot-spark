@@ -114,6 +114,7 @@ type TarotExperienceClientProps = {
   readonly publicQuestionGroups: readonly PublicQuestionGroup[];
   readonly publicQuestions: readonly PublicQuestion[];
   readonly shareSiteUrl: string;
+  readonly skipToContentLabel: string;
   readonly tarotData: LocaleTarotData;
   readonly viewMode: TarotExperienceViewMode;
 };
@@ -137,6 +138,7 @@ export function TarotExperienceClient({
   publicQuestionGroups,
   publicQuestions,
   shareSiteUrl,
+  skipToContentLabel,
   tarotData,
   viewMode,
 }: TarotExperienceClientProps) {
@@ -1537,6 +1539,7 @@ export function TarotExperienceClient({
             onLocaleChange={preserveContextForLocaleChange}
           />
         }
+        skipToContentLabel={skipToContentLabel}
       >
         <section
           className="mx-auto grid w-full max-w-4xl flex-1 gap-6 py-8"
@@ -1613,6 +1616,7 @@ export function TarotExperienceClient({
           onLocaleChange={preserveContextForLocaleChange}
         />
       }
+      skipToContentLabel={skipToContentLabel}
     >
       <section
         className="grid flex-1 gap-8 py-8"

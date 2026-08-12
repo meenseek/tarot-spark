@@ -4,6 +4,7 @@
   "languageSwitchLabel": "언어 바꾸기",
   "pageNavigationLabel": "안내 페이지",
   "questionExplorerLinkLabel": "관계 타로 질문 모음",
+  "skipToContentLabel": "본문으로 건너뛰기",
   "pages": {
     "three-card-tarot-reading": {
       "metadata": {

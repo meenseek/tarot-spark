@@ -63,6 +63,7 @@ export function TarotExperience({
         publicQuestionGroups={publicQuestionCatalog.groups}
         publicQuestions={publicQuestionCatalog.questions}
         shareSiteUrl={getShareSiteUrl().toString()}
+        skipToContentLabel={publicPageShellCopy.skipToContentLabel}
         tarotData={getTarotData(locale)}
         viewMode={viewMode}
       />

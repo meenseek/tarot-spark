@@ -47,6 +47,7 @@ export function PublicPage({ locale, pageId }: PublicPageProps) {
           }))}
         />
       }
+      skipToContentLabel={shellCopy.skipToContentLabel}
     >
       <article className="mx-auto my-8 grid w-full max-w-4xl flex-1 gap-8 rounded-ts-panel border border-ts-divider bg-ts-surface p-6 shadow-ts-paper sm:p-8">
         <div className="grid gap-4">

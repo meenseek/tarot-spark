@@ -53,6 +53,7 @@ export function RelationshipFlowLanding({
           }))}
         />
       }
+      skipToContentLabel={shellCopy.skipToContentLabel}
     >
       <section className="grid gap-9 border-b border-ts-divider py-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:py-16">
         <div className="grid content-start gap-5">

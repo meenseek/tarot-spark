@@ -35,6 +35,7 @@ describe("DailyQuestion", () => {
         locale="en"
         publicPageLinks={getPublicPageLinks("en")}
         publicPageNavigationLabel="Public pages"
+        skipToContentLabel="Skip to main content"
         tarotData={getTarotData("en")}
       />,
     );

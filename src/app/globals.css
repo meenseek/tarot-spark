@@ -89,6 +89,7 @@
   --mt-radius-surface: var(--ts-radius-panel);
   --mt-font-sans: var(--ts-font-sans);
   --mt-shadow-sm: none;
+  --mt-shadow-md: none;
   --mt-duration-fast: var(--ts-motion-fast);
   --mt-duration-normal: var(--ts-motion-base);
   --mt-ease-standard: var(--ts-motion-ease);
@@ -173,6 +174,11 @@ body {
 .tarot-mt-feedback.mt-inline-message {
   font-weight: 500;
   line-height: 1.5rem;
+}
+
+.tarot-mt-skip-link.mt-skip-link {
+  border-width: 2px;
+  box-shadow: none;
 }
 
 @media (forced-colors: none) {

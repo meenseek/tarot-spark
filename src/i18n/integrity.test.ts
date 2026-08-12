@@ -291,6 +291,7 @@ const publicPageMessagesSchema = {
   languageSwitchLabel: "string",
   pageNavigationLabel: "string",
   questionExplorerLinkLabel: "string",
+  skipToContentLabel: "string",
   pages: exactRecordSchema(publicPageIds, {
     metadata: {
       title: "string",

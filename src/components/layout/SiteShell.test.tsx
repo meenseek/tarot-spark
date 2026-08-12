@@ -18,6 +18,7 @@ describe("SiteShell", () => {
           { href: "/privacy", label: "Privacy" },
         ]}
         localeControl={<Link href="/ko">한국어</Link>}
+        skipToContentLabel="Skip to main content"
       >
         <article>Page content</article>
       </SiteShell>,
@@ -27,10 +28,17 @@ describe("SiteShell", () => {
       "min-h-screen",
       "bg-ts-canvas",
     );
-    expect(screen.getByRole("main")).toHaveAttribute(
-      "data-testid",
-      "site-main",
-    );
+    const main = screen.getByRole("main");
+    const skipLink = screen.getByRole("link", {
+      name: "Skip to main content",
+    });
+
+    expect(screen.getAllByRole("link")[0]).toBe(skipLink);
+    expect(skipLink).toHaveAttribute("href", "#site-main-content");
+    expect(skipLink).toHaveClass("mt-skip-link", "tarot-mt-skip-link");
+    expect(main).toHaveAttribute("id", "site-main-content");
+    expect(main).toHaveAttribute("tabindex", "-1");
+    expect(main).toHaveAttribute("data-testid", "site-main");
     expect(screen.getByRole("banner")).toHaveAttribute(
       "data-testid",
       "site-header",

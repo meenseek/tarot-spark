@@ -27,6 +27,7 @@ type DailyQuestionClientProps = {
   readonly locale: Locale;
   readonly publicPageLinks: readonly PublicPageLink[];
   readonly publicPageNavigationLabel: string;
+  readonly skipToContentLabel: string;
   readonly tarotData: LocaleTarotData;
 };
 
@@ -35,6 +36,7 @@ export function DailyQuestionClient({
   locale,
   publicPageLinks,
   publicPageNavigationLabel,
+  skipToContentLabel,
   tarotData,
 }: DailyQuestionClientProps) {
   const localDateKey = useBrowserLocalDateKey();
@@ -59,6 +61,7 @@ export function DailyQuestionClient({
           }))}
         />
       }
+      skipToContentLabel={skipToContentLabel}
     >
       <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
         <section className="grid flex-1 gap-10 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">

@@ -62,6 +62,7 @@ type RawPublicPageMessages = {
   readonly languageSwitchLabel: string;
   readonly pageNavigationLabel: string;
   readonly questionExplorerLinkLabel: string;
+  readonly skipToContentLabel: string;
   readonly pages: Record<
     PublicPageId,
     RawPublicPageContent & {
@@ -137,6 +138,7 @@ export function getPublicPageShellCopy(locale: Locale) {
     homeLabel: messages.homeLabel,
     languageSwitchLabel: messages.languageSwitchLabel,
     pageNavigationLabel: messages.pageNavigationLabel,
+    skipToContentLabel: messages.skipToContentLabel,
   };
 }
 

@@ -52,6 +52,7 @@ export function RelationshipQuestionExplorer({
           }))}
         />
       }
+      skipToContentLabel={publicShell.skipToContentLabel}
     >
       <article className="my-8 grid flex-1 gap-10">
         <section className="grid gap-5 rounded-ts-panel border border-ts-divider bg-ts-surface p-6 shadow-ts-paper sm:p-8">

@@ -4,6 +4,7 @@
   "languageSwitchLabel": "Choose language",
   "pageNavigationLabel": "Public pages",
   "questionExplorerLinkLabel": "Relationship tarot questions",
+  "skipToContentLabel": "Skip to main content",
   "pages": {
     "three-card-tarot-reading": {
       "metadata": {

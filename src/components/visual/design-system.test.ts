@@ -298,6 +298,9 @@ describe("visual design system contract", () => {
     expect(css.match(/^\s*--mt-shadow-sm:\s*none;\s*$/gm) ?? []).toHaveLength(
       1,
     );
+    expect(css.match(/^\s*--mt-shadow-md:\s*none;\s*$/gm) ?? []).toHaveLength(
+      1,
+    );
     expect(
       css.match(
         /^\s*--mt-focus-ring:\s*2px solid var\(--ts-color-action\);\s*$/gm,
@@ -320,6 +323,36 @@ describe("visual design system contract", () => {
     expect(css).toMatch(
       /@media \(forced-colors: none\)[\s\S]*\.tarot-mt-button\.mt-button:focus-visible\s*{[^}]*outline:\s*2px solid var\(--ts-color-action\);[^}]*outline-offset:\s*2px;/,
     );
+    expect(css).toMatch(
+      /\.tarot-mt-skip-link\.mt-skip-link\s*{[^}]*border-width:\s*2px;[^}]*box-shadow:\s*none;/,
+    );
+  });
+
+  it("adopts the Measure Twice skip link at the canonical shell boundary", () => {
+    const shellSource = readFileSync(
+      resolve(process.cwd(), "src/components/layout/SiteShell.tsx"),
+      "utf8",
+    );
+    const skipLinkSource = readFileSync(
+      resolve(process.cwd(), "src/components/layout/SiteSkipLink.tsx"),
+      "utf8",
+    );
+
+    expect(skipLinkSource.startsWith('"use client";')).toBe(true);
+    expect(skipLinkSource).toContain(
+      'import { SkipLink } from "@measure-twice/react";',
+    );
+    expect(skipLinkSource).toContain('className="tarot-mt-skip-link"');
+    expect(skipLinkSource).toContain('href="#site-main-content"');
+    expect(shellSource).toContain(
+      'import { SiteSkipLink } from "./SiteSkipLink";',
+    );
+    expect(shellSource).toContain(
+      "<SiteSkipLink label={skipToContentLabel} />",
+    );
+    expect(shellSource).not.toContain("@measure-twice/react");
+    expect(shellSource).toContain('id="site-main-content"');
+    expect(shellSource).toContain("tabIndex={-1}");
   });
 
   it("loads Measure Twice styles before Tarot Spark's consumer overrides", () => {
