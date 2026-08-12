@@ -444,6 +444,35 @@ test("keeps one canonical shell boundary across public page archetypes", async (
   }
 });
 
+test("skips keyboard focus to the localized main landmark", async ({
+  page,
+}) => {
+  const localeCases = [
+    { label: "Skip to main content", path: "/" },
+    { label: "본문으로 건너뛰기", path: "/ko" },
+  ] as const;
+
+  for (const localeCase of localeCases) {
+    await page.goto(localeCase.path);
+
+    const skipLink = page.getByRole("link", { name: localeCase.label });
+    const main = page.locator("main#site-main-content");
+
+    await page.keyboard.press("Tab");
+    await expect(skipLink).toBeFocused();
+    await expect(skipLink).toBeInViewport();
+    await assertFocusOutline(skipLink, page);
+    await expect(skipLink).toHaveCSS("border-width", "2px");
+    await expect(skipLink).toHaveCSS("box-shadow", "none");
+
+    await page.keyboard.press("Enter");
+    await expect
+      .poll(() => new URL(page.url()).hash)
+      .toBe("#site-main-content");
+    await expect(main).toBeFocused();
+  }
+});
+
 test("uses state-specific generator layouts and one filled result action", async ({
   page,
 }) => {

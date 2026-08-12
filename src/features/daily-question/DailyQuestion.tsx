@@ -20,6 +20,7 @@ export function DailyQuestion({ locale }: DailyQuestionProps) {
       locale={locale}
       publicPageLinks={getPublicPageLinks(locale)}
       publicPageNavigationLabel={publicPageShellCopy.pageNavigationLabel}
+      skipToContentLabel={publicPageShellCopy.skipToContentLabel}
       tarotData={getTarotData(locale)}
     />
   );
