@@ -39,13 +39,16 @@ export function ReadingPreferences({
       suppressHydrationWarning
     >
       <summary
-        className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 rounded-ts-panel px-4 py-3 text-left marker:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action [&::-webkit-details-marker]:hidden"
+        className="flex min-h-12 cursor-pointer list-none flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-ts-panel px-4 py-3 text-left marker:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action [&::-webkit-details-marker]:hidden"
         data-testid="reading-preferences-toggle"
       >
-        <span className="text-base font-semibold text-ts-ink">
+        <span className="shrink-0 whitespace-nowrap text-base font-semibold text-ts-ink">
           {copy.personalizationHeading}
         </span>
-        <span className="flex items-center gap-2 text-right text-xs leading-5 text-ts-muted">
+        <span
+          className="ml-auto flex min-w-0 items-center gap-2 text-right text-xs leading-5 text-ts-muted"
+          data-testid="reading-preferences-selection"
+        >
           <span>
             {[selectedSpread?.label, selectedStyle?.label]
               .filter(Boolean)

@@ -1402,7 +1402,12 @@ export function TarotExperienceClient({
         spreads={tarotData.spreads}
       />
 
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div
+        className={`grid gap-2 ${
+          session.mode === "edit-next-draw" ? "sm:grid-cols-2" : ""
+        }`}
+        data-testid="reading-setup-actions"
+      >
         {session.mode === "edit-next-draw" && (
           <button
             className={secondaryButtonClassName}
@@ -1612,7 +1617,7 @@ export function TarotExperienceClient({
           </div>
           {session.mode === "setup" && (
             <section
-              className="mx-auto w-full max-w-3xl sm:rounded-ts-panel sm:border sm:border-ts-divider sm:bg-ts-surface sm:p-7 sm:shadow-ts-paper lg:col-span-2 lg:row-start-2"
+              className="mx-auto w-full max-w-4xl sm:rounded-ts-panel sm:border sm:border-ts-divider sm:bg-ts-surface sm:p-7 sm:shadow-ts-paper lg:col-span-2 lg:row-start-2"
               data-testid="reading-setup-panel"
             >
               {readingSetupForm}
@@ -1630,7 +1635,8 @@ export function TarotExperienceClient({
         </div>
 
         <Link
-          className={`${secondaryButtonClassName} mx-auto w-full max-w-5xl`}
+          className={`${secondaryButtonClassName} mx-auto w-full max-w-4xl`}
+          data-testid="daily-question-link"
           href={dailyQuestionPath}
         >
           {copy.dailyQuestionLink}
