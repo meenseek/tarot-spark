@@ -1,5 +1,5 @@
+import { Button, InlineMessage } from "@measure-twice/react";
 import { useEffect, useRef } from "react";
-import { secondaryButtonClassName } from "@/components/visual/class-names";
 import type { InstantReading } from "@/domain/tarot";
 import type { TarotReadingCopy } from "../i18n";
 
@@ -80,22 +80,24 @@ export function InstantReadingPanel({
         </article>
       ) : (
         <>
-          <button
-            className={secondaryButtonClassName}
+          <Button
+            className="tarot-mt-button"
             onClick={isLoading ? onCancel : onGenerate}
             ref={actionRef}
+            tone="neutral"
             type="button"
+            variant="outline"
           >
             {isLoading
               ? copy.cancel
               : status === "unavailable"
                 ? copy.retry
                 : copy.generate}
-          </button>
+          </Button>
           {status === "unavailable" && (
-            <p className="text-sm leading-6 text-ts-danger">
+            <InlineMessage className="tarot-mt-feedback" tone="danger">
               {copy.unavailable}
-            </p>
+            </InlineMessage>
           )}
         </>
       )}

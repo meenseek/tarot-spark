@@ -54,6 +54,17 @@ describe("PrivacyConsent", () => {
     expect(getGoogleScripts()).toHaveLength(0);
   });
 
+  it("keeps each full privacy option label interactive", async () => {
+    renderConsent();
+
+    const analytics = await screen.findByRole("checkbox", {
+      name: /Analytics/,
+    });
+    fireEvent.click(screen.getByText(copy.analyticsDescription));
+
+    expect(analytics).toBeChecked();
+  });
+
   it("ignores non-current records and removes namespaced legacy entries", async () => {
     window.localStorage.setItem(
       `${getConsentStorageKey()}.legacy`,

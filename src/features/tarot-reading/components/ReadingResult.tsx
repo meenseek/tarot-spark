@@ -1,11 +1,9 @@
 "use client";
 
+import { Button, InlineMessage } from "@measure-twice/react";
 import Image from "next/image";
 import { type ReactNode, type Ref, useEffect, useRef } from "react";
-import {
-  primaryButtonClassName,
-  secondaryButtonClassName,
-} from "@/components/visual/class-names";
+import { secondaryButtonClassName } from "@/components/visual/class-names";
 import type { DrawnCard, InstantReading } from "@/domain/tarot";
 import type { TarotReadingCopy } from "../i18n";
 import type { CopyState, ShareFeedback } from "../types";
@@ -126,37 +124,33 @@ export function ReadingResult({
                 ))}
               </ol>
             </div>
-            <button
-              className={`${primaryButtonClassName} min-h-11 shrink-0 px-4 py-2 leading-5`}
+            <Button
+              className="tarot-mt-button tarot-mt-button--primary shrink-0 whitespace-nowrap"
               onClick={onCopyPrompt}
               type="button"
             >
-              <span className="whitespace-nowrap">
-                {copyState === "copied" ? copy.copied : copy.copyPrompt}
-              </span>
-            </button>
+              {copyState === "copied" ? copy.copied : copy.copyPrompt}
+            </Button>
           </section>
 
           {copyState === "copied" && (
-            <p
+            <div
               aria-live="polite"
-              className="text-sm font-medium leading-6 text-ts-success"
               data-testid="prompt-copy-success"
               role="status"
             >
-              {copy.promptCopySuccess}
-            </p>
+              <InlineMessage className="tarot-mt-feedback" tone="success">
+                {copy.promptCopySuccess}
+              </InlineMessage>
+            </div>
           )}
 
           {copyState === "failed" && (
-            <p
-              aria-live="polite"
-              className="text-sm font-medium leading-6 text-ts-danger"
-              id="prompt-copy-failure"
-              role="status"
-            >
-              {copy.promptCopyBlockedAction}
-            </p>
+            <div aria-live="polite" id="prompt-copy-failure" role="status">
+              <InlineMessage className="tarot-mt-feedback" tone="danger">
+                {copy.promptCopyBlockedAction}
+              </InlineMessage>
+            </div>
           )}
 
           {afterPromptAction}
@@ -338,14 +332,11 @@ export function ReadingResult({
               </div>
               {hasShareFailure && (
                 <div className="grid gap-2" data-testid="manual-share-fallback">
-                  <p
-                    aria-live="polite"
-                    className="text-sm font-medium text-ts-danger"
-                    id="share-failure"
-                    role="status"
-                  >
-                    {copy.shareBlockedAction}
-                  </p>
+                  <div aria-live="polite" id="share-failure" role="status">
+                    <InlineMessage className="tarot-mt-feedback" tone="danger">
+                      {copy.shareBlockedAction}
+                    </InlineMessage>
+                  </div>
                   <label className="grid gap-2 text-sm font-semibold text-ts-ink">
                     {copy.manualShareUrlLabel}
                     <input

@@ -233,7 +233,7 @@ describe("Home", () => {
     await waitFor(() => {
       expect(
         screen.getByText(/지금은 바로 해석을 불러오지 못했어요/, {
-          selector: "p.text-ts-danger",
+          selector: ".mt-inline-message__text",
         }),
       ).toBeInTheDocument();
     });
@@ -1299,6 +1299,11 @@ describe("Home", () => {
       await waitFor(() => {
         expect(writeText).toHaveBeenCalledWith(prompt.value);
       });
+      const successMessage = screen.getByTestId("prompt-copy-success");
+      expect(successMessage).toHaveAttribute("role", "status");
+      expect(
+        successMessage.querySelector(".mt-inline-message--success"),
+      ).not.toHaveAttribute("role");
       expect(events).toContainEqual({
         name: "prompt_copy",
         payload: {
@@ -1330,6 +1335,12 @@ describe("Home", () => {
       const failureMessage = screen.getByText(/copying did not work/i);
       expect(failureMessage).toBeInTheDocument();
       expect(failureMessage).not.toHaveTextContent(/permission/i);
+      const failureTarget = document.getElementById("prompt-copy-failure");
+      expect(failureTarget).toHaveAttribute("role", "status");
+      expect(failureTarget).toContainElement(failureMessage);
+      expect(failureMessage.closest(".mt-inline-message")).not.toHaveAttribute(
+        "role",
+      );
     });
     const promptFallback = screen.getByLabelText("Generated prompt");
     expect(screen.getByTestId("prompt-content-disclosure")).toHaveAttribute(
@@ -1468,7 +1479,13 @@ describe("Home", () => {
     fireEvent.click(screen.getByRole("button", { name: "Share" }));
 
     await waitFor(() => {
-      expect(screen.getByText(/sharing did not work/i)).toBeInTheDocument();
+      const failureMessage = screen.getByText(/sharing did not work/i);
+      const failureTarget = document.getElementById("share-failure");
+      expect(failureTarget).toHaveAttribute("role", "status");
+      expect(failureTarget).toContainElement(failureMessage);
+      expect(failureMessage.closest(".mt-inline-message")).not.toHaveAttribute(
+        "role",
+      );
     });
     expect(share).toHaveBeenCalledTimes(1);
     const manualUrl = screen.getByRole("textbox", { name: "Share URL" });

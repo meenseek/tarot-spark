@@ -10,6 +10,9 @@ importers:
       "@fontsource/noto-sans-kr":
         specifier: ^5.3.0
         version: 5.3.0
+      "@measure-twice/react":
+        specifier: 0.2.0
+        version: 0.2.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       next:
         specifier: 16.2.6
         version: 16.2.6(@babel/core@7.29.0)(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -927,6 +930,15 @@ packages:
       {
         integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==,
       }
+
+  "@measure-twice/react@0.2.0":
+    resolution:
+      {
+        integrity: sha512-NXPSY/DtIJnuXbzvCxFm/byvosxFsvTGXb1JoaMyV37du4/uuu6v9qXJcJ6nQB5qRbluR1e7nYEDZ3nn/0R3FA==,
+      }
+    peerDependencies:
+      react: ">=18.2.0 <20.0.0"
+      react-dom: ">=18.2.0 <20.0.0"
 
   "@napi-rs/wasm-runtime@0.2.12":
     resolution:
@@ -5253,6 +5265,11 @@ snapshots:
     dependencies:
       "@jridgewell/resolve-uri": 3.1.2
       "@jridgewell/sourcemap-codec": 1.5.5
+
+  "@measure-twice/react@0.2.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)":
+    dependencies:
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
 
   "@napi-rs/wasm-runtime@0.2.12":
     dependencies:

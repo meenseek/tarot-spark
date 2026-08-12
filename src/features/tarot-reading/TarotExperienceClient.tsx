@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@measure-twice/react";
 import Link from "next/link";
 import {
   type MouseEvent,
@@ -12,10 +13,7 @@ import {
 } from "react";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { CelestialMark } from "@/components/visual/CelestialMark";
-import {
-  primaryButtonClassName,
-  secondaryButtonClassName,
-} from "@/components/visual/class-names";
+import { secondaryButtonClassName } from "@/components/visual/class-names";
 import {
   buildPrompt,
   drawCards,
@@ -1317,15 +1315,17 @@ export function TarotExperienceClient({
           : {})}
         resultActions={
           viewMode === "generator" && session.mode === "result" ? (
-            <button
-              className={`${secondaryButtonClassName} w-full sm:w-fit`}
+            <Button
+              className="tarot-mt-button w-full sm:w-fit"
               data-testid="next-reading-action"
               onClick={enterEditNextDraw}
               ref={editTriggerRef}
+              tone="neutral"
               type="button"
+              variant="outline"
             >
               {copy.editNextReading}
-            </button>
+            </Button>
           ) : viewMode === "generator" && session.mode === "edit-next-draw" ? (
             <section
               aria-labelledby="edit-next-reading-heading"
@@ -1422,21 +1422,23 @@ export function TarotExperienceClient({
         data-testid="reading-setup-actions"
       >
         {session.mode === "edit-next-draw" && (
-          <button
-            className={secondaryButtonClassName}
+          <Button
+            className="tarot-mt-button"
             onClick={cancelEditNextDraw}
+            tone="neutral"
             type="button"
+            variant="outline"
           >
             {copy.cancelEdit}
-          </button>
+          </Button>
         )}
-        <button
-          className={primaryButtonClassName}
+        <Button
+          className="tarot-mt-button tarot-mt-button--primary"
           onClick={startDraw}
           type="button"
         >
           {drawButtonLabel}
-        </button>
+        </Button>
       </div>
       {session.mode === "setup" && (
         <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>

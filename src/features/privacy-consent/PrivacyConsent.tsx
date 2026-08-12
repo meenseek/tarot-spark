@@ -1,11 +1,9 @@
 "use client";
 
+import { Button } from "@measure-twice/react";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  interactiveFocusClassName,
-  secondaryButtonClassName,
-} from "@/components/visual/class-names";
+import { interactiveFocusClassName } from "@/components/visual/class-names";
 import { GoogleAnalytics } from "@/components/layout/GoogleAnalytics";
 import { GoogleAdSenseScript } from "@/integrations/google-adsense/GoogleAdSenseScript";
 import { optionalServicesDocumentReloadEvent } from "./events";
@@ -209,44 +207,50 @@ export function PrivacyConsent({
             </div>
 
             <div className="grid gap-2 sm:grid-cols-2">
-              <button
-                className={secondaryButtonClassName}
+              <Button
+                className="tarot-mt-button"
                 onClick={() =>
                   savePreferences({
                     analytics: hasAnalytics && analyticsSelected,
                     advertising: hasAdvertising && advertisingSelected,
                   })
                 }
+                tone="neutral"
                 type="button"
+                variant="outline"
               >
                 {copy.saveChoices}
-              </button>
-              <button
-                className={secondaryButtonClassName}
+              </Button>
+              <Button
+                className="tarot-mt-button"
                 onClick={() =>
                   savePreferences({
                     analytics: false,
                     advertising: false,
                   })
                 }
+                tone="neutral"
                 type="button"
+                variant="outline"
               >
                 {copy.rejectOptional}
-              </button>
+              </Button>
             </div>
           </section>
         ) : (
-          <button
-            className={`${secondaryButtonClassName} fixed bottom-4 right-4 z-40 min-h-11 bg-ts-surface px-3 text-xs`}
+          <Button
+            className="tarot-mt-button fixed right-4 bottom-4 z-40 px-3 text-xs"
             onClick={() => {
               shouldFocusEditingPanelRef.current = true;
               setIsEditing(true);
             }}
             ref={settingsButtonRef}
+            tone="neutral"
             type="button"
+            variant="outline"
           >
             {copy.settingsButton}
-          </button>
+          </Button>
         ))}
     </>
   );

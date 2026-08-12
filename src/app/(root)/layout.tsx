@@ -3,6 +3,7 @@ import { OptionalGoogleServices } from "@/features/privacy-consent";
 import { getTarotReadingMetadata } from "@/features/tarot-reading";
 import { defaultLocale } from "@/i18n/config";
 import { GoogleAdSenseAccountMetadata } from "@/integrations/google-adsense";
+import "@measure-twice/react/styles.css";
 import "../globals.css";
 
 export const metadata: Metadata = getTarotReadingMetadata(defaultLocale);
