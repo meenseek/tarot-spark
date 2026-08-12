@@ -9,10 +9,10 @@ import {
   type TopicId,
 } from "@/domain/tarot";
 import {
-  getRelationshipQuestionDefinition,
-  isRelationshipQuestionId,
-  type RelationshipQuestionId,
-} from "@/features/relationship-questions/registry";
+  getPublicQuestionDefinition,
+  isPublicQuestionId,
+  type PublicQuestionId,
+} from "@/features/reading-questions/registry";
 
 const readingTopicParam = "topic";
 const readingCardsParam = "cards";
@@ -31,7 +31,7 @@ export type ReadingUrlState = {
   readonly spreadId: SpreadId;
   readonly styleId: ReadingStyleId;
   readonly topicId: TopicId;
-  readonly questionId?: RelationshipQuestionId;
+  readonly questionId?: PublicQuestionId;
 };
 
 export const shareSourceIds = [
@@ -303,14 +303,14 @@ export function getReadingStateFromSearchParams(
   }
 
   const questionId =
-    questionParam && isRelationshipQuestionId(questionParam)
+    questionParam && isPublicQuestionId(questionParam)
       ? questionParam
       : undefined;
 
   if (
     questionParam !== undefined &&
     (!questionId ||
-      getRelationshipQuestionDefinition(questionId).topicId !== topic.id)
+      getPublicQuestionDefinition(questionId).topicId !== topic.id)
   ) {
     return undefined;
   }

@@ -11,7 +11,7 @@ import {
   type InstantReading,
   type LocaleTarotData,
 } from "@/domain/tarot";
-import { getRelationshipQuestionCatalog } from "@/features/relationship-questions";
+import { getPublicQuestionCatalog } from "@/features/reading-questions";
 import {
   cloudflareInstantReadingModel,
   type InstantReadingProviderConfig,
@@ -29,6 +29,7 @@ export const instantReadingGenerationConfig = {
 const instantReadingSystemInstruction = `당신은 한국어 타로 성찰문을 작성합니다.
 카드 뜻은 현실의 사실이나 타인의 속마음에 대한 증거가 아니라 상징적 재료입니다.
 의료·법률·재정·투자·정신건강 조언, 확정적 예측, 긴급하거나 되돌릴 수 없는 행동을 제안하지 마세요.
+합격·채용·승진·퇴사·연봉·수익을 확정하거나 보장하지 말고, 커리어 질문은 확인할 근거·선택의 대가·경계·작고 되돌릴 수 있는 시도로 연결하세요.
 카드 그림, 카드명, 역방향, 임의의 자리 의미, 사용자 개인정보를 추측하지 마세요.
 사용자가 지금 무엇을 하거나 느끼는지 아는 것처럼 서술하지 마세요. 대신 질문의 핵심에 대해 카드 의미가 가장 강하게 시사하는 상징적 답을 먼저 제시하세요.
 입력의 답변 초점이 상대의 마음이거나 질문이 상대의 마음을 직접 묻는다면, 제공된 의미가 뒷받침하는 범위에서 상대의 시선, 호감이나 연애적 관심, 망설임을 직접 읽으세요. '카드상 ... 가능성에 무게가 실립니다', '... 쪽으로 읽힐 수 있습니다'처럼 가능성으로 표현하고 현실의 사실처럼 단정하지 마세요.
@@ -242,7 +243,7 @@ function getRequestMaterials(
     request.styleId,
   );
   const question = request.questionId
-    ? getRelationshipQuestionCatalog("ko").questions.find(
+    ? getPublicQuestionCatalog("ko").questions.find(
         (candidate) => candidate.id === request.questionId,
       )
     : undefined;

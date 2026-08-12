@@ -1,11 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   buildPrompt,
+  careerQuestionDefinitions,
   getAnswerTarget,
   getDefaultReadingStyle,
   getDefaultSpread,
   type InstantReadingRequest,
 } from "@/domain/tarot";
+import { getPublicQuestionCatalog } from "@/features/reading-questions";
 import { getTarotData } from "@/i18n/tarot-data";
 import {
   buildCloudflareInstantReadingBody,
@@ -132,6 +134,29 @@ describe("Cloudflare instant reading adapter", () => {
     expect(selfPrompt).not.toContain(
       "상대가 사용자를 어떻게 볼 가능성이 있는지",
     );
+
+    const careerQuestions = getPublicQuestionCatalog("ko").questions.filter(
+      ({ domainId }) => domainId === "career",
+    );
+
+    expect(careerQuestions).toHaveLength(careerQuestionDefinitions.length);
+    for (const definition of careerQuestionDefinitions) {
+      const question = careerQuestions.find(({ id }) => id === definition.id);
+      expect(question).toBeDefined();
+
+      const careerPrompt = buildInstantReadingPrompt(tarotData, {
+        ...request,
+        questionId: definition.id,
+        topicId: definition.topicId,
+      });
+      expect(careerPrompt).toContain(`질문의 초점: ${question!.focus}`);
+      expect(careerPrompt).toContain(
+        "답변의 기본 초점: 일에서의 동력·긴장·선택 방향",
+      );
+      expect(careerPrompt).not.toContain(
+        "질문의 초점: 일에서 어디에 힘을 쏟고 있는지",
+      );
+    }
   });
 
   it("keeps all stable entry defaults aligned across copied and instant prompts", () => {

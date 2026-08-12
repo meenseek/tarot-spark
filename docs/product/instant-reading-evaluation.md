@@ -61,9 +61,12 @@ The 50 normal cases must cover:
 
 - quick and deep spreads;
 - every public topic and reading style;
-- relationship presets and no-preset readings;
+- every public relationship and career preset, plus no-preset readings;
 - every default answer target, including public questions that override their
   entry preset target;
+- career questions covering decision tradeoffs, strengths and growth evidence,
+  and collaboration and boundaries without deterministic hiring, promotion,
+  resignation, salary, or profit claims;
 - every card meaning used in draw order;
 - reinforcement, tension, progression, and integration as the strongest
   connection;

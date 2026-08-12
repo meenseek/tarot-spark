@@ -9,9 +9,9 @@ import {
   topicIds,
 } from "@/domain/tarot";
 import {
-  getRelationshipQuestionDefinition,
-  isRelationshipQuestionId,
-} from "@/features/relationship-questions/registry";
+  getPublicQuestionDefinition,
+  isPublicQuestionId,
+} from "@/features/reading-questions/registry";
 import {
   announceAnalyticsReady,
   clearAnalyticsReady,
@@ -235,8 +235,8 @@ function isAnalyticsPayload(
 
   if (
     hasQuestion &&
-    (!isRelationshipQuestionValue(value[analyticsQuestionPayloadKey]) ||
-      getRelationshipQuestionDefinition(value[analyticsQuestionPayloadKey])
+    (!isPublicQuestionValue(value[analyticsQuestionPayloadKey]) ||
+      getPublicQuestionDefinition(value[analyticsQuestionPayloadKey])
         .topicId !== value["topic_id"])
   ) {
     return false;
@@ -325,8 +325,8 @@ function isCardCount(value: unknown) {
   return value === 3 || value === 6;
 }
 
-function isRelationshipQuestionValue(
+function isPublicQuestionValue(
   value: unknown,
-): value is Parameters<typeof getRelationshipQuestionDefinition>[0] {
-  return typeof value === "string" && isRelationshipQuestionId(value);
+): value is Parameters<typeof getPublicQuestionDefinition>[0] {
+  return typeof value === "string" && isPublicQuestionId(value);
 }

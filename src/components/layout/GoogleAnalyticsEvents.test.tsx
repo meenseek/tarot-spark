@@ -296,6 +296,42 @@ describe("GoogleAnalyticsEvents", () => {
     ).toHaveLength(1);
   });
 
+  it("forwards a career question only with its canonical topic", () => {
+    const calls = mockGtag();
+    const payload = {
+      locale: "en",
+      topic_id: "career-direction",
+      spread_id: "quick",
+      style_id: "practical",
+      draw_style_id: "practical",
+      card_count: 3,
+      question_id: "career-growth-experience",
+    };
+
+    render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
+    window.dispatchEvent(
+      new CustomEvent("tarot_spark_event", {
+        detail: { name: "result_view", payload },
+      }),
+    );
+    window.dispatchEvent(
+      new CustomEvent("tarot_spark_event", {
+        detail: {
+          name: "result_view",
+          payload: { ...payload, topic_id: "love" },
+        },
+      }),
+    );
+
+    expect(calls).toContainEqual(["event", "result_view", payload]);
+    expect(
+      calls.filter(
+        ([command, eventName]) =>
+          command === "event" && eventName === "result_view",
+      ),
+    ).toHaveLength(1);
+  });
+
   it("captures an event waiting for the analytics listener exactly once", () => {
     const calls = mockGtag();
 

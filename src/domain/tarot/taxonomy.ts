@@ -25,8 +25,18 @@ export const relationshipQuestionFocusIds = relationshipFocusIds.filter(
     focusId !== "general" && focusId !== "dynamics",
 );
 
-export const careerFocusIds = ["direction"] as const;
+export const careerFocusIds = [
+  "direction",
+  "decision-tradeoffs",
+  "strengths-growth",
+  "collaboration-boundaries",
+] as const;
 export type CareerFocusId = (typeof careerFocusIds)[number];
+export type CareerQuestionFocusId = Exclude<CareerFocusId, "direction">;
+
+export const careerQuestionFocusIds = careerFocusIds.filter(
+  (focusId): focusId is CareerQuestionFocusId => focusId !== "direction",
+);
 
 export const answerTargetIds = [
   "other-person",
@@ -77,7 +87,7 @@ export const topicTaxonomyById = {
   },
 } as const satisfies Record<TopicId, ReadingTaxonomy>;
 
-export const relationshipQuestionDefinitions = [
+const relationshipQuestionEntries = [
   {
     id: "interest-or-kindness",
     focusId: "starting",
@@ -253,8 +263,74 @@ export const relationshipQuestionDefinitions = [
   readonly defaultAnswerTargetId: RelationshipAnswerTargetId;
 }[];
 
+export const relationshipQuestionDefinitions = relationshipQuestionEntries.map(
+  (definition) => ({ ...definition, domainId: "relationship" as const }),
+);
+
 export type RelationshipQuestionId =
   (typeof relationshipQuestionDefinitions)[number]["id"];
+
+export const careerQuestionDefinitions = [
+  {
+    id: "career-stay-or-prepare",
+    domainId: "career",
+    focusId: "decision-tradeoffs",
+    topicId: "career-direction",
+    defaultAnswerTargetId: "career",
+  },
+  {
+    id: "career-opportunity-cost",
+    domainId: "career",
+    focusId: "decision-tradeoffs",
+    topicId: "career-direction",
+    defaultAnswerTargetId: "career",
+  },
+  {
+    id: "career-underused-strength",
+    domainId: "career",
+    focusId: "strengths-growth",
+    topicId: "career-direction",
+    defaultAnswerTargetId: "career",
+  },
+  {
+    id: "career-growth-experience",
+    domainId: "career",
+    focusId: "strengths-growth",
+    topicId: "career-direction",
+    defaultAnswerTargetId: "career",
+  },
+  {
+    id: "career-collaboration-role",
+    domainId: "career",
+    focusId: "collaboration-boundaries",
+    topicId: "career-direction",
+    defaultAnswerTargetId: "career",
+  },
+  {
+    id: "career-sustainable-boundary",
+    domainId: "career",
+    focusId: "collaboration-boundaries",
+    topicId: "career-direction",
+    defaultAnswerTargetId: "career",
+  },
+] as const satisfies readonly {
+  readonly id: string;
+  readonly domainId: "career";
+  readonly focusId: CareerQuestionFocusId;
+  readonly topicId: "career-direction";
+  readonly defaultAnswerTargetId: "career";
+}[];
+
+export type CareerQuestionId = (typeof careerQuestionDefinitions)[number]["id"];
+
+export const publicQuestionDefinitions = [
+  ...relationshipQuestionDefinitions,
+  ...careerQuestionDefinitions,
+];
+
+export type PublicQuestionId = (typeof publicQuestionDefinitions)[number]["id"];
+export type PublicQuestionFocusId =
+  (typeof publicQuestionDefinitions)[number]["focusId"];
 
 export function getTopicTaxonomy(topicId: TopicId): ReadingTaxonomy {
   return topicTaxonomyById[topicId];
@@ -264,6 +340,10 @@ export function isRelationshipQuestionId(
   value: string,
 ): value is RelationshipQuestionId {
   return relationshipQuestionDefinitions.some(({ id }) => id === value);
+}
+
+export function isPublicQuestionId(value: string): value is PublicQuestionId {
+  return publicQuestionDefinitions.some(({ id }) => id === value);
 }
 
 export function getRelationshipQuestionDefinition(
@@ -280,22 +360,40 @@ export function getRelationshipQuestionDefinition(
   return definition;
 }
 
+export function getPublicQuestionDefinition(questionId: PublicQuestionId) {
+  const definition = publicQuestionDefinitions.find(
+    ({ id }) => id === questionId,
+  );
+
+  if (!definition) {
+    throw new RangeError(`Unknown public question: ${questionId}`);
+  }
+
+  return definition;
+}
+
 export function getReadingTaxonomy(
   topicId: TopicId,
-  questionId?: RelationshipQuestionId,
+  questionId?: PublicQuestionId,
 ): ReadingTaxonomy {
   if (!questionId) return getTopicTaxonomy(topicId);
 
-  const question = getRelationshipQuestionDefinition(questionId);
+  const question = getPublicQuestionDefinition(questionId);
   if (question.topicId !== topicId) {
     throw new RangeError(
-      `Relationship question ${questionId} is incompatible with topic ${topicId}.`,
+      `Public question ${questionId} is incompatible with topic ${topicId}.`,
     );
   }
 
-  return {
-    domainId: "relationship",
-    focusId: question.focusId,
-    defaultAnswerTargetId: question.defaultAnswerTargetId,
-  };
+  return question.domainId === "relationship"
+    ? {
+        domainId: "relationship",
+        focusId: question.focusId,
+        defaultAnswerTargetId: question.defaultAnswerTargetId,
+      }
+    : {
+        domainId: "career",
+        focusId: question.focusId,
+        defaultAnswerTargetId: "career",
+      };
 }

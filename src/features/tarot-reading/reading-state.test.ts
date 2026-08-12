@@ -140,12 +140,27 @@ describe("reading URL state", () => {
     expect(getReadingStateFromUrl(tarotData, url.toString())).toEqual(state);
   });
 
+  it("round-trips a compatible career question without adding hierarchy state", () => {
+    const state = {
+      ...createState("quick", "practical"),
+      topicId: "career-direction",
+      questionId: "career-underused-strength",
+    } as const satisfies ReadingUrlState;
+    const url = new URL(buildReadingUrl("https://example.com/", state));
+
+    expect(url.searchParams.get("question")).toBe("career-underused-strength");
+    expect(url.searchParams.has("domain")).toBe(false);
+    expect(url.searchParams.has("category")).toBe(false);
+    expect(getReadingStateFromUrl(tarotData, url.toString())).toEqual(state);
+  });
+
   it("rejects unknown, duplicated, empty, and topic-mismatched questions", () => {
     for (const href of [
       "https://example.com/?topic=feelings&question=unknown",
       "https://example.com/?topic=feelings&question=",
       "https://example.com/?topic=feelings&question=mutual-view&question=ignored-signals",
       "https://example.com/?topic=love&question=mutual-view",
+      "https://example.com/?topic=love&question=career-stay-or-prepare",
     ]) {
       expect(getReadingStateFromUrl(tarotData, href)).toBeUndefined();
     }
@@ -285,6 +300,29 @@ describe("reading URL state", () => {
     expect(localeUrl.searchParams.get("drawStyle")).toBe("balanced");
     expect(shareUrl.searchParams.get("style")).toBe("direct");
     expect(shareUrl.searchParams.get("drawStyle")).toBe("balanced");
+  });
+
+  it("preserves a career question across locale and share links", () => {
+    const state = {
+      ...createState("quick", "practical"),
+      topicId: "career-direction",
+      questionId: "career-growth-experience",
+    } as const satisfies ReadingUrlState;
+    const localeUrl = new URL(
+      getLocalizedReadingHref("ko", state),
+      "https://example.com",
+    );
+    const shareUrl = new URL(
+      getLocalizedShareReadingHref("ko", state),
+      "https://example.com",
+    );
+
+    expect(localeUrl.searchParams.get("question")).toBe(
+      "career-growth-experience",
+    );
+    expect(shareUrl.searchParams.get("question")).toBe(
+      "career-growth-experience",
+    );
   });
 
   it("builds a clean generator CTA with attribution only", () => {

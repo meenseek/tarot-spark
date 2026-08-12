@@ -4,15 +4,15 @@ import type {
   SpreadId,
   TopicId,
 } from "@/domain/tarot";
-import { getRelationshipQuestionDefinition } from "@/domain/tarot";
-import type { RelationshipQuestionId } from "@/features/relationship-questions/registry";
+import { getPublicQuestionDefinition } from "@/domain/tarot";
+import type { PublicQuestionId } from "@/features/reading-questions/registry";
 
 export type ReadingInputs = {
   readonly topicId: TopicId;
   readonly spreadId: SpreadId;
   readonly styleId: ReadingStyleId;
   readonly privateContext: string;
-  readonly questionId?: RelationshipQuestionId;
+  readonly questionId?: PublicQuestionId;
 };
 
 export type CurrentResult = {
@@ -37,8 +37,9 @@ export type SessionAction =
   | { readonly type: "SET_DRAFT_TOPIC"; readonly topicId: TopicId }
   | {
       readonly type: "SET_DRAFT_QUESTION";
-      readonly questionId: RelationshipQuestionId;
+      readonly questionId: PublicQuestionId;
     }
+  | { readonly type: "CLEAR_DRAFT_QUESTION" }
   | { readonly type: "SET_DRAFT_SPREAD"; readonly spreadId: SpreadId }
   | { readonly type: "SET_DRAFT_STYLE"; readonly styleId: ReadingStyleId }
   | {
@@ -87,6 +88,8 @@ export function readingSessionReducer(
       return updateDraftTopic(session, action.topicId);
     case "SET_DRAFT_QUESTION":
       return updateDraftQuestion(session, action.questionId);
+    case "CLEAR_DRAFT_QUESTION":
+      return clearDraftQuestion(session);
     case "SET_DRAFT_SPREAD":
       return updateDraft(session, "spreadId", action.spreadId);
     case "SET_DRAFT_STYLE":
@@ -154,6 +157,13 @@ export function readingSessionReducer(
   }
 }
 
+function clearDraftQuestion(session: Session): Session {
+  if (session.mode === "result" || !session.draft.questionId) return session;
+
+  const { questionId: _questionId, ...draft } = session.draft;
+  return { ...session, draft };
+}
+
 function updateDraftTopic(session: Session, topicId: TopicId): Session {
   if (session.mode === "result" || session.draft.topicId === topicId) {
     return session;
@@ -172,13 +182,13 @@ function updateDraftTopic(session: Session, topicId: TopicId): Session {
 
 function updateDraftQuestion(
   session: Session,
-  questionId: RelationshipQuestionId,
+  questionId: PublicQuestionId,
 ): Session {
   if (session.mode === "result") {
     return session;
   }
 
-  const topicId = getRelationshipQuestionDefinition(questionId).topicId;
+  const topicId = getPublicQuestionDefinition(questionId).topicId;
 
   if (
     session.draft.questionId === questionId &&

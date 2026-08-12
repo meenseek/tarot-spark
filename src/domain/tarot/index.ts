@@ -21,11 +21,16 @@ export { getDefaultTopic, getTopic } from "./topics";
 export { readingStyleIds, spreadIds, tarotCardIds, topicIds } from "./ids";
 export {
   answerTargetIds,
+  careerQuestionDefinitions,
+  careerQuestionFocusIds,
   careerFocusIds,
+  getPublicQuestionDefinition,
   getReadingTaxonomy,
   getRelationshipQuestionDefinition,
   getTopicTaxonomy,
+  isPublicQuestionId,
   isRelationshipQuestionId,
+  publicQuestionDefinitions,
   readingDomainIds,
   relationshipFocusIds,
   relationshipQuestionDefinitions,
@@ -68,6 +73,10 @@ export type {
 export type {
   AnswerTargetId,
   CareerFocusId,
+  CareerQuestionFocusId,
+  CareerQuestionId,
+  PublicQuestionFocusId,
+  PublicQuestionId,
   ReadingDomainId,
   ReadingTaxonomy,
   RelationshipAnswerTargetId,
