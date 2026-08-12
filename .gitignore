@@ -13,6 +13,10 @@
 /test-results
 /.instant-reading-eval
 /art/card-art-*
+/art/reddit-prompt-pack-video/*
+!/art/reddit-prompt-pack-video/README.md
+!/art/reddit-prompt-pack-video/tarot-spark-reddit-maker-demo.mp4
+!/art/reddit-prompt-pack-video/tarot-spark-reddit-maker-demo-poster.png
 
 # next.js
 /.next/
