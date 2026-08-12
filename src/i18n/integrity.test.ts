@@ -399,7 +399,6 @@ const relationshipQuestionMessagesSchema = {
   strongQuestion: "string",
   browseHeading: "string",
   categoryNavigationLabel: "string",
-  focusLabel: "string",
   workedExampleHeading: "string",
   workedExampleBody: "string",
   workedExampleItems: ["string"],

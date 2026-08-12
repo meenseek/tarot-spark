@@ -114,14 +114,6 @@ export function RelationshipQuestionExplorer({
                       <p className="text-sm leading-7 text-ts-muted">
                         {question.summary}
                       </p>
-                      <div className="grid gap-1 border-l-2 border-ts-gold pl-3">
-                        <p className="text-xs font-semibold uppercase tracking-[0.06em] text-ts-action">
-                          {copy.focusLabel}
-                        </p>
-                        <p className="text-sm leading-7 text-ts-ink">
-                          {question.focus}
-                        </p>
-                      </div>
                       <Link
                         className={`${secondaryButtonClassName} mt-auto w-fit`}
                         href={getRelationshipQuestionReadingPath(

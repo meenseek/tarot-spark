@@ -22,6 +22,32 @@
 - Do not enable or deploy server-generated readings publicly until the
   evaluation and launch-readiness checks pass.
 
+## Public Copy Contract
+
+- Write for a first-time reader. Use familiar words, short sentences, and one
+  idea per line.
+- Keep internal taxonomy and method terms out of controls. Prefer words such as
+  "question", "look", "choose", and "try" over "preset", "focus taxonomy",
+  or "reflection framework".
+- Give question pickers four visible levels only: a short group name, one
+  question, one sentence explaining it, and one action label. Keep safety and
+  prompt-routing instructions in the internal `focus` field.
+- Ask one open question at a time. Do not hide a second question after "and" or
+  use a title that promises a certain future result.
+- Make each summary add one concrete contrast, behavior, or choice. Do not
+  restate the title with more abstract words.
+- Start action labels with a plain verb and name the object. Do not use generic
+  labels such as "Learn more" when the action is to compare, find, or check.
+- Prefer these picker limits. Korean: group title 12 characters, group intro 36,
+  question title 24, summary 36, and action 10. English: group title 4 words,
+  group intro 12, question title 10, summary 14, and action 4. Treat the limits
+  as review gates for picker copy, not as truncation rules.
+- Keep Korean and English editorially equivalent, but write each as natural
+  copy rather than translating word for word.
+- Read every visible line without its surrounding UI. Rewrite it if its meaning
+  depends on an internal term or if a shorter familiar phrase keeps the same
+  meaning and safety boundary.
+
 ## Reading Method Contract
 
 Route the reading's default subject through the

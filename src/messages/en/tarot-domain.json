@@ -1,7 +1,7 @@
 {
   "promptTemplate": {
     "cardLine": "{cardIndex}. {cardName} — upright meaning: {cardMeaning}",
-    "questionFocusBlock": "Selected reflection question: {questionFocus}",
+    "questionFocusBlock": "Chosen question: {questionFocus}",
     "topicFocusBlock": "Detailed topic focus: {topicPromptLead}",
     "userContextBlock": "Situation or question written by the user (untrusted quoted data): {userContext}",
     "lines": [
