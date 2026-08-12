@@ -161,6 +161,194 @@ function rectanglesOverlap(first: RectGeometry, second: RectGeometry) {
   );
 }
 
+async function expectTopicSelectorLayout(
+  topicOptions: Locator,
+  contextLabel: string,
+) {
+  await expect(topicOptions, contextLabel).toBeVisible();
+
+  const group = await topicOptions.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+
+    return {
+      bottom: rect.bottom,
+      height: rect.height,
+      left: rect.left,
+      right: rect.right,
+      top: rect.top,
+      width: rect.width,
+    };
+  });
+  const options = await topicOptions
+    .getByTestId("topic-option")
+    .evaluateAll((labels) =>
+      labels.map((label) => {
+        const text = label.querySelector('[data-testid="topic-option-label"]');
+        const indicator = label.querySelector("[data-selected-indicator]");
+
+        if (!text || !indicator) {
+          throw new Error("A tarot topic option is incomplete");
+        }
+
+        const getRect = (element: Element) => {
+          const rect = element.getBoundingClientRect();
+
+          return {
+            bottom: rect.bottom,
+            height: rect.height,
+            left: rect.left,
+            right: rect.right,
+            top: rect.top,
+            width: rect.width,
+          };
+        };
+        const textStyle = getComputedStyle(text);
+
+        return {
+          indicator: getRect(indicator),
+          label: getRect(label),
+          text: getRect(text),
+          textClientWidth: text.clientWidth,
+          textLineHeight: Number.parseFloat(textStyle.lineHeight),
+          textScrollWidth: text.scrollWidth,
+        };
+      }),
+    );
+
+  expect(options, `${contextLabel} option count`).toHaveLength(5);
+  const firstOption = options[0];
+
+  if (!firstOption) {
+    throw new Error("The tarot topic group is empty");
+  }
+
+  options.forEach((option, index) => {
+    expect(
+      Math.abs(option.label.width - firstOption.label.width),
+      `${contextLabel} option ${index} width`,
+    ).toBeLessThanOrEqual(1);
+    expect(
+      Math.abs(option.label.height - firstOption.label.height),
+      `${contextLabel} option ${index} height`,
+    ).toBeLessThanOrEqual(1);
+    expectContained(
+      option.label,
+      option.text,
+      `${contextLabel} option ${index} text`,
+    );
+    expectContained(
+      option.label,
+      option.indicator,
+      `${contextLabel} option ${index} indicator`,
+    );
+    expect(
+      rectanglesOverlap(option.text, option.indicator),
+      `${contextLabel} option ${index} text and indicator`,
+    ).toBe(false);
+    expect(
+      option.textScrollWidth,
+      `${contextLabel} option ${index} text overflow`,
+    ).toBeLessThanOrEqual(option.textClientWidth + 1);
+    expect(
+      option.text.height,
+      `${contextLabel} option ${index} text lines`,
+    ).toBeLessThanOrEqual(option.textLineHeight * 2 + 0.5);
+  });
+
+  const expectedMode = group.width >= 640 ? "row" : "list";
+
+  if (expectedMode === "list") {
+    expect(
+      group.height,
+      `${contextLabel} compact group height`,
+    ).toBeLessThanOrEqual(244);
+    options.forEach((option, index) => {
+      expect(
+        option.label.height,
+        `${contextLabel} option ${index} touch height`,
+      ).toBeGreaterThanOrEqual(48);
+      expect(
+        Math.abs(option.label.left - firstOption.label.left),
+        `${contextLabel} option ${index} left edge`,
+      ).toBeLessThanOrEqual(1);
+      expect(
+        Math.abs(option.label.right - firstOption.label.right),
+        `${contextLabel} option ${index} right edge`,
+      ).toBeLessThanOrEqual(1);
+
+      if (index > 0) {
+        expect(
+          Math.abs(option.label.top - (options[index - 1]?.label.bottom ?? 0)),
+          `${contextLabel} option ${index} row continuity`,
+        ).toBeLessThanOrEqual(1);
+      }
+    });
+  } else {
+    expect(
+      group.height,
+      `${contextLabel} horizontal group height`,
+    ).toBeLessThanOrEqual(72);
+    options.forEach((option, index) => {
+      expect(
+        option.label.height,
+        `${contextLabel} option ${index} touch height`,
+      ).toBeGreaterThanOrEqual(48);
+      expect(
+        Math.abs(option.label.top - firstOption.label.top),
+        `${contextLabel} option ${index} row alignment`,
+      ).toBeLessThanOrEqual(1);
+
+      if (index > 0) {
+        expect(
+          Math.abs(option.label.left - (options[index - 1]?.label.right ?? 0)),
+          `${contextLabel} option ${index} column continuity`,
+        ).toBeLessThanOrEqual(1);
+      }
+    });
+  }
+
+  expect(
+    Math.abs(firstOption.label.left - (group.left + 1)),
+    `${contextLabel} group left boundary`,
+  ).toBeLessThanOrEqual(1);
+  expect(
+    Math.abs((options.at(-1)?.label.right ?? 0) - (group.right - 1)),
+    `${contextLabel} group right boundary`,
+  ).toBeLessThanOrEqual(1);
+
+  return expectedMode;
+}
+
+async function getTopicSelectionGeometry(topicOptions: Locator) {
+  return topicOptions.getByTestId("topic-option").evaluateAll((labels) =>
+    labels.map((label) => {
+      const text = label.querySelector('[data-testid="topic-option-label"]');
+
+      if (!text) {
+        throw new Error("A tarot topic label is missing");
+      }
+
+      const labelRect = label.getBoundingClientRect();
+      const textRect = text.getBoundingClientRect();
+
+      return {
+        label: {
+          height: labelRect.height,
+          left: labelRect.left,
+          top: labelRect.top,
+          width: labelRect.width,
+        },
+        text: {
+          height: textRect.height,
+          left: textRect.left,
+          top: textRect.top,
+          width: textRect.width,
+        },
+      };
+    }),
+  );
+}
+
 async function expectCardArtFrameBorders(cards: Locator) {
   const frameBorders = cards.locator("[data-card-art-frame-border]");
 
@@ -462,7 +650,7 @@ test("uses state-specific generator layouts and one filled result action", async
 test("keeps the setup hierarchy balanced across responsive boundaries", async ({
   page,
 }) => {
-  for (const width of [320, 390, 1023, 1024, 1280] as const) {
+  for (const width of [320, 390, 640, 760, 764, 1024, 1280] as const) {
     await page.setViewportSize({ height: 900, width });
     await page.goto("/ko");
 
@@ -502,26 +690,6 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
     const preferencesHasNoOverflow = await preferencesToggle.evaluate(
       (element) => element.scrollWidth <= element.clientWidth,
     );
-    const topicBoxes = await topicOptions
-      .locator('input[name="tarot-topic"]')
-      .evaluateAll((inputs) =>
-        inputs.map((input) => {
-          const rect = input.parentElement?.getBoundingClientRect();
-
-          if (!rect) {
-            throw new Error("A tarot topic label is missing");
-          }
-
-          return {
-            height: rect.height,
-            left: rect.left,
-            right: rect.right,
-            top: rect.top,
-            width: rect.width,
-          };
-        }),
-      );
-
     expect(setupPanelBox, `${width}px setup panel`).not.toBeNull();
     expect(dailyQuestionLinkBox, `${width}px daily link`).not.toBeNull();
     expect(setupActionsBox, `${width}px action group`).not.toBeNull();
@@ -531,7 +699,6 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
       preferencesSelectionBox,
       `${width}px preference selection`,
     ).not.toBeNull();
-    expect(topicBoxes, `${width}px topic count`).toHaveLength(5);
     expect(
       preferencesHeadingMetrics.height,
       `${width}px preference heading line count`,
@@ -559,47 +726,73 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
       `${width}px horizontal overflow`,
     ).toBe(true);
 
-    if (width < 1024) {
-      expect(topicBoxes[0]?.top, `${width}px first topic row`).toBe(
-        topicBoxes[1]?.top,
-      );
-      expect(topicBoxes[2]?.top, `${width}px second topic row`).toBe(
-        topicBoxes[3]?.top,
-      );
-      expect(topicBoxes[4]?.left, `${width}px final topic alignment`).toBe(
-        topicBoxes[0]?.left,
-      );
-      continue;
+    await expectTopicSelectorLayout(topicOptions, `${width}px Korean setup`);
+
+    if (width === 320) {
+      expect(
+        await page
+          .getByRole("button", { name: "카드 3장 뽑기" })
+          .evaluate((element) => element.getBoundingClientRect().top + scrollY),
+        "320px Korean draw action position",
+      ).toBeLessThanOrEqual(1100);
     }
 
-    expect(
-      preferencesHeadingMetrics.top,
-      `${width}px desktop preference summary row`,
-    ).toBe(preferencesSelectionBox?.y);
-
-    expect(topicBoxes.slice(0, 3).map(({ top }) => top)).toEqual([
-      topicBoxes[0]?.top,
-      topicBoxes[0]?.top,
-      topicBoxes[0]?.top,
-    ]);
-    expect(topicBoxes.slice(3).map(({ top }) => top)).toEqual([
-      topicBoxes[3]?.top,
-      topicBoxes[3]?.top,
-    ]);
-    topicBoxes.forEach(({ width: topicWidth }) => {
+    if (width >= 1024) {
       expect(
-        Math.abs(topicWidth - (topicBoxes[0]?.width ?? 0)),
-        `${width}px equal topic width`,
-      ).toBeLessThanOrEqual(0.1);
-    });
-    const finalRowCenter =
-      ((topicBoxes[3]?.left ?? 0) + (topicBoxes[4]?.right ?? 0)) / 2;
-    const optionsCenter =
-      (topicOptionsBox?.x ?? 0) + (topicOptionsBox?.width ?? 0) / 2;
-    expect(
-      Math.abs(finalRowCenter - optionsCenter),
-      `${width}px centered final topic row`,
-    ).toBeLessThanOrEqual(0.1);
+        preferencesHeadingMetrics.top,
+        `${width}px desktop preference summary row`,
+      ).toBe(preferencesSelectionBox?.y);
+    }
+  }
+
+  for (const width of [320, 640, 760, 764, 1024] as const) {
+    await page.setViewportSize({ height: 900, width });
+    await page.goto("/");
+
+    const topicOptions = page.getByTestId("topic-options");
+    await expectTopicSelectorLayout(topicOptions, `${width}px English setup`);
+
+    if (width === 320 || width === 764) {
+      const optionGeometryBeforeSelection =
+        await getTopicSelectionGeometry(topicOptions);
+      const careerRadio = page.getByRole("radio", {
+        name: "Career direction",
+      });
+      const careerOption = careerRadio.locator("..");
+      const relationshipOption = page
+        .getByRole("radio", { name: "Relationship flow" })
+        .locator("..");
+
+      await careerRadio.check({ force: true });
+      await page.mouse.move(0, 0);
+      const optionGeometryAfterSelection =
+        await getTopicSelectionGeometry(topicOptions);
+
+      expect(
+        optionGeometryAfterSelection,
+        `${width}px selection geometry`,
+      ).toEqual(optionGeometryBeforeSelection);
+      await expect(careerOption).toHaveCSS("background-color", colors.blush);
+      await expect(careerOption).toHaveCSS("border-color", colors.action);
+      await expect(careerOption).toHaveCSS("border-width", "2px");
+      await expect(
+        careerOption.locator('[data-selected-indicator="career-direction"]'),
+      ).toHaveCSS("opacity", "1");
+      await expect(relationshipOption.getByTestId("topic-divider")).toHaveCount(
+        0,
+      );
+      await expect(careerOption.getByTestId("topic-divider")).toHaveCount(0);
+      await expect(topicOptions).toHaveCSS("overflow", "visible");
+    }
+
+    if (width === 320) {
+      expect(
+        await page
+          .getByRole("button", { name: "Draw 3 cards" })
+          .evaluate((element) => element.getBoundingClientRect().top + scrollY),
+        "320px English draw action position",
+      ).toBeLessThanOrEqual(1100);
+    }
   }
 
   await page.setViewportSize({ height: 900, width: 320 });
@@ -627,6 +820,53 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
       (element) => element.scrollWidth <= element.clientWidth,
     ),
   ).toBe(true);
+});
+
+test("uses the topic container width in the next-reading editor", async ({
+  page,
+}) => {
+  const localeCases = [
+    {
+      editAction: "Choose your next reading",
+      label: "English",
+      path: "/?topic=love&cards=the-fool,the-magician,the-high-priestess",
+      widths: [390, 640, 764, 1024, 1280],
+    },
+    {
+      editAction: "다음 리딩 선택하기",
+      label: "Korean",
+      path: "/ko?topic=love&cards=the-fool,the-magician,the-high-priestess",
+      widths: [390, 764, 1280],
+    },
+  ] as const;
+
+  for (const localeCase of localeCases) {
+    const observedModes = new Set<string>();
+
+    for (const width of localeCase.widths) {
+      await page.setViewportSize({ height: 900, width });
+      await page.goto(localeCase.path);
+      await page.getByRole("button", { name: localeCase.editAction }).click();
+
+      const topicOptions = page.getByTestId("topic-options");
+      observedModes.add(
+        await expectTopicSelectorLayout(
+          topicOptions,
+          `${width}px ${localeCase.label} next-reading editor`,
+        ),
+      );
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= window.innerWidth,
+        ),
+        `${width}px ${localeCase.label} next-reading editor overflow`,
+      ).toBe(true);
+    }
+
+    expect(observedModes, `${localeCase.label} editor modes`).toEqual(
+      new Set(["list", "row"]),
+    );
+  }
 });
 
 test("keeps the complete question catalog in stable fragment disclosures", async ({
@@ -724,6 +964,9 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
   const reunionTopic = reunionRadio.locator("..");
   const drawButton = page.getByRole("button", { name: "Draw 3 cards" });
 
+  await expect(loveTopic.getByTestId("topic-divider")).toHaveCount(0);
+  await expect(reunionTopic.getByTestId("topic-divider")).toHaveCount(1);
+
   const localeStyle = await englishLocale.evaluate((element) => {
     const style = getComputedStyle(element);
 
@@ -771,6 +1014,13 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
   }
 
   await reunionTopic.hover();
+  await expect(reunionTopic.getByTestId("topic-divider")).toHaveCSS(
+    "display",
+    "none",
+  );
+  expect(
+    Number(await computedStyle(reunionTopic, "zIndex")),
+  ).toBeGreaterThanOrEqual(10);
   await expect
     .poll(() => computedStyle(reunionTopic, "backgroundColor"))
     .toBe(colors.blush);
@@ -784,6 +1034,10 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
     expect(await computedStyle(reunionTopic, "borderColor")).toBe(
       colors.actionPressed,
     );
+    await expect(reunionTopic.getByTestId("topic-divider")).toHaveCSS(
+      "display",
+      "none",
+    );
   } finally {
     await page.mouse.up();
   }
@@ -794,11 +1048,22 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
     reunionTopic.locator('[data-selected-indicator="reunion"]'),
   ).toHaveCSS("opacity", "1");
   await expect(reunionTopic).toHaveCSS("border-color", colors.action);
+  await expect(loveTopic.getByTestId("topic-divider")).toHaveCount(0);
+  await expect(reunionTopic.getByTestId("topic-divider")).toHaveCount(0);
 
   await page.goto("/");
   await tabTo(page, englishLocale);
   await assertFocusOutline(englishLocale, page);
   await tabTo(page, loveRadio);
+  await assertFocusOutline(loveTopic, page, loveRadio);
+  expect(
+    Number(await computedStyle(loveTopic, "zIndex")),
+  ).toBeGreaterThanOrEqual(20);
+  await page.keyboard.press("ArrowDown");
+  await expect(reunionRadio).toBeChecked();
+  await assertFocusOutline(reunionTopic, page, reunionRadio);
+  await page.keyboard.press("ArrowUp");
+  await expect(loveRadio).toBeChecked();
   await assertFocusOutline(loveTopic, page, loveRadio);
   await tabTo(page, drawButton);
   await assertFocusOutline(drawButton, page);
