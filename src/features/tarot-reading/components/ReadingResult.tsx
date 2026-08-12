@@ -130,7 +130,7 @@ export function ReadingResult({
               </ol>
             </div>
             <Button
-              className="tarot-mt-button tarot-mt-button--primary shrink-0 whitespace-nowrap"
+              className="ts-primary-action shrink-0 whitespace-nowrap"
               onClick={onCopyPrompt}
               type="button"
             >
@@ -144,7 +144,7 @@ export function ReadingResult({
               data-testid="prompt-copy-success"
               role="status"
             >
-              <InlineMessage className="tarot-mt-feedback" tone="success">
+              <InlineMessage className="ts-feedback" tone="success">
                 {copy.promptCopySuccess}
               </InlineMessage>
             </div>
@@ -152,7 +152,7 @@ export function ReadingResult({
 
           {copyState === "failed" && (
             <div aria-live="polite" id="prompt-copy-failure" role="status">
-              <InlineMessage className="tarot-mt-feedback" tone="danger">
+              <InlineMessage className="ts-feedback" tone="danger">
                 {copy.promptCopyBlockedAction}
               </InlineMessage>
             </div>
@@ -197,11 +197,12 @@ export function ReadingResult({
                 aria-describedby={
                   copyState === "failed" ? "prompt-copy-failure" : undefined
                 }
+                className="ts-readonly-control ts-textarea-input ts-textarea-input--prompt"
                 label={copy.generatedPromptLabel}
                 readOnly
                 ref={promptTextareaRef}
                 value={prompt}
-                wrapperClassName="tarot-mt-textarea tarot-mt-textarea--prompt"
+                wrapperClassName="ts-field"
               />
             </div>
           </details>
@@ -336,18 +337,19 @@ export function ReadingResult({
               {hasShareFailure && (
                 <div className="grid gap-2" data-testid="manual-share-fallback">
                   <div aria-live="polite" id="share-failure" role="status">
-                    <InlineMessage className="tarot-mt-feedback" tone="danger">
+                    <InlineMessage className="ts-feedback" tone="danger">
                       {copy.shareBlockedAction}
                     </InlineMessage>
                   </div>
                   <TextField
                     announceError={false}
                     aria-describedby="share-failure"
+                    className="ts-manual-share-input ts-readonly-control"
                     label={copy.manualShareUrlLabel}
                     readOnly
                     ref={manualShareUrlRef}
                     value={shareUrl}
-                    wrapperClassName="tarot-mt-text-field tarot-mt-text-field--manual-share"
+                    wrapperClassName="ts-field"
                   />
                 </div>
               )}

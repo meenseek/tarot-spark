@@ -93,7 +93,9 @@
   --mt-duration-fast: var(--ts-motion-fast);
   --mt-duration-normal: var(--ts-motion-base);
   --mt-ease-standard: var(--ts-motion-ease);
+  --mt-control-border-width: 2px;
   --mt-focus-ring: 2px solid var(--ts-color-action);
+  --mt-focus-ring-offset: 2px;
 }
 
 @theme inline {
@@ -133,8 +135,9 @@ body {
   font-family: var(--ts-font-sans);
 }
 
-/* Preserve Tarot Spark's control hierarchy around adopted Measure Twice APIs. */
-.tarot-mt-button.mt-button {
+/* Tarot Spark owns component placement and product-specific sizing. */
+.ts-secondary-action,
+.ts-primary-action {
   min-height: 44px;
   border-width: 2px;
   border-color: var(--ts-color-border);
@@ -144,198 +147,127 @@ body {
   box-shadow: none;
 }
 
-.tarot-mt-button.mt-button:hover:not(:disabled) {
+.ts-secondary-action:hover:not(:disabled) {
   border-color: var(--ts-color-action);
   background: var(--ts-color-blush);
 }
 
-.tarot-mt-button.mt-button:active:not(:disabled) {
+.ts-secondary-action:active:not(:disabled) {
   border-color: var(--ts-color-action-pressed);
   background: var(--ts-color-blush-strong);
 }
 
-.tarot-mt-button--primary.mt-button {
+.ts-primary-action {
   min-height: 48px;
   border-color: var(--ts-color-action);
   background: var(--ts-color-action);
   color: var(--ts-color-on-action);
 }
 
-.tarot-mt-button--primary.mt-button:hover:not(:disabled) {
+.ts-primary-action:hover:not(:disabled) {
   border-color: var(--ts-color-action-hover);
   background: var(--ts-color-action-hover);
 }
 
-.tarot-mt-button--primary.mt-button:active:not(:disabled) {
+.ts-primary-action:active:not(:disabled) {
   border-color: var(--ts-color-action-pressed);
   background: var(--ts-color-action-pressed);
 }
 
-.tarot-mt-feedback.mt-inline-message {
+.ts-feedback {
   font-weight: 500;
   line-height: 1.5rem;
 }
 
-.tarot-mt-skip-link.mt-skip-link {
+.ts-skip-link {
   border-width: 2px;
   box-shadow: none;
 }
 
-/* Keep adopted fields inside Tarot Spark's card and control contract. */
-.tarot-mt-checkbox.mt-checkbox-field {
-  gap: 0;
+/* Public component tokens theme package-owned field structures. */
+.ts-privacy-option {
+  --mt-checkbox-card-min-height: 5rem;
+  --mt-checkbox-card-padding: 0.75rem;
+  --mt-checkbox-card-gap: 0.75rem;
 }
 
-.tarot-mt-checkbox .mt-checkbox-field__label {
+.ts-choice-group {
+  --mt-radio-group-options-gap: 0.5rem;
+}
+
+.ts-choice-card {
+  --mt-radio-card-body-gap: 0.25rem;
+  --mt-radio-card-label-font-weight: 600;
+  --mt-radio-card-description-line-height: 1.25rem;
+
   width: 100%;
-  min-height: 5rem;
-  box-sizing: border-box;
   padding: 0.75rem;
-  border: 1px solid var(--ts-color-divider);
   border-radius: var(--ts-radius-control);
-  background: var(--ts-color-canvas);
   gap: 0.75rem;
 }
 
-.tarot-mt-checkbox .mt-checkbox-field__input {
-  border-width: 2px;
-  margin-top: 0.25rem;
-}
-
-.tarot-mt-checkbox .mt-checkbox-field__text {
-  font-weight: 600;
-}
-
-.tarot-mt-checkbox .mt-checkbox-field__description {
-  margin-top: 0.25rem;
-  line-height: 1.25rem;
-}
-
-.tarot-mt-radio-group.mt-radio-group {
-  gap: 0.5rem;
-}
-
-.tarot-mt-radio-group .mt-radio-group__legend {
-  font-weight: 600;
-}
-
-.tarot-mt-radio-group .mt-radio-group__options {
-  gap: 0.5rem;
-}
-
-.tarot-mt-radio-card.mt-radio {
-  width: 100%;
-  padding: 0.75rem;
-  border: 2px solid var(--ts-color-border);
-  border-radius: var(--ts-radius-control);
-  background: var(--ts-color-canvas);
-  gap: 0.75rem;
-  transition:
-    border-color var(--ts-motion-fast) var(--ts-motion-ease),
-    background-color var(--ts-motion-fast) var(--ts-motion-ease);
-}
-
-.tarot-mt-radio-card--compact.mt-radio {
+.ts-choice-card--compact {
   min-height: 4rem;
 }
 
-.tarot-mt-radio-card--spread.mt-radio {
+.ts-choice-card--spread {
   min-height: 5rem;
 }
 
-.tarot-mt-radio-card--style.mt-radio {
+.ts-choice-card--style {
   min-height: 6rem;
 }
 
-.tarot-mt-radio-card .mt-radio__input {
-  border-width: 2px;
-}
-
-.tarot-mt-radio-card .mt-radio__input:checked {
-  border-width: 6px;
-}
-
-.tarot-mt-radio-card .mt-radio__label {
-  font-weight: 600;
-}
-
-.tarot-mt-radio-card .mt-radio__description {
-  margin-top: 0.25rem;
-  line-height: 1.25rem;
-}
-
-.tarot-mt-textarea .mt-textarea__control,
-.tarot-mt-text-field .mt-text-field__control {
-  border-width: 2px;
-  box-shadow: none;
-}
-
-.tarot-mt-textarea .mt-textarea__input {
+.ts-field .ts-textarea-input {
   padding: 0.75rem;
-  color: var(--ts-color-ink);
   font-size: 0.875rem;
   line-height: 1.5rem;
 }
 
-.tarot-mt-textarea--context .mt-textarea__input {
+.ts-field .ts-textarea-input--context {
   min-height: 10rem;
 }
 
-.tarot-mt-textarea--current .mt-textarea__input {
+.ts-field .ts-textarea-input--current {
   min-height: 7rem;
 }
 
-.tarot-mt-textarea--prompt .mt-textarea__input {
+.ts-field .ts-textarea-input--prompt {
   min-height: 14rem;
   padding: 1rem;
 }
 
-.tarot-mt-textarea--prompt .mt-textarea__input:read-only:not(:disabled),
-.tarot-mt-text-field--manual-share
-  .mt-text-field__input:read-only:not(:disabled) {
-  color: var(--ts-color-ink);
-}
-
-.tarot-mt-text-field--manual-share .mt-text-field__control {
-  min-height: 44px;
+.ts-manual-share-input {
+  min-height: 40px;
 }
 
 @media (min-width: 40rem) {
-  .tarot-mt-radio-group--two-column .mt-radio-group__options {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .ts-choice-group--two-column {
+    --mt-radio-group-options-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .tarot-mt-textarea--context .mt-textarea__input {
+  .ts-field .ts-textarea-input--context {
     min-height: 7rem;
   }
 }
 
 @media (forced-colors: none) {
-  .tarot-mt-button.mt-button:focus-visible {
-    outline: 2px solid var(--ts-color-action);
-    outline-offset: 2px;
+  .ts-privacy-option {
+    --mt-checkbox-card-border-width: 1px;
+    --mt-checkbox-card-border-color: var(--ts-color-divider);
+    --mt-checkbox-card-background: var(--ts-color-canvas);
   }
 
-  .tarot-mt-checkbox .mt-checkbox-field__input:focus-visible,
-  .tarot-mt-radio-card .mt-radio__input:focus-visible {
-    outline: 2px solid var(--ts-color-action);
-    outline-offset: 2px;
+  .ts-choice-card {
+    --mt-radio-card-border-width: 2px;
+    --mt-radio-card-border-color: var(--ts-color-border);
+    --mt-radio-card-background: var(--ts-color-canvas);
+    --mt-radio-card-border-color-selected: var(--ts-color-action);
+    --mt-radio-card-background-selected: var(--ts-color-blush);
   }
 
-  .tarot-mt-textarea .mt-textarea__control:focus-within,
-  .tarot-mt-text-field .mt-text-field__control:focus-within {
-    outline: 2px solid var(--ts-color-action);
-    outline-offset: 2px;
-  }
-
-  .tarot-mt-radio-card.mt-radio:hover {
-    border-color: var(--ts-color-action);
-    background: var(--ts-color-blush);
-  }
-
-  .tarot-mt-radio-card.mt-radio:has(.mt-radio__input:checked) {
-    border-color: var(--ts-color-action);
-    background: var(--ts-color-blush);
+  .ts-readonly-control:read-only:not(:disabled) {
+    color: var(--ts-color-ink);
   }
 }
 

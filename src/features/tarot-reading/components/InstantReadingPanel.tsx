@@ -81,7 +81,7 @@ export function InstantReadingPanel({
       ) : (
         <>
           <Button
-            className="tarot-mt-button"
+            className="ts-secondary-action"
             onClick={isLoading ? onCancel : onGenerate}
             ref={actionRef}
             tone="neutral"
@@ -95,7 +95,7 @@ export function InstantReadingPanel({
                 : copy.generate}
           </Button>
           {status === "unavailable" && (
-            <InlineMessage className="tarot-mt-feedback" tone="danger">
+            <InlineMessage className="ts-feedback" tone="danger">
               {copy.unavailable}
             </InlineMessage>
           )}

@@ -1,5 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { ESLint } from "eslint";
+import stylelint from "stylelint";
 import { describe, expect, it } from "vitest";
 
 const themedSourceFiles = [
@@ -228,9 +230,9 @@ describe("visual design system contract", () => {
     );
 
     expect(promptResultSource).toMatch(
-      /<Button\s+className="tarot-mt-button tarot-mt-button--primary[^\"]*"\s+onClick={onCopyPrompt}/,
+      /<Button\s+className="ts-primary-action[^\"]*"\s+onClick={onCopyPrompt}/,
     );
-    expect(instantReadingSource).toContain('className="tarot-mt-button"');
+    expect(instantReadingSource).toContain('className="ts-secondary-action"');
     expect(promptResultSource).toContain("Button,");
     expect(promptResultSource).toContain("InlineMessage,");
     expect(instantReadingSource).toContain("Button, InlineMessage");
@@ -307,50 +309,53 @@ describe("visual design system contract", () => {
         /^\s*--mt-focus-ring:\s*2px solid var\(--ts-color-action\);\s*$/gm,
       ) ?? [],
     ).toHaveLength(1);
+    expect(
+      css.match(/^\s*--mt-control-border-width:\s*2px;\s*$/gm) ?? [],
+    ).toHaveLength(1);
+    expect(
+      css.match(/^\s*--mt-focus-ring-offset:\s*2px;\s*$/gm) ?? [],
+    ).toHaveLength(1);
   });
 
-  it("preserves Tarot control boundaries and focus around adopted components", () => {
+  it("preserves Tarot control boundaries through public contracts", () => {
     const css = readFileSync(
       resolve(process.cwd(), "src/app/globals.css"),
       "utf8",
     );
 
     expect(css).toMatch(
-      /\.tarot-mt-button\.mt-button\s*{[^}]*min-height:\s*44px;[^}]*border-width:\s*2px;/,
+      /\.ts-secondary-action,\s*\.ts-primary-action\s*{[^}]*min-height:\s*44px;[^}]*border-width:\s*2px;/,
     );
     expect(css).toMatch(
-      /\.tarot-mt-button--primary\.mt-button\s*{[^}]*min-height:\s*48px;[^}]*border-color:\s*var\(--ts-color-action\);/,
+      /\.ts-primary-action\s*{[^}]*min-height:\s*48px;[^}]*border-color:\s*var\(--ts-color-action\);/,
     );
     expect(css).toMatch(
-      /@media \(forced-colors: none\)[\s\S]*\.tarot-mt-button\.mt-button:focus-visible\s*{[^}]*outline:\s*2px solid var\(--ts-color-action\);[^}]*outline-offset:\s*2px;/,
+      /\.ts-skip-link\s*{[^}]*border-width:\s*2px;[^}]*box-shadow:\s*none;/,
     );
     expect(css).toMatch(
-      /\.tarot-mt-skip-link\.mt-skip-link\s*{[^}]*border-width:\s*2px;[^}]*box-shadow:\s*none;/,
+      /\.ts-privacy-option\s*{[^}]*--mt-checkbox-card-min-height:\s*5rem;[^}]*--mt-checkbox-card-padding:\s*0\.75rem;[^}]*--mt-checkbox-card-gap:\s*0\.75rem;/,
     );
     expect(css).toMatch(
-      /\.tarot-mt-checkbox \.mt-checkbox-field__label\s*{[^}]*width:\s*100%;[^}]*min-height:\s*5rem;[^}]*padding:\s*0\.75rem;[^}]*border:\s*1px solid var\(--ts-color-divider\);[^}]*background:\s*var\(--ts-color-canvas\);/,
+      /\.ts-choice-card\s*{[^}]*--mt-radio-card-body-gap:\s*0\.25rem;[^}]*--mt-radio-card-label-font-weight:\s*600;[^}]*--mt-radio-card-description-line-height:\s*1\.25rem;/,
     );
     expect(css).toMatch(
-      /\.tarot-mt-checkbox\.mt-checkbox-field\s*{[^}]*gap:\s*0;[^}]*}/,
+      /@media \(forced-colors:\s*none\)\s*{[\s\S]*?\.ts-privacy-option\s*{[^}]*--mt-checkbox-card-border-width:\s*1px;[^}]*--mt-checkbox-card-border-color:\s*var\(--ts-color-divider\);[^}]*--mt-checkbox-card-background:\s*var\(--ts-color-canvas\);/,
     );
     expect(css).toMatch(
-      /\.tarot-mt-checkbox \.mt-checkbox-field__input\s*{[^}]*border-width:\s*2px;/,
+      /@media \(forced-colors:\s*none\)\s*{[\s\S]*?\.ts-choice-card\s*{[^}]*--mt-radio-card-border-width:\s*2px;[^}]*--mt-radio-card-border-color:\s*var\(--ts-color-border\);[^}]*--mt-radio-card-background:\s*var\(--ts-color-canvas\);[^}]*--mt-radio-card-border-color-selected:\s*var\(--ts-color-action\);[^}]*--mt-radio-card-background-selected:\s*var\(--ts-color-blush\);/,
     );
     expect(css).toMatch(
-      /\.tarot-mt-radio-card\.mt-radio\s*{[^}]*width:\s*100%;[^}]*border:\s*2px solid var\(--ts-color-border\);/,
+      /@media \(min-width: 40rem\)\s*{[\s\S]*?\.ts-choice-group--two-column\s*{[^}]*--mt-radio-group-options-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/,
     );
     expect(css).toMatch(
-      /\.tarot-mt-textarea \.mt-textarea__control,[\s\S]*\.tarot-mt-text-field \.mt-text-field__control\s*{[^}]*border-width:\s*2px;/,
+      /\.ts-field\s+\.ts-textarea-input\s*{[^}]*padding:\s*0\.75rem;[^}]*font-size:\s*0\.875rem;[^}]*line-height:\s*1\.5rem;/,
     );
     expect(css).toMatch(
-      /\.tarot-mt-text-field--manual-share \.mt-text-field__control\s*{[^}]*min-height:\s*44px;/,
+      /\.ts-field\s+\.ts-textarea-input--prompt\s*{[^}]*min-height:\s*14rem;[^}]*padding:\s*1rem;/,
     );
-    expect(css).toMatch(
-      /@media \(forced-colors: none\)[\s\S]*\.tarot-mt-checkbox \.mt-checkbox-field__input:focus-visible,[\s\S]*outline:\s*2px solid var\(--ts-color-action\);[^}]*outline-offset:\s*2px;/,
-    );
-    expect(css).toMatch(
-      /@media \(forced-colors: none\)[\s\S]*\.tarot-mt-textarea \.mt-textarea__control:focus-within,[\s\S]*outline:\s*2px solid var\(--ts-color-action\);[^}]*outline-offset:\s*2px;/,
-    );
+    expect(css).toMatch(/\.ts-manual-share-input\s*{[^}]*min-height:\s*40px;/);
+    expect(css).not.toMatch(/\.mt-/);
+    expect(css).not.toContain(":has(");
   });
 
   it("adopts compatible Measure Twice fields without adding live regions", () => {
@@ -364,35 +369,39 @@ describe("visual design system contract", () => {
     const adoptedFieldSources = {
       "src/features/privacy-consent/PrivacyConsent.tsx": {
         announceErrorCount: 2,
+        cardAppearanceCount: 2,
         imports: ["Checkbox"],
         rejectedNativeTags: ["<input"],
       },
       "src/features/tarot-reading/components/CurrentPromptCustomization.tsx": {
         announceErrorCount: 2,
+        cardAppearanceCount: 1,
         imports: ["Radio", "RadioGroup", "Textarea"],
         rejectedNativeTags: ["<input", "<textarea"],
       },
       "src/features/tarot-reading/components/ReadingPreferences.tsx": {
         announceErrorCount: 2,
+        cardAppearanceCount: 2,
         imports: ["Radio", "RadioGroup"],
         rejectedNativeTags: ["<input"],
       },
       "src/features/tarot-reading/components/ReadingResult.tsx": {
         announceErrorCount: 2,
+        cardAppearanceCount: 0,
         imports: ["Textarea", "TextField"],
         rejectedNativeTags: ["<input", "<textarea"],
       },
       "src/features/tarot-reading/components/SituationContextInput.tsx": {
         announceErrorCount: 1,
+        cardAppearanceCount: 0,
         imports: ["Textarea"],
         rejectedNativeTags: ["<textarea"],
       },
     } as const;
 
-    expect(packageManifest.dependencies["@measure-twice/react"]).toBe("0.3.0");
-    expect(lockfile).toContain("specifier: 0.3.0");
-    expect(lockfile).toMatch(/["']@measure-twice\/react@0\.3\.0["']:/);
-    expect(lockfile).not.toMatch(/["']@measure-twice\/react@0\.2\.0["']:/);
+    expect(packageManifest.dependencies["@measure-twice/react"]).toBe("0.4.0");
+    expect(lockfile).toContain("specifier: 0.4.0");
+    expect(lockfile).toMatch(/["']@measure-twice\/react@0\.4\.0["']:/);
 
     Object.entries(adoptedFieldSources).forEach(([relativePath, contract]) => {
       const source = readFileSync(resolve(process.cwd(), relativePath), "utf8");
@@ -404,6 +413,10 @@ describe("visual design system contract", () => {
         source.match(/announceError={false}/g) ?? [],
         relativePath,
       ).toHaveLength(contract.announceErrorCount);
+      expect(
+        source.match(/appearance="card"/g) ?? [],
+        relativePath,
+      ).toHaveLength(contract.cardAppearanceCount);
       contract.rejectedNativeTags.forEach((tag) => {
         expect(source, relativePath).not.toContain(tag);
       });
@@ -434,7 +447,7 @@ describe("visual design system contract", () => {
     expect(skipLinkSource).toContain(
       'import { SkipLink } from "@measure-twice/react";',
     );
-    expect(skipLinkSource).toContain('className="tarot-mt-skip-link"');
+    expect(skipLinkSource).toContain('className="ts-skip-link"');
     expect(skipLinkSource).toContain('href="#site-main-content"');
     expect(shellSource).toContain(
       'import { SiteSkipLink } from "./SiteSkipLink";',
@@ -463,5 +476,80 @@ describe("visual design system contract", () => {
         expect(tarotImport, relativePath).toBeGreaterThan(measureTwiceImport);
       },
     );
+  });
+
+  it("enforces the package ownership boundary in both source languages", () => {
+    const eslintSource = readFileSync(
+      resolve(process.cwd(), "eslint.config.mjs"),
+      "utf8",
+    );
+    const stylelintSource = readFileSync(
+      resolve(process.cwd(), "stylelint.config.mjs"),
+      "utf8",
+    );
+    const packageManifest = JSON.parse(
+      readFileSync(resolve(process.cwd(), "package.json"), "utf8"),
+    ) as { scripts: Record<string, string> };
+
+    expect(eslintSource).toContain(
+      'import measureTwice from "@measure-twice/react/eslint";',
+    );
+    expect(eslintSource).toContain("measureTwice.configs.recommended");
+    expect(stylelintSource).toContain(
+      'import measureTwice from "@measure-twice/react/stylelint";',
+    );
+    expect(packageManifest.scripts["lint"]).toContain('stylelint "**/*.css"');
+  });
+
+  it("rejects private package contracts while allowing public and app-owned names", async () => {
+    const cwd = process.cwd();
+    const ruleName = "measure-twice/no-private-contracts";
+    const eslint = new ESLint({
+      cwd,
+      overrideConfigFile: resolve(cwd, "eslint.config.mjs"),
+    });
+    const privateClassName = ["mt", "button"].join("-");
+    const privateTokenName = ["--mt", "private-token"].join("-");
+    const [privateSourceResult] = await eslint.lintText(
+      `export const Bad = () => <div className="${privateClassName}" style={{ "${privateTokenName}": "red" }} />;`,
+      {
+        filePath: resolve(cwd, "src/consumer-boundary-fixture.tsx"),
+      },
+    );
+    const [publicSourceResult] = await eslint.lintText(
+      'export const Good = () => <div className="mt-2 ts-card" style={{ "--mt-color-action": "red" }} />;',
+      {
+        filePath: resolve(cwd, "src/consumer-boundary-fixture.tsx"),
+      },
+    );
+
+    expect(
+      privateSourceResult?.messages.filter(({ ruleId }) => ruleId === ruleName),
+    ).toHaveLength(2);
+    expect(
+      publicSourceResult?.messages.filter(({ ruleId }) => ruleId === ruleName),
+    ).toEqual([]);
+
+    const privateStylesResult = await stylelint.lint({
+      code: `.ts-card .${privateClassName} { color: var(${privateTokenName}); }`,
+      codeFilename: resolve(cwd, "src/consumer-boundary-fixture.css"),
+      configFile: resolve(cwd, "stylelint.config.mjs"),
+    });
+    const publicStylesResult = await stylelint.lint({
+      code: ".mt-2.ts-card { color: var(--mt-color-action); }",
+      codeFilename: resolve(cwd, "src/consumer-boundary-fixture.css"),
+      configFile: resolve(cwd, "stylelint.config.mjs"),
+    });
+
+    expect(
+      privateStylesResult.results[0]?.warnings.filter(
+        ({ rule }) => rule === ruleName,
+      ),
+    ).toHaveLength(2);
+    expect(
+      publicStylesResult.results[0]?.warnings.filter(
+        ({ rule }) => rule === ruleName,
+      ),
+    ).toEqual([]);
   });
 });

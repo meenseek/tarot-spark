@@ -71,7 +71,7 @@ export function ReadingPreferences({
 
         <RadioGroup
           announceError={false}
-          className="tarot-mt-radio-group tarot-mt-radio-group--two-column"
+          className="ts-choice-group ts-choice-group--two-column"
           legend={copy.spreadSelectorLabel}
           name="tarot-spread"
           onValueChange={(value) => onSpreadChange(value as SpreadId)}
@@ -79,18 +79,19 @@ export function ReadingPreferences({
         >
           {spreads.map((spread) => (
             <Radio
+              appearance="card"
               description={spread.description}
               key={spread.id}
               label={spread.label}
               value={spread.id}
-              wrapperClassName="tarot-mt-radio-card tarot-mt-radio-card--spread"
+              wrapperClassName="ts-choice-card ts-choice-card--spread"
             />
           ))}
         </RadioGroup>
 
         <RadioGroup
           announceError={false}
-          className="tarot-mt-radio-group tarot-mt-radio-group--two-column"
+          className="ts-choice-group ts-choice-group--two-column"
           legend={copy.readingStyleSelectorLabel}
           name="reading-style"
           onValueChange={(value) => onStyleChange(value as ReadingStyleId)}
@@ -98,11 +99,12 @@ export function ReadingPreferences({
         >
           {readingStyles.map((style) => (
             <Radio
+              appearance="card"
               description={style.description}
               key={style.id}
               label={style.label}
               value={style.id}
-              wrapperClassName="tarot-mt-radio-card tarot-mt-radio-card--style"
+              wrapperClassName="ts-choice-card ts-choice-card--style"
             />
           ))}
         </RadioGroup>
