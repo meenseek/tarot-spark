@@ -38,9 +38,10 @@ import {
 } from "@/domain/tarot";
 import { optionalServicesDocumentReloadEvent } from "@/features/privacy-consent/events";
 import type {
-  RelationshipQuestion,
-  RelationshipQuestionId,
-} from "@/features/relationship-questions/registry";
+  PublicQuestion,
+  PublicQuestionGroup,
+  PublicQuestionId,
+} from "@/features/reading-questions/registry";
 import { localeNames, supportedLocales, type Locale } from "@/i18n/config";
 import { formatTemplateStrict } from "@/i18n/template";
 import {
@@ -59,7 +60,7 @@ import type { InstantReadingStatus } from "./components/InstantReadingPanel";
 import { LanguageSwitch } from "./components/LanguageSwitch";
 import { ReadingPreferences } from "./components/ReadingPreferences";
 import { ReadingResult } from "./components/ReadingResult";
-import { RelationshipQuestionSelector } from "./components/RelationshipQuestionSelector";
+import { PublicQuestionPicker } from "./components/PublicQuestionPicker";
 import { SituationContextInput } from "./components/SituationContextInput";
 import { TopicSelector } from "./components/TopicSelector";
 import type { TarotReadingCopy } from "./i18n";
@@ -112,7 +113,8 @@ type TarotExperienceClientProps = {
   readonly kakaoJavaScriptKey: string | undefined;
   readonly publicPageLinks: readonly PublicPageLink[];
   readonly publicPageNavigationLabel: string;
-  readonly relationshipQuestions: readonly RelationshipQuestion[];
+  readonly publicQuestionGroups: readonly PublicQuestionGroup[];
+  readonly publicQuestions: readonly PublicQuestion[];
   readonly shareSiteUrl: string;
   readonly tarotData: LocaleTarotData;
   readonly viewMode: TarotExperienceViewMode;
@@ -134,7 +136,8 @@ export function TarotExperienceClient({
   kakaoJavaScriptKey,
   publicPageLinks,
   publicPageNavigationLabel,
-  relationshipQuestions,
+  publicQuestionGroups,
+  publicQuestions,
   shareSiteUrl,
   tarotData,
   viewMode,
@@ -229,9 +232,7 @@ export function TarotExperienceClient({
   const selectedTopic = getTopic(tarotData.topics, formInputs.topicId);
   const selectedSpread = getSpread(tarotData.spreads, formInputs.spreadId);
   const selectedQuestion = formInputs.questionId
-    ? relationshipQuestions.find(
-        (question) => question.id === formInputs.questionId,
-      )
+    ? publicQuestions.find((question) => question.id === formInputs.questionId)
     : undefined;
   const currentTopic = currentResult
     ? getTopic(tarotData.topics, currentResult.inputs.topicId)
@@ -243,7 +244,7 @@ export function TarotExperienceClient({
     ? getReadingStyle(tarotData.readingStyles, currentResult.inputs.styleId)
     : undefined;
   const currentQuestion = currentResult?.inputs.questionId
-    ? relationshipQuestions.find(
+    ? publicQuestions.find(
         (question) => question.id === currentResult.inputs.questionId,
       )
     : undefined;
@@ -252,6 +253,18 @@ export function TarotExperienceClient({
   const resultViewKey = currentResult
     ? `card-instance:${currentResult.cardInstanceId}`
     : undefined;
+  const visibleQuestionGroups = useMemo(
+    () =>
+      publicQuestionGroups
+        .map((group) => ({
+          ...group,
+          questions: group.questions.filter(
+            ({ topicId }) => topicId === formInputs.topicId,
+          ),
+        }))
+        .filter(({ questions }) => questions.length > 0),
+    [formInputs.topicId, publicQuestionGroups],
+  );
 
   useEffect(() => {
     if (viewMode === "shared") {
@@ -619,12 +632,12 @@ export function TarotExperienceClient({
     });
   }
 
-  function chooseRelationshipQuestion(questionId: RelationshipQuestionId) {
+  function choosePublicQuestion(questionId: PublicQuestionId) {
     if (session.mode === "result" || formInputs.questionId === questionId) {
       return;
     }
 
-    const question = relationshipQuestions.find(({ id }) => id === questionId);
+    const question = publicQuestions.find(({ id }) => id === questionId);
 
     if (!question) {
       return;
@@ -640,6 +653,25 @@ export function TarotExperienceClient({
           formInputs.styleId,
           [],
           questionId,
+          readingAttribution,
+        ),
+      );
+    }
+  }
+
+  function clearPublicQuestion() {
+    if (session.mode === "result" || !formInputs.questionId) return;
+
+    dispatchSession({ type: "CLEAR_DRAFT_QUESTION" });
+    if (session.mode === "setup") {
+      replaceBrowserUrl(
+        getBrowserReadingUrl(
+          formInputs.topicId,
+          formInputs.spreadId,
+          formInputs.styleId,
+          formInputs.styleId,
+          [],
+          undefined,
           readingAttribution,
         ),
       );
@@ -1348,42 +1380,20 @@ export function TarotExperienceClient({
         </div>
       )}
 
-      {selectedQuestion ? (
-        <aside
-          className="grid gap-2 rounded-ts-panel border border-ts-gold/50 bg-ts-surface p-4"
-          data-testid="selected-relationship-question"
-        >
-          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-ts-action">
-            {copy.selectedQuestionLabel}
-          </p>
-          <p className="font-ts-display text-xl font-semibold leading-7 text-ts-ink">
-            {selectedQuestion.title}
-          </p>
-          <p className="text-sm leading-6 text-ts-muted">
-            {copy.selectedQuestionHelp}
-          </p>
-          <div className="grid gap-1 border-l-2 border-ts-gold pl-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.06em] text-ts-action">
-              {copy.selectedQuestionFocusLabel}
-            </p>
-            <p className="text-sm leading-6 text-ts-ink">
-              {selectedQuestion.focus}
-            </p>
-          </div>
-          <RelationshipQuestionSelector
-            label={copy.changeQuestionLabel}
-            onSelect={chooseRelationshipQuestion}
-            questions={relationshipQuestions}
-            selectedQuestionId={selectedQuestion.id}
-          />
-        </aside>
-      ) : null}
-
       <TopicSelector
         ariaLabel={copy.topicSelectorLabel}
         onSelect={chooseTopic}
         selectedTopicId={formInputs.topicId}
         topics={tarotData.topics}
+      />
+
+      <PublicQuestionPicker
+        copy={copy}
+        groups={visibleQuestionGroups}
+        key={formInputs.topicId}
+        onClear={clearPublicQuestion}
+        onSelect={choosePublicQuestion}
+        selectedQuestion={selectedQuestion}
       />
 
       <SituationContextInput
@@ -1457,7 +1467,7 @@ export function TarotExperienceClient({
             {currentQuestion ? (
               <p
                 className="text-sm font-medium leading-6 text-ts-ink"
-                data-testid="current-relationship-question"
+                data-testid="current-public-question"
               >
                 {copy.selectedQuestionLabel}: {currentQuestion.title}
               </p>
@@ -1718,7 +1728,7 @@ function getBrowserReadingUrl(
   styleId: ReadingStyleId,
   drawStyleId: ReadingStyleId,
   cards: readonly DrawnCard[],
-  questionId: RelationshipQuestionId | undefined,
+  questionId: PublicQuestionId | undefined,
   attribution?: ReadingUrlAttribution,
 ) {
   return buildReadingUrl(
@@ -1743,7 +1753,7 @@ function getShareUrl(
   styleId: ReadingStyleId,
   drawStyleId: ReadingStyleId,
   cards: readonly DrawnCard[],
-  questionId: RelationshipQuestionId | undefined,
+  questionId: PublicQuestionId | undefined,
   sourceId: ShareSourceId = "copy",
 ) {
   return buildReadingUrl(

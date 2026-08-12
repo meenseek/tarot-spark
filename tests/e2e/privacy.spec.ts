@@ -86,7 +86,7 @@ test("clears an active advertising document before showing a reading", async ({
   await expect(page).toHaveURL("/");
   await expect(
     page.getByRole("heading", {
-      name: "Turn your situation and a tarot spread into a stronger AI prompt.",
+      name: "Draw cards and create a question for your AI tool.",
     }),
   ).toBeVisible();
   await expect(
@@ -201,7 +201,7 @@ test("clears stale private handoff before opening a clean attributed generator",
     )
     .toBeNull();
 
-  await page.getByRole("link", { name: "Create your own reading" }).click();
+  await page.getByRole("link", { name: "Draw my cards" }).click();
   await expect(page).toHaveURL((url) => {
     return (
       url.pathname === "/" &&
@@ -255,7 +255,7 @@ test("clears stale private handoff before consecutive pre-hydration navigation",
     "/share?topic=relationship-flow&style=relational&cards=the-fool,the-lovers,the-star&source=instagram&campaign=vertical-slice",
   );
   const createOwnLink = page.getByRole("link", {
-    name: "Create your own reading",
+    name: "Draw my cards",
   });
   await expect(createOwnLink).toHaveAttribute(
     "href",

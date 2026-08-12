@@ -520,13 +520,13 @@ test("uses state-specific generator layouts and one filled result action", async
   const cardOverviewRect = await getDocumentRect(cardOverview);
   const promptReadyRect = await getDocumentRect(promptReady);
 
-  await page.getByRole("button", { name: "Choose your next reading" }).click();
+  await page.getByRole("button", { name: "Prepare the next draw" }).click();
   await expect(generatorLayout).toHaveAttribute(
     "data-layout-mode",
     "edit-next-draw",
   );
   const nextReadingEditor = page.getByRole("region", {
-    name: "Choose your next reading",
+    name: "Prepare the next draw",
   });
   await expect(nextReadingEditor).toBeVisible();
   await expect(page.getByTestId("reading-setup-panel")).toHaveCount(0);
@@ -573,7 +573,7 @@ test("uses state-specific generator layouts and one filled result action", async
     );
   expect(editorFilledPrimaryCount).toBe(1);
   const cancelEditButton = page.getByRole("button", {
-    name: "Back to current reading",
+    name: "Back to this result",
   });
   const editDrawButton = page.getByRole("button", { name: "Draw 3 cards" });
   const cancelEditButtonBox = await cancelEditButton.boundingBox();
@@ -670,7 +670,7 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
     const topicOptionsBox = await topicOptions.boundingBox();
     const preferencesToggle = page.getByTestId("reading-preferences-toggle");
     const preferencesHeading = preferencesToggle.getByText(
-      "카드 수와 답변 분위기",
+      "카드 수와 답변 느낌",
       { exact: true },
     );
     const preferencesSelection = page.getByTestId(
@@ -733,8 +733,8 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
         await page
           .getByRole("button", { name: "카드 3장 뽑기" })
           .evaluate((element) => element.getBoundingClientRect().top + scrollY),
-        "320px Korean draw action position",
-      ).toBeLessThanOrEqual(1100);
+        "320px Korean draw action position with optional question row",
+      ).toBeLessThanOrEqual(1200);
     }
 
     if (width >= 1024) {
@@ -790,8 +790,8 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
         await page
           .getByRole("button", { name: "Draw 3 cards" })
           .evaluate((element) => element.getBoundingClientRect().top + scrollY),
-        "320px English draw action position",
-      ).toBeLessThanOrEqual(1100);
+        "320px English draw action position with optional question row",
+      ).toBeLessThanOrEqual(1200);
     }
   }
 
@@ -801,7 +801,7 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
     "reading-preferences-toggle",
   );
   const englishPreferencesHeading = englishPreferencesToggle.getByText(
-    "Card count and reading style",
+    "Cards and answer style",
     { exact: true },
   );
   const englishHeadingIsOneLine = await englishPreferencesHeading.evaluate(
@@ -827,13 +827,13 @@ test("uses the topic container width in the next-reading editor", async ({
 }) => {
   const localeCases = [
     {
-      editAction: "Choose your next reading",
+      editAction: "Prepare the next draw",
       label: "English",
       path: "/?topic=love&cards=the-fool,the-magician,the-high-priestess",
       widths: [390, 640, 764, 1024, 1280],
     },
     {
-      editAction: "다음 리딩 선택하기",
+      editAction: "다음 카드 준비하기",
       label: "Korean",
       path: "/ko?topic=love&cards=the-fool,the-magician,the-high-priestess",
       widths: [390, 764, 1280],
@@ -894,7 +894,7 @@ test("keeps the complete question catalog in stable fragment disclosures", async
   await perceptionCategory.locator("summary").click();
   await expect(perceptionCategory).toHaveAttribute("open", "");
   await expect(
-    page.getByRole("link", { name: "서로에 대한 기대 보기" }),
+    page.getByRole("link", { name: "서로의 기대 보기" }),
   ).toBeVisible();
 });
 
@@ -1164,7 +1164,7 @@ test("stages only a user-initiated card reveal with locked timing", async ({
   });
   expect(flipKeyframes).toEqual(["rotateY(0deg)", "rotateY(180deg)"]);
 
-  await page.getByRole("button", { name: "Choose your next reading" }).click();
+  await page.getByRole("button", { name: "Prepare the next draw" }).click();
   await page.getByRole("button", { name: "Draw 3 cards" }).click();
   await expect(page.getByTestId("reading-card-0")).toHaveAttribute(
     "data-reveal-sequence",

@@ -6,7 +6,7 @@ import {
   getPublicPageShellCopy,
 } from "@/features/public-pages";
 import { getDailyQuestionPath } from "@/features/daily-question";
-import { getRelationshipQuestionCatalog } from "@/features/relationship-questions";
+import { getPublicQuestionCatalog } from "@/features/reading-questions";
 import { isInstantReadingEnabled } from "@/server/instant-reading-config";
 import { TarotExperienceClient } from "./TarotExperienceClient";
 import { getTarotReadingCopy } from "./i18n";
@@ -32,6 +32,7 @@ export function TarotExperience({
   viewMode = "generator",
 }: TarotExperienceProps) {
   const publicPageShellCopy = getPublicPageShellCopy(locale);
+  const publicQuestionCatalog = getPublicQuestionCatalog(locale);
 
   return (
     <>
@@ -59,7 +60,8 @@ export function TarotExperience({
         locale={locale}
         publicPageLinks={getPublicPageLinks(locale)}
         publicPageNavigationLabel={publicPageShellCopy.pageNavigationLabel}
-        relationshipQuestions={getRelationshipQuestionCatalog(locale).questions}
+        publicQuestionGroups={publicQuestionCatalog.groups}
+        publicQuestions={publicQuestionCatalog.questions}
         shareSiteUrl={getShareSiteUrl().toString()}
         tarotData={getTarotData(locale)}
         viewMode={viewMode}
