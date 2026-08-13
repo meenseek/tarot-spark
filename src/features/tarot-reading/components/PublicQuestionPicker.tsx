@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import type {
   PublicQuestion,
   PublicQuestionGroup,
@@ -33,16 +34,53 @@ export function PublicQuestionPicker({
   onSelect,
   selectedQuestion,
 }: PublicQuestionPickerProps) {
+  const pickerRef = useRef<HTMLDetailsElement>(null);
+  const summaryRef = useRef<HTMLElement>(null);
+
   if (groups.length === 0) return null;
+
+  function resetQuestionGroups(question: PublicQuestion | undefined) {
+    pickerRef.current
+      ?.querySelectorAll<HTMLDetailsElement>("[data-question-focus]")
+      .forEach((group, groupIndex) => {
+        group.open = question
+          ? group.dataset["questionFocus"] === question.focusId
+          : groupIndex === 0;
+      });
+  }
+
+  function selectQuestion(questionId: PublicQuestionId) {
+    const question = groups
+      .flatMap((group) => group.questions)
+      .find(({ id }) => id === questionId);
+
+    closePicker(question);
+    onSelect(questionId);
+  }
+
+  function closePicker(question: PublicQuestion | undefined) {
+    resetQuestionGroups(question);
+    if (pickerRef.current) pickerRef.current.open = false;
+    summaryRef.current?.focus();
+  }
+
+  function clearQuestion() {
+    closePicker(undefined);
+    onClear();
+  }
 
   return (
     <details
       className="group rounded-ts-panel border border-ts-divider bg-ts-surface"
       data-testid="public-question-picker"
-      open={selectedQuestion ? true : undefined}
+      onToggle={({ currentTarget }) => {
+        if (!currentTarget.open) resetQuestionGroups(selectedQuestion);
+      }}
+      ref={pickerRef}
     >
       <summary
         className={`${interactiveFocusClassName} flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 rounded-ts-panel px-4 py-3 marker:hidden sm:px-5 [&::-webkit-details-marker]:hidden`}
+        ref={summaryRef}
       >
         <span className="grid gap-0.5">
           <span className="font-semibold text-ts-ink">
@@ -86,7 +124,7 @@ export function PublicQuestionPicker({
             </div>
             <button
               className={`${secondaryButtonClassName} w-fit`}
-              onClick={onClear}
+              onClick={clearQuestion}
               type="button"
             >
               {copy.clearQuestionLabel}
@@ -98,11 +136,14 @@ export function PublicQuestionPicker({
           {groups.map((group, groupIndex) => (
             <details
               className="group/question rounded-ts-control border border-ts-divider bg-ts-canvas"
+              data-question-focus={group.id}
               key={group.id}
               open={
-                selectedQuestion?.focusId === group.id || groupIndex === 0
-                  ? true
-                  : undefined
+                selectedQuestion
+                  ? selectedQuestion.focusId === group.id
+                  : groupIndex === 0
+                    ? true
+                    : undefined
               }
             >
               <summary
@@ -137,7 +178,7 @@ export function PublicQuestionPicker({
                       }`}
                       data-testid="public-question-option"
                       key={question.id}
-                      onClick={() => onSelect(question.id)}
+                      onClick={() => selectQuestion(question.id)}
                       type="button"
                     >
                       <span className="font-semibold leading-6 text-ts-ink">

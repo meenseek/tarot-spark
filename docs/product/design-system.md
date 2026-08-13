@@ -84,7 +84,9 @@ instead of palette utilities or color literals.
   height, a clear interactive boundary, and the current topic in the control.
 - Show the active locale with a persistent action inset stroke and weight
   change.
-- Show keyboard focus with a two-pixel action outline and two-pixel offset.
+- Show keyboard focus with a two-pixel action outline. Keep a two-pixel offset
+  by default; merge the topic-select outline into its control boundary so it
+  does not read as a detached second border.
 - Keep hover and pressed states within the action and blush token families.
 - Reduce animation and transition durations when reduced motion is requested.
 
@@ -157,6 +159,12 @@ instead of palette utilities or color literals.
   relationship and career life areas while keeping stable topic ids and the
   current topic visible. Put the active spread count in the draw action instead
   of repeating it in every topic label.
+- Keep the topic heading and helper beside a compact select from 768px upward.
+  Stack them and let the select fill the available width below 768px.
+- Let users either draw with the broad topic or choose a specific question.
+  Selecting a question may adjust the broad topic to match; clearing only the
+  question keeps that adjusted topic. Close the question picker and return
+  focus to its summary after either action.
 - Keep the optional situation entry visible between topic selection and the
   reading-preferences disclosure. Do not group it with card-count or
   reading-style settings.

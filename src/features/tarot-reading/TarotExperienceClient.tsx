@@ -24,6 +24,7 @@ import {
   getReadingStyle,
   getSpread,
   getTopic,
+  getTopicTaxonomy,
   maxUserContextLength,
   parseInstantReadingResponse,
   type DrawnCard,
@@ -215,6 +216,11 @@ export function TarotExperienceClient({
     getCurrentOriginSnapshot,
     getServerOriginSnapshot,
   );
+  const isHydrated = useSyncExternalStore(
+    subscribeToHydration,
+    getHydratedSnapshot,
+    getServerHydratedSnapshot,
+  );
   useEffect(() => {
     sessionRef.current = session;
   }, [session]);
@@ -230,6 +236,7 @@ export function TarotExperienceClient({
     session.mode === "result" ? session.current.inputs : session.draft;
   const cards = currentResult?.cards ?? emptyDrawnCards;
   const selectedTopic = getTopic(tarotData.topics, formInputs.topicId);
+  const selectedDomainId = getTopicTaxonomy(formInputs.topicId).domainId;
   const selectedSpread = getSpread(tarotData.spreads, formInputs.spreadId);
   const selectedQuestion = formInputs.questionId
     ? publicQuestions.find((question) => question.id === formInputs.questionId)
@@ -255,15 +262,10 @@ export function TarotExperienceClient({
     : undefined;
   const visibleQuestionGroups = useMemo(
     () =>
-      publicQuestionGroups
-        .map((group) => ({
-          ...group,
-          questions: group.questions.filter(
-            ({ topicId }) => topicId === formInputs.topicId,
-          ),
-        }))
-        .filter(({ questions }) => questions.length > 0),
-    [formInputs.topicId, publicQuestionGroups],
+      publicQuestionGroups.filter(
+        ({ domainId }) => domainId === selectedDomainId,
+      ),
+    [publicQuestionGroups, selectedDomainId],
   );
 
   useEffect(() => {
@@ -1383,13 +1385,15 @@ export function TarotExperienceClient({
       )}
 
       <TopicSelector
-        ariaLabel={copy.topicSelectorLabel}
         description={copy.topicSelectorDescription}
+        disabled={!isHydrated}
         groupLabels={{
           career: copy.topicGroupCareer,
           relationship: copy.topicGroupRelationship,
         }}
+        heading={copy.topicSelectorLabel}
         onSelect={chooseTopic}
+        selectLabel={copy.topicSelectLabel}
         selectedTopicId={formInputs.topicId}
         topics={tarotData.topics}
       />
@@ -1397,7 +1401,7 @@ export function TarotExperienceClient({
       <PublicQuestionPicker
         copy={copy}
         groups={visibleQuestionGroups}
-        key={formInputs.topicId}
+        key={selectedDomainId}
         onClear={clearPublicQuestion}
         onSelect={choosePublicQuestion}
         selectedQuestion={selectedQuestion}
@@ -1808,6 +1812,18 @@ function subscribeToCurrentOrigin(onStoreChange: () => void) {
     window.removeEventListener("hashchange", onStoreChange);
     window.removeEventListener("popstate", onStoreChange);
   };
+}
+
+function subscribeToHydration() {
+  return () => undefined;
+}
+
+function getHydratedSnapshot() {
+  return true;
+}
+
+function getServerHydratedSnapshot() {
+  return false;
 }
 
 function getCurrentOriginSnapshot() {

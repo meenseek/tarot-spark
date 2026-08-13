@@ -184,6 +184,7 @@ const uiCopySchema = {
   contextCountLabel: "string",
   topicSelectorLabel: "string",
   topicSelectorDescription: "string",
+  topicSelectLabel: "string",
   topicGroupRelationship: "string",
   topicGroupCareer: "string",
   questionPickerSummary: "string",

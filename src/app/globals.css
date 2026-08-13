@@ -137,7 +137,18 @@ body {
 
 /* Tarot Spark owns component placement and product-specific sizing. */
 .ts-topic-select {
-  max-width: 28rem;
+  width: 100%;
+  max-width: none;
+}
+
+.ts-topic-select:focus-within {
+  --mt-focus-ring-offset: calc(-1 * var(--mt-control-border-width));
+}
+
+@media (min-width: 48rem) {
+  .ts-topic-select {
+    max-width: 28rem;
+  }
 }
 
 .ts-secondary-action,

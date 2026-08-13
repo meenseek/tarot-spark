@@ -173,7 +173,7 @@ type TopicSelectContract = {
 };
 
 const englishTopicSelectContract = {
-  description: "Your topic changes the question choices and AI prompt.",
+  description: "Draw with a broad topic, or choose a specific question below.",
   groups: [
     {
       label: "Relationships",
@@ -192,7 +192,7 @@ const englishTopicSelectContract = {
 } as const satisfies TopicSelectContract;
 
 const koreanTopicSelectContract = {
-  description: "선택한 주제에 맞춰 질문 선택지와 AI 질문이 달라져요.",
+  description: "넓은 주제로 바로 뽑거나, 아래에서 질문을 골라도 돼요.",
   groups: [
     {
       label: "관계",
@@ -234,9 +234,6 @@ async function expectTopicSelectLayout(
     geometry.height,
     `${contextLabel} touch height`,
   ).toBeGreaterThanOrEqual(48);
-  expect(geometry.width, `${contextLabel} maximum width`).toBeLessThanOrEqual(
-    449,
-  );
   expect(
     geometry.scrollWidth,
     `${contextLabel} horizontal content overflow`,
@@ -394,6 +391,7 @@ test("uses state-specific generator layouts and one filled result action", async
   const setupDrawButton = page.getByRole("button", {
     name: "Draw 3 cards",
   });
+  const topicChoice = page.getByTestId("topic-choice");
   const topicSelect = page.getByTestId("topic-select");
 
   await expect(generatorLayout).toHaveAttribute("data-layout-mode", "setup");
@@ -405,6 +403,7 @@ test("uses state-specific generator layouts and one filled result action", async
   const dailyQuestionLinkBox = await dailyQuestionLink.boundingBox();
   const setupActionsBox = await setupActions.boundingBox();
   const setupDrawButtonBox = await setupDrawButton.boundingBox();
+  const topicChoiceBox = await topicChoice.boundingBox();
   const topicSelectBox = await topicSelect.boundingBox();
   expect(generatorIntroBox).not.toBeNull();
   expect(generatorStateLayoutBox).not.toBeNull();
@@ -413,6 +412,7 @@ test("uses state-specific generator layouts and one filled result action", async
   expect(dailyQuestionLinkBox).not.toBeNull();
   expect(setupActionsBox).not.toBeNull();
   expect(setupDrawButtonBox).not.toBeNull();
+  expect(topicChoiceBox).not.toBeNull();
   expect(topicSelectBox).not.toBeNull();
   expect(setupPanelBox?.y ?? 0).toBeGreaterThanOrEqual(
     Math.max(
@@ -428,12 +428,18 @@ test("uses state-specific generator layouts and one filled result action", async
   expect(generatorStateLayoutBox?.width ?? 0).toBeGreaterThan(
     setupPanelBox?.width ?? Number.POSITIVE_INFINITY,
   );
+  expect(topicChoiceBox).toMatchObject({
+    x: setupActionsBox?.x,
+    width: setupActionsBox?.width,
+  });
   expect(
-    Math.abs((setupActionsBox?.x ?? 0) - (topicSelectBox?.x ?? 0)),
+    Math.abs(
+      (topicChoiceBox?.x ?? 0) +
+        (topicChoiceBox?.width ?? 0) -
+        ((topicSelectBox?.x ?? 0) + (topicSelectBox?.width ?? 0)),
+    ),
   ).toBeLessThanOrEqual(2);
-  expect(setupActionsBox?.width ?? 0).toBeGreaterThan(
-    topicSelectBox?.width ?? Number.POSITIVE_INFINITY,
-  );
+  expect(topicSelectBox?.width ?? 0).toBeLessThanOrEqual(449);
   expect(setupDrawButtonBox).toMatchObject({
     x: setupActionsBox?.x,
     width: setupActionsBox?.width,
@@ -586,7 +592,7 @@ test("uses state-specific generator layouts and one filled result action", async
 test("keeps the setup hierarchy balanced across responsive boundaries", async ({
   page,
 }) => {
-  for (const width of [320, 390, 640, 760, 764, 1024, 1280] as const) {
+  for (const width of [320, 390, 640, 767, 768, 1024, 1280] as const) {
     await page.setViewportSize({ height: 900, width });
     await page.goto("/ko");
 
@@ -602,8 +608,18 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
     const drawButtonBox = await page
       .getByRole("button", { name: "카드 3장 뽑기" })
       .boundingBox();
+    const topicChoiceBox = await page.getByTestId("topic-choice").boundingBox();
     const topicSelect = page.getByTestId("topic-select");
     const topicSelectBox = await topicSelect.boundingBox();
+    const topicSelectRootBox = await topicSelect.evaluate((element) => {
+      const root = element.closest(".ts-topic-select");
+
+      if (!root) throw new Error("Topic select application root is missing");
+
+      const rect = root.getBoundingClientRect();
+
+      return { width: rect.width, x: rect.x };
+    });
     const preferencesToggle = page.getByTestId("reading-preferences-toggle");
     const preferencesHeading = preferencesToggle.getByText(
       "카드 수와 답변 느낌",
@@ -630,6 +646,7 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
     expect(dailyQuestionLinkBox, `${width}px daily link`).not.toBeNull();
     expect(setupActionsBox, `${width}px action group`).not.toBeNull();
     expect(drawButtonBox, `${width}px draw button`).not.toBeNull();
+    expect(topicChoiceBox, `${width}px topic choice`).not.toBeNull();
     expect(topicSelectBox, `${width}px topic select`).not.toBeNull();
     expect(
       preferencesSelectionBox,
@@ -655,6 +672,30 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
         width: setupActionsBox?.width,
       },
     );
+    expect(topicChoiceBox, `${width}px topic row alignment`).toMatchObject({
+      x: setupActionsBox?.x,
+      width: setupActionsBox?.width,
+    });
+    if (width < 768) {
+      expect(
+        topicSelectRootBox,
+        `${width}px stacked full-width select`,
+      ).toMatchObject({
+        x: topicChoiceBox?.x,
+        width: topicChoiceBox?.width,
+      });
+    } else {
+      expect(
+        Math.abs(
+          (topicChoiceBox?.x ?? 0) +
+            (topicChoiceBox?.width ?? 0) -
+            (topicSelectRootBox.x + topicSelectRootBox.width),
+        ),
+        `${width}px right-aligned compact select`,
+      ).toBeLessThanOrEqual(2);
+      expect(topicSelectRootBox.width).toBeLessThanOrEqual(449);
+      expect(topicSelectRootBox.x).toBeGreaterThan(topicChoiceBox?.x ?? 0);
+    }
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -686,7 +727,7 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
     }
   }
 
-  for (const width of [320, 640, 760, 764, 1024] as const) {
+  for (const width of [320, 640, 767, 768, 1024] as const) {
     await page.setViewportSize({ height: 900, width });
     await page.goto("/");
 
@@ -698,7 +739,7 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
     );
     await expect(topicSelect).toHaveValue("love");
 
-    if (width === 320 || width === 764) {
+    if (width === 320 || width === 767) {
       const geometryBeforeSelection = await topicSelect.boundingBox();
 
       await topicSelect.selectOption("career-direction");
@@ -718,8 +759,8 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
         await page
           .getByRole("button", { name: "Draw 3 cards" })
           .evaluate((element) => element.getBoundingClientRect().top + scrollY),
-        "320px English draw action position with optional question row",
-      ).toBeLessThanOrEqual(1000);
+        "320px English draw action remains within the first 1024px",
+      ).toBeLessThanOrEqual(1024);
     }
   }
 
@@ -860,7 +901,7 @@ test("locks the semantic token values and primary visual roles", async ({
     colors.action,
   );
   await expect(
-    page.getByRole("combobox", { name: "What do you want to explore?" }),
+    page.getByRole("combobox", { name: "Broad reading topic" }),
   ).toHaveValue("love");
   await expect(page.getByTestId("reading-workspace")).toHaveCSS(
     "background-color",
@@ -1022,7 +1063,7 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
     name: "English",
   });
   const topicSelect = page.getByRole("combobox", {
-    name: "What do you want to explore?",
+    name: "Broad reading topic",
   });
   const drawButton = page.getByRole("button", { name: "Draw 3 cards" });
 
@@ -1062,6 +1103,17 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
   await assertFocusOutline(englishLocale, page);
   await tabTo(page, topicSelect);
   await expect(topicSelect).toBeFocused();
+  const topicFocusOffset = await topicSelect.evaluate((element) => {
+    const root = element.closest(".ts-topic-select");
+
+    if (!root) throw new Error("Topic select application root is missing");
+
+    return getComputedStyle(root)
+      .getPropertyValue("--mt-focus-ring-offset")
+      .trim();
+  });
+  expect(topicFocusOffset).toContain("calc(");
+  expect(topicFocusOffset).not.toBe("2px");
   await expect(topicSelect).toHaveValue("love");
   await topicSelect.press("c");
   await expect(topicSelect).toHaveValue("career-direction");

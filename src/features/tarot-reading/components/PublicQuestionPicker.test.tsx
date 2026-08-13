@@ -5,10 +5,11 @@ import { getPublicQuestionCatalog } from "@/features/reading-questions";
 import { PublicQuestionPicker } from "./PublicQuestionPicker";
 
 const copy = {
-  clearQuestionLabel: "Clear question",
-  questionPickerIntro: "Choose one question for a closer look.",
+  clearQuestionLabel: "Clear specific question",
+  questionPickerIntro:
+    "A question may adjust the topic above. Clearing it keeps that topic.",
   questionPickerOptional: "Optional",
-  questionPickerSummary: "Choose a question",
+  questionPickerSummary: "Or choose a specific question",
   selectedQuestionFocusLabel: "What to explore",
   selectedQuestionLabel: "Your question",
 };
@@ -34,12 +35,23 @@ describe("PublicQuestionPicker", () => {
 
     expect(screen.getByText("Optional")).toBeInTheDocument();
     expect(screen.getAllByTestId("public-question-option")).toHaveLength(6);
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: /Which strength am I overlooking/,
-      }),
-    );
+    const picker = screen.getByTestId(
+      "public-question-picker",
+    ) as HTMLDetailsElement;
+    const summary = screen
+      .getByText("Or choose a specific question")
+      .closest("summary");
+    const question = screen.getByRole("button", {
+      name: /Which strength am I overlooking/,
+    });
+
+    picker.open = true;
+    question.focus();
+    fireEvent.click(question);
+
     expect(onSelect).toHaveBeenCalledWith("career-underused-strength");
+    expect(picker).not.toHaveAttribute("open");
+    expect(summary).toHaveFocus();
   });
 
   it("shows friendly selected copy and clears back to the broad topic", () => {
@@ -65,7 +77,58 @@ describe("PublicQuestionPicker", () => {
     expect(
       screen.getByTestId("selected-public-question"),
     ).not.toHaveTextContent("Do not assess my health");
-    fireEvent.click(screen.getByRole("button", { name: "Clear question" }));
+    const picker = screen.getByTestId(
+      "public-question-picker",
+    ) as HTMLDetailsElement;
+    const summary = screen
+      .getByText("Or choose a specific question")
+      .closest("summary");
+
+    picker.open = true;
+    fireEvent.click(
+      screen.getByRole("button", { name: "Clear specific question" }),
+    );
+
     expect(onClear).toHaveBeenCalledOnce();
+    expect(picker).not.toHaveAttribute("open");
+    expect(summary).toHaveFocus();
+  });
+
+  it("resets open groups when the picker closes", () => {
+    const catalog = getPublicQuestionCatalog("en");
+    const groups = catalog.groups.filter(
+      ({ domainId }) => domainId === "career",
+    );
+    const selectedQuestion = catalog.questions.find(
+      ({ id }) => id === "career-sustainable-boundary",
+    );
+
+    render(
+      <PublicQuestionPicker
+        copy={copy}
+        groups={groups}
+        onClear={vi.fn()}
+        onSelect={vi.fn()}
+        selectedQuestion={selectedQuestion}
+      />,
+    );
+
+    const picker = screen.getByTestId(
+      "public-question-picker",
+    ) as HTMLDetailsElement;
+    const questionGroups = Array.from(
+      picker.querySelectorAll<HTMLDetailsElement>("[data-question-focus]"),
+    );
+
+    questionGroups.forEach((group) => {
+      group.open = true;
+    });
+    picker.open = false;
+    fireEvent(picker, new Event("toggle"));
+
+    expect(questionGroups.filter(({ open }) => open)).toHaveLength(1);
+    expect(
+      questionGroups.find(({ open }) => open)?.dataset["questionFocus"],
+    ).toBe(selectedQuestion?.focusId);
   });
 });
