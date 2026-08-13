@@ -329,6 +329,7 @@ describe("visual design system contract", () => {
     expect(css).toMatch(
       /\.ts-primary-action\s*{[^}]*min-height:\s*48px;[^}]*border-color:\s*var\(--ts-color-action\);/,
     );
+    expect(css).toMatch(/\.ts-topic-select\s*{[^}]*max-width:\s*28rem;/);
     expect(css).toMatch(
       /\.ts-skip-link\s*{[^}]*border-width:\s*2px;[^}]*box-shadow:\s*none;/,
     );
@@ -391,6 +392,12 @@ describe("visual design system contract", () => {
         imports: ["Textarea", "TextField"],
         rejectedNativeTags: ["<input", "<textarea"],
       },
+      "src/features/tarot-reading/components/TopicSelector.tsx": {
+        announceErrorCount: 1,
+        cardAppearanceCount: 0,
+        imports: ["Select"],
+        rejectedNativeTags: ["<input", "<select"],
+      },
       "src/features/tarot-reading/components/SituationContextInput.tsx": {
         announceErrorCount: 1,
         cardAppearanceCount: 0,
@@ -421,16 +428,6 @@ describe("visual design system contract", () => {
         expect(source, relativePath).not.toContain(tag);
       });
     });
-
-    const topicSelectorSource = readFileSync(
-      resolve(
-        process.cwd(),
-        "src/features/tarot-reading/components/TopicSelector.tsx",
-      ),
-      "utf8",
-    );
-    expect(topicSelectorSource).toContain("<input\n                checked=");
-    expect(topicSelectorSource).toContain('className="sr-only"');
   });
 
   it("adopts the Measure Twice skip link at the canonical shell boundary", () => {

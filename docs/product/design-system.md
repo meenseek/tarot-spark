@@ -80,7 +80,8 @@ instead of palette utilities or color literals.
 
 - Draw interactive boundaries with the border token; do not rely on shadow or
   fill alone.
-- Show selected topics with blush fill, a two-pixel action border, and a check.
+- Present topic selection as one visible native select with a 48px minimum
+  height, a clear interactive boundary, and the current topic in the control.
 - Show the active locale with a persistent action inset stroke and weight
   change.
 - Show keyboard focus with a two-pixel action outline and two-pixel offset.
@@ -152,9 +153,10 @@ instead of palette utilities or color literals.
 
 ## Reading Flow
 
-- Present topics as one labeled radio group. Keep the selected state native and
-  visible, and put the active spread count in the draw action instead of
-  repeating it in every topic label.
+- Present topics as one labeled native select. Group its options by the
+  relationship and career life areas while keeping stable topic ids and the
+  current topic visible. Put the active spread count in the draw action instead
+  of repeating it in every topic label.
 - Keep the optional situation entry visible between topic selection and the
   reading-preferences disclosure. Do not group it with card-count or
   reading-style settings.
