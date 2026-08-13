@@ -24,7 +24,7 @@ pastel-heavy.
 | Divider        | `#D9CCD2` | Non-interactive separators                   |
 | Gold           | `#B7863E` | One-pixel decorative lines only              |
 | Danger         | `#8C2F4A` | Action failure feedback                      |
-| Success        | `#2F604E` | Action success feedback                      |
+| Success        | `Action`  | Action success feedback                      |
 
 Define implementation values once as `--ts-*` properties in
 `src/app/globals.css`. Components should consume semantic `ts-*` utilities

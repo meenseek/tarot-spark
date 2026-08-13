@@ -16,7 +16,7 @@
   --ts-color-divider: #d9ccd2;
   --ts-color-gold: #b7863e;
   --ts-color-danger: #8c2f4a;
-  --ts-color-success: #2f604e;
+  --ts-color-success: var(--ts-color-action);
   --ts-font-sans:
     ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
     "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
