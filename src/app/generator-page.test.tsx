@@ -37,8 +37,8 @@ describe("generator route server state", () => {
     );
 
     expect(
-      presetDocument.querySelector<HTMLInputElement>(
-        'input[name="tarot-topic"]:checked',
+      presetDocument.querySelector<HTMLSelectElement>(
+        'select[name="tarot-topic"]',
       )?.value,
     ).toBe("career-direction");
     expect(
