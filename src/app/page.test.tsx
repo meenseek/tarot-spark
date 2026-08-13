@@ -1,5 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { StrictMode } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import {
   act,
   cleanup,
@@ -144,12 +145,18 @@ describe("Home", () => {
     render(<Home />);
 
     const topicSelect = screen.getByRole("combobox", {
-      name: "What do you want to explore?",
+      name: "Broad reading topic",
     });
+    expect(topicSelect).toBeEnabled();
     expect(topicSelect).toHaveValue("love");
     expect(topicSelect).toHaveAccessibleDescription(
-      "Your topic changes the question choices and AI prompt.",
+      "Draw with a broad topic, or choose a specific question below.",
     );
+    expect(
+      screen.getByText(
+        "A question may adjust the topic above. Clearing it keeps that topic.",
+      ),
+    ).toBeInTheDocument();
     expect(
       Array.from(topicSelect.querySelectorAll("optgroup")).map((group) => ({
         label: group.label,
@@ -164,6 +171,17 @@ describe("Home", () => {
       },
       { label: "Career", values: ["career-direction"] },
     ]);
+  });
+
+  it("keeps topic selection disabled in server markup until hydration", () => {
+    const container = document.createElement("div");
+    container.innerHTML = renderToStaticMarkup(<Home />);
+
+    expect(
+      within(container).getByRole("combobox", {
+        name: "Broad reading topic",
+      }),
+    ).toBeDisabled();
   });
 
   it("renders Korean localized content", () => {
@@ -360,7 +378,7 @@ describe("Home", () => {
     for (const [topicId, placeholder] of topicExamples) {
       fireEvent.change(
         screen.getByRole("combobox", {
-          name: "What do you want to explore?",
+          name: "Broad reading topic",
         }),
         { target: { value: topicId } },
       );
@@ -678,7 +696,7 @@ describe("Home", () => {
 
     fireEvent.change(
       screen.getByRole("combobox", {
-        name: "What do you want to explore?",
+        name: "Broad reading topic",
       }),
       { target: { value: "reunion" } },
     );
@@ -697,7 +715,7 @@ describe("Home", () => {
     });
     expect(
       screen.queryByRole("combobox", {
-        name: "What do you want to explore?",
+        name: "Broad reading topic",
       }),
     ).toBeNull();
 
@@ -706,7 +724,7 @@ describe("Home", () => {
     );
     expect(
       screen.getByRole("combobox", {
-        name: "What do you want to explore?",
+        name: "Broad reading topic",
       }),
     ).toHaveValue("love");
   });
@@ -1140,7 +1158,7 @@ describe("Home", () => {
 
       fireEvent.change(
         screen.getByRole("combobox", {
-          name: "What do you want to explore?",
+          name: "Broad reading topic",
         }),
         { target: { value: "reunion" } },
       );

@@ -567,35 +567,75 @@ test("uses a chosen relationship question in the generated prompt", async ({
     "우리는 서로를 어떻게 보고 있을까?",
   );
 
-  await page.getByTestId("topic-select").selectOption("love");
-  await expect(page.getByTestId("selected-public-question")).toHaveCount(0);
-  await page
-    .getByTestId("public-question-picker")
-    .locator("summary")
-    .first()
-    .click();
-  await page
-    .getByRole("button", { name: /우리 속도는 서로에게 맞을까/ })
-    .click();
-  await expect(page).toHaveURL(/topic=love&question=pace-of-closeness/);
-  await expect(page.getByTestId("selected-public-question")).toContainText(
-    "우리 속도는 서로에게 맞을까?",
-  );
+  const questionPicker = page.getByTestId("public-question-picker");
+  const questionPickerSummary = questionPicker.locator(":scope > summary");
 
-  await page.getByTestId("topic-select").selectOption("feelings");
+  await page.getByTestId("topic-select").selectOption("career-direction");
   await expect(page.getByTestId("selected-public-question")).toHaveCount(0);
+  await questionPickerSummary.click();
+  await expect(
+    page.getByTestId("public-question-groups").locator(":scope > details"),
+  ).toHaveCount(3);
+  await expect(page.getByTestId("public-question-option")).toHaveCount(6);
+
+  await page.getByTestId("topic-select").selectOption("love");
+  await expect(questionPicker).not.toHaveAttribute("open", "");
+  await questionPickerSummary.focus();
+  await page.keyboard.press("Enter");
+  await expect(
+    page.getByTestId("public-question-groups").locator(":scope > details"),
+  ).toHaveCount(7);
+  await expect(page.getByTestId("public-question-option")).toHaveCount(28);
+
+  const perceptionSummary = page
+    .getByTestId("public-question-groups")
+    .locator(":scope > details")
+    .filter({ hasText: "서로의 생각과 기대" })
+    .locator(":scope > summary");
+  await perceptionSummary.focus();
+  await page.keyboard.press("Enter");
+  const mutualViewQuestion = page.getByRole("button", {
+    name: /우리는 서로를 어떻게 보고 있을까/,
+  });
+  await mutualViewQuestion.focus();
+  await page.keyboard.press("Enter");
+
+  await expect(page).toHaveURL(/topic=feelings&question=mutual-view/);
+  await expect(page.getByTestId("topic-select")).toHaveValue("feelings");
+  await expect(questionPicker).not.toHaveAttribute("open", "");
+  await expect(questionPickerSummary).toContainText(
+    "우리는 서로를 어떻게 보고 있을까?",
+  );
+  await expect(questionPickerSummary).toBeFocused();
+  await expect(
+    page.getByRole("button", { name: "카드 3장 뽑기" }),
+  ).toBeVisible();
+  await expect(page.getByTestId("selected-public-question")).toContainText(
+    "우리는 서로를 어떻게 보고 있을까?",
+  );
+  await questionPickerSummary.click();
+  await expect(
+    page
+      .getByTestId("public-question-groups")
+      .locator(":scope > details[open]"),
+  ).toHaveCount(1);
+  await expect(perceptionSummary.locator("..")).toHaveAttribute("open", "");
+  await page.getByRole("button", { name: "구체 질문만 지우기" }).click();
+  await expect(page.getByTestId("topic-select")).toHaveValue("feelings");
+  expect(new URL(page.url()).searchParams.get("question")).toBeNull();
+  await expect(questionPicker).not.toHaveAttribute("open", "");
+  await expect(questionPickerSummary).toBeFocused();
+  await expect(
+    page.getByRole("button", { name: "카드 3장 뽑기" }),
+  ).toBeInViewport();
+
+  await questionPickerSummary.click();
+  await perceptionSummary.click();
   await page
-    .getByTestId("public-question-picker")
-    .locator("summary")
-    .first()
-    .click();
-  await page.getByText("서로의 생각과 기대", { exact: true }).click();
-  await page
-    .getByRole("button", {
-      name: /우리는 서로를 어떻게 보고 있을까/,
-    })
+    .getByRole("button", { name: /우리는 서로를 어떻게 보고 있을까/ })
     .click();
   await expect(page).toHaveURL(/topic=feelings&question=mutual-view/);
+  await expect(questionPickerSummary).toBeFocused();
   const selectorBox = await page
     .getByTestId("public-question-picker")
     .boundingBox();
@@ -764,7 +804,11 @@ test("offers distinctive career questions under one optional hierarchy", async (
     /topic=career-direction.*question=career-underused-strength/,
   );
 
-  await page.getByRole("button", { name: "질문 없이 보기" }).click();
+  await page
+    .getByTestId("public-question-picker")
+    .locator(":scope > summary")
+    .click();
+  await page.getByRole("button", { name: "구체 질문만 지우기" }).click();
   await expect(page).toHaveURL(/\/ko\?topic=career-direction$/);
   await expect(page.getByTestId("selected-public-question")).toHaveCount(0);
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
@@ -1019,6 +1063,10 @@ test("draws tarot cards and copies the generated prompt", async ({ page }) => {
   await page.goto("/");
 
   await page.getByTestId("topic-select").selectOption("reunion");
+  await expect(page.getByRole("link", { name: "한국어" })).toHaveAttribute(
+    "href",
+    "/ko?topic=reunion",
+  );
   await page.getByRole("button", { name: "Draw 3 cards" }).click();
   await openPromptContent(page);
 

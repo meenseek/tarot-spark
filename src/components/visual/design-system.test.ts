@@ -329,7 +329,15 @@ describe("visual design system contract", () => {
     expect(css).toMatch(
       /\.ts-primary-action\s*{[^}]*min-height:\s*48px;[^}]*border-color:\s*var\(--ts-color-action\);/,
     );
-    expect(css).toMatch(/\.ts-topic-select\s*{[^}]*max-width:\s*28rem;/);
+    expect(css).toMatch(
+      /\.ts-topic-select\s*{[^}]*width:\s*100%;[^}]*max-width:\s*none;/,
+    );
+    expect(css).toMatch(
+      /\.ts-topic-select:focus-within\s*{[^}]*--mt-focus-ring-offset:\s*calc\(-1 \* var\(--mt-control-border-width\)\);/,
+    );
+    expect(css).toMatch(
+      /@media \(min-width: 48rem\)\s*{[\s\S]*?\.ts-topic-select\s*{[^}]*max-width:\s*28rem;/,
+    );
     expect(css).toMatch(
       /\.ts-skip-link\s*{[^}]*border-width:\s*2px;[^}]*box-shadow:\s*none;/,
     );
