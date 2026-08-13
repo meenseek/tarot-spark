@@ -14,7 +14,10 @@ phase gates.
 
 1. Complete the routed preflight before the first file edit.
 2. State the intended outcome, changed contracts, files or systems in scope,
-   acceptance criteria, tests, and explicit non-goals.
+   acceptance criteria, tests, and explicit non-goals. For changes that directly
+   affect how users interact with the interface, design the affected journey for
+   a first-time user at mobile and desktop widths, covering entry, discovery of
+   the primary action when applicable, completion, and return or recovery.
 3. Give the plan to an independent reviewer that did not author it.
 4. Resolve every blocking finding and repeat review until the reviewer reports
    no findings.
@@ -25,7 +28,7 @@ GitHub collaboration.
 
 ## Implementation Gate
 
-1. Implement only the reviewed scope.
+1. Implement the reviewed plan and only its scope.
 2. Cover each changed contract at the test layer that can prove it.
 3. Keep user-visible output, localization, analytics, accessibility, privacy,
    and reduced-motion behavior aligned.
@@ -40,7 +43,9 @@ GitHub collaboration.
    independent reviewer that did not implement the change.
 2. Ask for concrete findings about user flows, regressions, type safety,
    accessibility, mobile layout, privacy, analytics, localization, unnecessary
-   complexity, and missing tests.
+   complexity, and missing tests. For those changes, simulate the reviewed
+   journey and treat hidden, misleading, or dead-end paths as blocking even when
+   components pass in isolation.
 3. Resolve every blocking finding.
 4. Rerun affected checks after each fix and rerun the complete required gate
    set before completion.
