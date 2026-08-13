@@ -161,192 +161,97 @@ function rectanglesOverlap(first: RectGeometry, second: RectGeometry) {
   );
 }
 
-async function expectTopicSelectorLayout(
-  topicOptions: Locator,
-  contextLabel: string,
-) {
-  await expect(topicOptions, contextLabel).toBeVisible();
+type TopicSelectContract = {
+  readonly description: string;
+  readonly groups: readonly {
+    readonly label: string;
+    readonly options: readonly {
+      readonly label: string;
+      readonly value: string;
+    }[];
+  }[];
+};
 
-  const group = await topicOptions.evaluate((element) => {
+const englishTopicSelectContract = {
+  description: "Your topic changes the question choices and AI prompt.",
+  groups: [
+    {
+      label: "Relationships",
+      options: [
+        { label: "Love overview", value: "love" },
+        { label: "Reunion", value: "reunion" },
+        { label: "Feelings", value: "feelings" },
+        { label: "Relationship flow", value: "relationship-flow" },
+      ],
+    },
+    {
+      label: "Career",
+      options: [{ label: "Career direction", value: "career-direction" }],
+    },
+  ],
+} as const satisfies TopicSelectContract;
+
+const koreanTopicSelectContract = {
+  description: "선택한 주제에 맞춰 질문 선택지와 AI 질문이 달라져요.",
+  groups: [
+    {
+      label: "관계",
+      options: [
+        { label: "연애 전반", value: "love" },
+        { label: "재회", value: "reunion" },
+        { label: "상대의 마음", value: "feelings" },
+        { label: "관계 흐름", value: "relationship-flow" },
+      ],
+    },
+    {
+      label: "커리어",
+      options: [{ label: "커리어 방향", value: "career-direction" }],
+    },
+  ],
+} as const satisfies TopicSelectContract;
+
+async function expectTopicSelectLayout(
+  topicSelect: Locator,
+  contextLabel: string,
+  contract: TopicSelectContract,
+) {
+  await expect(topicSelect, contextLabel).toBeVisible();
+  await expect(
+    topicSelect,
+    `${contextLabel} description`,
+  ).toHaveAccessibleDescription(contract.description);
+
+  const geometry = await topicSelect.evaluate((element) => {
     const rect = element.getBoundingClientRect();
 
     return {
-      bottom: rect.bottom,
       height: rect.height,
-      left: rect.left,
-      right: rect.right,
-      top: rect.top,
+      scrollWidth: element.scrollWidth,
       width: rect.width,
     };
   });
-  const options = await topicOptions
-    .getByTestId("topic-option")
-    .evaluateAll((labels) =>
-      labels.map((label) => {
-        const text = label.querySelector('[data-testid="topic-option-label"]');
-        const indicator = label.querySelector("[data-selected-indicator]");
-
-        if (!text || !indicator) {
-          throw new Error("A tarot topic option is incomplete");
-        }
-
-        const getRect = (element: Element) => {
-          const rect = element.getBoundingClientRect();
-
-          return {
-            bottom: rect.bottom,
-            height: rect.height,
-            left: rect.left,
-            right: rect.right,
-            top: rect.top,
-            width: rect.width,
-          };
-        };
-        const textStyle = getComputedStyle(text);
-
-        return {
-          indicator: getRect(indicator),
-          label: getRect(label),
-          text: getRect(text),
-          textClientWidth: text.clientWidth,
-          textLineHeight: Number.parseFloat(textStyle.lineHeight),
-          textScrollWidth: text.scrollWidth,
-        };
-      }),
-    );
-
-  expect(options, `${contextLabel} option count`).toHaveLength(5);
-  const firstOption = options[0];
-
-  if (!firstOption) {
-    throw new Error("The tarot topic group is empty");
-  }
-
-  options.forEach((option, index) => {
-    expect(
-      Math.abs(option.label.width - firstOption.label.width),
-      `${contextLabel} option ${index} width`,
-    ).toBeLessThanOrEqual(1);
-    expect(
-      Math.abs(option.label.height - firstOption.label.height),
-      `${contextLabel} option ${index} height`,
-    ).toBeLessThanOrEqual(1);
-    expectContained(
-      option.label,
-      option.text,
-      `${contextLabel} option ${index} text`,
-    );
-    expectContained(
-      option.label,
-      option.indicator,
-      `${contextLabel} option ${index} indicator`,
-    );
-    expect(
-      rectanglesOverlap(option.text, option.indicator),
-      `${contextLabel} option ${index} text and indicator`,
-    ).toBe(false);
-    expect(
-      option.textScrollWidth,
-      `${contextLabel} option ${index} text overflow`,
-    ).toBeLessThanOrEqual(option.textClientWidth + 1);
-    expect(
-      option.text.height,
-      `${contextLabel} option ${index} text lines`,
-    ).toBeLessThanOrEqual(option.textLineHeight * 2 + 0.5);
-  });
-
-  const expectedMode = group.width >= 640 ? "row" : "list";
-
-  if (expectedMode === "list") {
-    expect(
-      group.height,
-      `${contextLabel} compact group height`,
-    ).toBeLessThanOrEqual(244);
-    options.forEach((option, index) => {
-      expect(
-        option.label.height,
-        `${contextLabel} option ${index} touch height`,
-      ).toBeGreaterThanOrEqual(48);
-      expect(
-        Math.abs(option.label.left - firstOption.label.left),
-        `${contextLabel} option ${index} left edge`,
-      ).toBeLessThanOrEqual(1);
-      expect(
-        Math.abs(option.label.right - firstOption.label.right),
-        `${contextLabel} option ${index} right edge`,
-      ).toBeLessThanOrEqual(1);
-
-      if (index > 0) {
-        expect(
-          Math.abs(option.label.top - (options[index - 1]?.label.bottom ?? 0)),
-          `${contextLabel} option ${index} row continuity`,
-        ).toBeLessThanOrEqual(1);
-      }
-    });
-  } else {
-    expect(
-      group.height,
-      `${contextLabel} horizontal group height`,
-    ).toBeLessThanOrEqual(72);
-    options.forEach((option, index) => {
-      expect(
-        option.label.height,
-        `${contextLabel} option ${index} touch height`,
-      ).toBeGreaterThanOrEqual(48);
-      expect(
-        Math.abs(option.label.top - firstOption.label.top),
-        `${contextLabel} option ${index} row alignment`,
-      ).toBeLessThanOrEqual(1);
-
-      if (index > 0) {
-        expect(
-          Math.abs(option.label.left - (options[index - 1]?.label.right ?? 0)),
-          `${contextLabel} option ${index} column continuity`,
-        ).toBeLessThanOrEqual(1);
-      }
-    });
-  }
-
   expect(
-    Math.abs(firstOption.label.left - (group.left + 1)),
-    `${contextLabel} group left boundary`,
-  ).toBeLessThanOrEqual(1);
-  expect(
-    Math.abs((options.at(-1)?.label.right ?? 0) - (group.right - 1)),
-    `${contextLabel} group right boundary`,
-  ).toBeLessThanOrEqual(1);
-
-  return expectedMode;
-}
-
-async function getTopicSelectionGeometry(topicOptions: Locator) {
-  return topicOptions.getByTestId("topic-option").evaluateAll((labels) =>
-    labels.map((label) => {
-      const text = label.querySelector('[data-testid="topic-option-label"]');
-
-      if (!text) {
-        throw new Error("A tarot topic label is missing");
-      }
-
-      const labelRect = label.getBoundingClientRect();
-      const textRect = text.getBoundingClientRect();
-
-      return {
-        label: {
-          height: labelRect.height,
-          left: labelRect.left,
-          top: labelRect.top,
-          width: labelRect.width,
-        },
-        text: {
-          height: textRect.height,
-          left: textRect.left,
-          top: textRect.top,
-          width: textRect.width,
-        },
-      };
-    }),
+    geometry.height,
+    `${contextLabel} touch height`,
+  ).toBeGreaterThanOrEqual(48);
+  expect(geometry.width, `${contextLabel} maximum width`).toBeLessThanOrEqual(
+    449,
   );
+  expect(
+    geometry.scrollWidth,
+    `${contextLabel} horizontal content overflow`,
+  ).toBeLessThanOrEqual(geometry.width + 1);
+
+  const groups = await topicSelect.locator("optgroup").evaluateAll((elements) =>
+    elements.map((element) => ({
+      label: element.getAttribute("label"),
+      options: Array.from(element.querySelectorAll("option")).map((option) => ({
+        label: option.textContent,
+        value: option.value,
+      })),
+    })),
+  );
+  expect(groups, `${contextLabel} grouped options`).toEqual(contract.groups);
 }
 
 async function expectCardArtFrameBorders(cards: Locator) {
@@ -489,7 +394,7 @@ test("uses state-specific generator layouts and one filled result action", async
   const setupDrawButton = page.getByRole("button", {
     name: "Draw 3 cards",
   });
-  const topicOptions = page.getByTestId("topic-options");
+  const topicSelect = page.getByTestId("topic-select");
 
   await expect(generatorLayout).toHaveAttribute("data-layout-mode", "setup");
   await expect(setupWorkspace).toBeVisible();
@@ -500,7 +405,7 @@ test("uses state-specific generator layouts and one filled result action", async
   const dailyQuestionLinkBox = await dailyQuestionLink.boundingBox();
   const setupActionsBox = await setupActions.boundingBox();
   const setupDrawButtonBox = await setupDrawButton.boundingBox();
-  const topicOptionsBox = await topicOptions.boundingBox();
+  const topicSelectBox = await topicSelect.boundingBox();
   expect(generatorIntroBox).not.toBeNull();
   expect(generatorStateLayoutBox).not.toBeNull();
   expect(setupPanelBox).not.toBeNull();
@@ -508,7 +413,7 @@ test("uses state-specific generator layouts and one filled result action", async
   expect(dailyQuestionLinkBox).not.toBeNull();
   expect(setupActionsBox).not.toBeNull();
   expect(setupDrawButtonBox).not.toBeNull();
-  expect(topicOptionsBox).not.toBeNull();
+  expect(topicSelectBox).not.toBeNull();
   expect(setupPanelBox?.y ?? 0).toBeGreaterThanOrEqual(
     Math.max(
       (generatorIntroBox?.y ?? 0) + (generatorIntroBox?.height ?? 0),
@@ -523,10 +428,12 @@ test("uses state-specific generator layouts and one filled result action", async
   expect(generatorStateLayoutBox?.width ?? 0).toBeGreaterThan(
     setupPanelBox?.width ?? Number.POSITIVE_INFINITY,
   );
-  expect(setupActionsBox).toMatchObject({
-    x: topicOptionsBox?.x,
-    width: topicOptionsBox?.width,
-  });
+  expect(
+    Math.abs((setupActionsBox?.x ?? 0) - (topicSelectBox?.x ?? 0)),
+  ).toBeLessThanOrEqual(2);
+  expect(setupActionsBox?.width ?? 0).toBeGreaterThan(
+    topicSelectBox?.width ?? Number.POSITIVE_INFINITY,
+  );
   expect(setupDrawButtonBox).toMatchObject({
     x: setupActionsBox?.x,
     width: setupActionsBox?.width,
@@ -695,8 +602,8 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
     const drawButtonBox = await page
       .getByRole("button", { name: "카드 3장 뽑기" })
       .boundingBox();
-    const topicOptions = page.getByTestId("topic-options");
-    const topicOptionsBox = await topicOptions.boundingBox();
+    const topicSelect = page.getByTestId("topic-select");
+    const topicSelectBox = await topicSelect.boundingBox();
     const preferencesToggle = page.getByTestId("reading-preferences-toggle");
     const preferencesHeading = preferencesToggle.getByText(
       "카드 수와 답변 느낌",
@@ -723,7 +630,7 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
     expect(dailyQuestionLinkBox, `${width}px daily link`).not.toBeNull();
     expect(setupActionsBox, `${width}px action group`).not.toBeNull();
     expect(drawButtonBox, `${width}px draw button`).not.toBeNull();
-    expect(topicOptionsBox, `${width}px topic options`).not.toBeNull();
+    expect(topicSelectBox, `${width}px topic select`).not.toBeNull();
     expect(
       preferencesSelectionBox,
       `${width}px preference selection`,
@@ -755,7 +662,12 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
       `${width}px horizontal overflow`,
     ).toBe(true);
 
-    await expectTopicSelectorLayout(topicOptions, `${width}px Korean setup`);
+    await expectTopicSelectLayout(
+      topicSelect,
+      `${width}px Korean setup`,
+      koreanTopicSelectContract,
+    );
+    await expect(topicSelect).toHaveValue("love");
 
     if (width === 320) {
       expect(
@@ -763,7 +675,7 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
           .getByRole("button", { name: "카드 3장 뽑기" })
           .evaluate((element) => element.getBoundingClientRect().top + scrollY),
         "320px Korean draw action position with optional question row",
-      ).toBeLessThanOrEqual(1200);
+      ).toBeLessThanOrEqual(1000);
     }
 
     if (width >= 1024) {
@@ -778,40 +690,27 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
     await page.setViewportSize({ height: 900, width });
     await page.goto("/");
 
-    const topicOptions = page.getByTestId("topic-options");
-    await expectTopicSelectorLayout(topicOptions, `${width}px English setup`);
+    const topicSelect = page.getByTestId("topic-select");
+    await expectTopicSelectLayout(
+      topicSelect,
+      `${width}px English setup`,
+      englishTopicSelectContract,
+    );
+    await expect(topicSelect).toHaveValue("love");
 
     if (width === 320 || width === 764) {
-      const optionGeometryBeforeSelection =
-        await getTopicSelectionGeometry(topicOptions);
-      const careerRadio = page.getByRole("radio", {
-        name: "Career direction",
-      });
-      const careerOption = careerRadio.locator("..");
-      const relationshipOption = page
-        .getByRole("radio", { name: "Relationship flow" })
-        .locator("..");
+      const geometryBeforeSelection = await topicSelect.boundingBox();
 
-      await careerRadio.check({ force: true });
-      await page.mouse.move(0, 0);
-      const optionGeometryAfterSelection =
-        await getTopicSelectionGeometry(topicOptions);
+      await topicSelect.selectOption("career-direction");
+      const geometryAfterSelection = await topicSelect.boundingBox();
 
-      expect(
-        optionGeometryAfterSelection,
-        `${width}px selection geometry`,
-      ).toEqual(optionGeometryBeforeSelection);
-      await expect(careerOption).toHaveCSS("background-color", colors.blush);
-      await expect(careerOption).toHaveCSS("border-color", colors.action);
-      await expect(careerOption).toHaveCSS("border-width", "2px");
-      await expect(
-        careerOption.locator('[data-selected-indicator="career-direction"]'),
-      ).toHaveCSS("opacity", "1");
-      await expect(relationshipOption.getByTestId("topic-divider")).toHaveCount(
-        0,
+      expect(geometryAfterSelection, `${width}px selection geometry`).toEqual(
+        geometryBeforeSelection,
       );
-      await expect(careerOption.getByTestId("topic-divider")).toHaveCount(0);
-      await expect(topicOptions).toHaveCSS("overflow", "visible");
+      await expect(topicSelect).toHaveValue("career-direction");
+      expect(new URL(page.url()).searchParams.get("topic")).toBe(
+        "career-direction",
+      );
     }
 
     if (width === 320) {
@@ -820,7 +719,7 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
           .getByRole("button", { name: "Draw 3 cards" })
           .evaluate((element) => element.getBoundingClientRect().top + scrollY),
         "320px English draw action position with optional question row",
-      ).toBeLessThanOrEqual(1200);
+      ).toBeLessThanOrEqual(1000);
     }
   }
 
@@ -851,7 +750,7 @@ test("keeps the setup hierarchy balanced across responsive boundaries", async ({
   ).toBe(true);
 });
 
-test("uses the topic container width in the next-reading editor", async ({
+test("keeps the grouped topic select compact in the next-reading editor", async ({
   page,
 }) => {
   const localeCases = [
@@ -870,20 +769,20 @@ test("uses the topic container width in the next-reading editor", async ({
   ] as const;
 
   for (const localeCase of localeCases) {
-    const observedModes = new Set<string>();
-
     for (const width of localeCase.widths) {
       await page.setViewportSize({ height: 900, width });
       await page.goto(localeCase.path);
       await page.getByRole("button", { name: localeCase.editAction }).click();
 
-      const topicOptions = page.getByTestId("topic-options");
-      observedModes.add(
-        await expectTopicSelectorLayout(
-          topicOptions,
-          `${width}px ${localeCase.label} next-reading editor`,
-        ),
+      const topicSelect = page.getByTestId("topic-select");
+      await expectTopicSelectLayout(
+        topicSelect,
+        `${width}px ${localeCase.label} next-reading editor`,
+        localeCase.label === "English"
+          ? englishTopicSelectContract
+          : koreanTopicSelectContract,
       );
+      await expect(topicSelect).toHaveValue("love");
       expect(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -891,10 +790,6 @@ test("uses the topic container width in the next-reading editor", async ({
         `${width}px ${localeCase.label} next-reading editor overflow`,
       ).toBe(true);
     }
-
-    expect(observedModes, `${localeCase.label} editor modes`).toEqual(
-      new Set(["list", "row"]),
-    );
   }
 });
 
@@ -965,8 +860,8 @@ test("locks the semantic token values and primary visual roles", async ({
     colors.action,
   );
   await expect(
-    page.getByRole("radio", { name: "Love overview" }).locator(".."),
-  ).toHaveCSS("background-color", colors.blush);
+    page.getByRole("combobox", { name: "What do you want to explore?" }),
+  ).toHaveValue("love");
   await expect(page.getByTestId("reading-workspace")).toHaveCSS(
     "background-color",
     colors.surface,
@@ -1126,14 +1021,10 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
     exact: true,
     name: "English",
   });
-  const loveRadio = page.getByRole("radio", { name: "Love overview" });
-  const loveTopic = loveRadio.locator("..");
-  const reunionRadio = page.getByRole("radio", { name: "Reunion" });
-  const reunionTopic = reunionRadio.locator("..");
+  const topicSelect = page.getByRole("combobox", {
+    name: "What do you want to explore?",
+  });
   const drawButton = page.getByRole("button", { name: "Draw 3 cards" });
-
-  await expect(loveTopic.getByTestId("topic-divider")).toHaveCount(0);
-  await expect(reunionTopic.getByTestId("topic-divider")).toHaveCount(1);
 
   const localeStyle = await englishLocale.evaluate((element) => {
     const style = getComputedStyle(element);
@@ -1166,73 +1057,19 @@ test("keeps active, hover, pressed, and keyboard-focus states explicit", async (
     await page.mouse.up();
   }
 
-  await loveTopic.hover();
-  await expect
-    .poll(() => computedStyle(loveTopic, "backgroundColor"))
-    .toBe(colors.blushStrong);
-
-  await page.mouse.down();
-  try {
-    await page.waitForTimeout(240);
-    expect(await computedStyle(loveTopic, "borderColor")).toBe(
-      colors.actionPressed,
-    );
-  } finally {
-    await page.mouse.up();
-  }
-
-  await reunionTopic.hover();
-  await expect(reunionTopic.getByTestId("topic-divider")).toHaveCSS(
-    "display",
-    "none",
-  );
-  expect(
-    Number(await computedStyle(reunionTopic, "zIndex")),
-  ).toBeGreaterThanOrEqual(10);
-  await expect
-    .poll(() => computedStyle(reunionTopic, "backgroundColor"))
-    .toBe(colors.blush);
-
-  await page.mouse.down();
-  try {
-    await page.waitForTimeout(240);
-    expect(await computedStyle(reunionTopic, "backgroundColor")).toBe(
-      colors.blushStrong,
-    );
-    expect(await computedStyle(reunionTopic, "borderColor")).toBe(
-      colors.actionPressed,
-    );
-    await expect(reunionTopic.getByTestId("topic-divider")).toHaveCSS(
-      "display",
-      "none",
-    );
-  } finally {
-    await page.mouse.up();
-  }
-
-  await reunionRadio.check({ force: true });
-  await expect(reunionRadio).toBeChecked();
-  await expect(
-    reunionTopic.locator('[data-selected-indicator="reunion"]'),
-  ).toHaveCSS("opacity", "1");
-  await expect(reunionTopic).toHaveCSS("border-color", colors.action);
-  await expect(loveTopic.getByTestId("topic-divider")).toHaveCount(0);
-  await expect(reunionTopic.getByTestId("topic-divider")).toHaveCount(0);
-
   await page.goto("/");
   await tabTo(page, englishLocale);
   await assertFocusOutline(englishLocale, page);
-  await tabTo(page, loveRadio);
-  await assertFocusOutline(loveTopic, page, loveRadio);
-  expect(
-    Number(await computedStyle(loveTopic, "zIndex")),
-  ).toBeGreaterThanOrEqual(20);
-  await page.keyboard.press("ArrowDown");
-  await expect(reunionRadio).toBeChecked();
-  await assertFocusOutline(reunionTopic, page, reunionRadio);
-  await page.keyboard.press("ArrowUp");
-  await expect(loveRadio).toBeChecked();
-  await assertFocusOutline(loveTopic, page, loveRadio);
+  await tabTo(page, topicSelect);
+  await expect(topicSelect).toBeFocused();
+  await expect(topicSelect).toHaveValue("love");
+  await topicSelect.press("c");
+  await expect(topicSelect).toHaveValue("career-direction");
+  expect(new URL(page.url()).searchParams.get("topic")).toBe(
+    "career-direction",
+  );
+  await topicSelect.selectOption("love");
+  await expect(topicSelect).toHaveValue("love");
   await tabTo(page, drawButton);
   await assertFocusOutline(drawButton, page);
 
@@ -1250,13 +1087,6 @@ test("removes decorative motion when reduced motion is requested", async ({
   await serveCardArtFixture(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-
-  const duration = await page
-    .getByRole("radio", { name: "Reunion" })
-    .locator("..")
-    .evaluate((element) => getComputedStyle(element).transitionDuration);
-
-  expect(maximumCssSeconds(duration)).toBeLessThanOrEqual(0.001);
 
   await page.getByRole("button", { name: "Draw 3 cards" }).click();
 

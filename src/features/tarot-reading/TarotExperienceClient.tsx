@@ -1384,6 +1384,11 @@ export function TarotExperienceClient({
 
       <TopicSelector
         ariaLabel={copy.topicSelectorLabel}
+        description={copy.topicSelectorDescription}
+        groupLabels={{
+          career: copy.topicGroupCareer,
+          relationship: copy.topicGroupRelationship,
+        }}
         onSelect={chooseTopic}
         selectedTopicId={formInputs.topicId}
         topics={tarotData.topics}

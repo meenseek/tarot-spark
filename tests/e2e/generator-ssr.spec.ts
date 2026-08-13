@@ -20,7 +20,7 @@ test("renders a localized cardless preset without JavaScript", async ({
     "/ko?topic=career-direction&spread=deep&style=direct&privateContext=ignored",
   );
 
-  await expect(page.locator('input[name="tarot-topic"]:checked')).toHaveValue(
+  await expect(page.locator('select[name="tarot-topic"]')).toHaveValue(
     "career-direction",
   );
   await expect(page.locator('input[name="tarot-spread"]:checked')).toHaveValue(
@@ -114,7 +114,7 @@ test("renders a selected relationship question preset without JavaScript", async
   await expect(page.getByTestId("selected-public-question")).toContainText(
     "우리는 서로를 어떻게 보고 있을까?",
   );
-  await expect(page.locator('input[name="tarot-topic"]:checked')).toHaveValue(
+  await expect(page.locator('select[name="tarot-topic"]')).toHaveValue(
     "feelings",
   );
 });

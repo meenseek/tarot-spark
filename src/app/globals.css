@@ -136,6 +136,10 @@ body {
 }
 
 /* Tarot Spark owns component placement and product-specific sizing. */
+.ts-topic-select {
+  max-width: 28rem;
+}
+
 .ts-secondary-action,
 .ts-primary-action {
   min-height: 44px;

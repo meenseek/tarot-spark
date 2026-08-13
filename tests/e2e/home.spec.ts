@@ -243,7 +243,7 @@ test("keeps next-reading choices cancelable without replacing the current mobile
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
-  await page.getByRole("radio", { name: "Reunion" }).check({ force: true });
+  await page.getByTestId("topic-select").selectOption("reunion");
   expect(page.url()).toBe(committedUrl);
   expect(
     await page
@@ -317,23 +317,23 @@ test("keeps every localized context example visible at 320px", async ({
       path: "/",
       topicExamples: [
         [
-          "Love overview",
+          "love",
           "Example: I want to move a connection forward, but I am unsure whether expressing my feelings first would be healthy.",
         ],
         [
-          "Reunion",
+          "reunion",
           "Example: I am considering contacting an ex and want to reflect on what must change before old problems repeat.",
         ],
         [
-          "Feelings",
+          "feelings",
           "Example: Their messages have become less frequent. I want to separate observable behavior from my assumptions.",
         ],
         [
-          "Relationship flow",
+          "relationship-flow",
           "Example: Conversations with someone close keep going wrong. I want to notice the pattern and what I can change.",
         ],
         [
-          "Career direction",
+          "career-direction",
           "Example: I am torn between staying at my company and preparing for a new opportunity. I want one next step.",
         ],
       ],
@@ -343,23 +343,23 @@ test("keeps every localized context example visible at 320px", async ({
       path: "/ko",
       topicExamples: [
         [
-          "연애 전반",
+          "love",
           "예: 관계를 조금 더 발전시키고 싶은데 먼저 마음을 표현해도 될지 고민돼요.",
         ],
         [
-          "재회",
+          "reunion",
           "예: 헤어진 사람에게 다시 연락할지, 같은 문제가 반복되지 않으려면 무엇이 달라져야 할지 고민돼요.",
         ],
         [
-          "상대의 마음",
+          "feelings",
           "예: 상대의 연락이 줄어서 혼란스러워요. 보이는 행동과 제 추측을 나눠보고 싶어요.",
         ],
         [
-          "관계 흐름",
+          "relationship-flow",
           "예: 가까운 사람과 대화가 자꾸 어긋나요. 반복되는 방식과 제가 바꿀 수 있는 일을 알고 싶어요.",
         ],
         [
-          "커리어 방향",
+          "career-direction",
           "예: 지금 회사에 남을지 새로운 일을 준비할지 고민돼요. 당장 해볼 일부터 정리하고 싶어요.",
         ],
       ],
@@ -371,8 +371,8 @@ test("keeps every localized context example visible at 320px", async ({
     await openSituationContext(page);
     const context = page.getByLabel(contextLabel);
 
-    for (const [topicName, placeholder] of topicExamples) {
-      await page.getByRole("radio", { name: topicName }).check({ force: true });
+    for (const [topicId, placeholder] of topicExamples) {
+      await page.getByTestId("topic-select").selectOption(topicId);
       await expect(context).toHaveAttribute("placeholder", placeholder);
       const originalValue = await context.inputValue();
 
@@ -567,7 +567,8 @@ test("uses a chosen relationship question in the generated prompt", async ({
     "우리는 서로를 어떻게 보고 있을까?",
   );
 
-  await page.locator('label:has(input[value="love"])').click();
+  await page.getByTestId("topic-select").selectOption("love");
+  await expect(page.getByTestId("selected-public-question")).toHaveCount(0);
   await page
     .getByTestId("public-question-picker")
     .locator("summary")
@@ -581,7 +582,8 @@ test("uses a chosen relationship question in the generated prompt", async ({
     "우리 속도는 서로에게 맞을까?",
   );
 
-  await page.locator('label:has(input[value="feelings"])').click();
+  await page.getByTestId("topic-select").selectOption("feelings");
+  await expect(page.getByTestId("selected-public-question")).toHaveCount(0);
   await page
     .getByTestId("public-question-picker")
     .locator("summary")
@@ -655,7 +657,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
   await expect(
     page.getByRole("link", { name: "다른 관계 질문 둘러보기" }),
   ).toHaveCount(0);
-  await page.locator('label:has(input[value="love"])').click();
+  await page.getByTestId("topic-select").selectOption("love");
   await page
     .getByTestId("public-question-picker")
     .locator("summary")
@@ -702,7 +704,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
   ).toEqual(committedCards);
 
   await page.getByRole("button", { name: "다음 카드 준비하기" }).click();
-  await page.locator('label:has(input[value="love"])').click();
+  await page.getByTestId("topic-select").selectOption("love");
   await page
     .getByTestId("public-question-picker")
     .locator("summary")
@@ -733,8 +735,7 @@ test("offers distinctive career questions under one optional hierarchy", async (
   page,
 }) => {
   await page.setViewportSize({ height: 844, width: 320 });
-  await page.goto("/ko");
-  await page.locator('label:has(input[value="career-direction"])').click();
+  await page.goto("/ko?topic=career-direction");
   await page
     .getByTestId("public-question-picker")
     .locator("summary")
@@ -1017,7 +1018,7 @@ test("shows an instant Korean reading without sending private context", async ({
 test("draws tarot cards and copies the generated prompt", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByRole("radio", { name: "Reunion" }).check({ force: true });
+  await page.getByTestId("topic-select").selectOption("reunion");
   await page.getByRole("button", { name: "Draw 3 cards" }).click();
   await openPromptContent(page);
 

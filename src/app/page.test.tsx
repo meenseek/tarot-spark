@@ -140,6 +140,32 @@ describe("Home", () => {
     ).toBeTruthy();
   });
 
+  it("groups the stable reading topics in one labeled native select", () => {
+    render(<Home />);
+
+    const topicSelect = screen.getByRole("combobox", {
+      name: "What do you want to explore?",
+    });
+    expect(topicSelect).toHaveValue("love");
+    expect(topicSelect).toHaveAccessibleDescription(
+      "Your topic changes the question choices and AI prompt.",
+    );
+    expect(
+      Array.from(topicSelect.querySelectorAll("optgroup")).map((group) => ({
+        label: group.label,
+        values: Array.from(group.querySelectorAll("option")).map(
+          (option) => option.value,
+        ),
+      })),
+    ).toEqual([
+      {
+        label: "Relationships",
+        values: ["love", "reunion", "feelings", "relationship-flow"],
+      },
+      { label: "Career", values: ["career-direction"] },
+    ]);
+  });
+
   it("renders Korean localized content", () => {
     render(<TarotExperience locale="ko" />);
     openSituationContext();
@@ -310,29 +336,34 @@ describe("Home", () => {
     const context = screen.getByLabelText(/Add your situation/);
     const topicExamples = [
       [
-        "Love overview",
+        "love",
         "Example: I want to move a connection forward, but I am unsure whether expressing my feelings first would be healthy.",
       ],
       [
-        "Reunion",
+        "reunion",
         "Example: I am considering contacting an ex and want to reflect on what must change before old problems repeat.",
       ],
       [
-        "Feelings",
+        "feelings",
         "Example: Their messages have become less frequent. I want to separate observable behavior from my assumptions.",
       ],
       [
-        "Relationship flow",
+        "relationship-flow",
         "Example: Conversations with someone close keep going wrong. I want to notice the pattern and what I can change.",
       ],
       [
-        "Career direction",
+        "career-direction",
         "Example: I am torn between staying at my company and preparing for a new opportunity. I want one next step.",
       ],
     ] as const;
 
-    for (const [topicButtonName, placeholder] of topicExamples) {
-      fireEvent.click(screen.getByRole("radio", { name: topicButtonName }));
+    for (const [topicId, placeholder] of topicExamples) {
+      fireEvent.change(
+        screen.getByRole("combobox", {
+          name: "What do you want to explore?",
+        }),
+        { target: { value: topicId } },
+      );
       expect(context).toHaveAttribute("placeholder", placeholder);
     }
   });
@@ -645,7 +676,12 @@ describe("Home", () => {
       ),
     ).toHaveLength(1);
 
-    fireEvent.click(screen.getByRole("radio", { name: "Reunion" }));
+    fireEvent.change(
+      screen.getByRole("combobox", {
+        name: "What do you want to explore?",
+      }),
+      { target: { value: "reunion" } },
+    );
 
     expect(screen.getByTestId("reading-card-0")).toBe(firstCard);
     expect(firstPrompt).toHaveValue(committedPrompt);
@@ -659,12 +695,20 @@ describe("Home", () => {
         screen.getByRole("button", { name: "Prepare the next draw" }),
       ).toHaveFocus();
     });
-    expect(screen.queryByRole("radio", { name: "Reunion" })).toBeNull();
+    expect(
+      screen.queryByRole("combobox", {
+        name: "What do you want to explore?",
+      }),
+    ).toBeNull();
 
     fireEvent.click(
       screen.getByRole("button", { name: "Prepare the next draw" }),
     );
-    expect(screen.getByRole("radio", { name: "Love overview" })).toBeChecked();
+    expect(
+      screen.getByRole("combobox", {
+        name: "What do you want to explore?",
+      }),
+    ).toHaveValue("love");
   });
 
   it("customizes the current prompt without rewriting draw provenance", async () => {
@@ -1094,7 +1138,12 @@ describe("Home", () => {
       announceAnalyticsReady();
       render(<Home />);
 
-      fireEvent.click(screen.getByRole("radio", { name: "Reunion" }));
+      fireEvent.change(
+        screen.getByRole("combobox", {
+          name: "What do you want to explore?",
+        }),
+        { target: { value: "reunion" } },
+      );
       fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
       await waitFor(() => {
         expect(testIntersectionObservers.size).toBeGreaterThan(0);
