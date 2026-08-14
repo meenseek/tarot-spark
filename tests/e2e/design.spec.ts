@@ -1406,18 +1406,48 @@ test("reflows generated and shared results at the 320px viewport produced by 200
   }
 });
 
-test("keeps Korean share success feedback inside a 320px viewport", async ({
+test("keeps compact Korean share actions inside a 320px viewport", async ({
   page,
 }) => {
   await page.setViewportSize({ height: 844, width: 320 });
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: undefined,
+    });
+    Object.defineProperty(navigator, "canShare", {
+      configurable: true,
+      value: undefined,
+    });
+  });
   await page.goto(
     "/ko?topic=love&cards=the-fool,the-magician,the-high-priestess",
   );
   await page.getByTestId("share-options-disclosure").locator("summary").click();
-  await page.getByRole("button", { name: "Instagram용 링크 복사" }).click();
   await expect(
-    page.getByRole("button", { name: "Instagram용 링크를 복사했어요" }),
-  ).toBeVisible();
+    page.getByRole("button", { name: "Instagram용 이미지 저장" }),
+  ).toBeEnabled();
+  const actionCount = await page
+    .getByTestId("share-actions")
+    .getByRole("button")
+    .count();
+  expect(actionCount).toBeGreaterThanOrEqual(2);
+  expect(actionCount).toBeLessThanOrEqual(3);
+
+  const actionGeometry = await page
+    .getByTestId("share-actions")
+    .evaluate((element) => ({
+      container: element.getBoundingClientRect().toJSON(),
+      items: Array.from(element.children).map((child) =>
+        child.getBoundingClientRect().toJSON(),
+      ),
+    }));
+
+  for (const item of actionGeometry.items) {
+    expect(item.left).toBeGreaterThanOrEqual(actionGeometry.container.left);
+    expect(item.right).toBeLessThanOrEqual(actionGeometry.container.right + 1);
+    expect(item.height).toBeGreaterThanOrEqual(48);
+  }
 
   expect(
     await page.evaluate(

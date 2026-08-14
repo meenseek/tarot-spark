@@ -22,14 +22,14 @@ export type AnalyticsEventName =
 export type ShareMethod =
   | "kakaotalk"
   | "native"
-  | "clipboard"
   | "copy_url"
-  | "instagram_copy_url";
+  | "instagram_image";
 
 export type ShareOutcome =
   | "shared"
   | "opened"
   | "copied"
+  | "download_started"
   | "cancelled"
   | "failed";
 

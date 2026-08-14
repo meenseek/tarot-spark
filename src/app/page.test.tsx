@@ -35,6 +35,7 @@ const originalInstantReadingEnabled =
   process.env["TAROT_INSTANT_READING_ENABLED"];
 const originalUrl = window.location.href;
 const originalShare = navigator.share;
+const originalCanShare = navigator.canShare;
 const kakaoSdkScriptId = "kakao-javascript-sdk";
 const kakaoSdkScriptUrl =
   "https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js";
@@ -88,6 +89,15 @@ describe("Home", () => {
       });
     } else {
       Reflect.deleteProperty(navigator, "share");
+    }
+
+    if (originalCanShare) {
+      Object.defineProperty(navigator, "canShare", {
+        configurable: true,
+        value: originalCanShare,
+      });
+    } else {
+      Reflect.deleteProperty(navigator, "canShare");
     }
 
     if (originalKakao) {
@@ -410,27 +420,38 @@ describe("Home", () => {
     ).toBeTruthy();
   });
 
-  it("labels the Korean Instagram action as a link copy", async () => {
+  it("shares the prepared Korean result image through the system share sheet", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
-    Reflect.deleteProperty(navigator, "clipboard");
-    document.execCommand = vi.fn(() => true);
+    const share = vi.fn(() => Promise.resolve());
+    const canShare = vi.fn((data: ShareData) => Boolean(data.files?.length));
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: share,
+    });
+    Object.defineProperty(navigator, "canShare", {
+      configurable: true,
+      value: canShare,
+    });
+    mockShareImageResponse();
 
     render(<TarotExperience locale="ko" />);
 
     fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
     openShareOptions();
-    fireEvent.click(
-      screen.getByRole("button", { name: "Instagram용 링크 복사" }),
-    );
+    const instagramButton = await screen.findByRole("button", {
+      name: "Instagram용 이미지 공유",
+    });
+    await waitFor(() => expect(instagramButton).toBeEnabled());
+    fireEvent.click(instagramButton);
 
     await waitFor(() => {
-      expect(
-        screen.getByRole("button", {
-          name: "Instagram용 링크를 복사했어요",
-        }),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("share-status")).toHaveTextContent(
+        "이미지를 공유했어요",
+      );
     });
-    expect(document.execCommand).toHaveBeenCalledWith("copy");
+    expect(share).toHaveBeenCalledWith({
+      files: [expect.any(File)],
+    });
   });
 
   it("shows exact card names in order without invented position meanings", () => {
@@ -508,7 +529,7 @@ describe("Home", () => {
     openShareOptions();
     expect(
       screen.getByRole("button", {
-        name: "Share",
+        name: "Copy URL",
       }),
     ).toBeInTheDocument();
     expect(
@@ -525,14 +546,10 @@ describe("Home", () => {
     ).not.toBeInTheDocument();
     expect(
       screen.getByRole("button", {
-        name: "Copy link for Instagram",
+        name: "Share image for Instagram",
       }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", {
-        name: "Copy URL",
-      }),
-    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Share" })).toBeNull();
     expect(window.location.search).toContain("topic=love");
     expect(window.location.search).toContain(
       "cards=the-fool%2Cthe-magician%2Cthe-high-priestess",
@@ -1505,23 +1522,35 @@ describe("Home", () => {
           resolveNativeShare = resolve;
         }),
     );
-    const writeText = vi.fn(() => Promise.resolve());
+    const canShare = vi.fn((data: ShareData) => !data.files?.length);
     Object.defineProperty(navigator, "share", {
       configurable: true,
       value: share,
     });
-    Object.defineProperty(navigator, "clipboard", {
+    Object.defineProperty(navigator, "canShare", {
       configurable: true,
-      value: { writeText },
+      value: canShare,
     });
+    mockShareImageResponse();
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:tarot-spark");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(
+      () => undefined,
+    );
 
     renderDrawnReading();
     openShareOptions();
     fireEvent.click(screen.getByRole("button", { name: "Share" }));
-    fireEvent.click(screen.getByRole("button", { name: "Copy URL" }));
+    const instagramButton = await screen.findByRole("button", {
+      name: "Save image for Instagram",
+    });
+    await waitFor(() => expect(instagramButton).toBeEnabled());
+    fireEvent.click(instagramButton);
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "URL copied" })).toBeVisible();
+      expect(screen.getByTestId("share-status")).toHaveTextContent(
+        "Image download started",
+      );
     });
 
     await act(async () => {
@@ -1529,8 +1558,10 @@ describe("Home", () => {
       await Promise.resolve();
     });
 
-    expect(screen.getByRole("button", { name: "URL copied" })).toBeVisible();
-    expect(screen.queryByRole("button", { name: "Shared" })).toBeNull();
+    expect(screen.getByTestId("share-status")).toHaveTextContent(
+      "Image download started",
+    );
+    expect(screen.queryByText(/^Shared$/)).toBeNull();
   });
 
   it("shows a cause-neutral failure message when native share fails", async () => {
@@ -1543,8 +1574,13 @@ describe("Home", () => {
     });
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
-      value: { writeText: vi.fn(() => Promise.resolve()) },
+      value: {
+        writeText: vi.fn(() =>
+          Promise.reject(new DOMException("Copy failed", "NotAllowedError")),
+        ),
+      },
     });
+    document.execCommand = vi.fn(() => false);
 
     renderDrawnReading();
 
@@ -1571,13 +1607,6 @@ describe("Home", () => {
     expect(parsedUrl.searchParams.get("source")).toBe("copy");
     expect(parsedUrl.searchParams.get("campaign")).toBe("vertical-slice");
     expect(parsedUrl.searchParams.has("context")).toBe(false);
-
-    fireEvent.click(screen.getByRole("button", { name: "Copy URL" }));
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: "URL copied" })).toBeVisible();
-    });
-    expect(screen.queryByRole("textbox", { name: "Share URL" })).toBeNull();
-    expect(screen.queryByText(/sharing did not work/i)).toBeNull();
   });
 
   it("uses cause-neutral Korean failure copy", async () => {
@@ -1599,19 +1628,17 @@ describe("Home", () => {
     expect(screen.queryByRole("textbox", { name: "공유 URL" })).toBeNull();
   });
 
-  it("labels fallback share as copied text", async () => {
+  it("merges fallback sharing into the single URL copy action", async () => {
     Reflect.deleteProperty(navigator, "share");
     document.execCommand = vi.fn(() => true);
 
     renderDrawnReading();
 
     openShareOptions();
-    fireEvent.click(screen.getByRole("button", { name: "Share" }));
+    fireEvent.click(screen.getByRole("button", { name: "Copy URL" }));
 
     await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: "Copied share text" }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "URL copied" })).toBeVisible();
     });
     expect(document.execCommand).toHaveBeenCalledWith("copy");
   });
@@ -1639,10 +1666,11 @@ describe("Home", () => {
     fireEvent.click(await screen.findByRole("button", { name: "KakaoTalk" }));
 
     await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: "KakaoTalk opened" }),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("share-status")).toHaveTextContent(
+        "KakaoTalk opened",
+      );
     });
+    expect(screen.getByTestId("share-status")).toHaveClass("sr-only");
     expect(init).toHaveBeenCalledWith("test-kakao-js-key");
     expect(sendDefault).toHaveBeenCalledWith({
       objectType: "text",
@@ -1751,31 +1779,126 @@ describe("Home", () => {
     expect(url.origin).toBe("https://tarot-spark.example");
   });
 
-  it("copies the Instagram share URL", async () => {
-    const writeText = vi.fn((text: string) => {
-      void text;
-      return Promise.resolve();
-    });
-    process.env["NEXT_PUBLIC_SITE_URL"] = "https://tarot-spark.example";
-    delete process.env["NEXT_PUBLIC_SHARE_SITE_URL"];
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: { writeText },
-    });
+  it("downloads the prepared Instagram image when file sharing is unavailable", async () => {
+    const fetchMock = mockShareImageResponse();
+    const createObjectUrl = vi
+      .spyOn(URL, "createObjectURL")
+      .mockReturnValue("blob:tarot-spark");
+    const revokeObjectUrl = vi
+      .spyOn(URL, "revokeObjectURL")
+      .mockImplementation(() => undefined);
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(() => undefined);
 
     renderDrawnReading();
 
     openShareOptions();
-    fireEvent.click(
-      screen.getByRole("button", { name: "Copy link for Instagram" }),
-    );
+    const instagramButton = await screen.findByRole("button", {
+      name: "Save image for Instagram",
+    });
+    await waitFor(() => expect(instagramButton).toBeEnabled());
+    fireEvent.click(instagramButton);
 
     await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: "Instagram link copied" }),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("share-status")).toHaveTextContent(
+        "Image download started",
+      );
     });
-    expect(writeText).toHaveBeenCalledWith(getExpectedShareUrl("instagram"));
+    expect(createObjectUrl).toHaveBeenCalledWith(expect.any(File));
+    expect(click).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const imageUrl = new URL(String(fetchMock.mock.calls[0]?.[0]));
+    expect(imageUrl.pathname).toBe("/api/share-image");
+    expect(imageUrl.searchParams.has("context")).toBe(false);
+    expect(imageUrl.searchParams.has("source")).toBe(false);
+    await waitFor(() => {
+      expect(revokeObjectUrl).toHaveBeenCalledWith("blob:tarot-spark");
+    });
+  });
+
+  it("keeps an Instagram cancellation idle without showing a failure", async () => {
+    const share = vi.fn(() =>
+      Promise.reject(new DOMException("Share cancelled", "AbortError")),
+    );
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: share,
+    });
+    Object.defineProperty(navigator, "canShare", {
+      configurable: true,
+      value: (data: ShareData) => Boolean(data.files?.length),
+    });
+    mockShareImageResponse();
+
+    renderDrawnReading();
+    openShareOptions();
+    const instagramButton = await screen.findByRole("button", {
+      name: "Share image for Instagram",
+    });
+    await waitFor(() => expect(instagramButton).toBeEnabled());
+    fireEvent.click(instagramButton);
+
+    await waitFor(() => expect(share).toHaveBeenCalledTimes(1));
+    expect(screen.queryByTestId("share-status")).toBeNull();
+    expect(screen.queryByTestId("manual-share-fallback")).toBeNull();
+  });
+
+  it("allows a failed Instagram image preparation to be retried", async () => {
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValueOnce(new Error("Image unavailable"))
+      .mockResolvedValueOnce(
+        new Response(new Blob(["png"], { type: "image/png" }), {
+          status: 200,
+        }),
+      );
+
+    renderDrawnReading();
+    openShareOptions();
+    await waitFor(() => {
+      expect(screen.getByTestId("share-status")).toHaveTextContent(
+        "The image could not be prepared",
+      );
+    });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Share image for Instagram" }),
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "Save image for Instagram" }),
+      ).toBeEnabled();
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("aborts stale image preparation when the shareable result changes", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(
+      (_input, init) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => {
+            reject(new DOMException("Aborted", "AbortError"));
+          });
+        }),
+    );
+
+    renderDrawnReading();
+    openShareOptions();
+    const instagramButton = screen.getByRole("button", {
+      name: "Share image for Instagram",
+    });
+    await waitFor(() => expect(instagramButton).toBeDisabled());
+    const signal = fetchMock.mock.calls[0]?.[1]?.signal;
+
+    fireEvent.click(screen.getByText("Edit this question"));
+    fireEvent.click(
+      screen.getByRole("radio", { name: /Direct, not deterministic/ }),
+    );
+
+    await waitFor(() => expect(signal?.aborted).toBe(true));
+    expect(instagramButton).toBeEnabled();
+    expect(screen.queryByTestId("share-status")).toBeNull();
   });
 
   it("loads the Kakao SDK script and allows retry after load failure", async () => {
@@ -1828,9 +1951,9 @@ describe("Home", () => {
     fireEvent.load(secondScript as HTMLScriptElement);
 
     await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: "KakaoTalk opened" }),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("share-status")).toHaveTextContent(
+        "KakaoTalk opened",
+      );
     });
     expect(init).toHaveBeenCalledWith("test-kakao-js-key");
     expect(sendDefault).toHaveBeenCalledTimes(1);
@@ -1842,6 +1965,15 @@ function renderDrawnReading() {
 
   render(<Home />);
   fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
+}
+
+function mockShareImageResponse() {
+  return vi.spyOn(globalThis, "fetch").mockResolvedValue(
+    new Response(new Blob(["png"], { type: "image/png" }), {
+      headers: { "Content-Type": "image/png" },
+      status: 200,
+    }),
+  );
 }
 
 function openReadingPreferences() {

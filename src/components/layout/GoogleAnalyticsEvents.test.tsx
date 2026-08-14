@@ -190,6 +190,18 @@ describe("GoogleAnalyticsEvents", () => {
       new CustomEvent("tarot_spark_event", {
         detail: {
           name: "share_result",
+          payload: {
+            ...payload,
+            method: "instagram_image",
+            outcome: "download_started",
+          },
+        },
+      }),
+    );
+    window.dispatchEvent(
+      new CustomEvent("tarot_spark_event", {
+        detail: {
+          name: "share_result",
           payload: { ...payload, outcome: "private free text" },
         },
       }),
@@ -204,6 +216,15 @@ describe("GoogleAnalyticsEvents", () => {
       "event",
       "share_result",
       { ...payload, outcome: "private free text" },
+    ]);
+    expect(calls).toContainEqual([
+      "event",
+      "share_result",
+      {
+        ...payload,
+        method: "instagram_image",
+        outcome: "download_started",
+      },
     ]);
   });
 

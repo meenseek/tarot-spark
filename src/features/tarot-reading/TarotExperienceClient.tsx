@@ -82,8 +82,9 @@ import {
   createResultSession,
   createSetupSession,
   readingSessionReducer,
+  type CurrentResult,
 } from "./reading-session";
-import type { CopyState, ShareFeedback } from "./types";
+import type { CopyState, InstagramImageStatus, ShareFeedback } from "./types";
 import type { TarotExperienceViewMode } from "./TarotExperience";
 
 const kakaoSdkScriptId = "kakao-javascript-sdk";
@@ -93,12 +94,23 @@ const kakaoSdkIntegrity =
   "sha384-OL+ylM/iuPLtW5U3XcvLSGhE8JzReKDank5InqlHGWPhb4140/yrBw0bg0y7+C9J";
 const instantReadingClientTimeoutMs = 22_000;
 const emptyDrawnCards: readonly DrawnCard[] = [];
+const instagramShareImageFilename = "tarot-spark.png";
 
 let kakaoSdkLoadPromise: Promise<KakaoSdk> | undefined;
 
 type PublicPageLink = {
   readonly href: string;
   readonly label: string;
+};
+
+type PreparedInstagramImage = {
+  readonly file: File;
+  readonly shareChangeId: number;
+};
+
+type InstagramImagePreparation = {
+  readonly shareChangeId: number;
+  readonly status: InstagramImageStatus;
 };
 
 type TarotExperienceClientProps = {
@@ -188,6 +200,10 @@ export function TarotExperienceClient({
     useState<DrawAnnouncementRequest>();
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const [shareFeedback, setShareFeedback] = useState<ShareFeedback>();
+  const [instagramImagePreparation, setInstagramImagePreparation] =
+    useState<InstagramImagePreparation>();
+  const [preparedInstagramImage, setPreparedInstagramImage] =
+    useState<PreparedInstagramImage>();
   const [instantReading, setInstantReading] = useState<InstantReading>();
   const [instantReadingStatus, setInstantReadingStatus] =
     useState<InstantReadingStatus>("idle");
@@ -197,6 +213,10 @@ export function TarotExperienceClient({
   );
   const promptOperationIdRef = useRef(0);
   const shareOperationIdRef = useRef(0);
+  const instagramImagePreparationIdRef = useRef(0);
+  const instagramImageRequestRef = useRef<AbortController | undefined>(
+    undefined,
+  );
   const emittedResultViewKeysRef = useRef(new Set<string>());
   const resultViewCurrentlyVisibleRef = useRef(false);
   const resultViewTargetRef = useRef<HTMLElement | null>(null);
@@ -250,6 +270,43 @@ export function TarotExperienceClient({
   const currentReadingStyle = currentResult
     ? getReadingStyle(tarotData.readingStyles, currentResult.inputs.styleId)
     : undefined;
+  const instagramImageStatus =
+    currentResult &&
+    instagramImagePreparation?.shareChangeId === currentResult.shareChangeId
+      ? instagramImagePreparation.status
+      : "idle";
+  const nativeShareData =
+    currentResult && currentTopic
+      ? getReadingShareData(
+          copy,
+          shareSiteUrl,
+          locale,
+          currentTopic.label,
+          currentResult,
+          cards,
+          "native",
+        )
+      : undefined;
+  const hasNativeShare = Boolean(
+    isHydrated && nativeShareData && canNativeShare(nativeShareData),
+  );
+  const canShareInstagramImage = Boolean(
+    isHydrated &&
+    preparedInstagramImage &&
+    currentResult &&
+    preparedInstagramImage.shareChangeId === currentResult.shareChangeId &&
+    canNativeFileShare(preparedInstagramImage.file),
+  );
+
+  useEffect(() => {
+    instagramImageRequestRef.current?.abort();
+    instagramImageRequestRef.current = undefined;
+    instagramImagePreparationIdRef.current += 1;
+
+    return () => {
+      instagramImageRequestRef.current?.abort();
+    };
+  }, [currentResult?.shareChangeId]);
   const currentQuestion = currentResult?.inputs.questionId
     ? publicQuestions.find(
         (question) => question.id === currentResult.inputs.questionId,
@@ -1064,113 +1121,169 @@ export function TarotExperienceClient({
   }
 
   async function shareReading() {
-    if (!currentResult || !currentTopic) {
+    if (!currentResult || !currentTopic || !nativeShareData) {
       return;
     }
 
-    const shareText = getShareText(
-      copy.shareText,
-      currentTopic.label,
-      cards,
-      `${locale} tarot-reading.shareText`,
-    );
-    const shareUrl = getShareUrl(
-      shareSiteUrl,
-      locale,
-      currentResult.inputs.topicId,
-      currentResult.inputs.spreadId,
-      currentResult.inputs.styleId,
-      currentResult.drawStyleId,
-      cards,
-      currentResult.inputs.questionId,
-      "native",
-    );
-    const shareData = {
-      title: copy.shareTitle,
-      text: shareText,
-      url: shareUrl,
-    } satisfies ShareData;
-    const canShare = canNativeShare(shareData);
-    const method = canShare ? "native" : "clipboard";
+    const method = hasNativeShare ? "native" : "copy_url";
     const attempt = beginShareAttempt(method);
     if (!attempt) {
       return;
     }
 
     try {
-      if (canShare && navigator.share) {
-        await navigator.share(shareData);
+      if (hasNativeShare && navigator.share) {
+        await navigator.share(nativeShareData);
         completeShareAttempt(attempt, "shared", "shared");
       } else {
-        await writeClipboard(`${shareText}\n${shareUrl}`);
+        await writeClipboard(
+          getShareUrl(
+            shareSiteUrl,
+            locale,
+            currentResult.inputs.topicId,
+            currentResult.inputs.spreadId,
+            currentResult.inputs.styleId,
+            currentResult.drawStyleId,
+            cards,
+            currentResult.inputs.questionId,
+            "copy",
+          ),
+        );
         completeShareAttempt(attempt, "copied", "copied");
       }
     } catch (error) {
-      if (isShareCancel(error)) {
+      if (isAbortError(error)) {
         completeShareAttempt(attempt, "cancelled");
         return;
       }
 
-      completeShareAttempt(attempt, "failed", "failed");
+      try {
+        await writeClipboard(
+          getShareUrl(
+            shareSiteUrl,
+            locale,
+            currentResult.inputs.topicId,
+            currentResult.inputs.spreadId,
+            currentResult.inputs.styleId,
+            currentResult.drawStyleId,
+            cards,
+            currentResult.inputs.questionId,
+            "copy",
+          ),
+        );
+        completeShareAttempt(attempt, "copied", "copied");
+      } catch {
+        completeShareAttempt(attempt, "failed", "failed");
+      }
     }
   }
 
-  async function copyShareUrl() {
-    if (!currentResult) {
+  async function prepareInstagramImage() {
+    if (!currentResult || !currentOrigin) {
       return;
     }
 
-    const attempt = beginShareAttempt("copy_url");
-    if (!attempt) {
+    if (
+      preparedInstagramImage?.shareChangeId === currentResult.shareChangeId ||
+      instagramImageStatus === "loading"
+    ) {
       return;
     }
+
+    const preparationId = instagramImagePreparationIdRef.current + 1;
+    instagramImagePreparationIdRef.current = preparationId;
+    instagramImageRequestRef.current?.abort();
+    const controller = new AbortController();
+    instagramImageRequestRef.current = controller;
+    const shareChangeId = currentResult.shareChangeId;
+    setInstagramImagePreparation({ shareChangeId, status: "loading" });
+    setPreparedInstagramImage(undefined);
 
     try {
-      await writeClipboard(
-        getShareUrl(
-          shareSiteUrl,
+      const response = await fetch(
+        getShareImageUrl(
+          currentOrigin,
           locale,
           currentResult.inputs.topicId,
           currentResult.inputs.spreadId,
           currentResult.inputs.styleId,
           currentResult.drawStyleId,
           cards,
-          currentResult.inputs.questionId,
-          "copy",
         ),
+        { signal: controller.signal },
       );
-      completeShareAttempt(attempt, "copied", "copied");
-    } catch {
-      completeShareAttempt(attempt, "failed", "failed");
+
+      if (!response.ok) {
+        throw new Error(`Share image request failed: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const activeSession = sessionRef.current;
+      const activeResult =
+        activeSession.mode === "setup" ? undefined : activeSession.current;
+
+      if (
+        controller.signal.aborted ||
+        preparationId !== instagramImagePreparationIdRef.current ||
+        activeResult?.shareChangeId !== shareChangeId
+      ) {
+        return;
+      }
+
+      setPreparedInstagramImage({
+        file: new File([blob], instagramShareImageFilename, {
+          type: "image/png",
+        }),
+        shareChangeId,
+      });
+      setInstagramImagePreparation({ shareChangeId, status: "ready" });
+    } catch (error) {
+      if (
+        isAbortError(error) ||
+        preparationId !== instagramImagePreparationIdRef.current
+      ) {
+        return;
+      }
+
+      setInstagramImagePreparation({ shareChangeId, status: "failed" });
+    } finally {
+      if (instagramImageRequestRef.current === controller) {
+        instagramImageRequestRef.current = undefined;
+      }
     }
   }
 
-  async function copyInstagramShareUrl() {
-    if (!currentResult) {
+  async function shareInstagramImage() {
+    if (
+      !currentResult ||
+      preparedInstagramImage?.shareChangeId !== currentResult.shareChangeId
+    ) {
+      await prepareInstagramImage();
       return;
     }
 
-    const attempt = beginShareAttempt("instagram_copy_url");
+    const attempt = beginShareAttempt("instagram_image");
     if (!attempt) {
       return;
     }
 
     try {
-      await writeClipboard(
-        getShareUrl(
-          shareSiteUrl,
-          locale,
-          currentResult.inputs.topicId,
-          currentResult.inputs.spreadId,
-          currentResult.inputs.styleId,
-          currentResult.drawStyleId,
-          cards,
-          currentResult.inputs.questionId,
-          "instagram",
-        ),
-      );
-      completeShareAttempt(attempt, "copied", "copied");
-    } catch {
+      if (canShareInstagramImage && navigator.share) {
+        const sharePromise = navigator.share({
+          files: [preparedInstagramImage.file],
+        });
+        await sharePromise;
+        completeShareAttempt(attempt, "shared", "shared");
+      } else {
+        startImageDownload(preparedInstagramImage.file);
+        completeShareAttempt(attempt, "download_started", "download_started");
+      }
+    } catch (error) {
+      if (isAbortError(error)) {
+        completeShareAttempt(attempt, "cancelled");
+        return;
+      }
+
       completeShareAttempt(attempt, "failed", "failed");
     }
   }
@@ -1280,6 +1393,7 @@ export function TarotExperienceClient({
             </a>
           ) : undefined
         }
+        canShareInstagramImage={canShareInstagramImage}
         cards={cards}
         copy={copy}
         copyState={copyState}
@@ -1298,9 +1412,11 @@ export function TarotExperienceClient({
           ) : undefined
         }
         hasKakaoShare={hasKakaoShare}
+        hasNativeShare={hasNativeShare}
         hasUserContext={Boolean(
           currentResult?.inputs.privateContext.trim().length,
         )}
+        instagramImageStatus={instagramImageStatus}
         instantReading={instantReading}
         instantReadingEnabled={
           viewMode === "generator" && instantReadingEnabled
@@ -1308,10 +1424,10 @@ export function TarotExperienceClient({
         instantReadingStatus={instantReadingStatus}
         onCancelInstantReading={cancelInstantReading}
         onGenerateInstantReading={generateInstantReading}
-        onInstagramShare={copyInstagramShareUrl}
+        onInstagramShare={shareInstagramImage}
         onKakaoShare={shareToKakaoTalk}
         onCopyPrompt={copyPrompt}
-        onCopyUrl={copyShareUrl}
+        onPrepareInstagramImage={prepareInstagramImage}
         onShareReading={shareReading}
         prompt={prompt}
         {...(viewMode === "generator"
@@ -1704,7 +1820,7 @@ function fallbackCopy(text: string) {
   }
 }
 
-function isShareCancel(error: unknown) {
+function isAbortError(error: unknown) {
   return getErrorName(error) === "AbortError";
 }
 
@@ -1731,6 +1847,37 @@ function getShareText(
     },
     context,
   );
+}
+
+function getReadingShareData(
+  copy: TarotReadingCopy,
+  shareSiteUrl: string,
+  locale: Locale,
+  topicLabel: string,
+  result: CurrentResult,
+  cards: readonly DrawnCard[],
+  sourceId: ShareSourceId,
+) {
+  return {
+    title: copy.shareTitle,
+    text: getShareText(
+      copy.shareText,
+      topicLabel,
+      cards,
+      `${locale} tarot-reading.shareText`,
+    ),
+    url: getShareUrl(
+      shareSiteUrl,
+      locale,
+      result.inputs.topicId,
+      result.inputs.spreadId,
+      result.inputs.styleId,
+      result.drawStyleId,
+      cards,
+      result.inputs.questionId,
+      sourceId,
+    ),
+  } satisfies ShareData;
 }
 
 function getBrowserReadingUrl(
@@ -1782,6 +1929,28 @@ function getShareUrl(
       sourceId,
     },
   );
+}
+
+function getShareImageUrl(
+  origin: string,
+  locale: Locale,
+  topicId: TopicId,
+  spreadId: SpreadId,
+  styleId: ReadingStyleId,
+  drawStyleId: ReadingStyleId,
+  cards: readonly DrawnCard[],
+) {
+  const url = new URL("/api/share-image", origin);
+  url.searchParams.set("locale", locale);
+  url.searchParams.set("topic", topicId);
+  url.searchParams.set("spread", spreadId);
+  url.searchParams.set("style", styleId);
+  if (drawStyleId !== styleId) {
+    url.searchParams.set("drawStyle", drawStyleId);
+  }
+  url.searchParams.set("cards", cards.map(({ card }) => card.id).join(","));
+
+  return url.toString();
 }
 
 function canUseKakaoShare(
@@ -1843,7 +2012,35 @@ function canNativeShare(shareData: ShareData) {
     return false;
   }
 
-  return !navigator.canShare || navigator.canShare(shareData);
+  try {
+    return !navigator.canShare || navigator.canShare(shareData);
+  } catch {
+    return false;
+  }
+}
+
+function canNativeFileShare(file: File) {
+  if (
+    typeof navigator.share !== "function" ||
+    typeof navigator.canShare !== "function"
+  ) {
+    return false;
+  }
+
+  try {
+    return navigator.canShare({ files: [file] });
+  } catch {
+    return false;
+  }
+}
+
+function startImageDownload(file: File) {
+  const objectUrl = URL.createObjectURL(file);
+  const link = document.createElement("a");
+  link.download = file.name;
+  link.href = objectUrl;
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
 }
 
 async function getInitializedKakaoSdk(javaScriptKey: string) {

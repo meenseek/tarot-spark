@@ -11,7 +11,7 @@ import { type ReactNode, type Ref, useEffect, useRef } from "react";
 import { secondaryButtonClassName } from "@/components/visual/class-names";
 import type { DrawnCard, InstantReading } from "@/domain/tarot";
 import type { TarotReadingCopy } from "../i18n";
-import type { CopyState, ShareFeedback } from "../types";
+import type { CopyState, InstagramImageStatus, ShareFeedback } from "../types";
 import {
   InstantReadingPanel,
   type InstantReadingStatus,
@@ -20,11 +20,14 @@ import {
 type ReadingResultProps = {
   readonly cards: readonly DrawnCard[];
   readonly afterPromptAction?: ReactNode;
+  readonly canShareInstagramImage: boolean;
   readonly copy: TarotReadingCopy;
   readonly copyState: CopyState;
   readonly currentCustomization?: ReactNode;
   readonly hasKakaoShare: boolean;
+  readonly hasNativeShare: boolean;
   readonly hasUserContext: boolean;
+  readonly instagramImageStatus: InstagramImageStatus;
   readonly instantReading: InstantReading | undefined;
   readonly instantReadingEnabled: boolean;
   readonly instantReadingStatus: InstantReadingStatus;
@@ -38,18 +41,21 @@ type ReadingResultProps = {
   readonly onGenerateInstantReading: () => void;
   readonly onKakaoShare: () => void;
   readonly onCopyPrompt: () => void;
-  readonly onCopyUrl: () => void;
+  readonly onPrepareInstagramImage: () => void;
   readonly onShareReading: () => void;
 };
 
 export function ReadingResult({
   cards,
   afterPromptAction,
+  canShareInstagramImage,
   copy,
   copyState,
   currentCustomization,
   hasKakaoShare,
+  hasNativeShare,
   hasUserContext,
+  instagramImageStatus,
   instantReading,
   instantReadingEnabled,
   instantReadingStatus,
@@ -63,16 +69,19 @@ export function ReadingResult({
   onGenerateInstantReading,
   onKakaoShare,
   onCopyPrompt,
-  onCopyUrl,
+  onPrepareInstagramImage,
   onShareReading,
 }: ReadingResultProps) {
   const promptDisclosureRef = useRef<HTMLDetailsElement | null>(null);
   const promptTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const shareDisclosureRef = useRef<HTMLDetailsElement | null>(null);
   const manualShareUrlRef = useRef<HTMLInputElement | null>(null);
-  const actionGridClassName =
-    "grid gap-2 sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]";
   const hasShareFailure = shareFeedback?.status === "failed";
+  const shareStatusText = getShareStatusText(
+    copy,
+    shareFeedback,
+    instagramImageStatus,
+  );
 
   useEffect(() => {
     if (copyState !== "failed") {
@@ -259,6 +268,11 @@ export function ReadingResult({
             data-testid="share-options-disclosure"
             ref={shareDisclosureRef}
             suppressHydrationWarning
+            onToggle={(event) => {
+              if (event.currentTarget.open) {
+                onPrepareInstagramImage();
+              }
+            }}
           >
             <summary className={disclosureSummaryClassName}>
               <span className="font-semibold text-ts-ink">
@@ -267,11 +281,17 @@ export function ReadingResult({
               <DisclosureChevron />
             </summary>
             <div className="grid gap-3 border-t border-ts-divider p-4">
-              <div className={actionGridClassName}>
+              <div
+                className="mx-auto flex w-full min-w-0 max-w-sm gap-2"
+                data-testid="share-actions"
+              >
                 {hasKakaoShare && (
                   <button
-                    className={`${secondaryButtonClassName} gap-2 px-3`}
+                    aria-label={copy.kakaoShare}
+                    className={`${secondaryButtonClassName} relative h-12 w-12 shrink-0 p-0`}
+                    data-testid="kakao-share-action"
                     onClick={onKakaoShare}
+                    title={copy.kakaoShare}
                     type="button"
                   >
                     <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#FEE500]">
@@ -284,56 +304,66 @@ export function ReadingResult({
                         width={16}
                       />
                     </span>
-                    <span className="min-w-0 break-words leading-5">
-                      {shareFeedback?.method === "kakaotalk" &&
-                      shareFeedback.status === "opened"
-                        ? copy.kakaoShared
-                        : copy.kakaoShare}
-                    </span>
+                    {shareFeedback?.method === "kakaotalk" &&
+                      shareFeedback.status === "opened" && <SuccessBadge />}
                   </button>
                 )}
                 <button
-                  className={`${secondaryButtonClassName} gap-2 px-3`}
+                  aria-label={
+                    instagramImageStatus === "ready" && !canShareInstagramImage
+                      ? copy.instagramImageDownload
+                      : copy.instagramImageShare
+                  }
+                  className={`${secondaryButtonClassName} relative h-12 w-12 shrink-0 p-0 disabled:cursor-wait disabled:opacity-60`}
+                  data-testid="instagram-share-action"
+                  disabled={instagramImageStatus === "loading"}
                   onClick={onInstagramShare}
+                  title={
+                    instagramImageStatus === "ready" && !canShareInstagramImage
+                      ? copy.instagramImageDownload
+                      : copy.instagramImageShare
+                  }
                   type="button"
                 >
                   <Image
                     alt=""
                     aria-hidden="true"
-                    className="h-5 w-5 shrink-0"
+                    className="h-auto w-5 shrink-0"
                     height={20}
                     src="/brand/instagram-glyph-gradient.png"
                     width={20}
                   />
-                  <span className="min-w-0 break-words leading-5">
-                    {shareFeedback?.method === "instagram_copy_url" &&
-                    shareFeedback.status === "copied"
-                      ? copy.instagramCopied
-                      : copy.instagramShare}
-                  </span>
+                  {shareFeedback?.method === "instagram_image" &&
+                    (shareFeedback.status === "shared" ||
+                      shareFeedback.status === "download_started") && (
+                      <SuccessBadge />
+                    )}
                 </button>
                 <button
-                  className={`${secondaryButtonClassName} gap-2 px-3`}
+                  className={`${secondaryButtonClassName} min-w-0 flex-1 px-3`}
+                  data-testid="general-share-action"
                   onClick={onShareReading}
                   type="button"
                 >
-                  <span className="min-w-0 break-words leading-5">
-                    {getShareButtonLabel(copy, shareFeedback)}
-                  </span>
-                </button>
-                <button
-                  className={`${secondaryButtonClassName} gap-2 px-3`}
-                  onClick={onCopyUrl}
-                  type="button"
-                >
-                  <span className="min-w-0 break-words leading-5">
-                    {shareFeedback?.method === "copy_url" &&
-                    shareFeedback.status === "copied"
-                      ? copy.copiedUrl
-                      : copy.copyUrl}
+                  <span className="min-w-0 truncate leading-5">
+                    {getShareButtonLabel(copy, shareFeedback, hasNativeShare)}
                   </span>
                 </button>
               </div>
+              {shareStatusText && (
+                <p
+                  aria-live="polite"
+                  className={
+                    shareStatusText === copy.instagramImagePrepareFailed
+                      ? "text-sm leading-5 text-ts-muted"
+                      : "sr-only"
+                  }
+                  data-testid="share-status"
+                  role="status"
+                >
+                  {shareStatusText}
+                </p>
+              )}
               {hasShareFailure && (
                 <div className="grid gap-2" data-testid="manual-share-fallback">
                   <div aria-live="polite" id="share-failure" role="status">
@@ -398,17 +428,81 @@ function CardDetail({ label, value }: { label: string; value: string }) {
 function getShareButtonLabel(
   copy: TarotReadingCopy,
   shareFeedback: ShareFeedback | undefined,
+  hasNativeShare: boolean,
 ) {
   if (shareFeedback?.method === "native" && shareFeedback.status === "shared") {
     return copy.shared;
   }
 
-  if (
-    shareFeedback?.method === "clipboard" &&
-    shareFeedback.status === "copied"
-  ) {
-    return copy.copiedShareText;
+  if (shareFeedback?.method === "native" && shareFeedback.status === "copied") {
+    return copy.copiedUrl;
   }
 
-  return copy.share;
+  if (
+    shareFeedback?.method === "copy_url" &&
+    shareFeedback.status === "copied"
+  ) {
+    return copy.copiedUrl;
+  }
+
+  return hasNativeShare ? copy.share : copy.copyUrl;
+}
+
+function getShareStatusText(
+  copy: TarotReadingCopy,
+  shareFeedback: ShareFeedback | undefined,
+  instagramImageStatus: InstagramImageStatus,
+) {
+  if (shareFeedback?.status === "failed") {
+    return "";
+  }
+
+  if (shareFeedback?.method === "kakaotalk") {
+    return shareFeedback.status === "opened" ? copy.kakaoShared : "";
+  }
+
+  if (shareFeedback?.method === "instagram_image") {
+    if (shareFeedback.status === "shared") {
+      return copy.instagramImageShared;
+    }
+
+    if (shareFeedback.status === "download_started") {
+      return copy.instagramImageDownloadStarted;
+    }
+  }
+
+  if (shareFeedback?.method === "native") {
+    if (shareFeedback.status === "shared") {
+      return copy.shared;
+    }
+
+    if (shareFeedback.status === "copied") {
+      return copy.copiedUrl;
+    }
+  }
+
+  if (shareFeedback?.method === "copy_url") {
+    return shareFeedback.status === "copied" ? copy.copiedUrl : "";
+  }
+
+  if (instagramImageStatus === "loading") {
+    return copy.instagramImagePreparing;
+  }
+
+  if (instagramImageStatus === "failed") {
+    return copy.instagramImagePrepareFailed;
+  }
+
+  return "";
+}
+
+function SuccessBadge() {
+  return (
+    <span
+      aria-hidden="true"
+      className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-ts-action text-xs text-ts-on-action"
+    >
+      ✓
+    </span>
+  );
 }

@@ -80,14 +80,14 @@ type AnalyticsEventName = keyof typeof analyticsEventPayloadKeys;
 const shareMethods = [
   "kakaotalk",
   "native",
-  "clipboard",
   "copy_url",
-  "instagram_copy_url",
+  "instagram_image",
 ] as const;
 const shareOutcomes = [
   "shared",
   "opened",
   "copied",
+  "download_started",
   "cancelled",
   "failed",
 ] as const;
