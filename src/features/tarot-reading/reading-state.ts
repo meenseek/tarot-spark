@@ -37,6 +37,7 @@ export type ReadingUrlState = {
 export const shareSourceIds = [
   "instagram",
   "naver",
+  "disquiet",
   "threads",
   "kakao",
   "native",

@@ -28,7 +28,7 @@ describe("GoogleAnalyticsEvents", () => {
     window.history.replaceState(
       null,
       "",
-      "/ko?source=naver&campaign=topic-guide&context=private&topic=love&cards=the-fool",
+      "/ko?source=disquiet&campaign=vertical-slice&context=private&topic=love&cards=the-fool",
     );
 
     render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
@@ -37,8 +37,8 @@ describe("GoogleAnalyticsEvents", () => {
       "config",
       "G-TEST1234",
       expect.objectContaining({
-        page_location: `${window.location.origin}/ko?source=naver&campaign=topic-guide`,
-        page_path: "/ko?source=naver&campaign=topic-guide",
+        page_location: `${window.location.origin}/ko?source=disquiet&campaign=vertical-slice`,
+        page_path: "/ko?source=disquiet&campaign=vertical-slice",
       }),
     ]);
   });
