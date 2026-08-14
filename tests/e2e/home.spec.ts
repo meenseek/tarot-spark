@@ -1060,6 +1060,16 @@ test("shows an instant Korean reading without sending private context", async ({
 });
 
 test("draws tarot cards and copies the generated prompt", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: undefined,
+    });
+    Object.defineProperty(navigator, "canShare", {
+      configurable: true,
+      value: undefined,
+    });
+  });
   await page.goto("/");
 
   await page.getByTestId("topic-select").selectOption("reunion");
@@ -1098,23 +1108,24 @@ test("draws tarot cards and copies the generated prompt", async ({ page }) => {
   ).toBeVisible();
 
   await openShareOptions(page);
-  await page.getByRole("button", { name: "Share" }).click();
-
-  await expect(
-    page.getByRole("button", { name: "Copied share text" }),
-  ).toBeVisible();
-
-  await page.getByRole("button", { name: "Copy link for Instagram" }).click();
-
-  await expect(
-    page.getByRole("button", { name: "Instagram link copied" }),
-  ).toBeVisible();
-
   await page.getByRole("button", { name: "Copy URL" }).click();
 
-  await expect(
-    page.getByRole("button", { exact: true, name: "URL copied" }),
-  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "URL copied" })).toBeVisible();
+
+  const instagramAction = page.getByRole("button", {
+    name: "Save image for Instagram",
+  });
+  await expect(instagramAction).toBeEnabled();
+  const downloadPromise = page.waitForEvent("download");
+  await instagramAction.click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe("tarot-spark.png");
+  await expect(page.getByTestId("share-status")).toHaveText(
+    "Image download started",
+  );
+  expect(
+    await page.getByTestId("share-actions").getByRole("button").count(),
+  ).toBeGreaterThanOrEqual(2);
 });
 
 test("serves the relationship guide and a noindex privacy-safe share preview", async ({

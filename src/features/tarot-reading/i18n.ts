@@ -82,13 +82,16 @@ export type TarotReadingMessages = {
   readonly copied: string;
   readonly copyUrl: string;
   readonly copiedUrl: string;
-  readonly instagramShare: string;
-  readonly instagramCopied: string;
+  readonly instagramImageShare: string;
+  readonly instagramImageDownload: string;
+  readonly instagramImagePreparing: string;
+  readonly instagramImageShared: string;
+  readonly instagramImageDownloadStarted: string;
+  readonly instagramImagePrepareFailed: string;
   readonly kakaoShare: string;
   readonly kakaoShared: string;
   readonly share: string;
   readonly shared: string;
-  readonly copiedShareText: string;
   readonly promptCopyBlockedAction: string;
   readonly shareBlockedAction: string;
   readonly manualShareUrlLabel: string;
@@ -121,7 +124,6 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     copied: copy.copied,
     copiedUrl: copy.copiedUrl,
     copyUrl: copy.copyUrl,
-    copiedShareText: copy.copiedShareText,
     copyPrompt: copy.copyPrompt,
     contextCountLabel: copy.contextCountLabel,
     contextEmptySummary: copy.contextEmptySummary,
@@ -145,8 +147,12 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     emptyHeading: copy.emptyHeading,
     generatedPromptLabel: copy.generatedPromptLabel,
     heading: copy.heading,
-    instagramCopied: copy.instagramCopied,
-    instagramShare: copy.instagramShare,
+    instagramImageDownload: copy.instagramImageDownload,
+    instagramImageDownloadStarted: copy.instagramImageDownloadStarted,
+    instagramImagePrepareFailed: copy.instagramImagePrepareFailed,
+    instagramImagePreparing: copy.instagramImagePreparing,
+    instagramImageShare: copy.instagramImageShare,
+    instagramImageShared: copy.instagramImageShared,
     instantReading: copy.instantReading,
     intro: copy.intro,
     kakaoShare: copy.kakaoShare,
