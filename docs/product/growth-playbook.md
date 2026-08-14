@@ -40,10 +40,15 @@ structured way to reflect on a relationship.
    profile or story link.
 4. Threads: reach Korean and English public conversations with a short
    observation, example prompt, and one question. Link in a relevant follow-up.
-5. Naver Cafe: reach existing Korean tarot, journaling, or AI communities with
+5. Disquiet: reach Korean makers with an approved product profile and
+   product-linked build notes. Complete product review before posting, make each
+   post useful without relying on the product card, and ask one concrete
+   feedback question. Recheck the current product submission flow in the
+   [Disquiet renewal announcement](https://disquiet.io/announcement).
+6. Naver Cafe: reach existing Korean tarot, journaling, or AI communities with
    a value-first text post tailored to the board. Link only when the cafe
    permits it.
-6. Reddit: reach English tarot, journaling, or prompt communities with a native
+7. Reddit: reach English tarot, journaling, or prompt communities with a native
    text case study and maker disclosure. Follow each community's
    self-promotion rule.
 
@@ -144,7 +149,7 @@ independently useful.
 
 Use only the source and campaign values implemented by the product.
 
-- `source`: `instagram`, `naver`, `threads`, `kakao`, `native`, `copy`,
+- `source`: `instagram`, `naver`, `disquiet`, `threads`, `kakao`, `native`, `copy`,
   `pinterest`, or `reddit`.
 - `campaign`: `vertical-slice`, `pick-a-card`, `prompt-education`,
   `deck-progress`, or `topic-guide`.

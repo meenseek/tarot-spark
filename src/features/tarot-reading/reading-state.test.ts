@@ -61,6 +61,14 @@ describe("reading URL state", () => {
   it("parses only a complete allowlisted attribution pair", () => {
     expect(
       getReadingAttributionFromUrl(
+        "https://example.com/share?source=disquiet&campaign=vertical-slice",
+      ),
+    ).toEqual({
+      campaignId: "vertical-slice",
+      sourceId: "disquiet",
+    });
+    expect(
+      getReadingAttributionFromUrl(
         "https://example.com/share?source=instagram&campaign=vertical-slice",
       ),
     ).toEqual({
