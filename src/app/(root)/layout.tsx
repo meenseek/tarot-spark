@@ -6,7 +6,12 @@ import { GoogleAdSenseAccountMetadata } from "@/integrations/google-adsense";
 import "@measure-twice/react/styles.css";
 import "../globals.css";
 
-export const metadata: Metadata = getTarotReadingMetadata(defaultLocale);
+export const metadata: Metadata = {
+  ...getTarotReadingMetadata(defaultLocale),
+  verification: {
+    google: "fxoRmo8MjUkhoBr5CVxFtQZjVPXViqaS4MbmInYoOfk",
+  },
+};
 
 export default function RootHomeLayout({
   children,

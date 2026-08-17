@@ -473,6 +473,11 @@ test("serves localized SEO metadata and discovery files", async ({
   page,
   request,
 }) => {
+  await page.goto("/");
+  await expect(
+    page.locator('meta[name="google-site-verification"]'),
+  ).toHaveAttribute("content", "fxoRmo8MjUkhoBr5CVxFtQZjVPXViqaS4MbmInYoOfk");
+
   await page.goto("/ko");
 
   await expect(
