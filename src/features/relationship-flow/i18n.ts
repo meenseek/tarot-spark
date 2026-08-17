@@ -27,6 +27,7 @@ export type RelationshipFlowCopy = {
   readonly eyebrow: string;
   readonly heading: string;
   readonly intro: string;
+  readonly heroCtaButton: string;
   readonly benefitsHeading: string;
   readonly benefits: readonly RelationshipFlowItem[];
   readonly stepsHeading: string;

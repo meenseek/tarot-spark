@@ -52,6 +52,38 @@ test("loads Korean localized content", async ({ page }) => {
   await expect(page.getByText(/78장 덱/)).toBeVisible();
 });
 
+test("keeps the Korean Instagram campaign through the first draw", async ({
+  page,
+}) => {
+  await page.goto(
+    "/ko?topic=relationship-flow&style=relational&source=instagram&campaign=prompt-education",
+  );
+
+  await expect(page.locator("html")).toHaveAttribute("lang", "ko");
+  await expect(page.getByTestId("topic-select")).toHaveValue(
+    "relationship-flow",
+  );
+  await expect(page.getByTestId("reading-preferences-selection")).toContainText(
+    "빠른 3장 · 마음과 관계에 초점",
+  );
+
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+
+  await expect(page.getByTestId("prompt-ready")).toBeVisible();
+  await expect(page).toHaveURL((url) => {
+    const cards = url.searchParams.get("cards")?.split(",");
+
+    return (
+      url.pathname === "/ko" &&
+      url.searchParams.get("topic") === "relationship-flow" &&
+      url.searchParams.get("style") === "relational" &&
+      cards?.length === 3 &&
+      url.searchParams.get("source") === "instagram" &&
+      url.searchParams.get("campaign") === "prompt-education"
+    );
+  });
+});
+
 test("keeps optional situation context discoverable before drawing", async ({
   page,
 }) => {
@@ -1136,7 +1168,7 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
 
   await expect(
     page.getByRole("heading", {
-      name: /read the feelings and relationship flow suggested/i,
+      name: /why ai tarot readings feel generic/i,
     }),
   ).toBeVisible();
   await expect(

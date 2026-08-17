@@ -71,6 +71,12 @@ export function RelationshipFlowLanding({
           <p className="max-w-2xl text-base leading-7 text-ts-muted">
             {copy.intro}
           </p>
+          <Link
+            className={`${primaryButtonClassName} w-fit`}
+            href={getRelationshipFlowReadingPath(locale, attribution)}
+          >
+            {copy.heroCtaButton}
+          </Link>
           <p className="max-w-xl text-xs leading-5 text-ts-muted">
             {copy.privacyNote}
           </p>

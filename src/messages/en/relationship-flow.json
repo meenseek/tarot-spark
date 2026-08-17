@@ -1,12 +1,13 @@
 {
   "metadata": {
-    "title": "Relationship Flow Tarot Prompt | tarot-spark",
-    "description": "Start with three cards from a complete 78-card tarot deck and build a grounded relationship-reflection prompt, with six cards as an optional deeper spread."
+    "title": "Why AI Tarot Readings Feel Generic | tarot-spark",
+    "description": "See why AI tarot answers sound generic, compare a grounded three-card relationship example, and build a prompt with reality checks. No signup."
   },
   "cardArtRetry": "Try again",
-  "eyebrow": "Relationship reflection guide",
-  "heading": "Read the feelings and relationship flow suggested by the cards without treating them as facts.",
-  "intro": "Start with three cards with no assigned position meanings. The result keeps their exact names in draw order and prepares one relationship prompt that uses upright meanings as symbolic interpretation material. A six-card spread remains optional when three meanings are not enough to compare several aspects of the question.",
+  "eyebrow": "Fix a generic AI tarot reading",
+  "heading": "Why AI tarot readings feel generic—and how to make a relationship reading more useful.",
+  "intro": "AI tarot answers often turn generic when a prompt asks for a prediction but leaves out the exact cards, their meanings, and a useful answer structure. This guide shows a three-card relationship example that asks for two interpretations, one unknown, one reality check, and a reversible next step. You can then build the same structure with your own draw.",
+  "heroCtaButton": "Try the free 3-card prompt",
   "benefitsHeading": "Built for a more useful AI conversation",
   "benefits": [
     {
