@@ -63,6 +63,27 @@ describe("GoogleAnalyticsEvents", () => {
     ]);
   });
 
+  it("normalizes the public legacy Threads UTM campaign", () => {
+    const calls = mockGtag();
+    window.history.replaceState(
+      null,
+      "",
+      "/ko?topic=relationship-flow&style=relational&utm_source=threads&utm_medium=social&utm_campaign=demo",
+    );
+
+    render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
+
+    expect(calls).toContainEqual([
+      "config",
+      "G-TEST1234",
+      expect.objectContaining({
+        page_location:
+          window.location.origin + "/ko?source=threads&campaign=demo",
+        page_path: "/ko?source=threads&campaign=demo",
+      }),
+    ]);
+  });
+
   it("sends page views with the active route", () => {
     const calls = mockGtag();
 

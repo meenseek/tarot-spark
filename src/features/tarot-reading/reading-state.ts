@@ -22,6 +22,8 @@ const readingDrawStyleParam = "drawStyle";
 const readingQuestionParam = "question";
 const shareSourceParam = "source";
 const shareCampaignParam = "campaign";
+const legacyUtmSourceParam = "utm_source";
+const legacyUtmCampaignParam = "utm_campaign";
 const privateContextHandoffStorageKey = "tarot-spark.private-context-handoff";
 const privateContextHandoffLifetimeMilliseconds = 60_000;
 
@@ -48,6 +50,7 @@ export const shareSourceIds = [
 export type ShareSourceId = (typeof shareSourceIds)[number];
 
 export const shareCampaignIds = [
+  "demo",
   "vertical-slice",
   "pick-a-card",
   "prompt-education",
@@ -157,8 +160,46 @@ export function getReadingAttributionFromUrl(
   href: string,
 ): ReadingUrlAttribution | null | undefined {
   const url = new URL(href);
-  const sourceValues = url.searchParams.getAll(shareSourceParam);
-  const campaignValues = url.searchParams.getAll(shareCampaignParam);
+  const explicitAttribution = getReadingAttributionFromUrlParams(
+    url,
+    shareSourceParam,
+    shareCampaignParam,
+  );
+
+  if (explicitAttribution !== undefined) {
+    return explicitAttribution;
+  }
+
+  return getReadingAttributionFromUrlParams(
+    url,
+    legacyUtmSourceParam,
+    legacyUtmCampaignParam,
+  );
+}
+
+export function getReadingAttributionFromSearchParams(
+  searchParams: ReadingSearchParams,
+): ReadingUrlAttribution | undefined {
+  const sourceId = searchParams[shareSourceParam];
+  const campaignId = searchParams[shareCampaignParam];
+
+  if (sourceId !== undefined || campaignId !== undefined) {
+    return getReadingAttributionFromValues(sourceId, campaignId);
+  }
+
+  return getReadingAttributionFromValues(
+    searchParams[legacyUtmSourceParam],
+    searchParams[legacyUtmCampaignParam],
+  );
+}
+
+function getReadingAttributionFromUrlParams(
+  url: URL,
+  sourceParam: string,
+  campaignParam: string,
+): ReadingUrlAttribution | null | undefined {
+  const sourceValues = url.searchParams.getAll(sourceParam);
+  const campaignValues = url.searchParams.getAll(campaignParam);
 
   if (sourceValues.length === 0 && campaignValues.length === 0) {
     return undefined;
@@ -168,27 +209,15 @@ export function getReadingAttributionFromUrl(
     return null;
   }
 
-  const [sourceId] = sourceValues;
-  const [campaignId] = campaignValues;
-
-  if (
-    !sourceId ||
-    !campaignId ||
-    !isShareSourceId(sourceId) ||
-    !isShareCampaignId(campaignId)
-  ) {
-    return null;
-  }
-
-  return { campaignId, sourceId };
+  return (
+    getReadingAttributionFromValues(sourceValues[0], campaignValues[0]) ?? null
+  );
 }
 
-export function getReadingAttributionFromSearchParams(
-  searchParams: ReadingSearchParams,
+function getReadingAttributionFromValues(
+  sourceId: string | readonly string[] | undefined,
+  campaignId: string | readonly string[] | undefined,
 ): ReadingUrlAttribution | undefined {
-  const sourceId = searchParams[shareSourceParam];
-  const campaignId = searchParams[shareCampaignParam];
-
   if (
     typeof sourceId !== "string" ||
     typeof campaignId !== "string" ||

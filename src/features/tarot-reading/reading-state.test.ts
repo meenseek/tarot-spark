@@ -89,6 +89,42 @@ describe("reading URL state", () => {
     }
   });
 
+  it("normalizes the allowlisted legacy Threads UTM campaign", () => {
+    expect(
+      getReadingAttributionFromUrl(
+        "https://example.com/ko?utm_source=threads&utm_medium=social&utm_campaign=demo",
+      ),
+    ).toEqual({ campaignId: "demo", sourceId: "threads" });
+
+    expect(
+      getReadingAttributionFromSearchParams({
+        utm_campaign: "demo",
+        utm_medium: "social",
+        utm_source: "threads",
+      }),
+    ).toEqual({ campaignId: "demo", sourceId: "threads" });
+
+    for (const href of [
+      "https://example.com/ko?utm_source=threads",
+      "https://example.com/ko?utm_campaign=demo",
+      "https://example.com/ko?utm_source=private&utm_campaign=demo",
+      "https://example.com/ko?utm_source=threads&utm_source=instagram&utm_campaign=demo",
+    ]) {
+      expect(getReadingAttributionFromUrl(href)).toBeNull();
+    }
+  });
+
+  it("does not let legacy UTM values override an explicit attribution pair", () => {
+    expect(
+      getReadingAttributionFromUrl(
+        "https://example.com/ko?source=instagram&campaign=prompt-education&utm_source=threads&utm_campaign=demo",
+      ),
+    ).toEqual({
+      campaignId: "prompt-education",
+      sourceId: "instagram",
+    });
+  });
+
   it("parses only one complete allowlisted server search-param pair", () => {
     expect(
       getReadingAttributionFromSearchParams({
