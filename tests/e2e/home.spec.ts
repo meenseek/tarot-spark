@@ -84,6 +84,34 @@ test("keeps the Korean Instagram campaign through the first draw", async ({
   });
 });
 
+test("normalizes the published Threads UTM campaign through the first draw", async ({
+  page,
+}) => {
+  await page.goto(
+    "/ko?topic=relationship-flow&style=relational&utm_source=threads&utm_medium=social&utm_campaign=demo",
+  );
+
+  await expect(page.getByTestId("topic-select")).toHaveValue(
+    "relationship-flow",
+  );
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+
+  await expect(page.getByTestId("prompt-ready")).toBeVisible();
+  await expect(page).toHaveURL((url) => {
+    const cards = url.searchParams.get("cards")?.split(",");
+
+    return (
+      url.pathname === "/ko" &&
+      cards?.length === 3 &&
+      url.searchParams.get("source") === "threads" &&
+      url.searchParams.get("campaign") === "demo" &&
+      !url.searchParams.has("utm_source") &&
+      !url.searchParams.has("utm_medium") &&
+      !url.searchParams.has("utm_campaign")
+    );
+  });
+});
+
 test("keeps optional situation context discoverable before drawing", async ({
   page,
 }) => {
