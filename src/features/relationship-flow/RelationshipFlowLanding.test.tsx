@@ -11,9 +11,14 @@ describe("RelationshipFlowLanding", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: /read the feelings and relationship flow suggested/i,
+        name: /why ai tarot readings feel generic/i,
       }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", {
+        name: "Try the free 3-card prompt",
+      }),
+    ).toHaveAttribute("href", "/?topic=relationship-flow&style=relational");
     expect(
       screen.getByRole("link", {
         name: "Start with three cards",
@@ -43,7 +48,7 @@ describe("RelationshipFlowLanding", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: /카드가 시사하는 감정과 관계의 흐름/i,
+        name: /ai 타로 답변이 자꾸 뻔하다면/i,
       }),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "English" })).toHaveAttribute(

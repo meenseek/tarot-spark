@@ -369,6 +369,7 @@ const relationshipFlowMessagesSchema = {
   eyebrow: "string",
   heading: "string",
   intro: "string",
+  heroCtaButton: "string",
   benefitsHeading: "string",
   benefits: [
     {
