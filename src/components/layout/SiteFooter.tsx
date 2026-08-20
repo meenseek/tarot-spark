@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { footerLinkClassName } from "@/components/visual/class-names";
+import { PrivacySettingsButton } from "./PrivacySettingsControl";
 
 export type SiteFooterLink = {
   readonly href: string;
@@ -30,6 +31,7 @@ export function SiteFooter({ ariaLabel, links }: SiteFooterProps) {
             {link.label}
           </Link>
         ))}
+        <PrivacySettingsButton />
       </nav>
     </footer>
   );

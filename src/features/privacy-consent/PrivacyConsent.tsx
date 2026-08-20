@@ -5,6 +5,10 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { interactiveFocusClassName } from "@/components/visual/class-names";
 import { GoogleAnalytics } from "@/components/layout/GoogleAnalytics";
+import {
+  privacySettingsButtonId,
+  PrivacySettingsProvider,
+} from "@/components/layout/PrivacySettingsControl";
 import { GoogleAdSenseScript } from "@/integrations/google-adsense/GoogleAdSenseScript";
 import { optionalServicesDocumentReloadEvent } from "./events";
 import type { PrivacyConsentCopy } from "./i18n";
@@ -41,7 +45,6 @@ export function PrivacyConsent({
   const [isEditing, setIsEditing] = useState(false);
   const [hasLoadedAdvertising, setHasLoadedAdvertising] = useState(false);
   const panelHeadingRef = useRef<HTMLHeadingElement>(null);
-  const settingsButtonRef = useRef<HTMLButtonElement>(null);
   const shouldFocusEditingPanelRef = useRef(false);
   const shouldRestoreSettingsFocusRef = useRef(false);
   const hasAnalytics = Boolean(analyticsMeasurementId);
@@ -99,7 +102,7 @@ export function PrivacyConsent({
     }
 
     shouldRestoreSettingsFocusRef.current = false;
-    settingsButtonRef.current?.focus();
+    document.getElementById(privacySettingsButtonId)?.focus();
   }, [isEditing, preferences]);
 
   if (!hasAnalytics && !hasAdvertising) {
@@ -133,7 +136,16 @@ export function PrivacyConsent({
   const shouldShowChoices = preferences === null || isEditing;
 
   return (
-    <>
+    <PrivacySettingsProvider
+      value={{
+        isVisible: preferences !== undefined && !shouldShowChoices,
+        label: copy.settingsButton,
+        onOpen: () => {
+          shouldFocusEditingPanelRef.current = true;
+          setIsEditing(true);
+        },
+      }}
+    >
       {children}
       {preferences?.analytics && analyticsMeasurementId && (
         <GoogleAnalytics measurementId={analyticsMeasurementId} />
@@ -223,22 +235,8 @@ export function PrivacyConsent({
               </Button>
             </div>
           </section>
-        ) : (
-          <Button
-            className="ts-secondary-action fixed right-4 bottom-4 z-40 px-3 text-xs"
-            onClick={() => {
-              shouldFocusEditingPanelRef.current = true;
-              setIsEditing(true);
-            }}
-            ref={settingsButtonRef}
-            tone="neutral"
-            type="button"
-            variant="outline"
-          >
-            {copy.settingsButton}
-          </Button>
-        ))}
-    </>
+        ) : null)}
+    </PrivacySettingsProvider>
   );
 }
 
