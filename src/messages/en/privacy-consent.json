@@ -7,5 +7,6 @@
   "advertisingDescription": "Allow Google AdSense to load on approved non-reading content pages for advertising and site monetization.",
   "saveChoices": "Save choices",
   "rejectOptional": "Reject optional services",
-  "settingsButton": "Privacy choices"
+  "settingsButton": "Privacy choices",
+  "storageError": "We couldn't save your choices. Try again in this panel so they can be applied safely."
 }

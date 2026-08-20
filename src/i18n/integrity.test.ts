@@ -358,6 +358,7 @@ const privacyConsentMessagesSchema = {
   saveChoices: "string",
   rejectOptional: "string",
   settingsButton: "string",
+  storageError: "string",
 } satisfies JsonSchema;
 
 const relationshipFlowMessagesSchema = {
