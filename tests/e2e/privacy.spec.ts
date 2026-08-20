@@ -1,7 +1,11 @@
 import { expect, test } from "@playwright/test";
 
 const consentStorageKey = "tarot-spark.optional-services-consent";
+const failClosedSessionStorageKey = "tarot-spark.optional-services-fail-closed";
+const failClosedCookieName = "tarot_spark_optional_services_fail_closed";
 const privateContextHandoffStorageKey = "tarot-spark.private-context-handoff";
+const storageErrorMessage =
+  "We couldn't save your choices. Try again in this panel so they can be applied safely.";
 
 test.beforeEach(async ({ page }) => {
   await page.route("https://**/*", async (route) => {
@@ -156,6 +160,133 @@ test("clears an active advertising document before showing a reading", async ({
   await expect(
     page.locator('script[src*="googlesyndication.com"]'),
   ).toHaveCount(0);
+});
+
+test("keeps stale consent closed across a session-marker reload", async ({
+  page,
+}) => {
+  await page.goto("/relationship-flow");
+  await page.getByRole("checkbox", { name: /Analytics/ }).check();
+  await page.getByRole("checkbox", { name: /Advertising/ }).check();
+  await page.getByRole("button", { name: "Save choices" }).click();
+  await expect(page.locator('script[src*="googletagmanager.com"]')).toHaveCount(
+    1,
+  );
+  await expect(
+    page.locator('script[src*="googlesyndication.com"]'),
+  ).toHaveCount(1);
+
+  await failConsentStorage(page, { failSessionMarker: false });
+  await page.getByRole("button", { name: "Privacy choices" }).click();
+  await page.getByRole("checkbox", { name: /Analytics/ }).uncheck();
+  await page.getByRole("checkbox", { name: /Advertising/ }).uncheck();
+  const reloaded = page.waitForEvent("load");
+  await page.getByRole("button", { name: "Save choices" }).click();
+  await reloaded;
+
+  const storageError = page
+    .getByRole("alert")
+    .filter({ hasText: storageErrorMessage });
+  await expect(storageError).toBeVisible();
+  await expect(page.locator('script[src*="googletagmanager.com"]')).toHaveCount(
+    0,
+  );
+  await expect(
+    page.locator('script[src*="googlesyndication.com"]'),
+  ).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      ({ consentKey, markerKey }) => ({
+        consent: window.localStorage.getItem(consentKey),
+        marker: window.sessionStorage.getItem(markerKey),
+      }),
+      {
+        consentKey: consentStorageKey,
+        markerKey: failClosedSessionStorageKey,
+      },
+    ),
+  ).toEqual({
+    consent: JSON.stringify({ analytics: true, advertising: true }),
+    marker: "1",
+  });
+
+  await page.getByRole("button", { name: "Save choices" }).click();
+  await expect(storageError).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      ({ consentKey, markerKey }) => ({
+        consent: window.localStorage.getItem(consentKey),
+        marker: window.sessionStorage.getItem(markerKey),
+      }),
+      {
+        consentKey: consentStorageKey,
+        markerKey: failClosedSessionStorageKey,
+      },
+    ),
+  ).toEqual({
+    consent: JSON.stringify({ analytics: false, advertising: false }),
+    marker: null,
+  });
+});
+
+test("uses a scoped cookie when both Web Storage carriers fail", async ({
+  context,
+  page,
+}) => {
+  await page.goto("/relationship-flow");
+  await page.getByRole("checkbox", { name: /Analytics/ }).check();
+  await page.getByRole("checkbox", { name: /Advertising/ }).check();
+  await page.getByRole("button", { name: "Save choices" }).click();
+  await expect(
+    page.locator('script[src*="googlesyndication.com"]'),
+  ).toHaveCount(1);
+
+  await failConsentStorage(page, { failSessionMarker: true });
+  await page.getByRole("button", { name: "Privacy choices" }).click();
+  await page.getByRole("checkbox", { name: /Analytics/ }).uncheck();
+  await page.getByRole("checkbox", { name: /Advertising/ }).uncheck();
+  const reloaded = page.waitForEvent("load");
+  await page.getByRole("button", { name: "Save choices" }).click();
+  await reloaded;
+
+  const storageError = page
+    .getByRole("alert")
+    .filter({ hasText: storageErrorMessage });
+  await expect(storageError).toBeVisible();
+  await expect(page.locator('script[src*="googletagmanager.com"]')).toHaveCount(
+    0,
+  );
+  await expect(
+    page.locator('script[src*="googlesyndication.com"]'),
+  ).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      (key) => window.localStorage.getItem(key),
+      consentStorageKey,
+    ),
+  ).toBe(JSON.stringify({ analytics: true, advertising: true }));
+  expect(await context.cookies()).toContainEqual(
+    expect.objectContaining({
+      name: failClosedCookieName,
+      path: "/",
+      sameSite: "Strict",
+      value: "1",
+    }),
+  );
+
+  await page.getByRole("button", { name: "Save choices" }).click();
+  await expect(storageError).toHaveCount(0);
+  expect(
+    (await context.cookies()).some(
+      (cookie) => cookie.name === failClosedCookieName,
+    ),
+  ).toBe(false);
+  expect(
+    await page.evaluate(
+      (key) => window.localStorage.getItem(key),
+      consentStorageKey,
+    ),
+  ).toBe(JSON.stringify({ analytics: false, advertising: false }));
 });
 
 test("allows advertising only after consent on the question explorer", async ({
@@ -380,6 +511,41 @@ async function openSituationContext(page: import("@playwright/test").Page) {
   if ((await disclosure.getAttribute("open")) === null) {
     await page.getByTestId("situation-context-toggle").click();
   }
+}
+
+async function failConsentStorage(
+  page: import("@playwright/test").Page,
+  { failSessionMarker }: { readonly failSessionMarker: boolean },
+) {
+  await page.evaluate(
+    ({ consentKey, failSession, markerKey }) => {
+      const originalSetItem = Storage.prototype.setItem;
+      const originalRemoveItem = Storage.prototype.removeItem;
+
+      Storage.prototype.setItem = function (key, value) {
+        if (
+          (this === window.localStorage && key === consentKey) ||
+          (failSession && this === window.sessionStorage && key === markerKey)
+        ) {
+          throw new DOMException("Storage unavailable", "SecurityError");
+        }
+
+        originalSetItem.call(this, key, value);
+      };
+      Storage.prototype.removeItem = function (key) {
+        if (this === window.localStorage && key === consentKey) {
+          throw new DOMException("Storage unavailable", "SecurityError");
+        }
+
+        originalRemoveItem.call(this, key);
+      };
+    },
+    {
+      consentKey: consentStorageKey,
+      failSession: failSessionMarker,
+      markerKey: failClosedSessionStorageKey,
+    },
+  );
 }
 
 async function getResultViewEvents(page: import("@playwright/test").Page) {

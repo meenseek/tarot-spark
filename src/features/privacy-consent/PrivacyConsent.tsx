@@ -15,11 +15,17 @@ import type { PrivacyConsentCopy } from "./i18n";
 import { isAdvertisingEligiblePathname } from "./route-policy";
 
 const consentStorageKey = "tarot-spark.optional-services-consent";
+const failClosedSessionStorageKey = "tarot-spark.optional-services-fail-closed";
+const failClosedCookieName = "tarot_spark_optional_services_fail_closed";
+const failClosedCookieMaxAgeSeconds = 30 * 24 * 60 * 60;
 
 type ConsentPreferences = {
   readonly analytics: boolean;
   readonly advertising: boolean;
 };
+
+type ConsentWriteResult = "stored" | "cleared" | "failed";
+type FailClosedCarrier = "session-storage" | "cookie";
 
 type PrivacyConsentProps = {
   readonly analyticsMeasurementId?: string | undefined;
@@ -44,9 +50,17 @@ export function PrivacyConsent({
   const [advertisingSelected, setAdvertisingSelected] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [hasLoadedAdvertising, setHasLoadedAdvertising] = useState(false);
+  const [hasStorageError, setHasStorageError] = useState(false);
+  const [mustBlockNavigation, setMustBlockNavigation] = useState(false);
+  const [storageFailurePathname, setStorageFailurePathname] = useState<
+    string | null
+  >(null);
   const panelHeadingRef = useRef<HTMLHeadingElement>(null);
   const shouldFocusEditingPanelRef = useRef(false);
   const shouldRestoreSettingsFocusRef = useRef(false);
+  const mustReloadAfterStorageFailureRef = useRef(false);
+  const failClosedCarriersRef = useRef<readonly FailClosedCarrier[]>([]);
+  const isReloadingRef = useRef(false);
   const hasAnalytics = Boolean(analyticsMeasurementId);
   const hasAdvertising = Boolean(advertisingClientId);
   const isAdvertisingEligibleRoute = isAdvertisingEligiblePathname(pathname);
@@ -56,14 +70,27 @@ export function PrivacyConsent({
     isAdvertisingEligibleRoute,
   );
   const mustReloadBeforeAdvertisingExcludedRoute =
-    !isAdvertisingEligibleRoute && hasLoadedAdvertising;
+    !hasStorageError && !isAdvertisingEligibleRoute && hasLoadedAdvertising;
   const markAdvertisingLoaded = useCallback(() => {
     setHasLoadedAdvertising(true);
   }, []);
+  const reloadForConsentChange = useCallback(() => {
+    if (isReloadingRef.current) {
+      return;
+    }
+
+    isReloadingRef.current = true;
+    dispatchBeforeDocumentReload();
+    reloadDocument();
+  }, [reloadDocument]);
 
   useEffect(() => {
-    const storedPreferences = readConsentPreferences();
+    const failClosedCarriers = readFailClosedCarriers();
+    const storedPreferences =
+      failClosedCarriers.length > 0 ? null : readConsentPreferences();
     let shouldHydrate = true;
+
+    failClosedCarriersRef.current = failClosedCarriers;
 
     queueMicrotask(() => {
       if (!shouldHydrate) {
@@ -73,6 +100,11 @@ export function PrivacyConsent({
       setPreferences(storedPreferences);
       setAnalyticsSelected(storedPreferences?.analytics ?? false);
       setAdvertisingSelected(storedPreferences?.advertising ?? false);
+
+      if (failClosedCarriers.length > 0) {
+        setHasStorageError(true);
+        setIsEditing(true);
+      }
     });
 
     return () => {
@@ -82,10 +114,47 @@ export function PrivacyConsent({
 
   useEffect(() => {
     if (mustReloadBeforeAdvertisingExcludedRoute) {
-      dispatchBeforeDocumentReload();
-      reloadDocument();
+      reloadForConsentChange();
     }
-  }, [mustReloadBeforeAdvertisingExcludedRoute, reloadDocument]);
+  }, [mustReloadBeforeAdvertisingExcludedRoute, reloadForConsentChange]);
+
+  useEffect(() => {
+    if (!mustBlockNavigation) {
+      return;
+    }
+
+    const preventSameOriginLink = (event: MouseEvent) => {
+      const target = event.target;
+
+      if (!(target instanceof Element)) {
+        return;
+      }
+
+      const link = target.closest("a[href]");
+
+      if (link instanceof HTMLAnchorElement && isSameOriginUrl(link.href)) {
+        event.preventDefault();
+      }
+    };
+    const preventSameOriginForm = (event: SubmitEvent) => {
+      const form = event.target;
+
+      if (
+        form instanceof HTMLFormElement &&
+        isSameOriginUrl(form.action || window.location.href)
+      ) {
+        event.preventDefault();
+      }
+    };
+
+    document.addEventListener("click", preventSameOriginLink, true);
+    document.addEventListener("submit", preventSameOriginForm, true);
+
+    return () => {
+      document.removeEventListener("click", preventSameOriginLink, true);
+      document.removeEventListener("submit", preventSameOriginForm, true);
+    };
+  }, [mustBlockNavigation]);
 
   useEffect(() => {
     if (!isEditing || !shouldFocusEditingPanelRef.current) {
@@ -114,26 +183,99 @@ export function PrivacyConsent({
   }
 
   function savePreferences(nextPreferences: ConsentPreferences) {
+    const hadActiveAnalytics = preferences?.analytics === true;
+    const hadActiveAdvertising = Boolean(
+      preferences?.advertising && hasLoadedAdvertising,
+    );
     const shouldReload =
-      (preferences?.analytics === true && !nextPreferences.analytics) ||
-      (preferences?.advertising === true &&
-        !nextPreferences.advertising &&
-        hasLoadedAdvertising);
+      (hadActiveAnalytics && !nextPreferences.analytics) ||
+      (hadActiveAdvertising && !nextPreferences.advertising);
 
-    writeConsentPreferences(nextPreferences);
+    if (hadActiveAnalytics && !nextPreferences.analytics) {
+      disableGoogleAnalytics(analyticsMeasurementId);
+    }
+
+    const writeResult = writeConsentPreferences(nextPreferences);
+
+    if (writeResult !== "stored") {
+      if (hadActiveAnalytics) {
+        disableGoogleAnalytics(analyticsMeasurementId);
+      }
+
+      setPreferences({ analytics: false, advertising: false });
+      setAnalyticsSelected(false);
+      setAdvertisingSelected(false);
+      setHasStorageError(true);
+      setIsEditing(true);
+      shouldRestoreSettingsFocusRef.current = false;
+
+      if (
+        writeResult === "cleared" &&
+        (hadActiveAnalytics || hadActiveAdvertising)
+      ) {
+        reloadForConsentChange();
+        return;
+      }
+
+      if (
+        writeResult === "failed" &&
+        (hadActiveAnalytics || hadActiveAdvertising)
+      ) {
+        const failClosedCarrier = storeFailClosedOverride();
+
+        if (failClosedCarrier) {
+          failClosedCarriersRef.current = [failClosedCarrier];
+          reloadForConsentChange();
+          return;
+        }
+
+        mustReloadAfterStorageFailureRef.current = true;
+
+        if (hadActiveAdvertising) {
+          setStorageFailurePathname(pathname);
+          setMustBlockNavigation(true);
+        }
+      }
+
+      return;
+    }
+
+    if (
+      hasStorageError &&
+      !clearFailClosedOverride(failClosedCarriersRef.current)
+    ) {
+      setPreferences({ analytics: false, advertising: false });
+      setAnalyticsSelected(false);
+      setAdvertisingSelected(false);
+      setIsEditing(true);
+      shouldRestoreSettingsFocusRef.current = false;
+      return;
+    }
+
     setPreferences(nextPreferences);
     setAnalyticsSelected(nextPreferences.analytics);
     setAdvertisingSelected(nextPreferences.advertising);
-    shouldRestoreSettingsFocusRef.current = isEditing && !shouldReload;
+    setHasStorageError(false);
+    const mustReloadAfterStorageFailure =
+      mustReloadAfterStorageFailureRef.current;
+    mustReloadAfterStorageFailureRef.current = false;
+    failClosedCarriersRef.current = [];
+    setStorageFailurePathname(null);
+    setMustBlockNavigation(false);
+    shouldRestoreSettingsFocusRef.current =
+      isEditing && !shouldReload && !mustReloadAfterStorageFailure;
     setIsEditing(false);
 
-    if (shouldReload) {
-      dispatchBeforeDocumentReload();
-      reloadDocument();
+    if (shouldReload || mustReloadAfterStorageFailure) {
+      reloadForConsentChange();
     }
   }
 
   const shouldShowChoices = preferences === null || isEditing;
+  const mustWithholdChildrenForStorageFailure =
+    mustBlockNavigation &&
+    storageFailurePathname !== null &&
+    pathname !== storageFailurePathname;
 
   return (
     <PrivacySettingsProvider
@@ -146,7 +288,7 @@ export function PrivacyConsent({
         },
       }}
     >
-      {children}
+      {!mustWithholdChildrenForStorageFailure && children}
       {preferences?.analytics && analyticsMeasurementId && (
         <GoogleAnalytics measurementId={analyticsMeasurementId} />
       )}
@@ -173,6 +315,11 @@ export function PrivacyConsent({
                 {copy.heading}
               </h2>
               <p className="text-sm leading-6 text-ts-muted">{copy.body}</p>
+              {hasStorageError && (
+                <p className="text-sm font-medium text-ts-ink" role="alert">
+                  {copy.storageError}
+                </p>
+              )}
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
@@ -305,11 +452,123 @@ function removeLegacyConsentEntries() {
   }
 }
 
-function writeConsentPreferences(preferences: ConsentPreferences) {
+function writeConsentPreferences(
+  preferences: ConsentPreferences,
+): ConsentWriteResult {
+  const serializedPreferences = JSON.stringify(preferences);
+
   try {
-    window.localStorage.setItem(consentStorageKey, JSON.stringify(preferences));
+    window.localStorage.setItem(consentStorageKey, serializedPreferences);
+
+    if (
+      window.localStorage.getItem(consentStorageKey) === serializedPreferences
+    ) {
+      return "stored";
+    }
   } catch {
-    // The controls still apply for this page view if storage is unavailable.
+    // Fall through to removing any stale permission-bearing record.
+  }
+
+  try {
+    window.localStorage.removeItem(consentStorageKey);
+
+    if (window.localStorage.getItem(consentStorageKey) === null) {
+      return "cleared";
+    }
+  } catch {
+    // The caller keeps optional services fail-closed for this document.
+  }
+
+  return "failed";
+}
+
+function disableGoogleAnalytics(measurementId: string | undefined) {
+  if (!measurementId) {
+    return;
+  }
+
+  const analyticsWindow = window as unknown as Record<string, boolean>;
+  analyticsWindow[`ga-disable-${measurementId}`] = true;
+}
+
+function readFailClosedCarriers(): readonly FailClosedCarrier[] {
+  const carriers: FailClosedCarrier[] = [];
+
+  if (hasFailClosedSessionMarker()) {
+    carriers.push("session-storage");
+  }
+
+  if (hasFailClosedCookie()) {
+    writeFailClosedCookie(failClosedCookieMaxAgeSeconds);
+    carriers.push("cookie");
+  }
+
+  return carriers;
+}
+
+function storeFailClosedOverride(): FailClosedCarrier | null {
+  try {
+    window.sessionStorage.setItem(failClosedSessionStorageKey, "1");
+
+    if (hasFailClosedSessionMarker()) {
+      return "session-storage";
+    }
+  } catch {
+    // Fall through to the cookie carrier when Web Storage is unavailable.
+  }
+
+  return writeFailClosedCookie(failClosedCookieMaxAgeSeconds) ? "cookie" : null;
+}
+
+function clearFailClosedOverride(carriers: readonly FailClosedCarrier[]) {
+  return carriers.every((carrier) => {
+    if (carrier === "cookie") {
+      return writeFailClosedCookie(0);
+    }
+
+    try {
+      window.sessionStorage.removeItem(failClosedSessionStorageKey);
+      return !hasFailClosedSessionMarker();
+    } catch {
+      return false;
+    }
+  });
+}
+
+function hasFailClosedSessionMarker() {
+  try {
+    return window.sessionStorage.getItem(failClosedSessionStorageKey) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function writeFailClosedCookie(maxAgeSeconds: number) {
+  try {
+    const value = maxAgeSeconds > 0 ? "1" : "";
+    const secure = window.location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `${failClosedCookieName}=${value}; Path=/; SameSite=Strict; Max-Age=${maxAgeSeconds}${secure}`;
+
+    return maxAgeSeconds > 0 ? hasFailClosedCookie() : !hasFailClosedCookie();
+  } catch {
+    return false;
+  }
+}
+
+function hasFailClosedCookie() {
+  return document.cookie.split(";").some((entry) => {
+    const [name, value] = entry.trim().split("=");
+    return name === failClosedCookieName && value === "1";
+  });
+}
+
+function isSameOriginUrl(rawUrl: string) {
+  try {
+    return (
+      new URL(rawUrl, window.location.href).origin === window.location.origin
+    );
+  } catch {
+    return false;
   }
 }
 

@@ -7,5 +7,6 @@
   "advertisingDescription": "허용하고 Google AdSense가 설정된 경우에만 검토된 관계 콘텐츠 페이지에서 광고를 불러옵니다.",
   "saveChoices": "선택 저장",
   "rejectOptional": "모두 거부",
-  "settingsButton": "개인정보 설정"
+  "settingsButton": "개인정보 설정",
+  "storageError": "선택을 저장하지 못했습니다. 안전하게 적용할 수 있도록 이 화면에서 다시 시도해 주세요."
 }

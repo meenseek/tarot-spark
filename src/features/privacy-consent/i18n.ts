@@ -14,6 +14,7 @@ export type PrivacyConsentCopy = {
   readonly saveChoices: string;
   readonly rejectOptional: string;
   readonly settingsButton: string;
+  readonly storageError: string;
 };
 
 const copyByLocale = {

@@ -15,6 +15,12 @@ import { PrivacyConsent } from "./PrivacyConsent";
 const navigationState = vi.hoisted(() => ({
   pathname: "/relationship-flow",
 }));
+const failClosedSessionStorageKey = "tarot-spark.optional-services-fail-closed";
+const failClosedCookieName = "tarot_spark_optional_services_fail_closed";
+const sessionStorageDescriptor = Object.getOwnPropertyDescriptor(
+  window,
+  "sessionStorage",
+);
 
 vi.mock("next/navigation", () => ({
   usePathname: () => navigationState.pathname,
@@ -30,13 +36,20 @@ const copy = {
   saveChoices: "Save choices",
   rejectOptional: "Reject optional services",
   settingsButton: "Privacy choices",
+  storageError:
+    "We couldn't save your choices. Try again in this panel so they can be applied safely.",
 } as const;
 
 describe("PrivacyConsent", () => {
   afterEach(() => {
+    vi.restoreAllMocks();
     cleanup();
     navigationState.pathname = "/relationship-flow";
     window.localStorage.clear();
+    restoreSessionStorage();
+    window.sessionStorage.clear();
+    document.cookie = `${failClosedCookieName}=; Path=/; SameSite=Strict; Max-Age=0`;
+    Reflect.deleteProperty(window, "ga-disable-G-TEST1234");
     document
       .querySelectorAll(
         'script[src*="googletagmanager.com"], script[src*="googlesyndication.com"]',
@@ -71,6 +84,30 @@ describe("PrivacyConsent", () => {
     expect(
       screen.queryByRole("button", { name: "Privacy choices" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("keeps a reload-bridged storage failure ahead of stale consent", async () => {
+    window.localStorage.setItem(
+      getConsentStorageKey(),
+      JSON.stringify({ analytics: true, advertising: true }),
+    );
+    window.sessionStorage.setItem(failClosedSessionStorageKey, "1");
+
+    renderConsent();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      copy.storageError,
+    );
+    expect(
+      screen.getByRole("heading", { name: "Optional privacy choices" }),
+    ).toBeVisible();
+    expect(getGoogleScripts()).toHaveLength(0);
+    expect(
+      screen.getByRole("checkbox", { name: /Analytics/ }),
+    ).not.toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: /Advertising/ }),
+    ).not.toBeChecked();
   });
 
   it("keeps each full privacy option label interactive", async () => {
@@ -448,6 +485,237 @@ describe("PrivacyConsent", () => {
       '"analytics":false',
     );
   });
+
+  it("clears stale consent before reloading when revocation cannot be stored", async () => {
+    const reloadDocument = vi.fn();
+    window.localStorage.setItem(
+      getConsentStorageKey(),
+      JSON.stringify({ analytics: true, advertising: false }),
+    );
+    renderConsent(reloadDocument);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    );
+    fireEvent.click(screen.getByRole("checkbox", { name: /Analytics/ }));
+    const setItem = vi
+      .spyOn(window.localStorage, "setItem")
+      .mockImplementation(() => {
+        throw new DOMException("Storage unavailable", "QuotaExceededError");
+      });
+    fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
+
+    expect(setItem).toHaveBeenCalled();
+    expect(window.localStorage.getItem(getConsentStorageKey())).toBeNull();
+    expect(reloadDocument).toHaveBeenCalledOnce();
+    expect(
+      (window as unknown as Record<string, boolean>)["ga-disable-G-TEST1234"],
+    ).toBe(true);
+  });
+
+  it("bridges an active-service storage failure through session storage", async () => {
+    const reloadDocument = vi.fn();
+    window.localStorage.setItem(
+      getConsentStorageKey(),
+      JSON.stringify({ analytics: true, advertising: true }),
+    );
+    renderConsent(reloadDocument);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    );
+    fireEvent.click(screen.getByRole("checkbox", { name: /Analytics/ }));
+    fireEvent.click(screen.getByRole("checkbox", { name: /Advertising/ }));
+    vi.spyOn(window.localStorage, "setItem").mockImplementation(() => {
+      throw new DOMException("Storage unavailable", "QuotaExceededError");
+    });
+    vi.spyOn(window.localStorage, "removeItem").mockImplementation(() => {
+      throw new DOMException("Storage unavailable", "SecurityError");
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
+
+    expect(reloadDocument).toHaveBeenCalledOnce();
+    expect(window.sessionStorage.getItem(failClosedSessionStorageKey)).toBe(
+      "1",
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent(copy.storageError);
+    expect(getGoogleScripts()).toHaveLength(0);
+    expect(
+      (window as unknown as Record<string, boolean>)["ga-disable-G-TEST1234"],
+    ).toBe(true);
+  });
+
+  it("falls back to a scoped cookie when both Web Storage carriers fail", async () => {
+    const reloadDocument = vi.fn();
+    window.localStorage.setItem(
+      getConsentStorageKey(),
+      JSON.stringify({ analytics: true, advertising: true }),
+    );
+    renderConsent(reloadDocument);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    );
+    fireEvent.click(screen.getByRole("checkbox", { name: /Analytics/ }));
+    fireEvent.click(screen.getByRole("checkbox", { name: /Advertising/ }));
+    vi.spyOn(window.localStorage, "setItem").mockImplementation(() => {
+      throw new DOMException("Storage unavailable", "SecurityError");
+    });
+    vi.spyOn(window.localStorage, "removeItem").mockImplementation(() => {
+      throw new DOMException("Storage unavailable", "SecurityError");
+    });
+    stubSessionStorage({
+      setItem() {
+        throw new DOMException("Storage unavailable", "SecurityError");
+      },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
+
+    expect(reloadDocument).toHaveBeenCalledOnce();
+    expect(document.cookie).toContain(`${failClosedCookieName}=1`);
+    expect(screen.getByRole("alert")).toBeVisible();
+    expect(getGoogleScripts()).toHaveLength(0);
+  });
+
+  it("blocks app navigation until a carrierless storage failure is repaired", async () => {
+    const reloadDocument = vi.fn();
+    window.localStorage.setItem(
+      getConsentStorageKey(),
+      JSON.stringify({ analytics: true, advertising: true }),
+    );
+    const { rerender } = renderConsent(reloadDocument);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    );
+    fireEvent.click(screen.getByRole("checkbox", { name: /Analytics/ }));
+    fireEvent.click(screen.getByRole("checkbox", { name: /Advertising/ }));
+    const setItem = vi
+      .spyOn(window.localStorage, "setItem")
+      .mockImplementation(() => {
+        throw new DOMException("Storage unavailable", "SecurityError");
+      });
+    const removeItem = vi
+      .spyOn(window.localStorage, "removeItem")
+      .mockImplementation(() => {
+        throw new DOMException("Storage unavailable", "SecurityError");
+      });
+    stubSessionStorage({
+      setItem() {
+        throw new DOMException("Storage unavailable", "SecurityError");
+      },
+    });
+    const cookieSetter = vi
+      .spyOn(Document.prototype, "cookie", "set")
+      .mockImplementation(() => undefined);
+    fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
+
+    expect(reloadDocument).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert")).toHaveTextContent(copy.storageError);
+    expect(
+      screen.getByRole("heading", { name: "Optional privacy choices" }),
+    ).toBeVisible();
+    expect(getGoogleScripts()).toHaveLength(0);
+    expect(
+      (window as unknown as Record<string, boolean>)["ga-disable-G-TEST1234"],
+    ).toBe(true);
+
+    const link = document.createElement("a");
+    link.href = "/share";
+    document.body.append(link);
+    const linkClick = new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+    });
+    expect(link.dispatchEvent(linkClick)).toBe(false);
+
+    const form = document.createElement("form");
+    form.action = "/share";
+    document.body.append(form);
+    const formSubmit = new SubmitEvent("submit", {
+      bubbles: true,
+      cancelable: true,
+    });
+    expect(form.dispatchEvent(formSubmit)).toBe(false);
+
+    navigationState.pathname = "/share";
+    rerender(getConsentElement(reloadDocument, "Excluded content"));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(reloadDocument).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert")).toBeVisible();
+    expect(screen.queryByText("Excluded content")).not.toBeInTheDocument();
+
+    setItem.mockRestore();
+    removeItem.mockRestore();
+    restoreSessionStorage();
+    cookieSetter.mockRestore();
+    fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
+
+    expect(window.localStorage.getItem(getConsentStorageKey())).toContain(
+      '"analytics":false',
+    );
+    expect(reloadDocument).toHaveBeenCalledOnce();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("keeps retry fail-closed until its session marker is verifiably cleared", async () => {
+    const reloadDocument = vi.fn();
+    window.localStorage.setItem(
+      getConsentStorageKey(),
+      JSON.stringify({ analytics: true, advertising: true }),
+    );
+    window.sessionStorage.setItem(failClosedSessionStorageKey, "1");
+    renderConsent(reloadDocument);
+
+    expect(await screen.findByRole("alert")).toBeVisible();
+    stubSessionStorage({
+      removeItem() {
+        throw new DOMException("Storage unavailable", "SecurityError");
+      },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
+
+    expect(screen.getByRole("alert")).toBeVisible();
+    expect(window.sessionStorage.getItem(failClosedSessionStorageKey)).toBe(
+      "1",
+    );
+    expect(getGoogleScripts()).toHaveLength(0);
+    expect(reloadDocument).not.toHaveBeenCalled();
+
+    restoreSessionStorage();
+    fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
+
+    expect(
+      window.sessionStorage.getItem(failClosedSessionStorageKey),
+    ).toBeNull();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(getGoogleScripts()).toHaveLength(0);
+  });
+
+  it("does not enable analytics when a first choice cannot be stored", async () => {
+    const reloadDocument = vi.fn();
+    renderConsent(reloadDocument);
+    fireEvent.click(await screen.findByRole("checkbox", { name: /Analytics/ }));
+    const setItem = vi
+      .spyOn(window.localStorage, "setItem")
+      .mockImplementation(() => {
+        throw new DOMException("Storage unavailable", "QuotaExceededError");
+      });
+    const removeItem = vi
+      .spyOn(window.localStorage, "removeItem")
+      .mockImplementation(() => {
+        throw new DOMException("Storage unavailable", "SecurityError");
+      });
+    fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
+
+    expect(setItem).toHaveBeenCalled();
+    expect(removeItem).toHaveBeenCalled();
+    expect(reloadDocument).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert")).toHaveTextContent(copy.storageError);
+    expect(getGoogleScripts()).toHaveLength(0);
+  });
 });
 
 function renderConsent(
@@ -499,4 +767,30 @@ function setStoredRejection() {
 
 function getConsentStorageKey() {
   return "tarot-spark.optional-services-consent";
+}
+
+function stubSessionStorage(overrides: Partial<Storage>) {
+  const storage = window.sessionStorage;
+  const stub: Storage = {
+    get length() {
+      return storage.length;
+    },
+    clear: () => storage.clear(),
+    getItem: (key) => storage.getItem(key),
+    key: (index) => storage.key(index),
+    removeItem: (key) => storage.removeItem(key),
+    setItem: (key, value) => storage.setItem(key, value),
+    ...overrides,
+  };
+
+  Object.defineProperty(window, "sessionStorage", {
+    configurable: true,
+    value: stub,
+  });
+}
+
+function restoreSessionStorage() {
+  if (sessionStorageDescriptor) {
+    Object.defineProperty(window, "sessionStorage", sessionStorageDescriptor);
+  }
 }
