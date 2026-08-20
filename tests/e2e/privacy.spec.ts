@@ -82,7 +82,14 @@ test("revokes analytics without losing private reading context", async ({
     1,
   );
 
-  await page.getByRole("button", { name: "Privacy choices" }).click();
+  const settingsButton = page.getByRole("button", { name: "Privacy choices" });
+
+  expect(
+    await settingsButton.evaluate(
+      (element) => element.closest('[data-testid="site-footer"]') !== null,
+    ),
+  ).toBe(true);
+  await settingsButton.click();
   await page.getByRole("checkbox", { name: /Analytics/ }).uncheck();
   const reloaded = page.waitForEvent("load");
   await page.getByRole("button", { name: "Save choices" }).click();

@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 
 const themedSourceFiles = [
   "src/components/layout/LocaleSwitch.tsx",
+  "src/components/layout/PrivacySettingsControl.tsx",
   "src/components/layout/SiteFooter.tsx",
   "src/components/layout/SiteHeader.tsx",
   "src/components/layout/SiteShell.tsx",

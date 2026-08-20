@@ -9,6 +9,7 @@ import {
 } from "@testing-library/react";
 import { StrictMode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 import { PrivacyConsent } from "./PrivacyConsent";
 
 const navigationState = vi.hoisted(() => ({
@@ -47,12 +48,29 @@ describe("PrivacyConsent", () => {
     renderConsent();
 
     expect(
+      screen.queryByRole("button", { name: "Privacy choices" }),
+    ).not.toBeInTheDocument();
+    expect(
       await screen.findByRole("heading", {
         name: "Optional privacy choices",
       }),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Privacy choices" }),
+    ).not.toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
     expect(getGoogleScripts()).toHaveLength(0);
+  });
+
+  it("shows no privacy settings trigger without configured optional services", () => {
+    render(
+      getConsentElement(undefined, "Product content", undefined, undefined),
+    );
+
+    expect(screen.getByRole("main")).toHaveTextContent("Product content");
+    expect(
+      screen.queryByRole("button", { name: "Privacy choices" }),
+    ).not.toBeInTheDocument();
   });
 
   it("keeps each full privacy option label interactive", async () => {
@@ -129,9 +147,16 @@ describe("PrivacyConsent", () => {
     );
 
     expect(getGoogleScripts()).toHaveLength(0);
+    const settingsButton = screen.getByRole("button", {
+      name: "Privacy choices",
+    });
+
+    expect(settingsButton).toBeVisible();
     expect(
-      screen.getByRole("button", { name: "Privacy choices" }),
-    ).toBeVisible();
+      screen.getAllByRole("button", { name: "Privacy choices" }),
+    ).toHaveLength(1);
+    expect(screen.getByTestId("site-footer")).toContainElement(settingsButton);
+    expect(settingsButton).not.toHaveClass("fixed");
     expect(window.localStorage.getItem(getConsentStorageKey())).toContain(
       '"analytics":false',
     );
@@ -161,13 +186,24 @@ describe("PrivacyConsent", () => {
         screen.getByRole("heading", { name: "Optional privacy choices" }),
       ).toHaveFocus();
     });
+    expect(
+      screen.queryByRole("button", { name: "Privacy choices" }),
+    ).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
 
     await waitFor(() => {
+      const restoredSettingsButton = screen.getByRole("button", {
+        name: "Privacy choices",
+      });
+
+      expect(restoredSettingsButton).toHaveFocus();
       expect(
-        screen.getByRole("button", { name: "Privacy choices" }),
-      ).toHaveFocus();
+        screen.getAllByRole("button", { name: "Privacy choices" }),
+      ).toHaveLength(1);
+      expect(screen.getByTestId("site-footer")).toContainElement(
+        restoredSettingsButton,
+      );
     });
   });
 
@@ -427,16 +463,18 @@ function renderConsent(
 function getConsentElement(
   reloadDocument?: () => void,
   content = "Product content",
-  advertisingClientId = "ca-pub-1234567890123456",
+  advertisingClientId: string | undefined = "ca-pub-1234567890123456",
+  analyticsMeasurementId: string | undefined = "G-TEST1234",
 ) {
   return (
     <PrivacyConsent
       advertisingClientId={advertisingClientId}
-      analyticsMeasurementId="G-TEST1234"
+      analyticsMeasurementId={analyticsMeasurementId}
       copy={copy}
       reloadDocument={reloadDocument}
     >
       <main>{content}</main>
+      <SiteFooter ariaLabel="Page navigation" links={[]} />
     </PrivacyConsent>
   );
 }
