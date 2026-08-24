@@ -96,23 +96,28 @@ Use one method across public guides, copied prompts, question presets, and any
 server-generated reading:
 
 1. Focus on the reader's actual question and answer its emotional core first.
-   When the answer target or explicit question asks about another person,
-   directly describe what the cards symbolically suggest about that person's
-   view, emotional or romantic interest, and hesitation when the supplied
-   meanings support those ideas.
+   When the answer target or explicit question asks how others see the reader,
+   directly describe what the cards symbolically suggest. For relationship
+   questions, follow the interpersonal impression, reciprocal view, emotional
+   or romantic interest, or hesitation that the question actually asks about;
+   do not add attraction when it is absent from the question. For career
+   questions, follow the requested work judgment, trust, or expectations when
+   the supplied meanings support those ideas.
 2. Use every drawn card's reviewed upright meaning as symbolic interpretation
    material, never as proof of a real-world fact. Use calibrated language such
-   as "the cards lean toward" or "may suggest" for another person's feelings;
-   do not replace the interpretation with a refusal to know their mind.
+   as "the cards lean toward" or "may suggest" for another person's feelings or
+   perceptions; do not replace the interpretation with a refusal to know their
+   mind.
 3. Develop the strongest reinforcement, tension, progression, or integration
    among the meanings instead of listing every possible pair.
 4. Compare exactly two materially different, non-predictive symbolic
    interpretations of that question. Follow the answer target: compare possible
-   emotional stances for another person, interaction patterns for a
-   relationship, or the reader's own feelings, expectations, and choices for a
-   self-focused question. Do not replace these with observable-response
-   scenarios. The interpretations are non-exclusive and non-exhaustive: both
-   may partly fit, or both may fail.
+   emotional stances or workplace perceptions for external perception,
+   interaction patterns for a relationship, the reader's own feelings,
+   expectations, and choices for self, or work conditions and choices for
+   career. Do not replace these with observable-response scenarios. The
+   interpretations are non-exclusive and non-exhaustive: both may partly fit,
+   or both may fail.
 5. Only after the symbolic answer, state what remains unknown and a concise
    observable reality check that can change the relative weight of the
    interpretations or reject both. Do not force the observation to choose a

@@ -75,7 +75,13 @@ describe("Cloudflare instant reading adapter", () => {
       "카드상 ... 가능성에 무게가 실립니다",
     );
     expect(JSON.stringify(body)).toContain(
-      "상대가 초점이면 서로 다른 감정적 태도",
+      "타인의 시선이 초점이면 관계에서는 질문에 맞는 서로 다른 대인 인상·상호 인식",
+    );
+    expect(JSON.stringify(body)).toContain(
+      "커리어에서는 서로 다른 업무상 인식·평가",
+    );
+    expect(JSON.stringify(body)).toContain(
+      "질문에 없는 호감 해석을 덧붙이지 마세요",
     );
   });
 
@@ -102,24 +108,77 @@ describe("Cloudflare instant reading adapter", () => {
     expect(prompt).toContain("현재 상태를 사실처럼 서술");
     expect(prompt).toContain("어느 해석의 비중을 바꿀지");
     expect(prompt).toContain("질문에 대한 상징적 답을 먼저 제시");
-    expect(prompt).toContain("시선·호감이나 연애적 관심·망설임");
+    expect(prompt).toContain(
+      "관계에서는 질문이 묻는 대인 인상·상호 인식·호감·연애적 관심·망설임을",
+    );
+    expect(prompt).toContain(
+      "커리어에서는 질문이 묻는 업무상 평가·신뢰·기대를",
+    );
     expect(prompt).toContain("내용:'이라는 단어를 출력하지 마세요");
+    expect(prompt).toContain("독자에게 제안하는 권유형 한 문장");
+    expect(prompt).toContain("타인의 감정이나 관계 상태를 사실·확실한 것으로");
   });
 
   it("routes the prompt by the entry or public-question answer target", () => {
     expect(buildInstantReadingPrompt(tarotData, request)).toContain(
       "답변의 기본 초점: 두 사람 사이의 정서적 상호작용과 반복되는 관계 패턴",
     );
-    const otherPersonPrompt = buildInstantReadingPrompt(tarotData, {
+    const externalPerceptionPrompt = buildInstantReadingPrompt(tarotData, {
       ...request,
       questionId: "mutual-view",
       topicId: "feelings",
     });
-    expect(otherPersonPrompt).toContain(
-      "답변의 기본 초점: 상대가 독자를 보는 시선과 감정·연애적 관심·망설임",
+    expect(externalPerceptionPrompt).toContain(
+      `답변의 기본 초점: ${
+        getAnswerTarget(tarotData.answerTargets, "external-perception")
+          .instruction
+      }`,
     );
-    expect(otherPersonPrompt).toContain(
-      "질문의 초점: 상대가 나를 어떻게 보고 있을 가능성이 있는지",
+    expect(externalPerceptionPrompt).toContain(
+      "질문의 초점: 상대가 독자를 보는 시선과 독자가 상대를 보는 시선을",
+    );
+    expect(externalPerceptionPrompt).toContain(
+      "질문에 없는 호감 해석을 덧붙이지 마세요",
+    );
+
+    const attractionPrompt = buildInstantReadingPrompt(tarotData, {
+      ...request,
+      questionId: "interest-or-kindness",
+      topicId: "feelings",
+    });
+    expect(attractionPrompt).toContain(
+      "질문의 초점: 제공된 카드가 상대의 호감이나 연애적 관심 쪽에 어느 정도 무게를 두는지",
+    );
+    expect(attractionPrompt).toContain(
+      "질문에 없는 호감 해석을 덧붙이지 마세요",
+    );
+
+    const personalImpressionPrompt = buildInstantReadingPrompt(tarotData, {
+      ...request,
+      questionId: "how-they-see-me",
+    });
+    expect(personalImpressionPrompt).toContain(
+      "질문의 초점: 특정 상대가 독자를 어떤 사람으로 볼 가능성이 있는지에만 초점을 맞춰",
+    );
+    expect(personalImpressionPrompt).toContain(
+      "서로의 기대나 현재 호감의 크기를 대신 묻지 말고",
+    );
+
+    const partnerImpressionPrompt = buildInstantReadingPrompt(tarotData, {
+      ...request,
+      questionId: "romantic-partner-impression",
+    });
+    expect(partnerImpressionPrompt).toContain(
+      "질문의 초점: 특정 상대의 현재 호감을 꾸며내지 말고",
+    );
+    expect(partnerImpressionPrompt).toContain(
+      "답변의 기본 초점: 타인이 독자를 보는 시선과 질문이 직접 묻는 인상·관심·평가·기대·망설임",
+    );
+    expect(partnerImpressionPrompt).not.toContain(
+      "질문의 핵심이 상대의 마음이라면",
+    );
+    expect(partnerImpressionPrompt).toContain(
+      "질문에 없는 호감 해석을 덧붙이지 마세요",
     );
 
     const selfPrompt = buildInstantReadingPrompt(tarotData, {
@@ -151,12 +210,32 @@ describe("Cloudflare instant reading adapter", () => {
       });
       expect(careerPrompt).toContain(`질문의 초점: ${question!.focus}`);
       expect(careerPrompt).toContain(
-        "답변의 기본 초점: 일에서의 동력·긴장·선택 방향",
+        `답변의 기본 초점: ${
+          getAnswerTarget(
+            tarotData.answerTargets,
+            definition.defaultAnswerTargetId,
+          ).instruction
+        }`,
       );
       expect(careerPrompt).not.toContain(
         "질문의 초점: 일에서 어디에 힘을 쏟고 있는지",
       );
     }
+
+    const managerPrompt = buildInstantReadingPrompt(tarotData, {
+      ...request,
+      questionId: "career-manager-view",
+      topicId: "career-direction",
+    });
+    expect(managerPrompt).toContain(
+      "질문의 초점: 제공된 카드가 상사가 독자의 업무 방식과 준비도를 어떻게 볼 가능성을 시사하는지",
+    );
+    expect(managerPrompt).toContain(
+      "답변의 기본 초점: 타인이 독자를 보는 시선과 질문이 직접 묻는 인상·관심·평가·기대·망설임",
+    );
+    expect(managerPrompt).toContain(
+      "커리어에서는 질문이 묻는 업무상 평가·신뢰·기대를 가능성으로 직접 읽으세요",
+    );
   });
 
   it("keeps all stable entry defaults aligned across copied and instant prompts", () => {
