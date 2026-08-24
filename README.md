@@ -34,8 +34,9 @@ leave it unset so share links use the production origin.
 Set `NEXT_PUBLIC_GA_ID` to the Google Analytics measurement ID, such as
 `G-XXXXXXXXXX`, to enable page view tracking and tarot behavior events. Leave it
 unset for local development or preview deployments that should not send GA data.
-When configured, Analytics remains off until the user permits it in the
-localized privacy choices.
+When configured, Analytics defaults on unless the browser has a stored
+site-level opt-out. Google Consent Mode v2 defaults the four relevant consent
+signals to denied in the EEA, UK, and Switzerland and to granted elsewhere.
 
 Set `NEXT_PUBLIC_ADSENSE_CLIENT_ID` to the Google AdSense client id, such as
 `ca-pub-0000000000000000`, to add the account metadata, provide the client id
@@ -45,13 +46,14 @@ deployments. The account metadata and `/ads.txt` do not depend on the privacy
 choice or enable advertising delivery by themselves.
 
 Set `NEXT_PUBLIC_ADSENSE_SCRIPT_ENABLED=true` only after the production
-integrity, consent, route-isolation, AdSense approval, and applicable regional
-CMP checks in the
+integrity, route-isolation, AdSense approval, and Google-certified regional CMP
+and TCF checks in the
 [revenue validation plan](docs/product/revenue-validation-plan.md) pass. Leave
 it unset or set it to `false` to keep advertising delivery off while preserving
 the account metadata and authorized seller record. When enabled, the AdSense
-script remains off until the user permits advertising and loads only on the
-allowlisted content routes.
+script defaults on unless the browser has a stored site-level opt-out and loads
+only on the allowlisted content routes. In the EEA, UK, and Switzerland, the
+certified CMP remains the only source that may grant regional consent.
 
 Set `NEXT_PUBLIC_KAKAO_JS_KEY` to enable KakaoTalk sharing. Kakao domains:
 `App > JavaScript SDK domain` must include the app origin, and

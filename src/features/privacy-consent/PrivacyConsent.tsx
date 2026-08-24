@@ -24,6 +24,13 @@ type ConsentPreferences = {
   readonly advertising: boolean;
 };
 
+type ConsentReadResult =
+  | { readonly status: "invalid" | "missing" | "unavailable" }
+  | {
+      readonly preferences: ConsentPreferences;
+      readonly status: "valid";
+    };
+
 type ConsentWriteResult = "stored" | "cleared" | "failed";
 type FailClosedCarrier = "session-storage" | "cookie";
 
@@ -32,6 +39,7 @@ type PrivacyConsentProps = {
   readonly advertisingClientId?: string | undefined;
   readonly children: React.ReactNode;
   readonly copy: PrivacyConsentCopy;
+  readonly defaultPreferences?: ConsentPreferences | undefined;
   readonly reloadDocument?: (() => void) | undefined;
 };
 
@@ -40,6 +48,7 @@ export function PrivacyConsent({
   advertisingClientId,
   children,
   copy,
+  defaultPreferences = { analytics: false, advertising: false },
   reloadDocument = reloadPage,
 }: PrivacyConsentProps) {
   const pathname = usePathname();
@@ -60,9 +69,12 @@ export function PrivacyConsent({
   const shouldRestoreSettingsFocusRef = useRef(false);
   const mustReloadAfterStorageFailureRef = useRef(false);
   const failClosedCarriersRef = useRef<readonly FailClosedCarrier[]>([]);
+  const hasAppliedLocalConsentDenialRef = useRef(false);
   const isReloadingRef = useRef(false);
   const hasAnalytics = Boolean(analyticsMeasurementId);
   const hasAdvertising = Boolean(advertisingClientId);
+  const defaultAnalytics = hasAnalytics && defaultPreferences.analytics;
+  const defaultAdvertising = hasAdvertising && defaultPreferences.advertising;
   const isAdvertisingEligibleRoute = isAdvertisingEligiblePathname(pathname);
   const shouldLoadAdvertising = Boolean(
     preferences?.advertising &&
@@ -84,10 +96,30 @@ export function PrivacyConsent({
     reloadDocument();
   }, [reloadDocument]);
 
+  const openSettingsPanel = useCallback(() => {
+    shouldFocusEditingPanelRef.current = true;
+    setIsEditing(true);
+  }, []);
+
   useEffect(() => {
     const failClosedCarriers = readFailClosedCarriers();
-    const storedPreferences =
-      failClosedCarriers.length > 0 ? null : readConsentPreferences();
+    const consentReadResult =
+      failClosedCarriers.length > 0
+        ? ({ status: "unavailable" } satisfies ConsentReadResult)
+        : readConsentPreferences();
+    const nextPreferences =
+      consentReadResult.status === "valid"
+        ? consentReadResult.preferences
+        : consentReadResult.status === "missing"
+          ? {
+              analytics: defaultAnalytics,
+              advertising: defaultAdvertising,
+            }
+          : { analytics: false, advertising: false };
+    const mustFailClosed =
+      failClosedCarriers.length > 0 ||
+      consentReadResult.status === "invalid" ||
+      consentReadResult.status === "unavailable";
     let shouldHydrate = true;
 
     failClosedCarriersRef.current = failClosedCarriers;
@@ -97,11 +129,15 @@ export function PrivacyConsent({
         return;
       }
 
-      setPreferences(storedPreferences);
-      setAnalyticsSelected(storedPreferences?.analytics ?? false);
-      setAdvertisingSelected(storedPreferences?.advertising ?? false);
+      if (updateGoogleConsentForOptOut(nextPreferences)) {
+        hasAppliedLocalConsentDenialRef.current = true;
+      }
 
-      if (failClosedCarriers.length > 0) {
+      setPreferences(nextPreferences);
+      setAnalyticsSelected(nextPreferences.analytics);
+      setAdvertisingSelected(nextPreferences.advertising);
+
+      if (mustFailClosed) {
         setHasStorageError(true);
         setIsEditing(true);
       }
@@ -110,7 +146,7 @@ export function PrivacyConsent({
     return () => {
       shouldHydrate = false;
     };
-  }, []);
+  }, [defaultAdvertising, defaultAnalytics]);
 
   useEffect(() => {
     if (mustReloadBeforeAdvertisingExcludedRoute) {
@@ -163,7 +199,7 @@ export function PrivacyConsent({
 
     shouldFocusEditingPanelRef.current = false;
     panelHeadingRef.current?.focus();
-  }, [isEditing]);
+  }, [hasStorageError, isEditing]);
 
   useEffect(() => {
     if (isEditing || !preferences || !shouldRestoreSettingsFocusRef.current) {
@@ -187,12 +223,23 @@ export function PrivacyConsent({
     const hadActiveAdvertising = Boolean(
       preferences?.advertising && hasLoadedAdvertising,
     );
+    const mustReloadToClearLocalDenial =
+      hasAppliedLocalConsentDenialRef.current &&
+      Boolean(
+        (preferences?.analytics === false && nextPreferences.analytics) ||
+        (preferences?.advertising === false && nextPreferences.advertising),
+      );
     const shouldReload =
       (hadActiveAnalytics && !nextPreferences.analytics) ||
-      (hadActiveAdvertising && !nextPreferences.advertising);
+      (hadActiveAdvertising && !nextPreferences.advertising) ||
+      mustReloadToClearLocalDenial;
 
     if (hadActiveAnalytics && !nextPreferences.analytics) {
       disableGoogleAnalytics(analyticsMeasurementId);
+    }
+
+    if (updateGoogleConsentForOptOut(nextPreferences)) {
+      hasAppliedLocalConsentDenialRef.current = true;
     }
 
     const writeResult = writeConsentPreferences(nextPreferences);
@@ -206,6 +253,7 @@ export function PrivacyConsent({
       setAnalyticsSelected(false);
       setAdvertisingSelected(false);
       setHasStorageError(true);
+      shouldFocusEditingPanelRef.current = true;
       setIsEditing(true);
       shouldRestoreSettingsFocusRef.current = false;
 
@@ -271,7 +319,6 @@ export function PrivacyConsent({
     }
   }
 
-  const shouldShowChoices = preferences === null || isEditing;
   const mustWithholdChildrenForStorageFailure =
     mustBlockNavigation &&
     storageFailurePathname !== null &&
@@ -280,12 +327,9 @@ export function PrivacyConsent({
   return (
     <PrivacySettingsProvider
       value={{
-        isVisible: preferences !== undefined && !shouldShowChoices,
+        isVisible: preferences !== undefined && !isEditing,
         label: copy.settingsButton,
-        onOpen: () => {
-          shouldFocusEditingPanelRef.current = true;
-          setIsEditing(true);
-        },
+        onOpen: openSettingsPanel,
       }}
     >
       {!mustWithholdChildrenForStorageFailure && children}
@@ -300,10 +344,10 @@ export function PrivacyConsent({
       )}
 
       {preferences !== undefined &&
-        (shouldShowChoices ? (
+        (isEditing ? (
           <section
             aria-labelledby="privacy-consent-heading"
-            className="fixed inset-x-4 bottom-4 z-50 mx-auto grid max-w-2xl gap-4 rounded-ts-panel border-2 border-ts-border bg-ts-surface p-5 shadow-ts-paper"
+            className="fixed inset-x-4 bottom-4 z-50 mx-auto grid max-h-[calc(100dvh-2rem)] max-w-2xl gap-4 overflow-y-auto rounded-ts-panel border-2 border-ts-border bg-ts-surface p-5 shadow-ts-paper"
           >
             <div className="grid gap-2">
               <h2
@@ -387,18 +431,18 @@ export function PrivacyConsent({
   );
 }
 
-function readConsentPreferences(): ConsentPreferences | null {
+function readConsentPreferences(): ConsentReadResult {
   let storedValue: string | null;
 
   try {
     removeLegacyConsentEntries();
     storedValue = window.localStorage.getItem(consentStorageKey);
   } catch {
-    return null;
+    return { status: "unavailable" };
   }
 
-  if (!storedValue) {
-    return null;
+  if (storedValue === null) {
+    return { status: "missing" };
   }
 
   try {
@@ -414,15 +458,18 @@ function readConsentPreferences(): ConsentPreferences | null {
       !("advertising" in parsedValue) ||
       typeof parsedValue.advertising !== "boolean"
     ) {
-      return null;
+      return { status: "invalid" };
     }
 
     return {
-      analytics: parsedValue.analytics,
-      advertising: parsedValue.advertising,
+      preferences: {
+        analytics: parsedValue.analytics,
+        advertising: parsedValue.advertising,
+      },
+      status: "valid",
     };
   } catch {
-    return null;
+    return { status: "invalid" };
   }
 }
 
@@ -489,6 +536,39 @@ function disableGoogleAnalytics(measurementId: string | undefined) {
 
   const analyticsWindow = window as unknown as Record<string, boolean>;
   analyticsWindow[`ga-disable-${measurementId}`] = true;
+}
+
+function updateGoogleConsentForOptOut(preferences: ConsentPreferences) {
+  const update: {
+    ad_personalization?: "denied";
+    ad_storage?: "denied";
+    ad_user_data?: "denied";
+    analytics_storage?: "denied";
+  } = {};
+
+  if (!preferences.analytics) {
+    update.analytics_storage = "denied";
+  }
+
+  if (!preferences.advertising) {
+    update.ad_storage = "denied";
+    update.ad_user_data = "denied";
+    update.ad_personalization = "denied";
+  }
+
+  if (Object.keys(update).length === 0) {
+    return false;
+  }
+
+  window.dataLayer = window.dataLayer ?? [];
+  window.gtag =
+    window.gtag ??
+    ((...gtagArguments) => {
+      window.dataLayer?.push(gtagArguments);
+    });
+  window.gtag("consent", "update", update);
+
+  return true;
 }
 
 function readFailClosedCarriers(): readonly FailClosedCarrier[] {

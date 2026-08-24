@@ -50,7 +50,9 @@ business rules.
 - Use stable storage keys and validate an exact object shape.
 - When the shape changes, replace the current record atomically and request a
   new privacy choice when required; do not create a numbered key.
-- Keep optional services disabled until a valid current consent record exists.
+- Apply a valid current optional-service record before the documented default.
+  Use the default only when the record is absent; fail closed when the record is
+  invalid, storage is unavailable, or a fail-closed carrier exists.
 - Remove obsolete private-context handoffs by namespace prefix so sensitive
   text does not linger after a cutover.
 - Preserve concurrency behavior with purpose-named change ids, not revision

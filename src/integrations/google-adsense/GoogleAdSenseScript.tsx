@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useEffect } from "react";
 
 type GoogleAdSenseScriptProps = {
   readonly clientId: string;
@@ -14,20 +14,14 @@ export function GoogleAdSenseScript({
   clientId,
   onScriptMount,
 }: GoogleAdSenseScriptProps) {
-  const captureScript = useCallback(
-    (element: HTMLScriptElement | null) => {
-      if (element) {
-        onScriptMount?.();
-      }
-    },
-    [onScriptMount],
-  );
+  useEffect(() => {
+    onScriptMount?.();
+  }, [onScriptMount]);
 
   return (
     <script
       async
       crossOrigin="anonymous"
-      ref={captureScript}
       src={`${googleAdSenseScriptUrl}?client=${clientId}`}
     />
   );

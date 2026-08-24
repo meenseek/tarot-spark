@@ -6,6 +6,40 @@ const failClosedCookieName = "tarot_spark_optional_services_fail_closed";
 const privateContextHandoffStorageKey = "tarot-spark.private-context-handoff";
 const storageErrorMessage =
   "We couldn't save your choices. Try again in this panel so they can be applied safely.";
+const restrictedGoogleConsentRegions = [
+  "AT",
+  "BE",
+  "BG",
+  "CH",
+  "CY",
+  "CZ",
+  "DE",
+  "DK",
+  "EE",
+  "ES",
+  "FI",
+  "FR",
+  "GB",
+  "GR",
+  "HR",
+  "HU",
+  "IE",
+  "IS",
+  "IT",
+  "LI",
+  "LT",
+  "LU",
+  "LV",
+  "MT",
+  "NL",
+  "NO",
+  "PL",
+  "PT",
+  "RO",
+  "SE",
+  "SI",
+  "SK",
+] as const;
 
 test.beforeEach(async ({ page }) => {
   await page.route("https://**/*", async (route) => {
@@ -13,8 +47,290 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("keeps the full privacy option card clickable", async ({ page }) => {
+test("allows analytics from footer settings without enabling advertising", async ({
+  page,
+}) => {
+  await setStoredConsent(page, { analytics: false, advertising: false });
+  await page.goto("/relationship-flow");
+
+  await page.getByRole("button", { name: "Privacy choices" }).click();
+  await page.getByRole("checkbox", { name: /Analytics/ }).check();
+  const reloaded = page.waitForEvent("load");
+  await page.getByRole("button", { name: "Save choices" }).click();
+  await reloaded;
+
+  await expect(page.locator('script[src*="googletagmanager.com"]')).toHaveCount(
+    1,
+  );
+  await expect(
+    page.locator('script[src*="googlesyndication.com"]'),
+  ).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      (key) => window.localStorage.getItem(key),
+      consentStorageKey,
+    ),
+  ).toBe(JSON.stringify({ analytics: true, advertising: false }));
+});
+
+test("defaults analytics on without a popup and keeps advertising route-isolated", async ({
+  page,
+}) => {
   await page.goto("/");
+
+  await expect(page.locator('script[src*="googletagmanager.com"]')).toHaveCount(
+    1,
+  );
+  await expect(
+    page.locator('script[src*="googlesyndication.com"]'),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Privacy choices" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Optional privacy choices" }),
+  ).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      (key) => window.localStorage.getItem(key),
+      consentStorageKey,
+    ),
+  ).toBeNull();
+  const consentDefaultsPrecedeAnalytics = await page.evaluate(() => {
+    const defaults = document.querySelector("#google-consent-mode-defaults");
+    const analytics = document.querySelector(
+      'script[src*="googletagmanager.com"]',
+    );
+
+    return Boolean(
+      defaults &&
+      analytics &&
+      defaults.compareDocumentPosition(analytics) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
+  expect(consentDefaultsPrecedeAnalytics).toBe(true);
+  const consentQueue = await page.evaluate(() =>
+    (window.dataLayer ?? [])
+      .slice(0, 3)
+      .map((entry) =>
+        Array.isArray(entry)
+          ? entry
+          : Array.from(entry as unknown as ArrayLike<unknown>),
+      ),
+  );
+  expect(consentQueue).toEqual([
+    [
+      "consent",
+      "default",
+      {
+        ad_personalization: "granted",
+        ad_storage: "granted",
+        ad_user_data: "granted",
+        analytics_storage: "granted",
+      },
+    ],
+    [
+      "consent",
+      "default",
+      {
+        ad_personalization: "denied",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        analytics_storage: "denied",
+        region: restrictedGoogleConsentRegions,
+        wait_for_update: 500,
+      },
+    ],
+    ["set", "ads_data_redaction", true],
+  ]);
+});
+
+test("defaults both configured services on for an advertising-eligible route", async ({
+  page,
+}) => {
+  await page.goto("/relationship-flow");
+
+  await expect(page.locator('script[src*="googletagmanager.com"]')).toHaveCount(
+    1,
+  );
+  await expect(
+    page.locator('script[src*="googlesyndication.com"]'),
+  ).toHaveCount(1);
+  expect(
+    await page.evaluate(
+      (key) => window.localStorage.getItem(key),
+      consentStorageKey,
+    ),
+  ).toBeNull();
+});
+
+test("reapplies a stored local opt-out before optional tags", async ({
+  page,
+}) => {
+  await setStoredConsent(page, { analytics: false, advertising: false });
+  await page.goto("/");
+
+  await expect(page.locator('script[src*="googletagmanager.com"]')).toHaveCount(
+    0,
+  );
+  await expect(
+    page.locator('script[src*="googlesyndication.com"]'),
+  ).toHaveCount(0);
+  const latestConsentUpdate = await page.evaluate(() => {
+    const entries = window.dataLayer ?? [];
+
+    for (let index = entries.length - 1; index >= 0; index -= 1) {
+      const entry = entries[index];
+      const values = Array.isArray(entry)
+        ? entry
+        : Array.from(entry as unknown as ArrayLike<unknown>);
+
+      if (values[0] === "consent" && values[1] === "update") {
+        return values[2];
+      }
+    }
+
+    return null;
+  });
+  expect(latestConsentUpdate).toEqual({
+    ad_personalization: "denied",
+    ad_storage: "denied",
+    ad_user_data: "denied",
+    analytics_storage: "denied",
+  });
+});
+
+test("opens default-on choices without loading advertising on excluded routes", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Privacy choices" }).click();
+
+  await expect(
+    page.getByRole("heading", { name: "Optional privacy choices" }),
+  ).toBeFocused();
+  await expect(page.getByRole("checkbox", { name: /Analytics/ })).toBeVisible();
+  await expect(page.getByRole("checkbox", { name: /Analytics/ })).toBeChecked();
+  await expect(
+    page.getByRole("checkbox", { name: /Advertising/ }),
+  ).toBeChecked();
+  await expect(page.locator('script[src*="googletagmanager.com"]')).toHaveCount(
+    1,
+  );
+  await expect(
+    page.locator('script[src*="googlesyndication.com"]'),
+  ).toHaveCount(0);
+});
+
+test("reloads before re-enabling a locally denied advertising signal", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Privacy choices" }).click();
+  await page.getByRole("checkbox", { name: /Advertising/ }).uncheck();
+  await page.getByRole("button", { name: "Save choices" }).click();
+
+  await page.getByRole("button", { name: "Privacy choices" }).click();
+  await page.getByRole("checkbox", { name: /Advertising/ }).check();
+  const reloaded = page.waitForEvent("load");
+  await page.getByRole("button", { name: "Save choices" }).click();
+  await reloaded;
+
+  await page.goto("/relationship-flow");
+  await expect(
+    page.locator('script[src*="googlesyndication.com"]'),
+  ).toHaveCount(1);
+});
+
+test("keeps a failed settings choice in the fail-closed panel", async ({
+  page,
+}) => {
+  await setStoredConsent(page, { analytics: false, advertising: false });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Privacy choices" }).click();
+  await page.getByRole("checkbox", { name: /Analytics/ }).check();
+  await failConsentStorage(page, { failSessionMarker: false });
+
+  await page.getByRole("button", { name: "Save choices" }).click();
+
+  await expect(
+    page.getByRole("alert").filter({ hasText: storageErrorMessage }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Optional privacy choices" }),
+  ).toBeFocused();
+  await expect(page.locator('script[src*="googletagmanager.com"]')).toHaveCount(
+    0,
+  );
+});
+
+test("keeps privacy choices reachable in a compact viewport", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 568, width: 390 });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Privacy choices" }).click();
+
+  const panel = page.locator(
+    'section[aria-labelledby="privacy-consent-heading"]',
+  );
+  const panelLayout = await panel.evaluate((element) => {
+    const bounds = element.getBoundingClientRect();
+
+    return {
+      bottom: bounds.bottom,
+      overflowY: window.getComputedStyle(element).overflowY,
+      top: bounds.top,
+    };
+  });
+
+  expect(panelLayout.top).toBeGreaterThanOrEqual(15);
+  expect(panelLayout.bottom).toBeLessThanOrEqual(553);
+  expect(panelLayout.overflowY).toBe("auto");
+
+  const essentialOnlyButton = page.getByRole("button", {
+    name: "Essential only",
+  });
+  await essentialOnlyButton.scrollIntoViewIfNeeded();
+  await expect(essentialOnlyButton).toBeInViewport();
+});
+
+for (const { label, viewport } of [
+  { label: "mobile", viewport: { height: 844, width: 390 } },
+  { label: "desktop", viewport: { height: 900, width: 1280 } },
+] as const) {
+  test(`keeps the ${label} product flow free of a consent popup`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+
+    await expect(
+      page.getByRole("heading", { name: "Optional privacy choices" }),
+    ).toHaveCount(0);
+    await expect(
+      page.locator('script[src*="googletagmanager.com"]'),
+    ).toHaveCount(1);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+
+    const draw = page.getByRole("button", { name: "Draw 3 cards" });
+    await draw.scrollIntoViewIfNeeded();
+    await draw.click();
+    await expect(page.getByTestId("prompt-ready")).toBeVisible();
+  });
+}
+
+test("keeps the full privacy option card clickable", async ({ page }) => {
+  await setStoredConsent(page, { analytics: false, advertising: false });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Privacy choices" }).click();
 
   const analytics = page.getByRole("checkbox", { name: /Analytics/ });
   const card = analytics.locator(
@@ -41,6 +357,7 @@ test("leaves privacy-card colors with the package in forced-colors mode", async 
 }) => {
   await page.emulateMedia({ forcedColors: "active" });
   await page.goto("/");
+  await page.getByRole("button", { name: "Privacy choices" }).click();
 
   const analytics = page.getByRole("checkbox", { name: /Analytics/ });
   const card = analytics.locator(
@@ -73,6 +390,7 @@ test("leaves privacy-card colors with the package in forced-colors mode", async 
 test("revokes analytics without losing private reading context", async ({
   page,
 }) => {
+  await setStoredConsent(page, { analytics: false, advertising: false });
   await page.goto("/");
   await openSituationContext(page);
 
@@ -80,8 +398,11 @@ test("revokes analytics without losing private reading context", async ({
     name: /Add your situation/,
   });
   await contextInput.fill("Keep this private context through consent changes.");
+  await page.getByRole("button", { name: "Privacy choices" }).click();
   await page.getByRole("checkbox", { name: /Analytics/ }).check();
+  const analyticsEnabledReload = page.waitForEvent("load");
   await page.getByRole("button", { name: "Save choices" }).click();
+  await analyticsEnabledReload;
   await expect(page.locator('script[src*="googletagmanager.com"]')).toHaveCount(
     1,
   );
@@ -166,6 +487,7 @@ test("keeps stale consent closed across a session-marker reload", async ({
   page,
 }) => {
   await page.goto("/relationship-flow");
+  await page.getByRole("button", { name: "Privacy choices" }).click();
   await page.getByRole("checkbox", { name: /Analytics/ }).check();
   await page.getByRole("checkbox", { name: /Advertising/ }).check();
   await page.getByRole("button", { name: "Save choices" }).click();
@@ -234,6 +556,7 @@ test("uses a scoped cookie when both Web Storage carriers fail", async ({
   page,
 }) => {
   await page.goto("/relationship-flow");
+  await page.getByRole("button", { name: "Privacy choices" }).click();
   await page.getByRole("checkbox", { name: /Analytics/ }).check();
   await page.getByRole("checkbox", { name: /Advertising/ }).check();
   await page.getByRole("button", { name: "Save choices" }).click();
@@ -385,7 +708,6 @@ test("clears stale private handoff before opening a clean attributed generator",
   await page.goto(
     "/share?topic=relationship-flow&style=relational&cards=the-fool,the-lovers,the-star&source=instagram&campaign=vertical-slice",
   );
-  await page.getByRole("button", { name: "Reject optional services" }).click();
 
   await expect
     .poll(() =>
@@ -457,7 +779,7 @@ test("clears stale private handoff before consecutive pre-hydration navigation",
     "/?source=instagram&campaign=vertical-slice",
   );
   await expect(
-    page.getByRole("button", { name: "Reject optional services" }),
+    page.getByRole("button", { name: "Essential only" }),
   ).toHaveCount(0);
   await expect
     .poll(() =>
@@ -511,6 +833,25 @@ async function openSituationContext(page: import("@playwright/test").Page) {
   if ((await disclosure.getAttribute("open")) === null) {
     await page.getByTestId("situation-context-toggle").click();
   }
+}
+
+async function setStoredConsent(
+  page: import("@playwright/test").Page,
+  preferences: { readonly advertising: boolean; readonly analytics: boolean },
+) {
+  await page.addInitScript(
+    ({ key, value }) => {
+      if (window.localStorage.getItem(key) !== null) {
+        return;
+      }
+
+      window.localStorage.setItem(key, value);
+    },
+    {
+      key: consentStorageKey,
+      value: JSON.stringify(preferences),
+    },
+  );
 }
 
 async function failConsentStorage(

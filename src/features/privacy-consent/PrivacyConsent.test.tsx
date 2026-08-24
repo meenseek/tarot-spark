@@ -34,7 +34,7 @@ const copy = {
   advertisingLabel: "Advertising",
   advertisingDescription: "Load advertising.",
   saveChoices: "Save choices",
-  rejectOptional: "Reject optional services",
+  rejectOptional: "Essential only",
   settingsButton: "Privacy choices",
   storageError:
     "We couldn't save your choices. Try again in this panel so they can be applied safely.",
@@ -50,6 +50,8 @@ describe("PrivacyConsent", () => {
     window.sessionStorage.clear();
     document.cookie = `${failClosedCookieName}=; Path=/; SameSite=Strict; Max-Age=0`;
     Reflect.deleteProperty(window, "ga-disable-G-TEST1234");
+    Reflect.deleteProperty(window, "dataLayer");
+    Reflect.deleteProperty(window, "gtag");
     document
       .querySelectorAll(
         'script[src*="googletagmanager.com"], script[src*="googlesyndication.com"]',
@@ -57,21 +59,168 @@ describe("PrivacyConsent", () => {
       .forEach((element) => element.remove());
   });
 
-  it("loads no optional script before the first choice", async () => {
+  it("loads no optional script and shows only footer settings on first visit", async () => {
     renderConsent();
 
     expect(
-      screen.queryByRole("button", { name: "Privacy choices" }),
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    ).toBeVisible();
+    expect(screen.getByRole("main")).toHaveTextContent("Product content");
+    expect(
+      screen.queryByRole("checkbox", { name: /Analytics/ }),
     ).not.toBeInTheDocument();
     expect(
-      await screen.findByRole("heading", {
-        name: "Optional privacy choices",
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "Privacy choices" }),
+      screen.queryByRole("heading", { name: "Optional privacy choices" }),
     ).not.toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(getGoogleScripts()).toHaveLength(0);
+    expect(window.localStorage.getItem(getConsentStorageKey())).toBeNull();
+  });
+
+  it("uses configured defaults only when no stored choice exists", async () => {
+    render(
+      getConsentElement(
+        undefined,
+        "Product content",
+        "ca-pub-1234567890123401",
+        "G-DEFAULT1234",
+        { analytics: true, advertising: true },
+      ),
+    );
+
+    expect(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    ).toBeVisible();
+    expect(
+      document.querySelector('script[src*="googletagmanager.com"]'),
+    ).not.toBeNull();
+    expect(
+      document.querySelector('script[src*="googlesyndication.com"]'),
+    ).not.toBeNull();
+    expect(window.localStorage.getItem(getConsentStorageKey())).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Privacy choices" }));
+    expect(screen.getByRole("checkbox", { name: /Analytics/ })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: /Advertising/ })).toBeChecked();
+  });
+
+  it("keeps a stored rejection ahead of configured defaults", async () => {
+    setStoredRejection();
+
+    render(
+      getConsentElement(
+        undefined,
+        "Product content",
+        "ca-pub-1234567890123402",
+        "G-STORED1234",
+        { analytics: true, advertising: true },
+      ),
+    );
+
+    expect(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    ).toBeVisible();
+    expect(getGoogleScripts()).toHaveLength(0);
+    expect(window.dataLayer).toContainEqual([
+      "consent",
+      "update",
+      {
+        ad_personalization: "denied",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        analytics_storage: "denied",
+      },
+    ]);
+  });
+
+  it("fails closed when the current choice cannot be read", async () => {
+    vi.spyOn(window.localStorage, "getItem").mockImplementation(() => {
+      throw new DOMException("Storage unavailable", "SecurityError");
+    });
+
+    render(
+      getConsentElement(
+        undefined,
+        "Product content",
+        "ca-pub-1234567890123403",
+        "G-UNAVAILABLE1234",
+        { analytics: true, advertising: true },
+      ),
+    );
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      copy.storageError,
+    );
+    expect(getGoogleScripts()).toHaveLength(0);
+  });
+
+  it("enables analytics without advertising from footer settings", async () => {
+    renderConsent();
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    );
+    fireEvent.click(screen.getByRole("checkbox", { name: /Analytics/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
+
+    await waitFor(() => {
+      expect(
+        document.querySelector('script[src*="googletagmanager.com"]'),
+      ).not.toBeNull();
+    });
+    expect(
+      document.querySelector('script[src*="googlesyndication.com"]'),
+    ).toBeNull();
+    expect(window.localStorage.getItem(getConsentStorageKey())).toBe(
+      JSON.stringify({ analytics: true, advertising: false }),
+    );
+  });
+
+  it("opens full choices from footer settings and focuses the heading", async () => {
+    renderConsent();
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("heading", { name: "Optional privacy choices" }),
+      ).toHaveFocus();
+    });
+    expect(screen.getByRole("checkbox", { name: /Analytics/ })).toBeVisible();
+    expect(getGoogleScripts()).toHaveLength(0);
+  });
+
+  it("offers only advertising from footer settings when it is the sole service", async () => {
+    render(
+      getConsentElement(undefined, "Product content", "ca-pub-test", undefined),
+    );
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    );
+
+    expect(screen.getByRole("checkbox", { name: /Advertising/ })).toBeVisible();
+    expect(
+      screen.queryByRole("checkbox", { name: /Analytics/ }),
+    ).not.toBeInTheDocument();
+    expect(getGoogleScripts()).toHaveLength(0);
+  });
+
+  it("offers only analytics from footer settings when it is the sole service", async () => {
+    render(
+      getConsentElement(undefined, "Product content", undefined, "G-TEST1234"),
+    );
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    );
+
+    expect(screen.getByRole("checkbox", { name: /Analytics/ })).toBeVisible();
+    expect(
+      screen.queryByRole("checkbox", { name: /Advertising/ }),
+    ).not.toBeInTheDocument();
     expect(getGoogleScripts()).toHaveLength(0);
   });
 
@@ -113,7 +262,11 @@ describe("PrivacyConsent", () => {
   it("keeps each full privacy option label interactive", async () => {
     renderConsent();
 
-    const analytics = await screen.findByRole("checkbox", {
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    );
+
+    const analytics = screen.getByRole("checkbox", {
       name: /Analytics/,
     });
     fireEvent.click(screen.getByText(copy.analyticsDescription));
@@ -121,7 +274,7 @@ describe("PrivacyConsent", () => {
     expect(analytics).toBeChecked();
   });
 
-  it("ignores non-current records and removes namespaced legacy entries", async () => {
+  it("fails closed for an invalid current record and removes legacy entries", async () => {
     window.localStorage.setItem(
       `${getConsentStorageKey()}.legacy`,
       JSON.stringify({ analytics: true, advertising: true }),
@@ -141,7 +294,8 @@ describe("PrivacyConsent", () => {
       await screen.findByRole("heading", {
         name: "Optional privacy choices",
       }),
-    ).toBeInTheDocument();
+    ).toBeVisible();
+    expect(screen.getByRole("alert")).toHaveTextContent(copy.storageError);
     expect(getGoogleScripts()).toHaveLength(0);
     expect(
       window.localStorage.getItem(`${getConsentStorageKey()}.legacy`),
@@ -149,9 +303,18 @@ describe("PrivacyConsent", () => {
   });
 
   it("loads only explicitly selected services and allows later changes", async () => {
-    renderConsent();
+    const reloadDocument = vi.fn();
+    renderConsent(
+      reloadDocument,
+      "Product content",
+      "ca-pub-1234567890123456",
+      "G-TEST5678",
+    );
 
-    fireEvent.click(await screen.findByRole("checkbox", { name: /Analytics/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    );
+    fireEvent.click(screen.getByRole("checkbox", { name: /Analytics/ }));
     fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
 
     await waitFor(() => {
@@ -172,14 +335,18 @@ describe("PrivacyConsent", () => {
         document.querySelector('script[src*="googlesyndication.com"]'),
       ).not.toBeNull();
     });
+    expect(reloadDocument).toHaveBeenCalledOnce();
   });
 
   it("persists an explicit rejection without loading optional scripts", async () => {
     renderConsent();
 
     fireEvent.click(
-      await screen.findByRole("button", {
-        name: "Reject optional services",
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Essential only",
       }),
     );
 
@@ -197,16 +364,56 @@ describe("PrivacyConsent", () => {
     expect(window.localStorage.getItem(getConsentStorageKey())).toContain(
       '"analytics":false',
     );
+    expect(window.dataLayer).toContainEqual([
+      "consent",
+      "update",
+      {
+        ad_personalization: "denied",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        analytics_storage: "denied",
+      },
+    ]);
   });
 
-  it("does not steal focus when the first-choice panel appears", async () => {
+  it("reloads before re-enabling a locally denied service", async () => {
+    const reloadDocument = vi.fn();
+    navigationState.pathname = "/";
+    render(
+      getConsentElement(
+        reloadDocument,
+        "Product content",
+        "ca-pub-1234567890123404",
+        "G-REENABLE1234",
+        { analytics: true, advertising: true },
+      ),
+    );
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    );
+    fireEvent.click(screen.getByRole("checkbox", { name: /Advertising/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
+    expect(reloadDocument).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Privacy choices" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: /Advertising/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
+
+    expect(reloadDocument).toHaveBeenCalledOnce();
+  });
+
+  it("does not steal focus when footer settings appears", async () => {
     renderConsent();
 
-    const heading = await screen.findByRole("heading", {
-      name: "Optional privacy choices",
+    const settingsButton = await screen.findByRole("button", {
+      name: "Privacy choices",
     });
 
-    expect(heading).not.toHaveFocus();
+    expect(settingsButton).not.toHaveFocus();
+    expect(
+      screen.queryByRole("heading", { name: "Optional privacy choices" }),
+    ).not.toBeInTheDocument();
   });
 
   it("focuses the panel heading when settings opens and restores the trigger after saving", async () => {
@@ -257,9 +464,7 @@ describe("PrivacyConsent", () => {
       ).toHaveFocus();
     });
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "Reject optional services" }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "Essential only" }));
 
     await waitFor(() => {
       expect(
@@ -277,7 +482,16 @@ describe("PrivacyConsent", () => {
       }),
     );
 
-    render(<StrictMode>{getConsentElement()}</StrictMode>);
+    render(
+      <StrictMode>
+        {getConsentElement(
+          undefined,
+          "Product content",
+          "ca-pub-1234567890123456",
+          "G-TEST1234",
+        )}
+      </StrictMode>,
+    );
 
     expect(
       await screen.findByRole("button", { name: "Privacy choices" }),
@@ -347,6 +561,9 @@ describe("PrivacyConsent", () => {
       );
 
       fireEvent.click(
+        await screen.findByRole("button", { name: "Privacy choices" }),
+      );
+      fireEvent.click(
         await screen.findByRole("checkbox", { name: /Advertising/ }),
       );
       fireEvent.click(screen.getByRole("button", { name: "Save choices" }));
@@ -363,6 +580,7 @@ describe("PrivacyConsent", () => {
           reloadDocument,
           "Sensitive reading content",
           advertisingClientId,
+          "G-TEST1234",
         ),
       );
 
@@ -445,7 +663,12 @@ describe("PrivacyConsent", () => {
 
     navigationState.pathname = "/relationship-flow";
     rerender(
-      getConsentElement(reloadDocument, "Public content", advertisingClientId),
+      getConsentElement(
+        reloadDocument,
+        "Public content",
+        advertisingClientId,
+        "G-TEST1234",
+      ),
     );
     await act(async () => {
       await Promise.resolve();
@@ -453,7 +676,12 @@ describe("PrivacyConsent", () => {
 
     navigationState.pathname = "/ko/share";
     rerender(
-      getConsentElement(reloadDocument, "Second reading", advertisingClientId),
+      getConsentElement(
+        reloadDocument,
+        "Second reading",
+        advertisingClientId,
+        "G-TEST1234",
+      ),
     );
 
     expect(screen.queryByText("Second reading")).toBeNull();
@@ -639,7 +867,14 @@ describe("PrivacyConsent", () => {
     expect(form.dispatchEvent(formSubmit)).toBe(false);
 
     navigationState.pathname = "/share";
-    rerender(getConsentElement(reloadDocument, "Excluded content"));
+    rerender(
+      getConsentElement(
+        reloadDocument,
+        "Excluded content",
+        "ca-pub-1234567890123456",
+        "G-TEST1234",
+      ),
+    );
     await act(async () => {
       await Promise.resolve();
     });
@@ -694,10 +929,13 @@ describe("PrivacyConsent", () => {
     expect(getGoogleScripts()).toHaveLength(0);
   });
 
-  it("does not enable analytics when a first choice cannot be stored", async () => {
+  it("does not enable analytics when a settings choice cannot be stored", async () => {
     const reloadDocument = vi.fn();
     renderConsent(reloadDocument);
-    fireEvent.click(await screen.findByRole("checkbox", { name: /Analytics/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Privacy choices" }),
+    );
+    fireEvent.click(screen.getByRole("checkbox", { name: /Analytics/ }));
     const setItem = vi
       .spyOn(window.localStorage, "setItem")
       .mockImplementation(() => {
@@ -714,6 +952,9 @@ describe("PrivacyConsent", () => {
     expect(removeItem).toHaveBeenCalled();
     expect(reloadDocument).not.toHaveBeenCalled();
     expect(screen.getByRole("alert")).toHaveTextContent(copy.storageError);
+    expect(
+      screen.getByRole("heading", { name: "Optional privacy choices" }),
+    ).toHaveFocus();
     expect(getGoogleScripts()).toHaveLength(0);
   });
 });
@@ -722,23 +963,34 @@ function renderConsent(
   reloadDocument?: () => void,
   content = "Product content",
   advertisingClientId = "ca-pub-1234567890123456",
+  analyticsMeasurementId = "G-TEST1234",
 ) {
   return render(
-    getConsentElement(reloadDocument, content, advertisingClientId),
+    getConsentElement(
+      reloadDocument,
+      content,
+      advertisingClientId,
+      analyticsMeasurementId,
+    ),
   );
 }
 
 function getConsentElement(
   reloadDocument?: () => void,
   content = "Product content",
-  advertisingClientId: string | undefined = "ca-pub-1234567890123456",
-  analyticsMeasurementId: string | undefined = "G-TEST1234",
+  advertisingClientId?: string,
+  analyticsMeasurementId?: string,
+  defaultPreferences?: {
+    readonly analytics: boolean;
+    readonly advertising: boolean;
+  },
 ) {
   return (
     <PrivacyConsent
       advertisingClientId={advertisingClientId}
       analyticsMeasurementId={analyticsMeasurementId}
       copy={copy}
+      defaultPreferences={defaultPreferences}
       reloadDocument={reloadDocument}
     >
       <main>{content}</main>

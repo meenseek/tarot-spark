@@ -1,12 +1,12 @@
 {
   "heading": "Optional privacy choices",
-  "body": "Choose whether tarot-spark may load optional Google services. The reading works without them.",
+  "body": "Turn configured Google services on or off for this browser. Regional consent requirements also apply in the EEA, UK, and Switzerland. The reading works without them.",
   "analyticsLabel": "Analytics",
-  "analyticsDescription": "Allow limited page and feature-use measurement so the product can improve.",
+  "analyticsDescription": "Keep limited page and feature-use measurement on so the product can improve. Regional consent controls still apply.",
   "advertisingLabel": "Advertising",
-  "advertisingDescription": "Allow Google AdSense to load on approved non-reading content pages for advertising and site monetization.",
+  "advertisingDescription": "Keep Google AdSense on for approved non-reading content pages. Regional consent controls still apply.",
   "saveChoices": "Save choices",
-  "rejectOptional": "Reject optional services",
+  "rejectOptional": "Essential only",
   "settingsButton": "Privacy choices",
   "storageError": "We couldn't save your choices. Try again in this panel so they can be applied safely."
 }

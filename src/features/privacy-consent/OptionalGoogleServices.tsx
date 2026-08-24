@@ -17,6 +17,7 @@ export function OptionalGoogleServices({
       advertisingClientId={getGoogleAdSenseScriptClientId() ?? undefined}
       analyticsMeasurementId={getGoogleAnalyticsMeasurementId()}
       copy={getPrivacyConsentCopy(locale)}
+      defaultPreferences={{ analytics: true, advertising: true }}
     >
       {children}
     </PrivacyConsent>

@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 import { OptionalGoogleServices } from "./OptionalGoogleServices";
 
 vi.mock("next/navigation", () => ({
@@ -56,16 +57,27 @@ describe("OptionalGoogleServices", () => {
     render(
       <OptionalGoogleServices locale="ko">
         <main>카드 리딩</main>
+        <SiteFooter ariaLabel="페이지 탐색" links={[]} />
       </OptionalGoogleServices>,
     );
 
+    fireEvent.click(
+      await screen.findByRole("button", { name: "개인정보 설정" }),
+    );
+
     expect(
-      await screen.findByRole("heading", { name: "선택 서비스 설정" }),
+      screen.getByRole("heading", { name: "선택 서비스 설정" }),
     ).toBeVisible();
     expect(
       screen.getByRole("checkbox", { name: /서비스 이용 분석/ }),
-    ).toBeVisible();
+    ).toBeChecked();
     expect(screen.queryByRole("checkbox", { name: /광고/ })).toBeNull();
+    expect(
+      document.querySelector('script[src*="googletagmanager.com"]'),
+    ).not.toBeNull();
+    expect(
+      window.localStorage.getItem("tarot-spark.optional-services-consent"),
+    ).toBeNull();
   });
 });
 
