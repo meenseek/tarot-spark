@@ -48,6 +48,43 @@
   depends on an internal term or if a shorter familiar phrase keeps the same
   meaning and safety boundary.
 
+## Content Catalog Review
+
+Apply this review before adding, revising, reordering, or removing public tarot
+questions.
+
+- Record the current and proposed question counts by domain, focus, and answer
+  target. Use the counts to expose missing or crowded intent classes, not as a
+  parity quota.
+- Check each affected domain for the applicable user needs: direct curiosity
+  about perception, recurring interaction patterns, decisions and tradeoffs,
+  and self, growth, or boundary reflection. A broad topic does not cover a need
+  when no public question gives it a direct entry point.
+- State the new question's primary user intent in one sentence and compare it
+  with the nearest existing question. Reject a question that only swaps the
+  subject or wording; revise an existing question when its user intent stays the
+  same, and add a stable id when the intent is materially different.
+- Keep the visible question emotionally direct. Put uncertainty, safety,
+  symbolic interpretation, and reality-check routing in the internal `focus`
+  instead of flattening the title into process language.
+- Match the answer target to the grammatical subject of the question. Use
+  `external-perception` for a person or audience's possible view, then use the
+  domain and question focus to distinguish romantic interest, workplace
+  judgment, or another specific kind of perception.
+- Add a focus only when at least two distinct public questions need the same
+  primary routing class. Keep every focus group at two or more questions so a
+  navigation group never represents a single preset.
+- Review Korean and English copy for equivalent intent, natural language,
+  picker limits, and non-duplication. Generate both copied and instant prompts
+  for every changed answer target, and test any certainty validator with a
+  calibrated example and its factual counterpart.
+- Use existing `question_id` values on draw, result, copy, and share events to
+  compare downstream use. Analytics can validate demand after release but
+  cannot waive safety, clarity, localization, or non-duplication failures.
+- Add a dedicated content page only when the catalog supports distinct intent,
+  explanatory copy, and result context. Do not turn question-count balance into
+  thin SEO pages.
+
 ## Reading Method Contract
 
 Route the reading's default subject through the

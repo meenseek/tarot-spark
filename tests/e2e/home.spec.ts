@@ -640,8 +640,8 @@ test("uses a chosen relationship question in the generated prompt", async ({
   await questionPickerSummary.click();
   await expect(
     page.getByTestId("public-question-groups").locator(":scope > details"),
-  ).toHaveCount(3);
-  await expect(page.getByTestId("public-question-option")).toHaveCount(6);
+  ).toHaveCount(5);
+  await expect(page.getByTestId("public-question-option")).toHaveCount(14);
 
   await page.getByTestId("topic-select").selectOption("love");
   await expect(questionPicker).not.toHaveAttribute("open", "");
@@ -650,7 +650,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
   await expect(
     page.getByTestId("public-question-groups").locator(":scope > details"),
   ).toHaveCount(7);
-  await expect(page.getByTestId("public-question-option")).toHaveCount(28);
+  await expect(page.getByTestId("public-question-option")).toHaveCount(30);
 
   const perceptionSummary = page
     .getByTestId("public-question-groups")
@@ -724,12 +724,18 @@ test("uses a chosen relationship question in the generated prompt", async ({
   await expect(page.getByTestId("current-public-question")).toContainText(
     "우리는 서로를 어떻게 보고 있을까?",
   );
+  await expect(page.getByTestId("current-question-frame")).toHaveText(
+    "서로의 시선과 기대를 가능성으로 읽습니다.",
+  );
+  await expect(page.getByTestId("current-question-frame")).not.toContainText(
+    "호감",
+  );
   await page
     .getByTestId("prompt-content-disclosure")
     .locator("summary")
     .click();
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
-    /고른 질문: 상대가 나를 어떻게 보고 있을 가능성이 있는지와 내가 상대에게 기대하는 모습을 카드 의미로 먼저 연결하고/,
+    /고른 질문: 상대가 독자를 보는 시선과 독자가 상대를 보는 시선을 카드 의미로 각각 읽고/,
   );
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
     /첫 두 문장 안에 카드가 그 질문에 가장 강하게 시사하는 답을 먼저 제시하세요/,
@@ -836,6 +842,67 @@ test("uses a chosen relationship question in the generated prompt", async ({
   );
 });
 
+test("uses the selected question frame instead of broad interest copy", async ({
+  page,
+}) => {
+  await page.goto("/?topic=feelings&question=mutual-view");
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
+
+  await expect(page.getByTestId("current-public-question")).toContainText(
+    "How do we see each other?",
+  );
+  await expect(page.getByTestId("current-question-frame")).toHaveText(
+    "Read each person's possible view and hopes.",
+  );
+  await expect(page.getByTestId("current-question-frame")).not.toContainText(
+    "interest",
+  );
+});
+
+test("keeps broad and partner impressions separate from current attraction", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 844, width: 320 });
+  await page.goto("/ko?topic=love");
+
+  const picker = page.getByTestId("public-question-picker");
+  const pickerSummary = picker.locator(":scope > summary");
+  const perceptionGroup = page
+    .getByTestId("public-question-groups")
+    .locator(":scope > details")
+    .filter({ hasText: "서로의 생각과 기대" });
+
+  await pickerSummary.click();
+  await perceptionGroup.locator(":scope > summary").click();
+  await page
+    .getByRole("button", { name: /그 사람은 나를 어떤 사람으로 볼까/ })
+    .click();
+  await expect(page).toHaveURL(/topic=love&question=how-they-see-me/);
+  await expect(page.getByTestId("topic-select")).toHaveValue("love");
+
+  await pickerSummary.click();
+  await page
+    .getByRole("button", { name: /나는 연애 상대로 어떤 인상일까/ })
+    .click();
+  await expect(page).toHaveURL(
+    /topic=love&question=romantic-partner-impression/,
+  );
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+
+  const result = page.getByTestId("reading-result-observer");
+  await expect(result).toContainText("나는 연애 상대로 어떤 인상일까?");
+  await expect(result).toContainText(
+    "다가가기 쉬운 점과 망설이게 할 수 있는 모습을 봅니다.",
+  );
+  await openPromptContent(page);
+  await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
+    /고른 질문: 특정 상대의 현재 호감을 꾸며내지 말고/,
+  );
+  await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
+    /질문에 없는 호감 해석을 덧붙이지 마세요/,
+  );
+});
+
 test("offers distinctive career questions under one optional hierarchy", async ({
   page,
 }) => {
@@ -849,8 +916,8 @@ test("offers distinctive career questions under one optional hierarchy", async (
 
   await expect(
     page.getByTestId("public-question-groups").locator(":scope > details"),
-  ).toHaveCount(3);
-  await expect(page.getByTestId("public-question-option")).toHaveCount(6);
+  ).toHaveCount(5);
+  await expect(page.getByTestId("public-question-option")).toHaveCount(14);
   await page.getByText("내 강점과 성장", { exact: true }).click();
   await page
     .getByRole("button", {

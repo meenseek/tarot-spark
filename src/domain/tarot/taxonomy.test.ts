@@ -47,15 +47,17 @@ describe("tarot reading taxonomy", () => {
     expect(relationshipQuestionFocusIds).not.toContain("dynamics");
     expect(careerFocusIds).toEqual([
       "direction",
+      "perception-recognition",
       "decision-tradeoffs",
+      "job-search-positioning",
       "strengths-growth",
       "collaboration-boundaries",
     ]);
   });
 
   it("gives every career question one compatible career taxonomy", () => {
-    expect(careerQuestionDefinitions).toHaveLength(6);
-    expect(publicQuestionDefinitions).toHaveLength(34);
+    expect(careerQuestionDefinitions).toHaveLength(14);
+    expect(publicQuestionDefinitions).toHaveLength(44);
     expect(new Set(publicQuestionDefinitions.map(({ id }) => id)).size).toBe(
       publicQuestionDefinitions.length,
     );
@@ -64,7 +66,7 @@ describe("tarot reading taxonomy", () => {
       expect(getReadingTaxonomy(question.topicId, question.id)).toStrictEqual({
         domainId: "career",
         focusId: question.focusId,
-        defaultAnswerTargetId: "career",
+        defaultAnswerTargetId: question.defaultAnswerTargetId,
       });
     }
 
@@ -74,7 +76,7 @@ describe("tarot reading taxonomy", () => {
   });
 
   it("gives every relationship question one compatible primary taxonomy", () => {
-    expect(relationshipQuestionDefinitions).toHaveLength(28);
+    expect(relationshipQuestionDefinitions).toHaveLength(30);
     expect(
       new Set(relationshipQuestionDefinitions.map(({ id }) => id)).size,
     ).toBe(relationshipQuestionDefinitions.length);
@@ -93,13 +95,26 @@ describe("tarot reading taxonomy", () => {
     expect(getReadingTaxonomy("feelings")).toEqual({
       domainId: "relationship",
       focusId: "perception",
-      defaultAnswerTargetId: "other-person",
+      defaultAnswerTargetId: "external-perception",
     });
     expect(getReadingTaxonomy("feelings", "ignored-signals")).toEqual({
       domainId: "relationship",
       focusId: "self-patterns",
       defaultAnswerTargetId: "self",
     });
+    expect(getReadingTaxonomy("love", "how-they-see-me")).toEqual({
+      domainId: "relationship",
+      focusId: "perception",
+      defaultAnswerTargetId: "external-perception",
+    });
+    expect(getReadingTaxonomy("love", "romantic-partner-impression")).toEqual({
+      domainId: "relationship",
+      focusId: "perception",
+      defaultAnswerTargetId: "external-perception",
+    });
+    expect(() =>
+      getReadingTaxonomy("feelings", "romantic-partner-impression"),
+    ).toThrow("incompatible");
     expect(() => getReadingTaxonomy("love", "mutual-view")).toThrow(
       "incompatible",
     );
@@ -111,9 +126,11 @@ describe("tarot reading taxonomy", () => {
       ({ defaultAnswerTargetId }) => defaultAnswerTargetId,
     );
 
-    expect(idsByTarget["other-person"]?.map(({ id }) => id)).toEqual([
+    expect(idsByTarget["external-perception"]?.map(({ id }) => id)).toEqual([
       "interest-or-kindness",
       "mutual-view",
+      "how-they-see-me",
+      "romantic-partner-impression",
     ]);
     expect(idsByTarget.relationship?.map(({ id }) => id)).toEqual([
       "pace-of-closeness",
@@ -146,5 +163,25 @@ describe("tarot reading taxonomy", () => {
       "desired-relationship",
     ]);
     expect(Object.hasOwn(idsByTarget, "career")).toBe(false);
+  });
+
+  it("routes workplace perception without changing the broad career entry", () => {
+    const idsByTarget = Object.groupBy(
+      careerQuestionDefinitions,
+      ({ defaultAnswerTargetId }) => defaultAnswerTargetId,
+    );
+
+    expect(idsByTarget["external-perception"]?.map(({ id }) => id)).toEqual([
+      "career-manager-view",
+      "career-workplace-image",
+      "career-visible-contribution",
+      "career-manager-expectations",
+    ]);
+    expect(idsByTarget.career).toHaveLength(10);
+    expect(getReadingTaxonomy("career-direction")).toEqual({
+      domainId: "career",
+      focusId: "direction",
+      defaultAnswerTargetId: "career",
+    });
   });
 });

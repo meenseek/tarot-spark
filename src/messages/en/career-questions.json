@@ -1,8 +1,16 @@
 {
   "categories": {
+    "perception-recognition": {
+      "title": "Reputation at work",
+      "intro": "See how managers and teammates may read your work."
+    },
     "decision-tradeoffs": {
       "title": "Stay or move",
       "intro": "Weigh what each path could give and take."
+    },
+    "job-search-positioning": {
+      "title": "Applications and interviews",
+      "intro": "Connect target roles with strengths you can support."
     },
     "strengths-growth": {
       "title": "Strengths and growth",
@@ -14,6 +22,30 @@
     }
   },
   "questions": {
+    "career-manager-view": {
+      "title": "How might my manager see me?",
+      "summary": "Explore how work habits may signal trust, readiness, or concern.",
+      "focus": "First use two distinct symbolic interpretations to explore how the supplied cards may suggest my manager sees my work habits and readiness. Do not state their judgment as fact; briefly add the most direct evidence from actual feedback, delegated authority, or assignments that could revise the reading and one low-pressure way to verify it.",
+      "ctaLabel": "Read their view"
+    },
+    "career-workplace-image": {
+      "title": "How might coworkers see me?",
+      "summary": "Separate collaborative strengths from traits others may misread.",
+      "focus": "First use two distinct symbolic interpretations to explore the impression coworkers may form while working with me. Do not invent any coworker's private thoughts; briefly add evidence from repeated collaboration responses or direct comments that could revise the reading.",
+      "ctaLabel": "See coworker impressions"
+    },
+    "career-visible-contribution": {
+      "title": "Is my contribution visible?",
+      "summary": "Separate actual contribution from what the organization can readily see.",
+      "focus": "Use two symbolic interpretations to separate the contribution I actually make from how readily the organization may recognize it. Do not state a performance judgment as fact; identify evidence in feedback, decision participation, or work records that could verify the reading and one small action that makes the contribution clearer.",
+      "ctaLabel": "Check my visibility"
+    },
+    "career-manager-expectations": {
+      "title": "What might my manager expect?",
+      "summary": "Separate stated responsibilities from expectations I may be assuming.",
+      "focus": "First use two distinct symbolic interpretations to explore what my manager may expect from my work. Do not state their thoughts as fact; briefly name evidence from stated goals, actual feedback, or assigned roles that could revise the reading and one question that could verify the expectation.",
+      "ctaLabel": "Read their expectations"
+    },
     "career-stay-or-prepare": {
       "title": "Should I stay or get ready to move?",
       "summary": "Compare what is worth trying here with the effort of moving.",
@@ -25,6 +57,18 @@
       "summary": "Compare what you gain with time, focus, or freedom you lose.",
       "focus": "Read both the choices this opportunity may open and the time, attention, or role flexibility it may reduce. Do not predict compensation or success; identify a condition to verify and one small exploratory action before committing.",
       "ctaLabel": "Weigh gain and cost"
+    },
+    "career-interview-strengths": {
+      "title": "Which strengths should I show in an interview?",
+      "summary": "Choose role-relevant evidence instead of listing every strength.",
+      "focus": "Find the strengths I can connect to the target role and the real experience that supports them instead of listing every positive trait. Do not predict an offer; identify one piece of evidence and one small answer experiment that can show the strength clearly.",
+      "ctaLabel": "Find interview strengths"
+    },
+    "career-application-direction": {
+      "title": "Does my application direction fit me?",
+      "summary": "Compare attractive roles with conditions I can actually sustain.",
+      "focus": "Compare the roles attracting me with the strengths I use well and the work conditions I can actually sustain. Do not predict a hiring result; identify one piece of evidence in a posting, experience record, or exploratory conversation that can verify the direction.",
+      "ctaLabel": "Check my direction"
     },
     "career-underused-strength": {
       "title": "Which strength am I overlooking?",
@@ -38,6 +82,12 @@
       "focus": "Read what experience may be missing between my current strengths and the next stage I want to explore. Do not predict a promotion or selection result; suggest a small, reversible attempt that can reveal learning rather than guarantee an outcome.",
       "ctaLabel": "Find the next experience"
     },
+    "career-role-fit": {
+      "title": "Does my current role fit my strengths?",
+      "summary": "Compare strengths I use well with what the role demands.",
+      "focus": "Separate the strengths I use naturally in my current role from demands I repeatedly stretch to cover. Do not frame role fit as a fixed personality trait; suggest one small experiment that can verify which work conditions fit and which do not.",
+      "ctaLabel": "Compare role and strengths"
+    },
     "career-collaboration-role": {
       "title": "What role do I repeat when teamwork gets hard?",
       "summary": "Look past who is right to the roles and assumptions that repeat.",
@@ -49,6 +99,12 @@
       "summary": "Find one lasting limit for time, responsibility, or communication.",
       "focus": "Read the pattern that may be consuming energy at work and the first boundary to clarify around time, responsibility, or communication. Do not assess my health; name one small boundary and a review point if it is not respected.",
       "ctaLabel": "Choose one limit"
+    },
+    "career-manager-mismatch": {
+      "title": "Why do my manager and I keep misaligning?",
+      "summary": "Look for repeated differences in standards, reporting, and pace.",
+      "focus": "Explore recurring differences in work standards, reporting, or pace when my manager and I misalign. Do not claim either person's intent; identify a role or expectation we may understand differently, one question that can verify it, and one small change to test in the next task.",
+      "ctaLabel": "Trace the mismatch"
     }
   }
 }

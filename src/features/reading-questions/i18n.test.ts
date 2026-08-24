@@ -31,7 +31,7 @@ const pickerCopyLimits = {
 } as const;
 
 describe("public question catalog", () => {
-  it("combines the preserved relationship catalog with six career questions", () => {
+  it("builds a balanced, extensible public question catalog", () => {
     for (const locale of ["ko", "en"] as const) {
       const catalog = getPublicQuestionCatalog(locale);
       const careerGroups = catalog.groups.filter(
@@ -41,19 +41,39 @@ describe("public question catalog", () => {
         ({ domainId }) => domainId === "career",
       );
 
-      expect(catalog.questions).toHaveLength(34);
-      expect(careerGroups).toHaveLength(3);
+      expect(catalog.questions).toHaveLength(44);
+      expect(careerGroups).toHaveLength(5);
+      expect(careerGroups.map(({ id }) => id)).toEqual([
+        "perception-recognition",
+        "decision-tradeoffs",
+        "job-search-positioning",
+        "strengths-growth",
+        "collaboration-boundaries",
+      ]);
       expect(careerGroups.map(({ questions }) => questions.length)).toEqual([
-        2, 2, 2,
+        4, 2, 2, 3, 3,
       ]);
       expect(careerQuestions.map(({ id }) => id)).toEqual(
         careerQuestionDefinitions.map(({ id }) => id),
       );
-      expect(new Set(careerQuestions.map(({ title }) => title)).size).toBe(6);
-      expect(new Set(careerQuestions.map(({ focus }) => focus)).size).toBe(6);
+      expect(new Set(careerQuestions.map(({ title }) => title)).size).toBe(14);
+      expect(new Set(careerQuestions.map(({ focus }) => focus)).size).toBe(14);
       expect(
         new Set(careerQuestions.map(({ ctaLabel }) => ctaLabel)).size,
-      ).toBe(6);
+      ).toBe(14);
+
+      for (const group of catalog.groups) {
+        expect(group.questions.length, group.id).toBeGreaterThanOrEqual(2);
+      }
+      for (const domainId of ["relationship", "career"] as const) {
+        expect(
+          catalog.questions.some(
+            (question) =>
+              question.domainId === domainId &&
+              question.defaultAnswerTargetId === "external-perception",
+          ),
+        ).toBe(true);
+      }
     }
   });
 
@@ -189,6 +209,107 @@ describe("public question catalog", () => {
         expect(prompt).toContain(question.focus);
         expect(prompt).not.toContain(topic.promptLead);
       }
+    }
+  });
+
+  it("routes a potential-partner impression without turning it into current attraction", () => {
+    for (const locale of ["ko", "en"] as const) {
+      const tarotData = getTarotData(locale);
+      const question = getPublicQuestionCatalog(locale).questions.find(
+        ({ id }) => id === "romantic-partner-impression",
+      )!;
+      const topic = getTopic(tarotData.topics, question.topicId);
+      const taxonomy = getReadingTaxonomy(topic.id, question.id);
+      const spread = getDefaultSpread(tarotData.spreads);
+      const prompt = buildPrompt({
+        answerTarget: getAnswerTarget(
+          tarotData.answerTargets,
+          taxonomy.defaultAnswerTargetId,
+        ),
+        cards: tarotData.cards
+          .slice(0, spread.cardCount)
+          .map((card) => ({ card })),
+        questionFocus: question.focus,
+        readingStyle: getDefaultReadingStyle(tarotData.readingStyles),
+        spread,
+        template: tarotData.promptTemplate,
+        topic,
+      });
+
+      expect(question.topicId).toBe("love");
+      expect(prompt).toContain(question.focus);
+      expect(prompt).not.toContain(topic.promptLead);
+      expect(question.focus).toMatch(
+        locale === "ko"
+          ? /특정 상대의 현재 호감을 꾸며내지 말고/u
+          : /Do not invent any specific person's current attraction/u,
+      );
+      expect(topic.resultFrame).toMatch(
+        locale === "ko" ? /인상/u : /interpersonal/iu,
+      );
+    }
+  });
+
+  it("answers requested attraction without adding it to impression questions", () => {
+    for (const locale of ["ko", "en"] as const) {
+      const tarotData = getTarotData(locale);
+      const spread = getDefaultSpread(tarotData.spreads);
+      const cards = tarotData.cards
+        .slice(0, spread.cardCount)
+        .map((card) => ({ card }));
+      const catalog = getPublicQuestionCatalog(locale);
+      const buildQuestionPrompt = (
+        questionId:
+          | "interest-or-kindness"
+          | "mutual-view"
+          | "how-they-see-me"
+          | "romantic-partner-impression",
+      ) => {
+        const question = catalog.questions.find(({ id }) => id === questionId)!;
+        const topic = getTopic(tarotData.topics, question.topicId);
+        const taxonomy = getReadingTaxonomy(topic.id, question.id);
+        return {
+          focus: question.focus,
+          prompt: buildPrompt({
+            answerTarget: getAnswerTarget(
+              tarotData.answerTargets,
+              taxonomy.defaultAnswerTargetId,
+            ),
+            cards,
+            questionFocus: question.focus,
+            readingStyle: getDefaultReadingStyle(tarotData.readingStyles),
+            spread,
+            template: tarotData.promptTemplate,
+            topic,
+          }),
+        };
+      };
+
+      const attraction = buildQuestionPrompt("interest-or-kindness");
+      expect(attraction.focus).toMatch(
+        locale === "ko"
+          ? /호감이나 연애적 관심/u
+          : /romantic (?:interest|attention)/iu,
+      );
+      expect(attraction.prompt).toContain(attraction.focus);
+
+      for (const questionId of [
+        "mutual-view",
+        "how-they-see-me",
+        "romantic-partner-impression",
+      ] as const) {
+        const impression = buildQuestionPrompt(questionId);
+        expect(impression.prompt).toContain(impression.focus);
+        expect(impression.prompt).toContain(
+          locale === "ko"
+            ? "질문에 없는 호감 해석을 덧붙이지 마세요"
+            : "do not add an attraction interpretation when the question does not ask for one",
+        );
+      }
+
+      expect(buildQuestionPrompt("mutual-view").focus).not.toMatch(
+        locale === "ko" ? /호감/u : /attraction|romantic interest/iu,
+      );
     }
   });
 });

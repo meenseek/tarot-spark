@@ -1597,8 +1597,11 @@ export function TarotExperienceClient({
                 {copy.selectedQuestionLabel}: {currentQuestion.title}
               </p>
             ) : null}
-            <p className="text-sm leading-6 text-ts-ink">
-              {currentTopic.resultFrame}
+            <p
+              className="text-sm leading-6 text-ts-ink"
+              data-testid="current-question-frame"
+            >
+              {currentQuestion?.summary ?? currentTopic.resultFrame}
             </p>
             <p className="text-xs leading-5 text-ts-muted">
               {copy.currentReadingSettings}: {currentSpread.label} ·{" "}

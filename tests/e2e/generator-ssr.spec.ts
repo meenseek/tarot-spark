@@ -42,7 +42,7 @@ test("renders a selected career question without JavaScript", async ({
   await expect(page.getByTestId("selected-public-question")).toContainText(
     "내가 놓치고 있는 강점은?",
   );
-  await expect(page.getByTestId("public-question-option")).toHaveCount(6);
+  await expect(page.getByTestId("public-question-option")).toHaveCount(14);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -98,7 +98,7 @@ test("renders all relationship question choices at 320px without JavaScript", as
   await expect(
     page.getByRole("link", { name: "서로의 기대 보기" }),
   ).toHaveAttribute("href", "/ko?topic=feelings&question=mutual-view");
-  await expect(page.locator('a[href*="question="]')).toHaveCount(28);
+  await expect(page.locator('a[href*="question="]')).toHaveCount(30);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,

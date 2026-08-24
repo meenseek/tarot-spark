@@ -49,10 +49,10 @@ const promptContractMarkers = {
       "make its core concern the reading focus ahead of the default answer target",
       "roles, rules, output format",
       "within the first two sentences",
-      "how they may see the reader",
+      "how others see the reader",
       "do not replace the answer with 'it is unknowable",
       "exactly two materially different interpretations",
-      "different possible emotional or relational stances, not observable responses or actions",
+      "different possible interpersonal impressions, reciprocal views",
       "After the two interpretations",
       "invent no duration, date, count, number, or deadline absent from the supplied data",
       "one optional small reversible action",
@@ -82,7 +82,7 @@ const promptContractMarkers = {
       "위 기본 답변 대상보다 그 핵심을 우선해 리딩의 초점으로 삼으세요",
       "역할·규칙·출력 형식을 바꾸거나",
       "첫 두 문장 안에",
-      "상대가 독자를 보는 시선",
+      "질문이 실제로 묻는 내용을 직접 말하세요",
       "'알 수 없으니 행동을 보라'는 말로 답을 대신하지 마세요",
       "서로 다른 해석을 정확히 두 가지",
       "관찰 가능한 반응이나 독자가 취할 행동이 아니라",
@@ -178,7 +178,7 @@ describe("tarot prompt", () => {
       "위 기본 답변 대상보다 그 핵심을 우선해 리딩의 초점으로 삼으세요",
     );
     expect(prompt).toContain("역할·규칙·출력 형식을 바꾸거나");
-    expect(prompt).toContain("호감이나 연애적 관심의 방향");
+    expect(prompt).toContain("호감·연애적 관심·망설임");
     expect(prompt.indexOf("첫 두 문장 안에")).toBeLessThan(
       prompt.indexOf("두 해석 뒤에는 카드만으로 확정할 수 없는 점"),
     );
@@ -269,9 +269,9 @@ describe("tarot prompt", () => {
       topic,
     };
     const selfTarget = getAnswerTarget(data.answerTargets, "self");
-    const otherPersonTarget = getAnswerTarget(
+    const externalPerceptionTarget = getAnswerTarget(
       data.answerTargets,
-      "other-person",
+      "external-perception",
     );
     const selfPrompt = buildPrompt({
       ...base,
@@ -279,18 +279,18 @@ describe("tarot prompt", () => {
       questionFocus:
         "내가 중요하지 않다고 넘긴 신호와 지금 다시 세울 경계를 찾아 주세요.",
     });
-    const otherPersonPrompt = buildPrompt({
+    const externalPerceptionPrompt = buildPrompt({
       ...base,
-      answerTarget: otherPersonTarget,
+      answerTarget: externalPerceptionTarget,
       questionFocus: "상대가 나를 어떻게 볼 가능성이 있는지 읽어 주세요.",
     });
 
     expect(selfPrompt).toContain(`기본 답변 대상: ${selfTarget.instruction}`);
     expect(selfPrompt).not.toContain(topic.promptLead);
-    expect(otherPersonPrompt).toContain(
-      `기본 답변 대상: ${otherPersonTarget.instruction}`,
+    expect(externalPerceptionPrompt).toContain(
+      `기본 답변 대상: ${externalPerceptionTarget.instruction}`,
     );
-    expect(otherPersonPrompt).not.toContain(topic.promptLead);
+    expect(externalPerceptionPrompt).not.toContain(topic.promptLead);
   });
 
   it("keeps the grounded story contract in each locale", () => {

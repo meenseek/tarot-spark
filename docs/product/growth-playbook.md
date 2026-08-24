@@ -98,7 +98,7 @@ self-reflection.
 ### Relationship Question Explorer Contract
 
 Publish relationship discovery as one substantial localized explorer, not as
-one thin page per question. The explorer groups 28 reviewed presets into seven
+one thin page per question. The explorer groups 30 reviewed presets into seven
 intent categories and connects every choice to the existing reading workflow.
 The selected preset may appear in a reading or share URL by stable id; names,
 free-form questions, and personal circumstances must not.
