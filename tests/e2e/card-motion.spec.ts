@@ -146,12 +146,12 @@ test("keeps the deep six-card reveal within the locked stagger", async ({
 test("keeps the back visible and reveals only after a successful retry", async ({
   page,
 }) => {
-  let foolAttempts = 0;
+  let shouldFailFoolArt = true;
 
   await page.route("**/_next/image**", async (route) => {
     const optimizedUrl = new URL(route.request().url()).searchParams.get("url");
 
-    if (optimizedUrl === "/cards/the-fool.jpg" && foolAttempts++ === 0) {
+    if (optimizedUrl === "/cards/the-fool.jpg" && shouldFailFoolArt) {
       await route.fulfill({
         body: "failed card art",
         contentType: "text/plain",
@@ -178,6 +178,7 @@ test("keeps the back visible and reveals only after a successful retry", async (
     /ts-card-plane-flip/,
   );
 
+  shouldFailFoolArt = false;
   await retryButton.click();
   await expect(firstCard.locator("[data-art-id]")).toHaveAttribute(
     "data-art-ready",
