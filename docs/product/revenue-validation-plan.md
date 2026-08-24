@@ -102,11 +102,17 @@ sub-gate passes.
   the intended build is available for controlled verification.
 - Confirm the expected response, metadata, canonical URL, language alternates,
   sitemap, and robots policy for every public route.
-- Configure analytics to load only after analytics consent. Verify the core
-  events in GA DebugView and exclude developer and internal traffic.
-- Keep advertising disabled for EEA, UK, and Swiss users until a Google
-  certified CMP and the required TCF behavior are verified in a preview or
-  other controlled environment.
+- Configure Consent Mode v2 before Google tags: grant by default outside the
+  EEA, UK, and Switzerland, and deny all four relevant consent signals by
+  default inside those regions. Verify core events in GA DebugView and exclude
+  developer and internal traffic.
+- Keep the AdSense script gate disabled until a Google-certified regional CMP,
+  its TCF behavior, and its Consent Mode updates are verified on the exact
+  registered HTTPS hostname in a controlled check.
+- In AdSense **Privacy & messaging > Settings > Consent mode settings**, enable
+  Consent Mode for both advertising purposes and analytics purposes. Verify the
+  two account options explicitly; creating a privacy message does not enable
+  them automatically.
 
 ### Controlled Advertising Verification
 
@@ -116,13 +122,31 @@ controlled production verification:
 - Confirm the authorized-seller record when the advertising configuration is
   active.
 - Confirm that `/`, `/ko`, `/share`, and `/ko/share` never load the AdSense
-  script or make advertising network requests before consent, after consent,
-  after rejection, or after client navigation from an advertising route.
+  script or make advertising network requests under default settings, stored
+  opt-out, regional CMP changes, or client navigation from an advertising
+  route.
 - Use a default-deny advertising route policy. Allow only individually reviewed,
   substantial content routes through an explicit allowlist. Exclude home, share,
   daily, and legal pages.
-- Confirm that an allowed advertising page loads advertising only after valid
-  advertising consent and stops after consent withdrawal and document reload.
+- Confirm that an allowed advertising page loads by default outside the
+  restricted regions, honors a stored site-level opt-out everywhere, keeps the
+  four regional consent signals denied before the certified CMP updates them,
+  and stops after opt-out and document reload.
+- Perform the regional check only when the exact hostname is registered to a
+  published European regulations message, the expected publisher id and both
+  Consent Mode account options are confirmed, AdSense reports the site as
+  `Ready`, and the browser uses actual EEA, UK, or Switzerland network egress.
+  Browser locale is not regional proof.
+- For that controlled check only, temporarily enable the advertising script
+  gate on the registered hostname. This does not authorize production
+  enablement.
+- Verify a natural restricted-region visit, explicit grant, a hard reload on a
+  core route, consent withdrawal, absence of AdSense on excluded routes, and the
+  separate site-level opt-out. Confirm the four consent signals and tag behavior
+  after each transition.
+- Treat any missing prerequisite or failed transition as blocked. Record the
+  build, hostname, date, network region, account checks, and result without
+  recording TC strings, cookies, or other user identifiers.
 - Enable advertising in production only after these checks pass and AdSense
   reports the site as `Ready`.
 - Repeat the consent, route-isolation, and applicable regional CMP and TCF
@@ -141,14 +165,15 @@ product as ready for a paid-demand test.
 
 Define an analyzable reading session as a GA session in which:
 
-- analytics consent was active before the measured interaction;
+- Analytics was active under the applicable site-level and regional controls
+  before the measured interaction;
 - one or more valid `result_view` events occurred; and
 - internal, developer, and identified bot traffic was excluded.
 
-Record consent rate only when a privacy-approved, aggregate all-visit
-denominator exists without loading optional analytics or identifying users.
-Otherwise, do not calculate or claim consent rate. Do not add interactions that
-occurred before analytics consent to the analyzable-session denominator.
+Record site-level opt-out rate only when a privacy-approved, aggregate all-visit
+denominator exists without identifying users. Otherwise, do not calculate or
+claim an opt-out rate. Do not add interactions that occurred before Analytics
+became active to the analyzable-session denominator.
 
 Review these funnels:
 
@@ -158,9 +183,10 @@ share_click -> exactly one share_result
 ```
 
 Count `result_view` only when the result content intersects the viewport while
-analytics consent is active. Do not backfill an earlier intersection after the
-result has left view. Review `topic_click` as selector diagnostics rather than
-the funnel entrance because the default topic requires no topic click.
+Analytics is active under the applicable controls. Do not backfill an earlier
+intersection after the result has left view. Review `topic_click` as selector
+diagnostics rather than the funnel entrance because the default topic requires
+no topic click.
 
 Register the site in Search Console, submit the sitemap, and review queries,
 pages, impressions, and clicks. Keep daily content out of the index until the
@@ -311,6 +337,7 @@ only after those earnings are finalized.
 
 - [AdSense site approval](https://support.google.com/adsense/answer/12131223)
 - [Google certified CMP setup](https://support.google.com/adsense/answer/7670013)
+- [Google consent revocation](https://support.google.com/adsense/answer/10959060)
 - [People-first content guidance](https://developers.google.com/search/docs/fundamentals/creating-helpful-content)
 - [Sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap)
 - [Korean distance-selling registration](https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=11300000006&HighCtgCD=A09006&tp_seq=01)

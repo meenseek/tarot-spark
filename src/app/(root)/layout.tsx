@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
-import { OptionalGoogleServices } from "@/features/privacy-consent";
+import {
+  GoogleConsentModeDefaults,
+  OptionalGoogleServices,
+} from "@/features/privacy-consent";
 import { getTarotReadingMetadata } from "@/features/tarot-reading";
 import { defaultLocale } from "@/i18n/config";
 import { GoogleAdSenseAccountMetadata } from "@/integrations/google-adsense";
@@ -21,6 +24,7 @@ export default function RootHomeLayout({
   return (
     <html lang={defaultLocale}>
       <head>
+        <GoogleConsentModeDefaults />
         <GoogleAdSenseAccountMetadata />
       </head>
       <body>

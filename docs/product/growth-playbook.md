@@ -165,9 +165,10 @@ spread, and style:
 `draw_start` -> `result_view` -> `prompt_copy`
 
 `result_view` means the result content actually intersected the viewport while
-analytics consent was active. Do not backfill a result that left the viewport
-before analytics became ready. Use `topic_click` separately as topic-selector
-diagnostics; the default topic can reach `draw_start` without a topic click.
+Analytics was active under the applicable site-level and regional controls. Do
+not backfill a result that left the viewport before Analytics became ready. Use
+`topic_click` separately as topic-selector diagnostics; the default topic can
+reach `draw_start` without a topic click.
 
 Review sharing separately:
 

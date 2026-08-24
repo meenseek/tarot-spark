@@ -131,7 +131,10 @@ describe("PublicPage", () => {
       screen.getByText(/클립보드에 복사하는 것만으로는 외부 서비스/i),
     ).toBeVisible();
     expect(
-      screen.getByText(/유효한 측정 ID가 설정되어 있고.*허용한 경우에만/i),
+      screen.getByText(/유효한 Google Analytics 측정 ID.*기본으로 켜집니다/i),
+    ).toBeVisible();
+    expect(
+      screen.getByText(/EEA·영국·스위스.*Google 인증 지역 CMP/i),
     ).toBeVisible();
     expect(
       screen.getByText(/공개 성찰 질문의 미리 작성된 초점 문구/i),

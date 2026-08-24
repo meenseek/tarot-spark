@@ -95,11 +95,19 @@ padding or repeated paraphrases.
 
 - Track behavior-level events only, not personal user data.
 - Keep free-form tarot context out of analytics payloads, URLs, and shared links.
-- Do not load optional analytics or advertising scripts before the user permits
-  the corresponding service.
+- When configured, default Analytics and allowlisted AdSense delivery on unless
+  the browser has a valid site-level opt-out. Preserve every valid stored choice.
+- In the EEA, UK, and Switzerland, default `analytics_storage`, `ad_storage`,
+  `ad_user_data`, and `ad_personalization` to denied before Google tags run.
+  Only a Google-certified regional CMP may grant those signals there; the local
+  privacy control may impose an additional opt-out but must not grant regional
+  consent.
+- Keep AdSense's production script gate off until the certified CMP, TCF
+  integration, Consent Mode updates, route isolation, and withdrawal behavior
+  are verified together.
 - Do not load AdSense on the interactive reading routes that contain the
   free-form situation or relationship field.
-- Let users revise optional-service choices after the first decision.
+- Let users revise optional-service choices.
 - Core events should include:
   - `topic_click`
   - `draw_start`
@@ -111,8 +119,8 @@ padding or repeated paraphrases.
 - Analytics events should help answer what users click, where they drop off, and
   which topics lead to result views or prompt copies.
 - Emit `result_view` only for result content that is currently intersecting the
-  viewport after analytics consent is active; do not backfill a view that ended
-  before analytics became ready.
+  viewport after analytics is active; do not backfill a view that ended before
+  analytics became ready.
 - Add new event names only when an existing core event cannot describe the
   behavior.
 - Keep event payloads free of names, birth dates, contact details, and free-form

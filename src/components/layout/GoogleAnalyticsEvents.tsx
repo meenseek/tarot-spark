@@ -98,6 +98,19 @@ type GtagArguments =
       targetId: string,
       config?: Record<string, string | boolean>,
     ]
+  | [
+      command: "consent",
+      action: "update",
+      settings: Partial<
+        Record<
+          | "ad_personalization"
+          | "ad_storage"
+          | "ad_user_data"
+          | "analytics_storage",
+          "denied" | "granted"
+        >
+      >,
+    ]
   | [command: "event", eventName: string, eventParams?: AnalyticsPayload];
 
 declare global {

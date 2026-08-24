@@ -1,5 +1,8 @@
 import { notFound } from "next/navigation";
-import { OptionalGoogleServices } from "@/features/privacy-consent";
+import {
+  GoogleConsentModeDefaults,
+  OptionalGoogleServices,
+} from "@/features/privacy-consent";
 import { isPrefixedLocale } from "@/i18n/config";
 import { GoogleAdSenseAccountMetadata } from "@/integrations/google-adsense";
 import "@measure-twice/react/styles.css";
@@ -25,6 +28,7 @@ export default async function LocaleRootLayout({
   return (
     <html lang={rawLocale}>
       <head>
+        <GoogleConsentModeDefaults />
         <GoogleAdSenseAccountMetadata />
       </head>
       <body>
