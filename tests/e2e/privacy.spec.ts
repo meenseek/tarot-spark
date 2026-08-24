@@ -177,28 +177,31 @@ test("reapplies a stored local opt-out before optional tags", async ({
   await expect(
     page.locator('script[src*="googlesyndication.com"]'),
   ).toHaveCount(0);
-  const latestConsentUpdate = await page.evaluate(() => {
-    const entries = window.dataLayer ?? [];
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const entries = window.dataLayer ?? [];
 
-    for (let index = entries.length - 1; index >= 0; index -= 1) {
-      const entry = entries[index];
-      const values = Array.isArray(entry)
-        ? entry
-        : Array.from(entry as unknown as ArrayLike<unknown>);
+        for (let index = entries.length - 1; index >= 0; index -= 1) {
+          const entry = entries[index];
+          const values = Array.isArray(entry)
+            ? entry
+            : Array.from(entry as unknown as ArrayLike<unknown>);
 
-      if (values[0] === "consent" && values[1] === "update") {
-        return values[2];
-      }
-    }
+          if (values[0] === "consent" && values[1] === "update") {
+            return values[2];
+          }
+        }
 
-    return null;
-  });
-  expect(latestConsentUpdate).toEqual({
-    ad_personalization: "denied",
-    ad_storage: "denied",
-    ad_user_data: "denied",
-    analytics_storage: "denied",
-  });
+        return null;
+      }),
+    )
+    .toEqual({
+      ad_personalization: "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      analytics_storage: "denied",
+    });
 });
 
 test("opens default-on choices without loading advertising on excluded routes", async ({
