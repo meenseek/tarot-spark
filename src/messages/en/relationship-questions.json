@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "title": "28 Relationship Tarot Questions for Dating, Contact, Reunion, and Boundaries",
-    "description": "Explore 28 relationship tarot questions that read possible feelings and romantic interest suggested by the cards, then consider dating, communication, conflict, reunion, and boundaries."
+    "title": "30 Relationship Tarot Questions for Dating, Contact, Reunion, and Boundaries",
+    "description": "Explore 30 relationship tarot questions that read possible feelings and romantic interest suggested by the cards, then consider dating, communication, conflict, reunion, and boundaries."
   },
   "eyebrow": "Relationship question explorer",
   "title": "What should I ask about this person and our relationship?",
@@ -25,19 +25,19 @@
   "browseHeading": "Choose the question closest to what you feel now",
   "categoryNavigationLabel": "Relationship question categories",
   "workedExampleHeading": "Example: How do we see each other?",
-  "workedExampleBody": "Imagine drawing the Moon, Ace of Swords, and Two of Pentacles. The reading first gives the answer they suggest about the other person's view and interest, then connects two emotional interpretations with a brief reality-based check.",
+  "workedExampleBody": "Imagine drawing the Moon, Ace of Swords, and Two of Pentacles. Read how the other person may see me and how I may see them, then connect where our expectations may align or diverge with a brief reality-based check.",
   "workedExampleItems": [
-    "Question focus: explore how the other person may see me and what emotional distance may be present.",
-    "Symbolic interpretation material: use the Moon's uncertainty, the Ace of Swords' clear conversation, and the Two of Pentacles' adjustment. These meanings do not prove another person's feelings.",
-    "Strongest connection: The Moon's uncertainty makes the Ace of Swords' clear confirmation useful, and whatever is confirmed makes the Two of Pentacles' adjustment relevant. This is a conditional relationship, not a timeline based on draw order.",
-    "Alternative A: interest or a wish to know the relationship more deeply may be present, while expression and adjustment remain unclear.",
-    "Alternative B: the interest may be closer to resolving ambiguity and restoring balance than to romantic attraction.",
+    "Question focus: read how the other person may see me and how I may see them, then compare where our expectations for the relationship may align or diverge.",
+    "Symbolic interpretation material: use the Moon's uncertainty, the Ace of Swords' clear conversation, and the Two of Pentacles' adjustment. These meanings do not prove either person's actual thoughts.",
+    "Strongest connection: The Moon's uncertainty can make each person guess at the other's view, while the Ace of Swords' clarity and the Two of Pentacles' adjustment invite a direct comparison of expectations. This is not a timeline based on draw order.",
+    "Alternative A: both people may want a clearer understanding of the relationship while reading each other's different communication styles as caution.",
+    "Alternative B: one person may see adjustment as growing closer while the other sees it as managing uncertainty, leaving different expectations around the same behavior.",
     "Scope of the hypotheses: these are not a binary choice. Both may partly fit, or a different reason may explain the observed behavior.",
-    "Unknown: the cards can suggest an emotional direction, but cannot establish that the person feels it in fact or intends to begin a relationship.",
-    "Real-world observation: during one naturally occurring contact or plan in the next week, record only whether intent becomes clear without prompting and whether words and behavior align.",
-    "Revision condition: a spontaneous consistent response raises A; recurring ambiguity or a words-actions gap raises B. If neither explains the behavior, discard both and reopen the question.",
-    "Next action and stop condition: first write your own criterion for contact or a meeting, then ask once when relevant. Independently of the interpretation, stop pursuing after a clear refusal, no response, boundary violation, pressure, or the one-week review point.",
-    "Reflection: which observable behavior counts as reciprocity for me, and do I apply that standard fairly to myself too?"
+    "Unknown: the cards cannot establish what either person actually expects or whether both give the same meaning to the same words.",
+    "Real-world observation: in the next natural conversation, let each person state one expectation about contact or pace, then confirm what each understood.",
+    "Revision condition: similar stated expectations followed by matching behavior raise A; repeatedly different explanations for the same behavior raise B. If neither explains the conversation, discard both and reopen the question.",
+    "Next action and stop condition: first write one sentence about the relationship you expect, then ask once about the other person's expectation instead of guessing. Independently of the interpretation, stop pursuing after a clear refusal, no response, boundary violation, pressure, or the review point you set.",
+    "Reflection: where am I mixing the other person's possible view with my own expectation, and what should I separate through a direct conversation first?"
   ],
   "disclaimer": "For entertainment and self-reflection only. Tarot is not evidence about another person's thoughts or the future and does not replace medical, legal, financial, investment, mental-health, or safety advice.",
   "categories": {
@@ -98,8 +98,20 @@
     "mutual-view": {
       "title": "How do we see each other?",
       "summary": "Read each person's possible view and hopes.",
-      "focus": "First connect the supplied meanings to how this person may see me and what I expect from them, then briefly add another interpretation and a conversation that could clarify the difference.",
+      "focus": "Read both how the other person may see me and how I may see them through the supplied meanings, then use two symbolic interpretations to show where those views and expectations may align or diverge. Do not state either person's thoughts as fact; briefly add one point to verify in an actual conversation.",
       "ctaLabel": "Read our views"
+    },
+    "how-they-see-me": {
+      "title": "How might this person see me?",
+      "summary": "Compare my first impression with what may emerge through closeness.",
+      "focus": "Focus only on how this specific person may see me, first using two distinct symbolic interpretations for the impression I initially give and what may read differently through closeness. Do not substitute mutual expectations or the current strength of attraction; briefly add the most direct signal in actual words or repeated behavior that could revise the reading.",
+      "ctaLabel": "Read their impression"
+    },
+    "romantic-partner-impression": {
+      "title": "How might I come across as a partner?",
+      "summary": "Explore what may feel inviting and what may create hesitation.",
+      "focus": "Do not invent any specific person's current attraction. First use two distinct symbolic interpretations to explore the partner impression I may give potential romantic partners, including what may feel inviting and what may create hesitation, then briefly add a signal from actual introductions or dates that could revise the reading.",
+      "ctaLabel": "Read partner impression"
     },
     "unspoken-expectations": {
       "title": "What have we left unsaid?",

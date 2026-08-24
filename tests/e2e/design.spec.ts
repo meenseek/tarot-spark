@@ -847,7 +847,7 @@ test("keeps the complete question catalog in stable fragment disclosures", async
   await expect(
     page.locator('[data-testid="question-category"][open]'),
   ).toHaveCount(1);
-  await expect(page.locator('a[href*="question="]')).toHaveCount(28);
+  await expect(page.locator('a[href*="question="]')).toHaveCount(30);
   await expect(page).toHaveURL(/#perception$/);
   await expect
     .poll(async () => {

@@ -27,7 +27,9 @@ export const relationshipQuestionFocusIds = relationshipFocusIds.filter(
 
 export const careerFocusIds = [
   "direction",
+  "perception-recognition",
   "decision-tradeoffs",
+  "job-search-positioning",
   "strengths-growth",
   "collaboration-boundaries",
 ] as const;
@@ -39,13 +41,17 @@ export const careerQuestionFocusIds = careerFocusIds.filter(
 );
 
 export const answerTargetIds = [
-  "other-person",
+  "external-perception",
   "relationship",
   "self",
   "career",
 ] as const;
 export type AnswerTargetId = (typeof answerTargetIds)[number];
 export type RelationshipAnswerTargetId = Exclude<AnswerTargetId, "career">;
+export type CareerAnswerTargetId = Extract<
+  AnswerTargetId,
+  "external-perception" | "career"
+>;
 
 export type ReadingTaxonomy =
   | {
@@ -56,7 +62,7 @@ export type ReadingTaxonomy =
   | {
       readonly domainId: "career";
       readonly focusId: CareerFocusId;
-      readonly defaultAnswerTargetId: "career";
+      readonly defaultAnswerTargetId: CareerAnswerTargetId;
     };
 
 export const topicTaxonomyById = {
@@ -73,7 +79,7 @@ export const topicTaxonomyById = {
   feelings: {
     domainId: "relationship",
     focusId: "perception",
-    defaultAnswerTargetId: "other-person",
+    defaultAnswerTargetId: "external-perception",
   },
   "relationship-flow": {
     domainId: "relationship",
@@ -92,7 +98,7 @@ const relationshipQuestionEntries = [
     id: "interest-or-kindness",
     focusId: "starting",
     topicId: "feelings",
-    defaultAnswerTargetId: "other-person",
+    defaultAnswerTargetId: "external-perception",
   },
   {
     id: "pace-of-closeness",
@@ -116,7 +122,19 @@ const relationshipQuestionEntries = [
     id: "mutual-view",
     focusId: "perception",
     topicId: "feelings",
-    defaultAnswerTargetId: "other-person",
+    defaultAnswerTargetId: "external-perception",
+  },
+  {
+    id: "how-they-see-me",
+    focusId: "perception",
+    topicId: "love",
+    defaultAnswerTargetId: "external-perception",
+  },
+  {
+    id: "romantic-partner-impression",
+    focusId: "perception",
+    topicId: "love",
+    defaultAnswerTargetId: "external-perception",
   },
   {
     id: "unspoken-expectations",
@@ -272,6 +290,34 @@ export type RelationshipQuestionId =
 
 export const careerQuestionDefinitions = [
   {
+    id: "career-manager-view",
+    domainId: "career",
+    focusId: "perception-recognition",
+    topicId: "career-direction",
+    defaultAnswerTargetId: "external-perception",
+  },
+  {
+    id: "career-workplace-image",
+    domainId: "career",
+    focusId: "perception-recognition",
+    topicId: "career-direction",
+    defaultAnswerTargetId: "external-perception",
+  },
+  {
+    id: "career-visible-contribution",
+    domainId: "career",
+    focusId: "perception-recognition",
+    topicId: "career-direction",
+    defaultAnswerTargetId: "external-perception",
+  },
+  {
+    id: "career-manager-expectations",
+    domainId: "career",
+    focusId: "perception-recognition",
+    topicId: "career-direction",
+    defaultAnswerTargetId: "external-perception",
+  },
+  {
     id: "career-stay-or-prepare",
     domainId: "career",
     focusId: "decision-tradeoffs",
@@ -286,6 +332,20 @@ export const careerQuestionDefinitions = [
     defaultAnswerTargetId: "career",
   },
   {
+    id: "career-interview-strengths",
+    domainId: "career",
+    focusId: "job-search-positioning",
+    topicId: "career-direction",
+    defaultAnswerTargetId: "career",
+  },
+  {
+    id: "career-application-direction",
+    domainId: "career",
+    focusId: "job-search-positioning",
+    topicId: "career-direction",
+    defaultAnswerTargetId: "career",
+  },
+  {
     id: "career-underused-strength",
     domainId: "career",
     focusId: "strengths-growth",
@@ -294,6 +354,13 @@ export const careerQuestionDefinitions = [
   },
   {
     id: "career-growth-experience",
+    domainId: "career",
+    focusId: "strengths-growth",
+    topicId: "career-direction",
+    defaultAnswerTargetId: "career",
+  },
+  {
+    id: "career-role-fit",
     domainId: "career",
     focusId: "strengths-growth",
     topicId: "career-direction",
@@ -313,12 +380,19 @@ export const careerQuestionDefinitions = [
     topicId: "career-direction",
     defaultAnswerTargetId: "career",
   },
+  {
+    id: "career-manager-mismatch",
+    domainId: "career",
+    focusId: "collaboration-boundaries",
+    topicId: "career-direction",
+    defaultAnswerTargetId: "career",
+  },
 ] as const satisfies readonly {
   readonly id: string;
   readonly domainId: "career";
   readonly focusId: CareerQuestionFocusId;
   readonly topicId: "career-direction";
-  readonly defaultAnswerTargetId: "career";
+  readonly defaultAnswerTargetId: CareerAnswerTargetId;
 }[];
 
 export type CareerQuestionId = (typeof careerQuestionDefinitions)[number]["id"];
@@ -394,6 +468,6 @@ export function getReadingTaxonomy(
     : {
         domainId: "career",
         focusId: question.focusId,
-        defaultAnswerTargetId: "career",
+        defaultAnswerTargetId: question.defaultAnswerTargetId,
       };
 }

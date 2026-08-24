@@ -72,6 +72,7 @@ export type {
 } from "./card-catalog";
 export type {
   AnswerTargetId,
+  CareerAnswerTargetId,
   CareerFocusId,
   CareerQuestionFocusId,
   CareerQuestionId,

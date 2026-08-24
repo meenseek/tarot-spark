@@ -34,7 +34,7 @@ describe("PublicQuestionPicker", () => {
     );
 
     expect(screen.getByText("Optional")).toBeInTheDocument();
-    expect(screen.getAllByTestId("public-question-option")).toHaveLength(6);
+    expect(screen.getAllByTestId("public-question-option")).toHaveLength(14);
     const picker = screen.getByTestId(
       "public-question-picker",
     ) as HTMLDetailsElement;
@@ -46,6 +46,13 @@ describe("PublicQuestionPicker", () => {
     });
 
     picker.open = true;
+    expect(
+      picker.querySelector<HTMLDetailsElement>("[data-question-focus]")
+        ?.dataset["questionFocus"],
+    ).toBe("perception-recognition");
+    expect(
+      picker.querySelector<HTMLDetailsElement>("[data-question-focus]"),
+    ).toHaveAttribute("open");
     question.focus();
     fireEvent.click(question);
 

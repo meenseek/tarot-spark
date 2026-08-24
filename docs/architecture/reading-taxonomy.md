@@ -13,13 +13,13 @@ Classify a reading with three axes:
 - `domainId` identifies the life area: `relationship` or `career`.
 - `focusId` identifies the primary question focus within that domain.
 - `defaultAnswerTargetId` identifies what the reading should answer first:
-  `other-person`, `relationship`, `self`, or `career`.
+  `external-perception`, `relationship`, `self`, or `career`.
 
 Relationship focuses are `general`, `starting`, `perception`, `communication`,
 `dynamics`, `distance-conflict`, `reunion`, `choice-boundaries`, and
 `self-patterns`. Career uses `direction` for the broad entry and
-`decision-tradeoffs`, `strengths-growth`, and `collaboration-boundaries` for
-public question presets.
+`perception-recognition`, `decision-tradeoffs`, `job-search-positioning`,
+`strengths-growth`, and `collaboration-boundaries` for public question presets.
 
 Use one primary focus for navigation and prompt routing. Do not add secondary
 tags until a concrete UI, analytics, or retrieval consumer requires them.
@@ -32,7 +32,7 @@ Keep the existing `topic` query values, shared URLs, API field, and analytics
 | Entry preset        | Domain       | Focus      | Default answer target |
 | ------------------- | ------------ | ---------- | --------------------- |
 | `love`              | relationship | general    | relationship          |
-| `feelings`          | relationship | perception | other-person          |
+| `feelings`          | relationship | perception | external-perception   |
 | `reunion`           | relationship | reunion    | relationship          |
 | `relationship-flow` | relationship | dynamics   | relationship          |
 | `career-direction`  | career       | direction  | career                |
@@ -46,10 +46,12 @@ specific primary focuses.
 Public question presets provide a more specific `focusId` and
 `defaultAnswerTargetId`. Relationship questions keep their existing compatible
 relationship entry preset. Career questions use the `career-direction` entry
-and one of the three career question focuses. When a valid question is selected,
-use its taxonomy in place of the entry preset defaults. Continue to require the
-question's declared `topicId` so existing URLs stay canonical and incompatible
-topic-question pairs are rejected.
+and one of the five career question focuses. A career question may answer
+`career` conditions and choices or an `external-perception` such as a manager's
+possible view. When a valid question is selected, use its taxonomy in place of
+the entry preset defaults. Continue to require the question's declared
+`topicId` so existing URLs stay canonical and incompatible topic-question pairs
+are rejected.
 
 Question groups are navigation only. Do not add group, domain, or category
 parameters to reading URLs or analytics. Keep a broad topic sufficient for a
@@ -64,8 +66,10 @@ taxonomy.
 
 ## Extension Rules
 
-- Add a focus when it represents a reusable primary question class, not a
-  synonym or a one-off preset.
+- Add a focus only when at least two distinct public questions need the same
+  reusable primary routing class, not a synonym or a one-off preset.
+- Add an answer target only when the subject cannot be represented by
+  `external-perception`, `relationship`, `self`, or `career` plus a domain focus.
 - Add an entry preset only when it provides a distinct one-step user intent,
   localized copy, prompt lead, and measurable navigation value.
 - Add a domain only when it needs its own focus vocabulary and answer target.
