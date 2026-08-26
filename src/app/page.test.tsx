@@ -203,7 +203,7 @@ describe("Home", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "AI 타로 답변이 늘 비슷하다면, 질문부터 바꿔보세요.",
+        name: "AI 타로 답변, 질문부터 바꿔보세요.",
       }),
     ).toBeInTheDocument();
     expect(

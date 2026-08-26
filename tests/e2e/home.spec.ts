@@ -46,7 +46,7 @@ test("loads Korean localized content", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "ko");
   await expect(
     page.getByRole("heading", {
-      name: "AI 타로 답변이 늘 비슷하다면, 질문부터 바꿔보세요.",
+      name: "AI 타로 답변, 질문부터 바꿔보세요.",
     }),
   ).toBeVisible();
   await expect(
@@ -386,7 +386,7 @@ test("keeps the first-time promise and draw usable at 320px", async ({
     },
     {
       draw: "카드 3장 뽑기",
-      heading: "AI 타로 답변이 늘 비슷하다면, 질문부터 바꿔보세요.",
+      heading: "AI 타로 답변, 질문부터 바꿔보세요.",
       intro: /서로 다른 해석 두 가지.*현실에서 확인할 일/,
       path: "/ko",
     },
@@ -1136,7 +1136,7 @@ test("preserves reading and private context when switching languages", async ({
 
   await expect(
     page.getByRole("heading", {
-      name: "AI 타로 답변이 늘 비슷하다면, 질문부터 바꿔보세요.",
+      name: "AI 타로 답변, 질문부터 바꿔보세요.",
     }),
   ).toBeVisible();
   await page.getByText("질문 다듬기").click();
