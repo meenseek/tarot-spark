@@ -110,13 +110,31 @@ describe("PublicPage", () => {
     expect(screen.getByText(/둘 다 버리고 질문을 다시 엽니다/i)).toBeVisible();
   });
 
-  it("describes the editorial method without calling the product an MVP", () => {
+  it("describes the editorial method in plain public language", () => {
     render(<PublicPage locale="en" pageId="about" />);
 
     expect(
-      screen.getByRole("heading", { name: "How guide content is made" }),
+      screen.getByRole("heading", { name: "Standards behind the guides" }),
     ).toBeInTheDocument();
-    expect(screen.queryByText(/early MVP/i)).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/may both fit—or neither may.*checked in real life/i),
+    ).toBeVisible();
+    expect(screen.getByText(/reversible step.*stop or review/i)).toBeVisible();
+    expect(
+      screen.queryByText(/non-exclusive|non-exhaustive|content editions/i),
+    ).not.toBeInTheDocument();
+
+    cleanup();
+    render(<PublicPage locale="ko" pageId="about" />);
+    expect(
+      screen.getByRole("heading", { name: "가이드가 지키는 기준" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/함께 맞을 수도 있고 둘 다 아닐 수도 있는.*현실/),
+    ).toBeVisible();
+    expect(
+      screen.queryByText(/비배타적|비완전|독립적인 중단 조건|콘텐츠 판/),
+    ).not.toBeInTheDocument();
   });
 
   it("states the Korean privacy boundaries without overstating optional services", () => {

@@ -303,7 +303,7 @@ describe("public question catalog", () => {
         expect(impression.prompt).toContain(
           locale === "ko"
             ? "질문에 없는 호감 해석을 덧붙이지 마세요"
-            : "do not add an attraction interpretation when the question does not ask for one",
+            : "Do not add an attraction interpretation when the question does not ask for one",
         );
       }
 

@@ -17,10 +17,10 @@ describe("tarot reading metadata", () => {
 
     expect(getTarotReadingMetadata("ko")).toMatchObject({
       openGraph: {
-        description: expect.stringContaining("카드를 뽑아"),
+        description: expect.stringContaining("카드를 뽑고"),
         images: [
           {
-            alt: expect.stringContaining("타로 카드 세 장"),
+            alt: "별빛 타로 카드 세 장과 tarot-spark 이름이 있는 공유 이미지",
             height: 630,
             url: "https://tarot-spark.example/brand/tarot-spark-social-card.png",
             width: 1200,
@@ -36,6 +36,20 @@ describe("tarot reading metadata", () => {
             url: "https://tarot-spark.example/brand/tarot-spark-social-card.png",
           },
         ],
+      },
+    });
+
+    expect(getTarotReadingMetadata("en")).toMatchObject({
+      openGraph: {
+        images: [
+          {
+            alt: "Share image with three celestial tarot cards and the tarot-spark name",
+            height: 630,
+            url: "https://tarot-spark.example/brand/tarot-spark-social-card.png",
+            width: 1200,
+          },
+        ],
+        locale: "en_US",
       },
     });
   });
