@@ -1,11 +1,11 @@
 {
   "metadata": {
     "title": "타로 스파크",
-    "description": "마음에 걸리는 일을 떠올리고 카드를 뽑아, AI 도구에 바로 붙여 넣을 타로 질문을 만들어보세요."
+    "description": "카드를 뽑고, 카드가 시사하는 답·서로 다른 해석 두 가지·현실에서 확인할 일을 함께 묻는 AI용 타로 질문을 만들어보세요."
   },
   "brand": "tarot-spark",
-  "heading": "카드를 뽑고, AI에 물어볼 질문을 만들어보세요.",
-  "intro": "볼 주제를 고르고 바로 뽑아도 돼요. 내 상황을 더하면 질문이 더 또렷해져요.",
+  "heading": "AI 타로 답변이 늘 비슷하다면, 질문부터 바꿔보세요.",
+  "intro": "카드를 뽑으면 카드가 시사하는 답, 서로 다른 해석 두 가지, 현실에서 확인할 일을 AI에 묻는 질문이 만들어져요.",
   "deckPreviewNote": "메이저·완드·컵·소드·펜타클을 모두 담은 {count}장 덱이에요. 모든 카드에 같은 느낌의 그림을 썼어요.",
   "personalizationHeading": "카드 수와 답변 느낌",
   "personalizationIntro": "카드 수와 답변 느낌을 골라보세요. 상대의 마음은 사실이 아닌 가능성으로 읽어요.",
@@ -92,7 +92,7 @@
   "disclaimer": "타로는 재미와 자기 성찰을 위한 도구입니다. 의료·법률·재정·투자·정신 건강에 관한 전문 조언을 대신하지 않습니다.",
   "languageSwitchLabel": "언어 바꾸기",
   "dailyQuestionLink": "오늘의 카드 한 장 뽑기",
-  "socialImageAlt": "별빛 무늬 타로 카드 세 장이 놓인 tarot-spark 이미지",
+  "socialImageAlt": "별빛 타로 카드 세 장과 tarot-spark 이름이 있는 공유 이미지",
   "shareTitle": "tarot-spark 리딩",
   "shareText": "{topicLabel} 타로 질문: {cardNames}",
   "placeholderCardName": "카드를 기다리는 중"

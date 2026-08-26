@@ -12,8 +12,11 @@ test("loads the app shell", async ({ page }) => {
   await expect(page.getByRole("main")).toBeVisible();
   await expect(
     page.getByRole("heading", {
-      name: "Draw cards and create a question for your AI tool.",
+      name: "Draw cards for better AI tarot answers.",
     }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/prompt.*two distinct interpretations.*reality check/i),
   ).toBeVisible();
   await expect(page.getByText(/full 78-card deck/i)).toBeVisible();
 });
@@ -43,8 +46,11 @@ test("loads Korean localized content", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "ko");
   await expect(
     page.getByRole("heading", {
-      name: "카드를 뽑고, AI에 물어볼 질문을 만들어보세요.",
+      name: "AI 타로 답변이 늘 비슷하다면, 질문부터 바꿔보세요.",
     }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/서로 다른 해석 두 가지.*현실에서 확인할 일/),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "카드 3장 뽑기" }),
@@ -366,6 +372,46 @@ test("keeps the primary draw and prompt actions ahead of optional detail", async
   await expect(page.getByTestId("card-detail-list")).toBeVisible();
 });
 
+test("keeps the first-time promise and draw usable at 320px", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 844, width: 320 });
+
+  for (const firstVisit of [
+    {
+      draw: "Draw 3 cards",
+      heading: "Draw cards for better AI tarot answers.",
+      intro: /prompt.*two distinct interpretations.*reality check/i,
+      path: "/",
+    },
+    {
+      draw: "카드 3장 뽑기",
+      heading: "AI 타로 답변이 늘 비슷하다면, 질문부터 바꿔보세요.",
+      intro: /서로 다른 해석 두 가지.*현실에서 확인할 일/,
+      path: "/ko",
+    },
+  ]) {
+    await page.goto(firstVisit.path);
+    await expect(
+      page.getByRole("heading", { name: firstVisit.heading }),
+    ).toBeVisible();
+    await expect(page.getByText(firstVisit.intro)).toBeVisible();
+
+    const draw = page.getByRole("button", { name: firstVisit.draw });
+    await expect(draw).toBeVisible();
+    expect(
+      await draw.evaluate(
+        (element) => element.getBoundingClientRect().top + scrollY,
+      ),
+    ).toBeLessThanOrEqual(1200);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+  }
+});
+
 test("keeps every localized context example visible at 320px", async ({
   page,
 }) => {
@@ -527,7 +573,7 @@ test("serves localized SEO metadata and discovery files", async ({
   );
   await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
     "content",
-    /별빛 무늬 타로 카드 세 장/,
+    "별빛 타로 카드 세 장과 tarot-spark 이름이 있는 공유 이미지",
   );
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
     "content",
@@ -738,7 +784,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
     /고른 질문: 상대가 독자를 보는 시선과 독자가 상대를 보는 시선을 카드 의미로 각각 읽고/,
   );
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
-    /첫 두 문장 안에 카드가 그 질문에 가장 강하게 시사하는 답을 먼저 제시하세요/,
+    /첫 두 문장 안에 카드가 가장 강하게 시사하는 답을 주세요/,
   );
   await expect(page).toHaveURL(/question=mutual-view/);
   const committedUrl = page.url();
@@ -1090,7 +1136,7 @@ test("preserves reading and private context when switching languages", async ({
 
   await expect(
     page.getByRole("heading", {
-      name: "카드를 뽑고, AI에 물어볼 질문을 만들어보세요.",
+      name: "AI 타로 답변이 늘 비슷하다면, 질문부터 바꿔보세요.",
     }),
   ).toBeVisible();
   await page.getByText("질문 다듬기").click();

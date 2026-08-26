@@ -1,11 +1,11 @@
 {
   "metadata": {
     "title": "tarot-spark",
-    "description": "Add optional context, choose a tarot spread and reading style, and create an AI-ready reflection prompt."
+    "description": "Draw cards and create an AI tarot prompt that asks what the cards suggest, explores two distinct interpretations, and names one reality check."
   },
   "brand": "tarot-spark",
-  "heading": "Draw cards and create a question for your AI tool.",
-  "intro": "Choose a topic and draw now. Add context for a more specific question.",
+  "heading": "Draw cards for better AI tarot answers.",
+  "intro": "Get a prompt with two distinct interpretations and one reality check.",
   "deckPreviewNote": "A full {count}-card deck with every Major and all four suits. All cards share one art style.",
   "personalizationHeading": "Cards and answer style",
   "personalizationIntro": "Choose how many cards to draw and how the answer should feel. Feelings are possibilities, not facts.",
@@ -92,7 +92,7 @@
   "disclaimer": "Tarot content is for entertainment and self-reflection only. It is not medical, legal, financial, investment, or mental-health advice.",
   "languageSwitchLabel": "Choose language",
   "dailyQuestionLink": "Try today's one-card question",
-  "socialImageAlt": "tarot-spark editorial preview with three celestial tarot cards",
+  "socialImageAlt": "Share image with three celestial tarot cards and the tarot-spark name",
   "shareTitle": "tarot-spark reading",
   "shareText": "{topicLabel} tarot prompt: {cardNames}",
   "placeholderCardName": "Ready"
