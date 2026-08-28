@@ -7,14 +7,14 @@ repositories focused on current runtime behavior. This standard applies to API
 contracts, URL parameters, cached output, persisted browser data, generated
 assets, and compatibility tests.
 
-## One Release Version, One Current Contract
+## One Current Contract
 
-The package release in `package.json` is the product's only internal sequential
-version. Do not add prompt, schema, runner, deck, algorithm, storage, or cache
-`vN` labels. Do not add an old implementation branch, migration path, or
-compatibility test only because code was deployed or an intermediate state
-existed. A compatibility boundary requires at least one real consumer outside
-the implementation being changed:
+This private web application has no internal sequential release version. Do not
+add prompt, schema, runner, deck, algorithm, storage, cache, or package `vN`
+labels. Do not add an old implementation branch, migration path, or compatibility
+test only because code was deployed or an intermediate state existed. A
+compatibility boundary requires at least one real consumer outside the
+implementation being changed:
 
 - an external client or integration;
 - already issued URLs whose continued behavior is promised;
