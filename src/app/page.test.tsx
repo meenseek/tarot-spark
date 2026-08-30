@@ -241,11 +241,14 @@ describe("Home", () => {
     render(<TarotExperience locale="ko" />);
     openSituationContext();
 
-    fireEvent.change(screen.getByRole("textbox", { name: /내 상황 더하기/ }), {
-      target: {
-        value: "서버로 보내면 안 되는 민감한 개인 상황",
+    fireEvent.change(
+      screen.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
+      {
+        target: {
+          value: "서버로 보내면 안 되는 민감한 개인 상황",
+        },
       },
-    });
+    );
     fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
     fireEvent.click(screen.getByRole("button", { name: "지금 바로 해석하기" }));
 
@@ -367,7 +370,7 @@ describe("Home", () => {
     render(<Home />);
     openSituationContext();
 
-    const context = screen.getByLabelText(/Add your situation/);
+    const context = screen.getByLabelText(/Your situation or question/);
     const topicExamples = [
       [
         "love",
@@ -410,7 +413,7 @@ describe("Home", () => {
     expect(screen.getByText("Make the question clearer")).toBeVisible();
 
     openSituationContext();
-    fireEvent.change(screen.getByLabelText("Add your situation"), {
+    fireEvent.change(screen.getByLabelText("Your situation or question"), {
       target: { value: "I want to understand what I can change." },
     });
     fireEvent.click(screen.getByTestId("situation-context-toggle"));
@@ -1068,7 +1071,7 @@ describe("Home", () => {
     ).toBeChecked();
     fireEvent.change(
       screen.getByRole("textbox", {
-        name: /Add your situation/,
+        name: /Your situation or question/,
       }),
       {
         target: {
@@ -1088,7 +1091,8 @@ describe("Home", () => {
     expect(prompt.value).toContain(
       '"My relationship with my manager is exhausting. Should I stay at this company?"',
     );
-    expect(prompt.value).toContain("untrusted quoted data");
+    expect(prompt.value).toContain("User input to reflect in the answer");
+    expect(prompt.value).not.toContain("untrusted quoted data");
     expect(screen.getAllByTestId(/reading-card-/)).toHaveLength(6);
 
     const url = new URL(window.location.href);
@@ -1106,7 +1110,7 @@ describe("Home", () => {
 
     fireEvent.change(
       screen.getByRole("textbox", {
-        name: /Add your situation/,
+        name: /Your situation or question/,
       }),
       {
         target: {
@@ -1136,7 +1140,7 @@ describe("Home", () => {
     await waitFor(() => {
       expect(
         screen.getByRole("textbox", {
-          name: /내 상황 더하기/,
+          name: /상황이나 궁금한 점/,
         }),
       ).toHaveValue("My manager relationship is difficult.");
     });

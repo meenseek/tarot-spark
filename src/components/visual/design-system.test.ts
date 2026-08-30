@@ -337,6 +337,9 @@ describe("visual design system contract", () => {
       /\.ts-topic-select:focus-within\s*{[^}]*--mt-focus-ring-offset:\s*calc\(-1 \* var\(--mt-control-border-width\)\);/,
     );
     expect(css).toMatch(
+      /\.ts-context-field:focus-within\s*{[^}]*--mt-focus-ring-offset:\s*calc\(-1 \* var\(--mt-control-border-width\)\);/,
+    );
+    expect(css).toMatch(
       /@media \(min-width: 48rem\)\s*{[\s\S]*?\.ts-topic-select\s*{[^}]*max-width:\s*28rem;/,
     );
     expect(css).toMatch(

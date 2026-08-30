@@ -177,6 +177,7 @@ const uiCopySchema = {
   spreadSelectorLabel: "string",
   readingStyleSelectorLabel: "string",
   contextLabel: "string",
+  contextInputLabel: "string",
   contextOptional: "string",
   contextEmptySummary: "string",
   contextFilledSummary: "string",

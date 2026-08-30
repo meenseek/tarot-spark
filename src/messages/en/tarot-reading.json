@@ -12,6 +12,7 @@
   "spreadSelectorLabel": "Number of cards",
   "readingStyleSelectorLabel": "Answer style",
   "contextLabel": "Add your situation",
+  "contextInputLabel": "Your situation or question",
   "contextOptional": "Optional",
   "contextEmptySummary": "Make the question clearer",
   "contextFilledSummary": "Situation added · Edit",

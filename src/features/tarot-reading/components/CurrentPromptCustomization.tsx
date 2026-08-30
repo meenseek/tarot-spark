@@ -70,12 +70,12 @@ export function CurrentPromptCustomization({
           announceError={false}
           aria-describedby="current-context-help current-context-count"
           className="ts-textarea-input ts-textarea-input--current"
-          label={`${copy.contextLabel} (${copy.contextOptional})`}
+          label={`${copy.contextInputLabel} (${copy.contextOptional})`}
           maxLength={maxUserContextLength}
           onChange={(event) => onContextChange(event.currentTarget.value)}
           placeholder={contextPlaceholder}
           value={userContext}
-          wrapperClassName="ts-field"
+          wrapperClassName="ts-field ts-context-field"
         />
         <div className="flex flex-col justify-between gap-1 text-xs leading-5 text-ts-muted sm:flex-row">
           <p id="current-context-help">{copy.contextHelp}</p>

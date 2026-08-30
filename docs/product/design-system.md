@@ -85,8 +85,8 @@ instead of palette utilities or color literals.
 - Show the active locale with a persistent action inset stroke and weight
   change.
 - Show keyboard focus with a two-pixel action outline. Keep a two-pixel offset
-  by default; merge the topic-select outline into its control boundary so it
-  does not read as a detached second border.
+  by default. Merge the topic-select and optional-situation textarea outlines
+  into their control boundaries so they do not read as detached second borders.
 - Keep hover and pressed states within the action and blush token families.
 - Reduce animation and transition durations when reduced motion is requested.
 
