@@ -20,6 +20,7 @@ export type TarotReadingMessages = {
   readonly spreadSelectorLabel: string;
   readonly readingStyleSelectorLabel: string;
   readonly contextLabel: string;
+  readonly contextInputLabel: string;
   readonly contextOptional: string;
   readonly contextEmptySummary: string;
   readonly contextFilledSummary: string;
@@ -129,6 +130,7 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     contextEmptySummary: copy.contextEmptySummary,
     contextFilledSummary: copy.contextFilledSummary,
     contextHelp: copy.contextHelp,
+    contextInputLabel: copy.contextInputLabel,
     contextLabel: copy.contextLabel,
     contextOptional: copy.contextOptional,
     currentReadingSettings: copy.currentReadingSettings,

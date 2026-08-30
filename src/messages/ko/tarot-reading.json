@@ -12,6 +12,7 @@
   "spreadSelectorLabel": "카드 수",
   "readingStyleSelectorLabel": "답변 느낌",
   "contextLabel": "내 상황 더하기",
+  "contextInputLabel": "상황이나 궁금한 점",
   "contextOptional": "선택",
   "contextEmptySummary": "질문을 더 구체적으로",
   "contextFilledSummary": "상황 입력됨 · 수정",

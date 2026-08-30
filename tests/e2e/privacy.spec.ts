@@ -398,7 +398,7 @@ test("revokes analytics without losing private reading context", async ({
   await openSituationContext(page);
 
   const contextInput = page.getByRole("textbox", {
-    name: /Add your situation/,
+    name: /Your situation or question/,
   });
   await contextInput.fill("Keep this private context through consent changes.");
   await page.getByRole("button", { name: "Privacy choices" }).click();
@@ -737,7 +737,7 @@ test("clears stale private handoff before opening a clean attributed generator",
   await openSituationContext(page);
   await expect(
     page.getByRole("textbox", {
-      name: /Add your situation/,
+      name: /Your situation or question/,
     }),
   ).toHaveValue("");
 });
@@ -825,7 +825,7 @@ test("clears stale private handoff before consecutive pre-hydration navigation",
   await openSituationContext(page);
   await expect(
     page.getByRole("textbox", {
-      name: /내 상황 더하기/,
+      name: /상황이나 궁금한 점/,
     }),
   ).toHaveValue("");
 });

@@ -156,7 +156,7 @@ test("keeps optional situation context discoverable before drawing", async ({
     ),
   ).toBeVisible();
   await page
-    .getByRole("textbox", { name: /내 상황 더하기/ })
+    .getByRole("textbox", { name: /상황이나 궁금한 점/ })
     .fill("제가 바꿀 수 있는 행동을 알고 싶어요.");
   await toggle.press("Enter");
 
@@ -419,7 +419,7 @@ test("keeps every localized context example visible at 320px", async ({
 
   const localizedExamples = [
     {
-      contextLabel: /Add your situation/,
+      contextLabel: /Your situation or question/,
       path: "/",
       topicExamples: [
         [
@@ -445,7 +445,7 @@ test("keeps every localized context example visible at 320px", async ({
       ],
     },
     {
-      contextLabel: /내 상황 더하기/,
+      contextLabel: /상황이나 궁금한 점/,
       path: "/ko",
       topicExamples: [
         [
@@ -763,7 +763,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
 
   await openSituationContext(page);
   await page
-    .getByRole("textbox", { name: /내 상황 더하기/ })
+    .getByRole("textbox", { name: /상황이나 궁금한 점/ })
     .fill("이 내용은 다음 질문을 고르는 동안에도 유지되어야 해요.");
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
 
@@ -839,7 +839,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
   ).toEqual(committedCards);
   await openSituationContext(page);
   await expect(
-    page.getByRole("textbox", { name: /내 상황 더하기/ }),
+    page.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
   ).toHaveValue("이 내용은 다음 질문을 고르는 동안에도 유지되어야 해요.");
   await expect(page.getByRole("link", { name: "English" })).toHaveAttribute(
     "href",
@@ -1115,13 +1115,13 @@ test("preserves reading and private context when switching languages", async ({
   await openSituationContext(page);
 
   await page
-    .getByRole("textbox", { name: /Add your situation/ })
+    .getByRole("textbox", { name: /Your situation or question/ })
     .fill("My manager relationship is difficult.");
   const activeLocaleUrl = page.url();
   await page.getByRole("link", { name: "English" }).click();
   await expect(page).toHaveURL(activeLocaleUrl);
   await expect(
-    page.getByRole("textbox", { name: /Add your situation/ }),
+    page.getByRole("textbox", { name: /Your situation or question/ }),
   ).toHaveValue("My manager relationship is difficult.");
   await page.getByRole("button", { name: "Draw 3 cards" }).click();
   await openPromptContent(page);
@@ -1143,7 +1143,7 @@ test("preserves reading and private context when switching languages", async ({
   await openPromptContent(page);
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toBeVisible();
   await expect(
-    page.getByRole("textbox", { name: /내 상황 더하기/ }),
+    page.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
   ).toHaveValue("My manager relationship is difficult.");
   expect(
     await page
@@ -1166,7 +1166,7 @@ test("creates a direct six-card prompt while keeping context private", async ({
   await page.getByRole("radio", { name: /Deep 6-card/ }).check();
   await page.getByRole("radio", { name: /Direct, not deterministic/ }).check();
   await page
-    .getByRole("textbox", { name: /Add your situation/ })
+    .getByRole("textbox", { name: /Your situation or question/ })
     .fill(
       "My manager relationship is exhausting. Should I stay at this company?",
     );
@@ -1207,7 +1207,7 @@ test("shows an instant Korean reading without sending private context", async ({
   await openSituationContext(page);
 
   await page
-    .getByRole("textbox", { name: /내 상황 더하기/ })
+    .getByRole("textbox", { name: /상황이나 궁금한 점/ })
     .fill("서버로 보내면 안 되는 민감한 개인 상황");
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
   await page.getByRole("button", { name: "지금 바로 해석하기" }).click();

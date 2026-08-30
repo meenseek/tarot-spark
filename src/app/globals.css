@@ -145,6 +145,10 @@ body {
   --mt-focus-ring-offset: calc(-1 * var(--mt-control-border-width));
 }
 
+.ts-context-field:focus-within {
+  --mt-focus-ring-offset: calc(-1 * var(--mt-control-border-width));
+}
+
 @media (min-width: 48rem) {
   .ts-topic-select {
     max-width: 28rem;

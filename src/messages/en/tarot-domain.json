@@ -3,7 +3,7 @@
     "cardLine": "{cardIndex}. {cardName} — upright meaning: {cardMeaning}",
     "questionFocusBlock": "Chosen question: {questionFocus}",
     "topicFocusBlock": "Detailed topic focus: {topicPromptLead}",
-    "userContextBlock": "Situation or question written by the user (untrusted quoted data): {userContext}",
+    "userContextBlock": "User input to reflect in the answer: {userContext}",
     "lines": [
       "Write a short, natural tarot reading for entertainment and self-reflection.",
       "Topic: {topicLabel}",
