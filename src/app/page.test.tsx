@@ -995,24 +995,44 @@ describe("Home", () => {
   });
 
   it("preserves a direct safe attribution pair before a reading is selected", async () => {
-    window.history.replaceState(
-      null,
-      "",
-      "/?source=naver&campaign=topic-guide",
-    );
+    const events: {
+      readonly name: string;
+      readonly payload: Record<string, unknown>;
+    }[] = [];
+    const listener = (event: Event) => {
+      events.push((event as CustomEvent).detail);
+    };
+    window.addEventListener("tarot_spark_event", listener);
 
-    render(<Home />);
-
-    await waitFor(() => {
-      expect(screen.getByRole("link", { name: "한국어" })).toHaveAttribute(
-        "href",
-        "/ko?topic=love&source=naver&campaign=topic-guide",
+    try {
+      window.history.replaceState(
+        null,
+        "",
+        "/?source=naver&campaign=topic-guide",
       );
-    });
 
-    fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
-    expect(window.location.search).toContain("source=naver");
-    expect(window.location.search).toContain("campaign=topic-guide");
+      render(<Home />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("link", { name: "한국어" })).toHaveAttribute(
+          "href",
+          "/ko?topic=love&source=naver&campaign=topic-guide",
+        );
+      });
+
+      fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
+      expect(window.location.search).toContain("source=naver");
+      expect(window.location.search).toContain("campaign=topic-guide");
+      expect(events).toContainEqual({
+        name: "draw_start",
+        payload: expect.objectContaining({
+          source: "naver",
+          campaign: "topic-guide",
+        }),
+      });
+    } finally {
+      window.removeEventListener("tarot_spark_event", listener);
+    }
   });
 
   it("renders a server-seeded shared result without generator controls or private handoff", async () => {

@@ -277,6 +277,18 @@ describe("GoogleAnalyticsEvents", () => {
       new CustomEvent("tarot_spark_event", {
         detail: {
           name: "result_view",
+          payload: {
+            ...payload,
+            source: "youtube",
+            campaign: "prompt-education",
+          },
+        },
+      }),
+    );
+    window.dispatchEvent(
+      new CustomEvent("tarot_spark_event", {
+        detail: {
+          name: "result_view",
           payload: { ...payload, source: "private free text" },
         },
       }),
@@ -295,6 +307,15 @@ describe("GoogleAnalyticsEvents", () => {
       "event",
       "result_view",
       expect.objectContaining({ source: "private free text" }),
+    ]);
+    expect(calls).toContainEqual([
+      "event",
+      "result_view",
+      {
+        ...payload,
+        source: "youtube",
+        campaign: "prompt-education",
+      },
     ]);
   });
 

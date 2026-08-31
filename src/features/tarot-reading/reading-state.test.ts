@@ -76,6 +76,14 @@ describe("reading URL state", () => {
       sourceId: "instagram",
     });
     expect(
+      getReadingAttributionFromUrl(
+        "https://example.com/ko?source=youtube&campaign=prompt-education",
+      ),
+    ).toEqual({
+      campaignId: "prompt-education",
+      sourceId: "youtube",
+    });
+    expect(
       getReadingAttributionFromUrl("https://example.com/share"),
     ).toBeUndefined();
 

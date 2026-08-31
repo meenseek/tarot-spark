@@ -46,6 +46,7 @@ export const shareSourceIds = [
   "copy",
   "pinterest",
   "reddit",
+  "youtube",
 ] as const;
 export type ShareSourceId = (typeof shareSourceIds)[number];
 
