@@ -106,6 +106,32 @@ test("renders all relationship question choices at 320px without JavaScript", as
   ).toBe(true);
 });
 
+test("renders all 62 question choices at 320px without JavaScript", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.goto("/ko/tarot-questions");
+
+  await expect(
+    page.getByRole("heading", {
+      name: "지금 확인할 일이 선명해지는 타로 질문을 골라보세요.",
+    }),
+  ).toBeVisible();
+  await expect(page.getByTestId("question-category")).toHaveCount(18);
+  await expect(
+    page.locator('[data-testid="question-category"][open]'),
+  ).toHaveCount(1);
+  await expect(page.locator('a[href*="question="]')).toHaveCount(62);
+  await expect(
+    page.getByText(/자격 있는 전문가의 조언을 대신하지 않습니다/),
+  ).toHaveCount(2);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+});
+
 test("renders a selected relationship question preset without JavaScript", async ({
   page,
 }) => {

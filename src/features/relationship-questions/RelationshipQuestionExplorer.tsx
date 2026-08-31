@@ -2,12 +2,12 @@ import Link from "next/link";
 import { LocaleSwitch } from "@/components/layout/LocaleSwitch";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { CelestialMark } from "@/components/visual/CelestialMark";
-import { secondaryButtonClassName } from "@/components/visual/class-names";
 import {
   getPublicPageLinks,
   getPublicPagePath,
   getPublicPageShellCopy,
 } from "@/features/public-pages";
+import { PublicQuestionCatalogList } from "@/features/reading-questions";
 import {
   getLocalePath,
   localeNames,
@@ -18,10 +18,7 @@ import {
   getRelationshipQuestionCatalog,
   getRelationshipQuestionExplorerShellCopy,
 } from "./i18n";
-import {
-  getRelationshipQuestionPath,
-  getRelationshipQuestionReadingPath,
-} from "./paths";
+import { getRelationshipQuestionPath } from "./paths";
 
 type RelationshipQuestionExplorerProps = {
   readonly locale: Locale;
@@ -74,62 +71,12 @@ export function RelationshipQuestionExplorer({
           <h2 className="font-ts-display text-3xl font-semibold">
             {copy.browseHeading}
           </h2>
-          <div
-            aria-label={copy.categoryNavigationLabel}
-            className="grid gap-3"
-            role="navigation"
-          >
-            {catalog.categories.map((category, categoryIndex) => (
-              <details
-                className="group scroll-mt-6 rounded-ts-panel border border-ts-divider bg-ts-surface"
-                data-testid="question-category"
-                id={category.id}
-                key={category.id}
-                open={categoryIndex === 0}
-              >
-                <summary className="flex min-h-20 cursor-pointer list-none items-center justify-between gap-4 rounded-ts-panel px-5 py-4 marker:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action sm:px-6 [&::-webkit-details-marker]:hidden">
-                  <span className="grid gap-1">
-                    <span className="font-ts-display text-2xl font-semibold text-ts-ink">
-                      {category.title}
-                    </span>
-                    <span className="max-w-4xl text-sm leading-6 text-ts-muted">
-                      {category.intro}
-                    </span>
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    className="shrink-0 text-lg text-ts-action transition-transform duration-[var(--ts-motion-fast)] group-open:rotate-180"
-                  >
-                    ⌄
-                  </span>
-                </summary>
-                <div className="grid gap-4 border-t border-ts-divider p-5 md:grid-cols-2 sm:p-6">
-                  {category.questions.map((question) => (
-                    <article
-                      className="grid content-start gap-3 rounded-ts-control border border-ts-divider bg-ts-canvas p-5"
-                      key={question.id}
-                    >
-                      <h3 className="text-xl font-semibold text-ts-ink">
-                        {question.title}
-                      </h3>
-                      <p className="text-sm leading-7 text-ts-muted">
-                        {question.summary}
-                      </p>
-                      <Link
-                        className={`${secondaryButtonClassName} mt-auto w-fit`}
-                        href={getRelationshipQuestionReadingPath(
-                          locale,
-                          question,
-                        )}
-                      >
-                        {question.ctaLabel}
-                      </Link>
-                    </article>
-                  ))}
-                </div>
-              </details>
-            ))}
-          </div>
+          <PublicQuestionCatalogList
+            groups={catalog.categories}
+            locale={locale}
+            navigationLabel={copy.categoryNavigationLabel}
+            openFirst
+          />
         </section>
 
         <section className="grid gap-4 rounded-ts-panel border border-ts-divider bg-ts-surface p-6 shadow-ts-paper sm:p-8">

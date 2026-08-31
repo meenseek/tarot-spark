@@ -6,6 +6,7 @@ import {
 } from "@/features/public-pages";
 import { getRelationshipFlowPath } from "@/features/relationship-flow";
 import { getRelationshipQuestionPath } from "@/features/relationship-questions";
+import { getPublicQuestionPath } from "@/features/reading-questions";
 import { defaultLocale, supportedLocales } from "@/i18n/config";
 import {
   getAbsoluteAlternateLanguageUrls,
@@ -46,6 +47,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
             : 0.65,
       }));
     }),
+    ...supportedLocales.map((locale) => ({
+      url: getAbsoluteSiteUrl(getPublicQuestionPath(locale)),
+      alternates: {
+        languages: getAbsoluteAlternateLanguageUrls(getPublicQuestionPath),
+      },
+      changeFrequency: "weekly" as const,
+      priority: locale === defaultLocale ? 0.95 : 0.9,
+    })),
     ...supportedLocales.map((locale) => ({
       url: getAbsoluteSiteUrl(getRelationshipQuestionPath(locale)),
       alternates: {

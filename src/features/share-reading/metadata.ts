@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { Metadata } from "next";
+import { getPublicQuestionPath } from "@/features/reading-questions";
 import { getRelationshipFlowPath } from "@/features/relationship-flow";
 import {
   getLocalizedShareReadingHref,
@@ -8,7 +9,7 @@ import {
 } from "@/features/tarot-reading";
 import type { Locale } from "@/i18n/config";
 import { shareReadingPathSegment } from "@/i18n/routing";
-import { getAbsoluteSiteUrl, getSiteUrl } from "@/i18n/seo";
+import { getAbsoluteSiteUrl, getShareSiteUrl, getSiteUrl } from "@/i18n/seo";
 import { formatTemplateStrict } from "@/i18n/template";
 import { getShareReadingSnapshot, type ShareSearchParams } from "./state";
 
@@ -24,7 +25,12 @@ export function getShareReadingMetadata(
 ): Metadata {
   const snapshot = getShareReadingSnapshot(locale, searchParams);
   const copy = getTarotReadingCopy(locale);
-  const canonicalUrl = getAbsoluteSiteUrl(getRelationshipFlowPath(locale));
+  const canonicalUrl = getAbsoluteSiteUrl(
+    snapshot?.topic.taxonomy.domainId === "career" ||
+      snapshot?.topic.taxonomy.domainId === "self"
+      ? getPublicQuestionPath(locale)
+      : getRelationshipFlowPath(locale),
+  );
   const robots = {
     follow: true,
     index: false,
@@ -56,9 +62,10 @@ export function getShareReadingMetadata(
   );
   const title = `${snapshot.topic.label}: ${cardTitleSummary} | ${copy.shareTitle}`;
   const imageUrl = getShareImageUrl(locale, snapshot);
-  const openGraphUrl = getAbsoluteSiteUrl(
+  const openGraphUrl = new URL(
     getLocalizedShareReadingHref(locale, snapshot.state),
-  );
+    getShareSiteUrl(),
+  ).toString();
 
   return {
     alternates: {

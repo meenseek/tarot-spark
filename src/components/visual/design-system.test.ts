@@ -15,6 +15,8 @@ const themedSourceFiles = [
   "src/components/visual/class-names.ts",
   "src/features/daily-question/DailyQuestionClient.tsx",
   "src/features/public-pages/PublicPage.tsx",
+  "src/features/reading-questions/PublicQuestionCatalogList.tsx",
+  "src/features/reading-questions/PublicQuestionExplorer.tsx",
   "src/features/relationship-flow/RelationshipFlowLanding.tsx",
   "src/features/relationship-questions/RelationshipQuestionExplorer.tsx",
   "src/features/tarot-reading/TarotExperienceClient.tsx",
@@ -31,6 +33,7 @@ const themedSourceFiles = [
 const siteShellConsumers = [
   "src/features/daily-question/DailyQuestionClient.tsx",
   "src/features/public-pages/PublicPage.tsx",
+  "src/features/reading-questions/PublicQuestionExplorer.tsx",
   "src/features/relationship-flow/RelationshipFlowLanding.tsx",
   "src/features/relationship-questions/RelationshipQuestionExplorer.tsx",
   "src/features/tarot-reading/TarotExperienceClient.tsx",
@@ -225,7 +228,7 @@ describe("visual design system contract", () => {
     const questionCatalogSource = readFileSync(
       resolve(
         process.cwd(),
-        "src/features/relationship-questions/RelationshipQuestionExplorer.tsx",
+        "src/features/reading-questions/PublicQuestionCatalogList.tsx",
       ),
       "utf8",
     );

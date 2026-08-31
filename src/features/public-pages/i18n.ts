@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getLocalePath, type Locale } from "@/i18n/config";
 import { withLocalizedAlternates } from "@/i18n/seo";
 import { getRelationshipQuestionPath } from "@/features/relationship-questions/paths";
+import { getPublicQuestionPath } from "@/features/reading-questions/paths";
 import enMessages from "@/messages/en/public-pages.json";
 import koMessages from "@/messages/ko/public-pages.json";
 import type { GuidePageId, PublicPageId } from "./ids";
@@ -120,7 +121,7 @@ export function getPublicPageMetadata(
 export function getPublicPageLinks(locale: Locale): readonly PublicPageLink[] {
   return [
     {
-      href: getRelationshipQuestionPath(locale),
+      href: getPublicQuestionPath(locale),
       label: messagesByLocale[locale].questionExplorerLinkLabel,
     },
     ...publicPageIds.map((pageId) => ({

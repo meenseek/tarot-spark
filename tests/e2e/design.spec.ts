@@ -303,6 +303,7 @@ test("keeps one canonical shell boundary across public page archetypes", async (
     "/daily",
     "/relationship-flow",
     "/relationship-tarot-questions",
+    "/tarot-questions",
     "/about",
   ] as const;
 

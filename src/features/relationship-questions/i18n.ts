@@ -6,11 +6,11 @@ import { withLocalizedAlternates } from "@/i18n/seo";
 import enMessages from "@/messages/en/relationship-questions.json";
 import koMessages from "@/messages/ko/relationship-questions.json";
 import {
-  relationshipQuestionDefinitions,
-  relationshipQuestionFocusIds,
+  isRelationshipQuestionId,
   type RelationshipQuestionFocusId,
   type RelationshipQuestionId,
 } from "@/domain/tarot";
+import { getPublicQuestionCatalog } from "@/features/reading-questions";
 import { getRelationshipQuestionPath } from "./paths";
 import type {
   RelationshipQuestion,
@@ -64,21 +64,25 @@ const messagesByLocale = {
 export function getRelationshipQuestionCatalog(
   locale: Locale,
 ): RelationshipQuestionCatalog {
-  const messages = messagesByLocale[locale];
-  const questions = relationshipQuestionDefinitions.map(
-    (definition): RelationshipQuestion => ({
-      ...definition,
-      ...messages.questions[definition.id],
-    }),
+  const publicCatalog = getPublicQuestionCatalog(locale);
+  const questions = publicCatalog.questions.filter(
+    (question): question is RelationshipQuestion =>
+      question.domainId === "relationship" &&
+      isRelationshipQuestionId(question.id),
+  );
+  const categories = publicCatalog.groups.filter(
+    (group): group is RelationshipQuestionCatalog["categories"][number] =>
+      group.domainId === "relationship" &&
+      group.questions.every(
+        (question) =>
+          question.domainId === "relationship" &&
+          isRelationshipQuestionId(question.id),
+      ),
   );
 
   return {
     questions,
-    categories: relationshipQuestionFocusIds.map((focusId) => ({
-      id: focusId,
-      ...messages.categories[focusId],
-      questions: questions.filter((question) => question.focusId === focusId),
-    })),
+    categories,
   };
 }
 
