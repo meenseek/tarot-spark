@@ -13,6 +13,7 @@ import {
   getPublicQuestionDefinition,
   isPublicQuestionId,
   type PublicQuestionId,
+  type ReadingTaxonomy,
 } from "./taxonomy";
 
 export type InstantReadingCardInput = {
@@ -41,6 +42,12 @@ export const instantReadingMarkers = [
   "[다음 행동]",
   "[성찰 질문]",
 ] as const;
+
+export function isInstantReadingTaxonomyEligible(
+  taxonomy: ReadingTaxonomy,
+): boolean {
+  return taxonomy.domainId === "relationship" || taxonomy.domainId === "career";
+}
 
 const realityLabels = [
   "아직 모르는 점:",
@@ -327,6 +334,14 @@ export function parseInstantReadingRequest(
   ) {
     return undefined;
   }
+
+  let taxonomy: ReadingTaxonomy;
+  try {
+    taxonomy = getReadingTaxonomy(value["topicId"], questionId);
+  } catch {
+    return undefined;
+  }
+  if (!isInstantReadingTaxonomyEligible(taxonomy)) return undefined;
 
   const expectedCount = value["spreadId"] === "quick" ? 3 : 6;
   if (value["cards"].length !== expectedCount) return undefined;

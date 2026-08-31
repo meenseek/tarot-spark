@@ -8,6 +8,9 @@ import {
   relationshipFocusIds,
   relationshipQuestionDefinitions,
   relationshipQuestionFocusIds,
+  selfFocusIds,
+  selfQuestionDefinitions,
+  selfQuestionFocusIds,
   topicTaxonomyById,
 } from "./taxonomy";
 
@@ -28,6 +31,11 @@ describe("tarot reading taxonomy", () => {
       domainId: "career",
       focusId: "direction",
       defaultAnswerTargetId: "career",
+    });
+    expect(getReadingTaxonomy("money-life")).toEqual({
+      domainId: "self",
+      focusId: "money-life",
+      defaultAnswerTargetId: "self",
     });
   });
 
@@ -53,11 +61,30 @@ describe("tarot reading taxonomy", () => {
       "strengths-growth",
       "collaboration-boundaries",
     ]);
+    expect(selfFocusIds).toEqual([
+      "self-direction",
+      "money-life",
+      "study-projects",
+      "values-decisions",
+      "habits-growth",
+      "money-priorities",
+      "money-boundaries",
+      "learning-direction",
+      "project-momentum",
+    ]);
+    expect(selfQuestionFocusIds).toEqual([
+      "values-decisions",
+      "habits-growth",
+      "money-priorities",
+      "money-boundaries",
+      "learning-direction",
+      "project-momentum",
+    ]);
   });
 
   it("gives every career question one compatible career taxonomy", () => {
     expect(careerQuestionDefinitions).toHaveLength(14);
-    expect(publicQuestionDefinitions).toHaveLength(44);
+    expect(publicQuestionDefinitions).toHaveLength(62);
     expect(new Set(publicQuestionDefinitions.map(({ id }) => id)).size).toBe(
       publicQuestionDefinitions.length,
     );
@@ -71,6 +98,30 @@ describe("tarot reading taxonomy", () => {
     }
 
     expect(() => getReadingTaxonomy("love", "career-stay-or-prepare")).toThrow(
+      "incompatible",
+    );
+  });
+
+  it("gives every self question one compatible self taxonomy", () => {
+    expect(selfQuestionDefinitions).toHaveLength(18);
+    expect(new Set(selfQuestionDefinitions.map(({ id }) => id)).size).toBe(18);
+    expect(
+      Object.values(
+        Object.groupBy(selfQuestionDefinitions, ({ focusId }) => focusId),
+      ).map((questions) => questions?.length),
+    ).toEqual([3, 3, 3, 3, 3, 3]);
+
+    for (const question of selfQuestionDefinitions) {
+      expect(selfQuestionFocusIds).toContain(question.focusId);
+      expect(question.defaultAnswerTargetId).toBe("self");
+      expect(getReadingTaxonomy(question.topicId, question.id)).toStrictEqual({
+        domainId: "self",
+        focusId: question.focusId,
+        defaultAnswerTargetId: "self",
+      });
+    }
+
+    expect(() => getReadingTaxonomy("love", "money-want-or-need")).toThrow(
       "incompatible",
     );
   });
@@ -183,5 +234,24 @@ describe("tarot reading taxonomy", () => {
       focusId: "direction",
       defaultAnswerTargetId: "career",
     });
+  });
+
+  it("locks public question totals by domain and answer target", () => {
+    const idsByDomain = Object.groupBy(
+      publicQuestionDefinitions,
+      ({ domainId }) => domainId,
+    );
+    expect(idsByDomain.relationship).toHaveLength(30);
+    expect(idsByDomain.career).toHaveLength(14);
+    expect(idsByDomain.self).toHaveLength(18);
+
+    const idsByTarget = Object.groupBy(
+      publicQuestionDefinitions,
+      ({ defaultAnswerTargetId }) => defaultAnswerTargetId,
+    );
+    expect(idsByTarget["external-perception"]).toHaveLength(8);
+    expect(idsByTarget.relationship).toHaveLength(14);
+    expect(idsByTarget.career).toHaveLength(10);
+    expect(idsByTarget.self).toHaveLength(30);
   });
 });

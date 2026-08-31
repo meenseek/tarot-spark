@@ -22,9 +22,11 @@ import {
   getDefaultTopic,
   getAnswerTarget,
   getReadingStyle,
+  getReadingTaxonomy,
   getSpread,
   getTopic,
   getTopicTaxonomy,
+  isInstantReadingTaxonomyEligible,
   maxUserContextLength,
   parseInstantReadingResponse,
   type DrawnCard,
@@ -252,6 +254,14 @@ export function TarotExperienceClient({
   );
 
   const currentResult = session.mode === "setup" ? undefined : session.current;
+  const instantReadingTaxonomyEligible = currentResult
+    ? isInstantReadingTaxonomyEligible(
+        getReadingTaxonomy(
+          currentResult.inputs.topicId,
+          currentResult.inputs.questionId,
+        ),
+      )
+    : false;
   const formInputs =
     session.mode === "result" ? session.current.inputs : session.draft;
   const cards = currentResult?.cards ?? emptyDrawnCards;
@@ -917,6 +927,7 @@ export function TarotExperienceClient({
   async function generateInstantReading() {
     if (
       !instantReadingEnabled ||
+      !instantReadingTaxonomyEligible ||
       locale !== "ko" ||
       cards.length === 0 ||
       !currentResult
@@ -1419,9 +1430,14 @@ export function TarotExperienceClient({
         instagramImageStatus={instagramImageStatus}
         instantReading={instantReading}
         instantReadingEnabled={
-          viewMode === "generator" && instantReadingEnabled
+          viewMode === "generator" &&
+          instantReadingEnabled &&
+          instantReadingTaxonomyEligible
         }
         instantReadingStatus={instantReadingStatus}
+        {...(currentTopic?.id === "money-life"
+          ? { contextNotice: copy.moneyDisclaimer }
+          : {})}
         onCancelInstantReading={cancelInstantReading}
         onGenerateInstantReading={generateInstantReading}
         onInstagramShare={shareInstagramImage}
@@ -1506,6 +1522,7 @@ export function TarotExperienceClient({
         groupLabels={{
           career: copy.topicGroupCareer,
           relationship: copy.topicGroupRelationship,
+          self: copy.topicGroupSelf,
         }}
         heading={copy.topicSelectorLabel}
         onSelect={chooseTopic}
@@ -1522,6 +1539,15 @@ export function TarotExperienceClient({
         onSelect={choosePublicQuestion}
         selectedQuestion={selectedQuestion}
       />
+
+      {formInputs.topicId === "money-life" ? (
+        <p
+          className="rounded-ts-control border border-ts-gold/50 bg-ts-blush px-4 py-3 text-sm font-medium leading-6 text-ts-ink"
+          data-testid="money-reading-disclaimer"
+        >
+          {copy.moneyDisclaimer}
+        </p>
+      ) : null}
 
       <SituationContextInput
         contextCountLabel={contextCountLabel}

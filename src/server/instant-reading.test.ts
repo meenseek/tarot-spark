@@ -17,6 +17,7 @@ import {
   InstantReadingAbortedError,
   InstantReadingResponseError,
   InstantReadingTimeoutError,
+  isInstantReadingRequestConsistent,
   requestInstantReading,
 } from "./instant-reading";
 import { cloudflareInstantReadingModel } from "./instant-reading-config";
@@ -117,6 +118,60 @@ describe("Cloudflare instant reading adapter", () => {
     expect(prompt).toContain("내용:'이라는 단어를 출력하지 마세요");
     expect(prompt).toContain("독자에게 제안하는 권유형 한 문장");
     expect(prompt).toContain("타인의 감정이나 관계 상태를 사실·확실한 것으로");
+  });
+
+  it("keeps the money safety rule in broad and question candidate prompts", () => {
+    const topic = tarotData.topics.find(({ id }) => id === "money-life")!;
+    const questions = getPublicQuestionCatalog("ko").questions.filter(
+      ({ topicId }) => topicId === topic.id,
+    );
+    const safetyLine = `주제 안전 기준: ${topic.safetyInstruction}`;
+    const broadRequest = { ...request, topicId: topic.id } as const;
+    const broadPrompt = buildInstantReadingPrompt(tarotData, broadRequest);
+
+    expect(questions).toHaveLength(6);
+    expect(broadPrompt).toContain(`질문의 초점: ${topic.promptLead}`);
+    expect(broadPrompt.split(safetyLine)).toHaveLength(2);
+    expect(
+      JSON.stringify(
+        buildCloudflareInstantReadingBody(tarotData, broadRequest),
+      ),
+    ).toContain(safetyLine);
+
+    for (const question of questions) {
+      const candidateRequest = {
+        ...request,
+        questionId: question.id,
+        topicId: topic.id,
+      };
+      const prompt = buildInstantReadingPrompt(tarotData, candidateRequest);
+
+      expect(prompt).toContain(`질문의 초점: ${question.focus}`);
+      expect(prompt).not.toContain(`질문의 초점: ${topic.promptLead}`);
+      expect(prompt.split(question.focus)).toHaveLength(2);
+      expect(prompt.split(safetyLine)).toHaveLength(2);
+      expect(
+        JSON.stringify(
+          buildCloudflareInstantReadingBody(tarotData, candidateRequest),
+        ),
+      ).toContain(safetyLine);
+    }
+  });
+
+  it("rejects self readings at the production contact boundary", async () => {
+    const fetchImpl = vi.fn<typeof fetch>();
+    const selfRequest = { ...request, topicId: "money-life" } as const;
+
+    expect(isInstantReadingRequestConsistent(tarotData, selfRequest)).toBe(
+      false,
+    );
+    await expect(
+      requestInstantReading(tarotData, selfRequest, {
+        fetchImpl,
+        providerConfig,
+      }),
+    ).rejects.toThrow("taxonomy is not eligible");
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
 
   it("routes the prompt by the entry or public-question answer target", () => {

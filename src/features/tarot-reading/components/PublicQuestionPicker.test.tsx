@@ -8,7 +8,7 @@ const copy = {
   clearQuestionLabel: "Clear specific question",
   questionPickerIntro:
     "A question may adjust the topic above. Clearing it keeps that topic.",
-  questionPickerOptional: "Optional",
+  questionPickerCount: "{count} questions in this area",
   questionPickerSummary: "Or choose a specific question",
   selectedQuestionFocusLabel: "What to explore",
   selectedQuestionLabel: "Your question",
@@ -33,7 +33,7 @@ describe("PublicQuestionPicker", () => {
       />,
     );
 
-    expect(screen.getByText("Optional")).toBeInTheDocument();
+    expect(screen.getByText("14 questions in this area")).toBeInTheDocument();
     expect(screen.getAllByTestId("public-question-option")).toHaveLength(14);
     const picker = screen.getByTestId(
       "public-question-picker",
@@ -90,6 +90,8 @@ describe("PublicQuestionPicker", () => {
     const summary = screen
       .getByText("Or choose a specific question")
       .closest("summary");
+    expect(summary).toHaveTextContent("Which work limit should I set first?");
+    expect(summary).not.toHaveTextContent("14 questions in this area");
 
     picker.open = true;
     fireEvent.click(

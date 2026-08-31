@@ -198,6 +198,22 @@ describe("reading URL state", () => {
     expect(getReadingStateFromUrl(tarotData, url.toString())).toEqual(state);
   });
 
+  it("round-trips a compatible self question without descriptive or hierarchy state", () => {
+    const state = {
+      ...createState("quick", "practical"),
+      topicId: "money-life",
+      questionId: "money-want-or-need",
+    } as const satisfies ReadingUrlState;
+    const url = new URL(buildReadingUrl("https://example.com/", state));
+
+    expect(url.searchParams.get("topic")).toBe("money-life");
+    expect(url.searchParams.get("question")).toBe("money-want-or-need");
+    expect(url.searchParams.has("domain")).toBe(false);
+    expect(url.searchParams.has("focus")).toBe(false);
+    expect(url.toString()).not.toContain("Should");
+    expect(getReadingStateFromUrl(tarotData, url.toString())).toEqual(state);
+  });
+
   it("rejects unknown, duplicated, empty, and topic-mismatched questions", () => {
     for (const href of [
       "https://example.com/?topic=feelings&question=unknown",
@@ -205,6 +221,8 @@ describe("reading URL state", () => {
       "https://example.com/?topic=feelings&question=mutual-view&question=ignored-signals",
       "https://example.com/?topic=love&question=mutual-view",
       "https://example.com/?topic=love&question=career-stay-or-prepare",
+      "https://example.com/?topic=love&question=money-want-or-need",
+      "https://example.com/?topic=money-life&question=career-stay-or-prepare",
     ]) {
       expect(getReadingStateFromUrl(tarotData, href)).toBeUndefined();
     }
@@ -367,6 +385,29 @@ describe("reading URL state", () => {
     expect(shareUrl.searchParams.get("question")).toBe(
       "career-growth-experience",
     );
+  });
+
+  it("preserves a self question across locale and share links", () => {
+    const state = {
+      ...createState("quick", "practical"),
+      topicId: "money-life",
+      questionId: "money-want-or-need",
+    } as const satisfies ReadingUrlState;
+    const localeUrl = new URL(
+      getLocalizedReadingHref("ko", state),
+      "https://example.com",
+    );
+    const shareUrl = new URL(
+      getLocalizedShareReadingHref("ko", state),
+      "https://example.com",
+    );
+
+    expect(localeUrl.pathname).toBe("/ko");
+    expect(localeUrl.searchParams.get("topic")).toBe("money-life");
+    expect(localeUrl.searchParams.get("question")).toBe("money-want-or-need");
+    expect(shareUrl.pathname).toBe("/ko/share");
+    expect(shareUrl.searchParams.get("topic")).toBe("money-life");
+    expect(shareUrl.searchParams.get("question")).toBe("money-want-or-need");
   });
 
   it("builds a clean generator CTA with attribution only", () => {

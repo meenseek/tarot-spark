@@ -1,0 +1,138 @@
+{
+  "categories": {
+    "values-decisions": {
+      "title": "Values and choices",
+      "intro": "Separate outside expectations from the values you want to keep."
+    },
+    "habits-growth": {
+      "title": "Habits and growth",
+      "intro": "Notice delays, priorities, and patterns that already help."
+    },
+    "money-priorities": {
+      "title": "Spending priorities",
+      "intro": "Separate wants, needs, and money habits you can sustain."
+    },
+    "money-boundaries": {
+      "title": "Money boundaries",
+      "intro": "Check major spending, shared costs, and giving boundaries."
+    },
+    "learning-direction": {
+      "title": "Learning direction",
+      "intro": "Choose the next focus, method, and feedback to test."
+    },
+    "project-momentum": {
+      "title": "Project momentum",
+      "intro": "Find the next step, smaller scope, and a pause condition."
+    }
+  },
+  "questions": {
+    "self-priority-now": {
+      "title": "What matters most to me now?",
+      "summary": "Separate outside expectations from the value I want to keep.",
+      "focus": "Use two symbolic interpretations to separate outside expectations from the value I want to protect now. Do not state my priorities as fact; compare them with recent choices or commitments, name one small reversible change in time or attention, and give a condition that would make me review it.",
+      "ctaLabel": "Find my priority"
+    },
+    "self-expectation-source": {
+      "title": "Whose expectation is shaping my choice?",
+      "summary": "Separate an inherited rule from a value I actively choose.",
+      "focus": "Use two symbolic interpretations to explore whether the expectation shaping this choice is inherited, repeated, or actively chosen. Do not infer another person's current demands; check stated expectations and my decision history, try one reversible way to state my own criterion, and name when to review it.",
+      "ctaLabel": "Trace the expectation"
+    },
+    "self-review-condition": {
+      "title": "What would make me reconsider this choice?",
+      "summary": "Name evidence that would strengthen or weaken the decision.",
+      "focus": "Use two symbolic interpretations to define what evidence would strengthen or weaken this contemplated choice. Do not settle the outcome; name a record or condition to check, one reversible information-gathering step, and a stop or review condition before committing.",
+      "ctaLabel": "Set review conditions"
+    },
+    "self-repeating-delay": {
+      "title": "What keeps delaying my start?",
+      "summary": "Separate missing preparation from a burden I keep avoiding.",
+      "focus": "Use two symbolic interpretations to separate preparation I actually lack from a burden I keep avoiding. Check the pattern against recent start attempts, choose one bounded and reversible preparation or starting step, and name a condition for stopping or changing the approach.",
+      "ctaLabel": "Check the delay"
+    },
+    "self-energy-focus": {
+      "title": "Where should my effort go first?",
+      "summary": "Compare urgent demands with what I want to sustain.",
+      "focus": "Use two symbolic interpretations to compare urgent demands with the work or value I want to sustain. Check an actual schedule or commitment record, make one small reversible change in attention, and name the condition that would make me restore or revise it.",
+      "ctaLabel": "Choose my focus"
+    },
+    "self-supportive-pattern": {
+      "title": "What should I keep as it is?",
+      "summary": "Notice a repeated action that already supports me.",
+      "focus": "Use two symbolic interpretations to identify a repeated action that may already support me and the condition that makes it useful. Check recent examples rather than defining my personality, keep one small reversible instance, and stop or review it if its cost or boundary changes.",
+      "ctaLabel": "Keep what works"
+    },
+    "money-spending-priority": {
+      "title": "What should my spending protect first?",
+      "summary": "Compare an immediate want with an ongoing daily priority.",
+      "focus": "Use two symbolic interpretations to compare an immediate want with an ongoing daily priority shown in actual spending records. Do not decide affordability or predict a financial result; choose one reversible record or allocation rule and review it when an essential need or actual term changes.",
+      "ctaLabel": "Set a priority"
+    },
+    "money-want-or-need": {
+      "title": "How can I separate wants from needs?",
+      "summary": "Separate emotional spending from a need shown in my records.",
+      "focus": "Use two symbolic interpretations to separate emotional spending from a need supported by records and actual terms. Do not label the reader's finances or decide what they can afford; use one reversible pause or recording step and a review condition that would change the classification.",
+      "ctaLabel": "Separate the spending"
+    },
+    "money-sustainable-habit": {
+      "title": "Which money habit can I sustain?",
+      "summary": "Choose a repeatable record or limit over a big promise.",
+      "focus": "Use two symbolic interpretations to compare a repeatable money record or limit with a large promise that may be hard to keep. Ground the reading in actual records, test only a small reversible habit, and stop or revise it when essential costs or verified terms are not represented.",
+      "ctaLabel": "Choose a habit"
+    },
+    "money-big-purchase-check": {
+      "title": "What should I check before a major purchase?",
+      "summary": "Compare the hoped-for value with actual cost and terms.",
+      "focus": "Use two symbolic interpretations to compare the hoped-for value with the documented total cost, fees, and actual terms. Never call the purchase reversible or decide affordability; the reversible step is only comparing records or verifying return and cancellation terms, and the stop condition is to avoid commitment when terms are missing or change.",
+      "ctaLabel": "Check the purchase"
+    },
+    "money-shared-cost": {
+      "title": "What should we agree on before sharing costs?",
+      "summary": "Clarify responsibility, timing, and changes before money changes hands.",
+      "focus": "Use two symbolic interpretations to clarify responsibility, timing, and change rules before money changes hands. Check actual responsibilities or written terms without assuming fairness or either person's capacity; make the reversible step a draft or clarifying question, and stop before transfer if a responsibility or term remains unclear.",
+      "ctaLabel": "Set shared terms"
+    },
+    "money-helping-boundary": {
+      "title": "What boundary should I set before giving money?",
+      "summary": "Separate my wish to help from what I can carry.",
+      "focus": "Use two symbolic interpretations to separate my wish to help from a boundary supported by my own records and stated responsibilities. Do not decide affordability or direct a transfer; make the reversible step stating or checking the boundary, and stop before giving money if pressure, terms, or high-stakes consequences remain unclear.",
+      "ctaLabel": "Set a boundary"
+    },
+    "study-next-focus": {
+      "title": "What should I study first?",
+      "summary": "Choose one part to test before expanding the scope.",
+      "focus": "Use two symbolic interpretations to choose one bounded part of the goal to study before expanding the scope. Check an actual gap or task requirement, try one small reversible learning test, and revise the focus when retention or feedback contradicts it.",
+      "ctaLabel": "Choose a focus"
+    },
+    "study-method-fit": {
+      "title": "Which study method fits this goal?",
+      "summary": "Compare a familiar method with what I actually retain.",
+      "focus": "Use two symbolic interpretations to compare a familiar study method with evidence of what I actually retain or can explain. Do not promise mastery; try one bounded reversible method change and review it when recall, work samples, or feedback show no useful difference.",
+      "ctaLabel": "Review my method"
+    },
+    "study-feedback-gap": {
+      "title": "What could unlock this stuck point?",
+      "summary": "Separate more practice from a need for explanation or feedback.",
+      "focus": "Use two symbolic interpretations to separate a need for more practice from a need for explanation or feedback. Check actual attempts and errors, ask one bounded feedback question or run one reversible practice check, and change course when neither produces new understanding.",
+      "ctaLabel": "Find a clue"
+    },
+    "project-next-step": {
+      "title": "What is the project's next small step?",
+      "summary": "Find one piece to test before planning the whole result.",
+      "focus": "Use two symbolic interpretations to separate the core deliverable from one piece that can be verified next. Check actual requirements or current work, make only that small reversible test, and stop or revise it when the result does not reduce uncertainty about the deliverable.",
+      "ctaLabel": "Find the next step"
+    },
+    "project-scope-boundary": {
+      "title": "What can I remove from this project?",
+      "summary": "Separate the core result from work that can be removed.",
+      "focus": "Use two symbolic interpretations to separate the core result from work that can be removed or deferred. Check actual requirements and dependencies, make the reversible step a temporary scope cut, and restore or revise it if evidence shows the removed work is necessary.",
+      "ctaLabel": "Reduce the scope"
+    },
+    "project-pause-signal": {
+      "title": "What would signal a project pause?",
+      "summary": "Define progress evidence and a pause condition before continuing.",
+      "focus": "Use two symbolic interpretations to define evidence of progress and a signal for pausing before effort becomes its own reason to continue. Check the project record, set one reversible checkpoint or pause, and review the decision when the chosen evidence or boundary is reached.",
+      "ctaLabel": "Set a pause signal"
+    }
+  }
+}

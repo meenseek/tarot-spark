@@ -84,6 +84,13 @@ export function buildPrompt(
         { topicPromptLead: topic.promptLead },
         `${context}.topicFocusBlock`,
       );
+  const topicSafetyBlock = topic.safetyInstruction?.trim()
+    ? formatTemplateStrict(
+        template.topicSafetyBlock,
+        { topicSafetyInstruction: topic.safetyInstruction.trim() },
+        `${context}.topicSafetyBlock`,
+      )
+    : "";
 
   return formatTemplateStrict(
     template.lines.join("\n"),
@@ -94,6 +101,7 @@ export function buildPrompt(
       readingStyleInstruction: readingStyle.instruction,
       readingStyleLabel: readingStyle.label,
       spreadLabel: spread.promptLabel,
+      topicSafetyBlock,
       topicLabel: topic.label,
       userContextBlock,
     },

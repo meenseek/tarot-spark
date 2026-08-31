@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  isInstantReadingTaxonomyEligible,
   parseInstantReadingRequest,
   parseInstantReadingResponse,
   validateInstantReadingText,
   type InstantReadingRequest,
 } from "./instant-reading";
+import { getReadingTaxonomy } from "./taxonomy";
 
 const request = {
   cards: [
@@ -18,6 +20,23 @@ const request = {
 } as const satisfies InstantReadingRequest;
 
 describe("instant reading domain", () => {
+  it("keeps public eligibility fail-closed for the self domain", () => {
+    expect(isInstantReadingTaxonomyEligible(getReadingTaxonomy("love"))).toBe(
+      true,
+    );
+    expect(
+      isInstantReadingTaxonomyEligible(getReadingTaxonomy("career-direction")),
+    ).toBe(true);
+    expect(
+      isInstantReadingTaxonomyEligible(getReadingTaxonomy("self-direction")),
+    ).toBe(false);
+    expect(
+      isInstantReadingTaxonomyEligible(
+        getReadingTaxonomy("money-life", "money-want-or-need"),
+      ),
+    ).toBe(false);
+  });
+
   it("accepts only the exact public request shape", () => {
     expect(parseInstantReadingRequest(request)).toEqual(request);
     expect(
@@ -85,6 +104,19 @@ describe("instant reading domain", () => {
         ...request,
         questionId: "romantic-partner-impression",
         topicId: "feelings",
+      }),
+    ).toBeUndefined();
+    expect(
+      parseInstantReadingRequest({
+        ...request,
+        topicId: "self-direction",
+      }),
+    ).toBeUndefined();
+    expect(
+      parseInstantReadingRequest({
+        ...request,
+        questionId: "money-want-or-need",
+        topicId: "money-life",
       }),
     ).toBeUndefined();
   });

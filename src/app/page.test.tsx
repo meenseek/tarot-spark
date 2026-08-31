@@ -183,7 +183,53 @@ describe("Home", () => {
         values: ["love", "reunion", "feelings", "relationship-flow"],
       },
       { label: "Career", values: ["career-direction"] },
+      {
+        label: "Me & daily life",
+        values: ["self-direction", "money-life", "study-projects"],
+      },
     ]);
+  });
+
+  it("shows the current-domain question count and reveals the money notice when a money question is chosen", () => {
+    render(<Home />);
+
+    const topicSelect = screen.getByRole("combobox", {
+      name: "Broad reading topic",
+    });
+    fireEvent.change(topicSelect, { target: { value: "self-direction" } });
+
+    expect(screen.getByText("18 questions in this area")).toBeInTheDocument();
+    const picker = screen.getByTestId(
+      "public-question-picker",
+    ) as HTMLDetailsElement;
+    picker.open = true;
+    const moneyGroup = picker.querySelector<HTMLDetailsElement>(
+      '[data-question-focus="money-priorities"]',
+    );
+    expect(moneyGroup).not.toBeNull();
+    if (!moneyGroup) return;
+    moneyGroup.open = true;
+
+    fireEvent.click(
+      within(moneyGroup).getByRole("button", {
+        name: /How can I separate wants from needs/,
+      }),
+    );
+
+    expect(topicSelect).toHaveValue("money-life");
+    expect(picker.querySelector("summary")).toHaveTextContent(
+      "How can I separate wants from needs?",
+    );
+    expect(picker.querySelector("summary")).not.toHaveTextContent(
+      "18 questions in this area",
+    );
+    const notice = screen.getByTestId("money-reading-disclaimer");
+    expect(notice).toHaveTextContent(
+      "Money readings are for self-reflection, not financial advice. Check actual costs and terms before deciding.",
+    );
+    expect(
+      picker.compareDocumentPosition(notice) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   it("keeps topic selection disabled in server markup until hydration", () => {
@@ -279,6 +325,36 @@ describe("Home", () => {
     );
     expect(JSON.stringify(body)).not.toContain("민감한 개인 상황");
     expect(JSON.stringify(body)).not.toContain("userContext");
+  });
+
+  it("does not offer an instant reading for a committed self-domain result", () => {
+    process.env["TAROT_INSTANT_READING_ENABLED"] = "true";
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+
+    render(<TarotExperience locale="ko" />);
+
+    fireEvent.change(screen.getByLabelText("넓게 볼 주제"), {
+      target: { value: "money-life" },
+    });
+    expect(screen.getByTestId("money-reading-disclaimer")).toHaveTextContent(
+      "돈 리딩은 자기 성찰용이며 재정 조언이 아닙니다. 결정 전 실제 비용과 조건을 확인하세요.",
+    );
+    fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
+
+    expect(
+      screen.queryByTestId("money-reading-disclaimer"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("result-context-notice")).toHaveTextContent(
+      "돈 리딩은 자기 성찰용이며 재정 조언이 아닙니다. 결정 전 실제 비용과 조건을 확인하세요.",
+    );
+    expect(screen.getByTestId("prompt-ready")).toHaveTextContent(
+      "복사할 질문은 카드상 답, 서로 다른 해석 두 가지, 현실 확인, 작은 행동 하나를 요청합니다.",
+    );
+    expect(
+      screen.queryByRole("button", { name: "지금 바로 해석하기" }),
+    ).not.toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("keeps the prompt fallback when an instant reading is unavailable", async () => {
@@ -391,6 +467,18 @@ describe("Home", () => {
       [
         "career-direction",
         "Example: I am torn between staying at my company and preparing for a new opportunity. I want one next step.",
+      ],
+      [
+        "self-direction",
+        "Example: I want to separate other people's expectations from the value I want to protect in my next choice.",
+      ],
+      [
+        "money-life",
+        "Example: I want to separate impulse spending from real needs and choose one money rule to keep this month.",
+      ],
+      [
+        "study-projects",
+        "Example: My study or project feels stuck. I want one part to test next and a scope I can remove.",
       ],
     ] as const;
 

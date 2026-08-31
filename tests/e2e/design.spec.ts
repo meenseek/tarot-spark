@@ -188,6 +188,14 @@ const englishTopicSelectContract = {
       label: "Career",
       options: [{ label: "Career direction", value: "career-direction" }],
     },
+    {
+      label: "Me & daily life",
+      options: [
+        { label: "My direction", value: "self-direction" },
+        { label: "Money & daily life", value: "money-life" },
+        { label: "Study & projects", value: "study-projects" },
+      ],
+    },
   ],
 } as const satisfies TopicSelectContract;
 
@@ -206,6 +214,14 @@ const koreanTopicSelectContract = {
     {
       label: "커리어",
       options: [{ label: "커리어 방향", value: "career-direction" }],
+    },
+    {
+      label: "나와 일상",
+      options: [
+        { label: "나의 방향", value: "self-direction" },
+        { label: "돈과 생활", value: "money-life" },
+        { label: "공부와 프로젝트", value: "study-projects" },
+      ],
     },
   ],
 } as const satisfies TopicSelectContract;

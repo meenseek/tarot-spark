@@ -4,6 +4,9 @@ export const topicIds = [
   "feelings",
   "relationship-flow",
   "career-direction",
+  "self-direction",
+  "money-life",
+  "study-projects",
 ] as const;
 
 export type TopicId = (typeof topicIds)[number];

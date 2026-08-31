@@ -156,9 +156,12 @@ instead of palette utilities or color literals.
 ## Reading Flow
 
 - Present topics as one labeled native select. Group its options by the
-  relationship and career life areas while keeping stable topic ids and the
-  current topic visible. Put the active spread count in the draw action instead
-  of repeating it in every topic label.
+  relationship, career, and self (`나와 일상` / `Me & daily life`) life areas
+  while keeping stable topic ids and the current topic visible. Put the active
+  spread count in the draw action instead of repeating it in every topic label.
+- When the selected topic belongs to `money-life`, keep a compact localized
+  self-reflection and non-financial-advice notice directly below the
+  topic/question control and repeat it with the committed result.
 - Keep the topic heading and helper beside a compact select from 768px upward.
   Stack them and let the select fill the available width below 768px.
 - Let users either draw with the broad topic or choose a specific question.

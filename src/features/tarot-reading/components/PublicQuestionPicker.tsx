@@ -9,11 +9,12 @@ import {
   interactiveMotionClassName,
   secondaryButtonClassName,
 } from "@/components/visual/class-names";
+import { formatTemplateStrict } from "@/i18n/template";
 
 type PublicQuestionPickerCopy = {
   readonly clearQuestionLabel: string;
   readonly questionPickerIntro: string;
-  readonly questionPickerOptional: string;
+  readonly questionPickerCount: string;
   readonly questionPickerSummary: string;
   readonly selectedQuestionFocusLabel: string;
   readonly selectedQuestionLabel: string;
@@ -36,6 +37,10 @@ export function PublicQuestionPicker({
 }: PublicQuestionPickerProps) {
   const pickerRef = useRef<HTMLDetailsElement>(null);
   const summaryRef = useRef<HTMLElement>(null);
+  const questionCount = groups.reduce(
+    (count, group) => count + group.questions.length,
+    0,
+  );
 
   if (groups.length === 0) return null;
 
@@ -87,7 +92,14 @@ export function PublicQuestionPicker({
             {copy.questionPickerSummary}
           </span>
           <span className="text-xs font-medium text-ts-muted">
-            {selectedQuestion?.title ?? copy.questionPickerOptional}
+            {selectedQuestion?.title ??
+              formatTemplateStrict(
+                copy.questionPickerCount,
+                {
+                  count: String(questionCount),
+                },
+                "tarot-reading.questionPickerCount",
+              )}
           </span>
         </span>
         <span
