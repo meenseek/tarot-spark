@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { formatCardTitleSummary, getShareReadingMetadata } from "./metadata";
 
 const originalSiteUrl = process.env["NEXT_PUBLIC_SITE_URL"];
+const originalShareSiteUrl = process.env["NEXT_PUBLIC_SHARE_SITE_URL"];
 
 describe("share reading metadata", () => {
   afterEach(() => {
@@ -9,6 +10,11 @@ describe("share reading metadata", () => {
       delete process.env["NEXT_PUBLIC_SITE_URL"];
     } else {
       process.env["NEXT_PUBLIC_SITE_URL"] = originalSiteUrl;
+    }
+    if (originalShareSiteUrl === undefined) {
+      delete process.env["NEXT_PUBLIC_SHARE_SITE_URL"];
+    } else {
+      process.env["NEXT_PUBLIC_SHARE_SITE_URL"] = originalShareSiteUrl;
     }
   });
 
@@ -47,6 +53,56 @@ describe("share reading metadata", () => {
     });
     expect(JSON.stringify(metadata)).not.toContain("source=instagram");
     expect(JSON.stringify(metadata)).not.toContain("campaign=vertical-slice");
+  });
+
+  it("points career and self readings to the broad public question catalog", () => {
+    process.env["NEXT_PUBLIC_SITE_URL"] = "https://tarot-spark.example";
+
+    const careerMetadata = getShareReadingMetadata("en", {
+      cards: "the-fool,the-lovers,the-star",
+      question: "career-growth-experience",
+      topic: "career-direction",
+    });
+    const selfMetadata = getShareReadingMetadata("en", {
+      cards: "the-fool,the-lovers,the-star",
+      question: "money-want-or-need",
+      topic: "money-life",
+    });
+
+    expect(careerMetadata.alternates?.canonical).toBe(
+      "https://tarot-spark.example/tarot-questions",
+    );
+    expect(selfMetadata.alternates?.canonical).toBe(
+      "https://tarot-spark.example/tarot-questions",
+    );
+    expect(String(selfMetadata.openGraph?.url)).toContain("topic=money-life");
+    expect(String(selfMetadata.openGraph?.url)).toContain(
+      "question=money-want-or-need",
+    );
+    expect(String(selfMetadata.openGraph?.url)).not.toBe(
+      String(selfMetadata.alternates?.canonical),
+    );
+
+    const serializedImages = JSON.stringify(selfMetadata.openGraph?.images);
+    expect(serializedImages).toContain("topic=money-life");
+    expect(serializedImages).not.toContain("question=");
+    expect(serializedImages).not.toContain("focus");
+    expect(serializedImages).not.toContain("private");
+  });
+
+  it("keeps the relationship canonical when shared state is invalid", () => {
+    process.env["NEXT_PUBLIC_SITE_URL"] = "https://tarot-spark.example";
+
+    const metadata = getShareReadingMetadata("en", {
+      cards: "the-fool,the-lovers,the-star",
+      question: "money-want-or-need",
+      topic: "love",
+    });
+
+    expect(metadata.alternates?.canonical).toBe(
+      "https://tarot-spark.example/relationship-flow",
+    );
+    expect(metadata.openGraph).toBeUndefined();
   });
 
   it("keeps six-card titles compact while descriptions retain card order", () => {
@@ -105,6 +161,36 @@ describe("share reading metadata", () => {
     );
     expect(String(firstMetadata.openGraph?.url)).not.toContain("source=");
     expect(String(firstMetadata.openGraph?.url)).not.toContain("campaign=");
+  });
+
+  it("uses the configured share origin for the Open Graph object URL", () => {
+    process.env["NEXT_PUBLIC_SITE_URL"] = "https://tarot-spark.example";
+    process.env["NEXT_PUBLIC_SHARE_SITE_URL"] =
+      "https://share.tarot-spark.example/readings";
+
+    const metadata = getShareReadingMetadata("ko", {
+      cards: "the-fool,the-lovers,the-star",
+      question: "money-want-or-need",
+      topic: "money-life",
+    });
+
+    expect(metadata.alternates?.canonical).toBe(
+      "https://tarot-spark.example/ko/tarot-questions",
+    );
+    const openGraphUrl = new URL(String(metadata.openGraph?.url));
+
+    expect(openGraphUrl.origin).toBe("https://share.tarot-spark.example");
+    expect(openGraphUrl.pathname).toBe("/ko/share");
+    expect(openGraphUrl.searchParams.get("topic")).toBe("money-life");
+    expect(openGraphUrl.searchParams.get("question")).toBe(
+      "money-want-or-need",
+    );
+    expect(openGraphUrl.searchParams.get("cards")).toBe(
+      "the-fool,the-lovers,the-star",
+    );
+    expect(JSON.stringify(metadata.openGraph?.images)).toContain(
+      "https://tarot-spark.example/api/share-image?",
+    );
   });
 
   it("preserves draw provenance in Open Graph and image URLs", () => {

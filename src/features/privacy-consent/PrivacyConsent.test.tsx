@@ -513,6 +513,8 @@ describe("PrivacyConsent", () => {
     "/ko/disclaimer",
     "/privacy",
     "/ko/privacy",
+    "/tarot-questions",
+    "/ko/tarot-questions",
   ])("never loads AdSense on non-allowlisted route %s", async (pathname) => {
     navigationState.pathname = pathname;
     window.localStorage.setItem(
@@ -549,6 +551,8 @@ describe("PrivacyConsent", () => {
     "/ko/disclaimer",
     "/privacy",
     "/ko/privacy",
+    "/tarot-questions",
+    "/ko/tarot-questions",
   ])(
     "withholds non-allowlisted route %s until the document reloads",
     async (pathname) => {

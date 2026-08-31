@@ -7,6 +7,7 @@ import type {
 
 export type RelationshipQuestion = {
   readonly id: RelationshipQuestionId;
+  readonly domainId: "relationship";
   readonly focusId: RelationshipQuestionFocusId;
   readonly topicId: TopicId;
   readonly defaultAnswerTargetId: RelationshipAnswerTargetId;
@@ -18,6 +19,7 @@ export type RelationshipQuestion = {
 
 export type RelationshipQuestionCategory = {
   readonly id: RelationshipQuestionFocusId;
+  readonly domainId: "relationship";
   readonly title: string;
   readonly intro: string;
   readonly questions: readonly RelationshipQuestion[];

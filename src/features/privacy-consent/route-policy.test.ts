@@ -26,6 +26,8 @@ describe("advertising route policy", () => {
     "/ko/disclaimer",
     "/privacy",
     "/ko/privacy",
+    "/tarot-questions",
+    "/ko/tarot-questions",
     "/ja/relationship-flow",
     "/relationship-flow/extra",
     "/relationship-tarot-questions/extra",

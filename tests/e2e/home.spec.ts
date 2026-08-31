@@ -629,6 +629,8 @@ test("serves localized SEO metadata and discovery files", async ({
       "/ko/relationship-flow",
       "/relationship-tarot-questions",
       "/ko/relationship-tarot-questions",
+      "/tarot-questions",
+      "/ko/tarot-questions",
     ]),
   );
   expect(sitemapXml).toContain('hreflang="en"');
@@ -661,6 +663,32 @@ test("serves the relationship question explorer with localized SEO", async ({
         .locator('link[rel="alternate"][hreflang="ko"]')
         .getAttribute("href"),
       "/ko/relationship-tarot-questions",
+    );
+  }
+});
+
+test("serves the complete question explorer with localized SEO", async ({
+  page,
+}) => {
+  for (const currentPath of ["/tarot-questions", "/ko/tarot-questions"]) {
+    const response = await page.goto(currentPath);
+
+    expect(response?.status()).toBe(200);
+    expectPathname(
+      await page.locator('link[rel="canonical"]').getAttribute("href"),
+      currentPath,
+    );
+    expectPathname(
+      await page
+        .locator('link[rel="alternate"][hreflang="en"]')
+        .getAttribute("href"),
+      "/tarot-questions",
+    );
+    expectPathname(
+      await page
+        .locator('link[rel="alternate"][hreflang="ko"]')
+        .getAttribute("href"),
+      "/ko/tarot-questions",
     );
   }
 });
@@ -1025,6 +1053,113 @@ test("offers distinctive career questions under one optional hierarchy", async (
     ),
   ).toBe(true);
 });
+
+test("carries a money question from the complete catalog through a safe mobile result", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 844, width: 320 });
+  await page.goto("/ko/tarot-questions#money-priorities");
+  await page.locator("#money-priorities > summary").click();
+  await page.getByRole("link", { name: "소비 구분하기" }).click();
+
+  await expect(page).toHaveURL(/topic=money-life&question=money-want-or-need/);
+  await expect(page.getByTestId("topic-select")).toHaveValue("money-life");
+  await expect(page.getByTestId("selected-public-question")).toContainText(
+    "원하는 소비와 필요한 소비를 어떻게 나눌까?",
+  );
+  await expect(
+    page.getByTestId("public-question-picker").locator(":scope > summary"),
+  ).toContainText("원하는 소비와 필요한 소비를 어떻게 나눌까?");
+  await expect(page.getByTestId("money-reading-disclaimer")).toHaveText(
+    "돈 리딩은 자기 성찰용이며 재정 조언이 아닙니다. 결정 전 실제 비용과 조건을 확인하세요.",
+  );
+
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+
+  await expect(page.getByTestId("result-context-notice")).toHaveText(
+    "돈 리딩은 자기 성찰용이며 재정 조언이 아닙니다. 결정 전 실제 비용과 조건을 확인하세요.",
+  );
+  await expect(page.getByTestId("prompt-ready")).toContainText(
+    "복사할 질문은 카드상 답, 서로 다른 해석 두 가지, 현실 확인, 작은 행동 하나를 요청합니다.",
+  );
+  await expect(
+    page.getByRole("button", { name: "지금 바로 해석하기" }),
+  ).toHaveCount(0);
+  await openPromptContent(page);
+  await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
+    /수입·가격·대출·빚·투자 수익을 예측하거나 매수·매도·차입을 지시하거나 감당 가능하다고 판단하지 마세요/,
+  );
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+});
+
+for (const width of [390, 1280]) {
+  test(`takes a first-time user from the footer catalog to money and broad self readings at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ height: 844, width });
+    await page.goto("/ko");
+    await page
+      .getByTestId("site-footer")
+      .getByRole("link", { name: "타로 질문 모음" })
+      .click();
+
+    await expect(page).toHaveURL("/ko/tarot-questions");
+    await expect(page.locator("#domain-self")).toBeVisible();
+    await page.locator("#money-priorities > summary").click();
+    await page.getByRole("link", { name: "소비 구분하기" }).click();
+
+    await expect(page).toHaveURL(
+      /\/ko\?topic=money-life&question=money-want-or-need$/,
+    );
+    await expect(page.getByTestId("selected-public-question")).toContainText(
+      "원하는 소비와 필요한 소비를 어떻게 나눌까?",
+    );
+    await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+    await expect(page.getByTestId("current-public-question")).toContainText(
+      "원하는 소비와 필요한 소비를 어떻게 나눌까?",
+    );
+    await page.getByRole("button", { name: "질문 복사하기" }).click();
+    await expect(page.getByTestId("prompt-copy-success")).toContainText(
+      "복사했어요",
+    );
+    await expect(
+      page.getByRole("button", { name: "지금 바로 해석하기" }),
+    ).toHaveCount(0);
+
+    await page.getByRole("button", { name: "다음 카드 준비하기" }).click();
+    await page.getByTestId("topic-select").selectOption("self-direction");
+    await expect(page.getByTestId("selected-public-question")).toHaveCount(0);
+    await expect(
+      page.getByTestId("public-question-picker").locator(":scope > summary"),
+    ).toContainText("이 영역 질문 18개");
+    await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+
+    await expect(page).toHaveURL((url) => {
+      return (
+        url.pathname === "/ko" &&
+        url.searchParams.get("topic") === "self-direction" &&
+        !url.searchParams.has("question")
+      );
+    });
+    await expect(page.getByTestId("current-public-question")).toHaveCount(0);
+    await openPromptContent(page);
+    await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
+      /남의 기대와 사용자가 실제로 중요하게 여기는 가치를 나누고/,
+    );
+    await expect(
+      page.getByRole("button", { name: "지금 바로 해석하기" }),
+    ).toHaveCount(0);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+  });
+}
 
 test("returns 404 for unsupported or duplicate locale paths", async ({
   request,
@@ -1402,6 +1537,44 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
   );
   await expect(page).toHaveURL(/\/relationship-flow$/);
   await expect(page).not.toHaveURL(/private|context/);
+});
+
+test("keeps a shared money reading noindex with the complete catalog canonical", async ({
+  page,
+}) => {
+  await page.goto(
+    "/ko/share?topic=money-life&question=money-want-or-need&cards=the-fool,the-lovers,the-star&source=copy&campaign=vertical-slice",
+  );
+
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    "content",
+    /noindex/,
+  );
+  expectPathname(
+    await page.locator('link[rel="canonical"]').getAttribute("href"),
+    "/ko/tarot-questions",
+  );
+  await expect(page.getByTestId("result-context-notice")).toHaveText(
+    "돈 리딩은 자기 성찰용이며 재정 조언이 아닙니다. 결정 전 실제 비용과 조건을 확인하세요.",
+  );
+
+  const openGraphUrl = new URL(
+    (await page.locator('meta[property="og:url"]').getAttribute("content")) ??
+      "http://localhost",
+  );
+  expect(openGraphUrl.pathname).toBe("/ko/share");
+  expect(openGraphUrl.searchParams.get("topic")).toBe("money-life");
+  expect(openGraphUrl.searchParams.get("question")).toBe("money-want-or-need");
+  expect(openGraphUrl.searchParams.has("source")).toBe(false);
+  expect(openGraphUrl.searchParams.has("campaign")).toBe(false);
+
+  const imageUrl = new URL(
+    (await page.locator('meta[property="og:image"]').getAttribute("content")) ??
+      "http://localhost",
+  );
+  expect(imageUrl.searchParams.get("topic")).toBe("money-life");
+  expect(imageUrl.searchParams.has("question")).toBe(false);
+  expect(imageUrl.searchParams.has("focus")).toBe(false);
 });
 
 test("renders a shared reading first and keeps its localized share route", async ({
