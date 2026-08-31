@@ -31,6 +31,7 @@ type ReadingResultProps = {
   readonly instantReading: InstantReading | undefined;
   readonly instantReadingEnabled: boolean;
   readonly instantReadingStatus: InstantReadingStatus;
+  readonly contextNotice?: string;
   readonly prompt: string;
   readonly promptReadyRef?: Ref<HTMLElement>;
   readonly resultActions?: ReactNode;
@@ -59,6 +60,7 @@ export function ReadingResult({
   instantReading,
   instantReadingEnabled,
   instantReadingStatus,
+  contextNotice,
   prompt,
   promptReadyRef,
   resultActions,
@@ -125,6 +127,17 @@ export function ReadingResult({
               >
                 {copy.promptReady}
               </h2>
+              <p className="text-sm leading-6 text-ts-ink">
+                {copy.promptValueSummary}
+              </p>
+              {contextNotice ? (
+                <p
+                  className="text-xs font-medium leading-5 text-ts-action"
+                  data-testid="result-context-notice"
+                >
+                  {contextNotice}
+                </p>
+              ) : null}
               {hasUserContext && (
                 <p className="text-xs leading-5 text-ts-muted">
                   {copy.promptContextIncluded}

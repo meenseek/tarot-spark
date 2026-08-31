@@ -13,6 +13,7 @@ export {
 export { drawCards, getDefaultSpread, getSpread } from "./spreads";
 export {
   instantReadingMarkers,
+  isInstantReadingTaxonomyEligible,
   parseInstantReadingRequest,
   parseInstantReadingResponse,
   validateInstantReadingText,
@@ -35,6 +36,9 @@ export {
   relationshipFocusIds,
   relationshipQuestionDefinitions,
   relationshipQuestionFocusIds,
+  selfFocusIds,
+  selfQuestionDefinitions,
+  selfQuestionFocusIds,
   topicTaxonomyById,
 } from "./taxonomy";
 export {
@@ -84,6 +88,10 @@ export type {
   RelationshipFocusId,
   RelationshipQuestionFocusId,
   RelationshipQuestionId,
+  SelfAnswerTargetId,
+  SelfFocusId,
+  SelfQuestionFocusId,
+  SelfQuestionId,
 } from "./taxonomy";
 export type {
   InstantReadingCardInput,

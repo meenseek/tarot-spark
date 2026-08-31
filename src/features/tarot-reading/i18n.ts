@@ -31,8 +31,9 @@ export type TarotReadingMessages = {
   readonly topicSelectLabel: string;
   readonly topicGroupRelationship: string;
   readonly topicGroupCareer: string;
+  readonly topicGroupSelf: string;
   readonly questionPickerSummary: string;
-  readonly questionPickerOptional: string;
+  readonly questionPickerCount: string;
   readonly questionPickerIntro: string;
   readonly selectedQuestionLabel: string;
   readonly selectedQuestionFocusLabel: string;
@@ -68,6 +69,7 @@ export type TarotReadingMessages = {
     readonly resultHeading: string;
   };
   readonly promptReady: string;
+  readonly promptValueSummary: string;
   readonly promptContextIncluded: string;
   readonly promptCopySuccess: string;
   readonly promptContentDisclosure: string;
@@ -98,6 +100,7 @@ export type TarotReadingMessages = {
   readonly manualShareUrlLabel: string;
   readonly emptyHeading: string;
   readonly emptyBody: string;
+  readonly moneyDisclaimer: string;
   readonly disclaimer: string;
   readonly languageSwitchLabel: string;
   readonly dailyQuestionLink: string;
@@ -161,10 +164,12 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     kakaoShared: copy.kakaoShared,
     languageSwitchLabel: copy.languageSwitchLabel,
     manualShareUrlLabel: copy.manualShareUrlLabel,
+    moneyDisclaimer: copy.moneyDisclaimer,
     personalizationHeading: copy.personalizationHeading,
     personalizationIntro: copy.personalizationIntro,
     placeholderCardName: copy.placeholderCardName,
     promptReady: copy.promptReady,
+    promptValueSummary: copy.promptValueSummary,
     promptContextIncluded: copy.promptContextIncluded,
     promptCopySuccess: copy.promptCopySuccess,
     promptContentDisclosure: copy.promptContentDisclosure,
@@ -188,8 +193,9 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     topicSelectLabel: copy.topicSelectLabel,
     topicGroupRelationship: copy.topicGroupRelationship,
     topicGroupCareer: copy.topicGroupCareer,
+    topicGroupSelf: copy.topicGroupSelf,
     questionPickerSummary: copy.questionPickerSummary,
-    questionPickerOptional: copy.questionPickerOptional,
+    questionPickerCount: copy.questionPickerCount,
     questionPickerIntro: copy.questionPickerIntro,
     selectedQuestionLabel: copy.selectedQuestionLabel,
     selectedQuestionFocusLabel: copy.selectedQuestionFocusLabel,

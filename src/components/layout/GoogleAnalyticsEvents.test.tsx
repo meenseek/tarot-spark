@@ -374,6 +374,42 @@ describe("GoogleAnalyticsEvents", () => {
     ).toHaveLength(1);
   });
 
+  it("accepts a compatible self question and rejects mismatches or descriptive data", () => {
+    const calls = mockGtag();
+    const payload = {
+      locale: "en",
+      topic_id: "money-life",
+      spread_id: "quick",
+      style_id: "practical",
+      draw_style_id: "practical",
+      card_count: 3,
+      question_id: "money-want-or-need",
+    };
+
+    render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
+    for (const candidate of [
+      payload,
+      { ...payload, topic_id: "love" },
+      { ...payload, question_title: "Should I buy this?" },
+      { ...payload, focus_id: "money-priorities" },
+      { ...payload, private_context: "My account balance" },
+    ]) {
+      window.dispatchEvent(
+        new CustomEvent("tarot_spark_event", {
+          detail: { name: "result_view", payload: candidate },
+        }),
+      );
+    }
+
+    expect(calls).toContainEqual(["event", "result_view", payload]);
+    expect(
+      calls.filter(
+        ([command, eventName]) =>
+          command === "event" && eventName === "result_view",
+      ),
+    ).toEqual([["event", "result_view", payload]]);
+  });
+
   it("captures an event waiting for the analytics listener exactly once", () => {
     const calls = mockGtag();
 

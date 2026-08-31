@@ -6,6 +6,7 @@ import {
   getReadingStyle,
   getSpread,
   getTopic,
+  isInstantReadingTaxonomyEligible,
   validateInstantReadingText,
   type InstantReadingRequest,
   type InstantReading,
@@ -96,6 +97,7 @@ export function isInstantReadingRequestConsistent(
   request: InstantReadingRequest,
 ) {
   try {
+    assertInstantReadingRequestEligible(request);
     getRequestMaterials(tarotData, request);
     return true;
   } catch {
@@ -116,6 +118,9 @@ export function buildInstantReadingPrompt(
     "아래 공개 설정과 검토된 카드 의미만 사용해 하나의 한국어 성찰문을 작성하세요.",
     `주제: ${materials.topicLabel}`,
     `질문의 초점: ${materials.promptLead}`,
+    ...(materials.safetyInstruction
+      ? [`주제 안전 기준: ${materials.safetyInstruction}`]
+      : []),
     `답변의 기본 초점: ${materials.answerTargetInstruction}`,
     `카드 수: ${materials.spreadLabel}`,
     `답변 분위기: ${materials.styleLabel}`,
@@ -162,6 +167,7 @@ export async function requestInstantReading(
     timeoutMs = instantReadingRequestTimeoutMs,
   }: RequestOptions,
 ): Promise<InstantReading> {
+  assertInstantReadingRequestEligible(request);
   const timeoutController = new AbortController();
   const timeoutId = setTimeout(() => timeoutController.abort(), timeoutMs);
   const signal = callerSignal
@@ -227,6 +233,7 @@ type InstantReadingPromptMaterials = {
   readonly answerTargetInstruction: string;
   readonly cardMeanings: readonly string[];
   readonly promptLead: string;
+  readonly safetyInstruction?: string;
   readonly spreadLabel: string;
   readonly styleInstruction: string;
   readonly styleLabel: string;
@@ -275,11 +282,21 @@ function getRequestMaterials(
     answerTargetInstruction: answerTarget.instruction,
     cardMeanings,
     promptLead: question?.focus ?? topic.promptLead,
+    ...(topic.safetyInstruction
+      ? { safetyInstruction: topic.safetyInstruction }
+      : {}),
     spreadLabel: spread.label,
     styleInstruction: readingStyle.instruction,
     styleLabel: readingStyle.label,
     topicLabel: topic.label,
   };
+}
+
+function assertInstantReadingRequestEligible(request: InstantReadingRequest) {
+  const taxonomy = getReadingTaxonomy(request.topicId, request.questionId);
+  if (!isInstantReadingTaxonomyEligible(taxonomy)) {
+    throw new RangeError("Instant reading taxonomy is not eligible.");
+  }
 }
 
 function extractCloudflareResponse(payload: unknown) {

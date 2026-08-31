@@ -6,7 +6,10 @@ import {
   careerQuestionDefinitions,
   careerQuestionFocusIds,
   getTopicTaxonomy,
+  readingDomainIds,
   readingStyleIds,
+  selfQuestionDefinitions,
+  selfQuestionFocusIds,
   spreadIds,
   tarotCardIds,
   topicIds,
@@ -22,7 +25,9 @@ import enPublicPages from "@/messages/en/public-pages.json";
 import enPrivacyConsent from "@/messages/en/privacy-consent.json";
 import enRelationshipFlow from "@/messages/en/relationship-flow.json";
 import enRelationshipQuestions from "@/messages/en/relationship-questions.json";
+import enSelfQuestions from "@/messages/en/self-questions.json";
 import enTarotMessages from "@/messages/en/tarot-domain.json";
+import enTarotQuestions from "@/messages/en/tarot-questions.json";
 import enCopy from "@/messages/en/tarot-reading.json";
 import koDailyQuestion from "@/messages/ko/daily-question.json";
 import koCareerQuestions from "@/messages/ko/career-questions.json";
@@ -30,7 +35,9 @@ import koPublicPages from "@/messages/ko/public-pages.json";
 import koPrivacyConsent from "@/messages/ko/privacy-consent.json";
 import koRelationshipFlow from "@/messages/ko/relationship-flow.json";
 import koRelationshipQuestions from "@/messages/ko/relationship-questions.json";
+import koSelfQuestions from "@/messages/ko/self-questions.json";
 import koTarotMessages from "@/messages/ko/tarot-domain.json";
+import koTarotQuestions from "@/messages/ko/tarot-questions.json";
 import koCopy from "@/messages/ko/tarot-reading.json";
 import {
   defaultLocale,
@@ -79,6 +86,16 @@ const relationshipQuestionMessagesByLocale = {
 const careerQuestionMessagesByLocale = {
   en: enCareerQuestions,
   ko: koCareerQuestions,
+} satisfies Record<Locale, unknown>;
+
+const selfQuestionMessagesByLocale = {
+  en: enSelfQuestions,
+  ko: koSelfQuestions,
+} satisfies Record<Locale, unknown>;
+
+const tarotQuestionExplorerMessagesByLocale = {
+  en: enTarotQuestions,
+  ko: koTarotQuestions,
 } satisfies Record<Locale, unknown>;
 
 const jsonFiles = [
@@ -146,6 +163,22 @@ const jsonFiles = [
     label: "messages/ko/career-questions.json",
     path: "src/messages/ko/career-questions.json",
   },
+  {
+    label: "messages/en/self-questions.json",
+    path: "src/messages/en/self-questions.json",
+  },
+  {
+    label: "messages/ko/self-questions.json",
+    path: "src/messages/ko/self-questions.json",
+  },
+  {
+    label: "messages/en/tarot-questions.json",
+    path: "src/messages/en/tarot-questions.json",
+  },
+  {
+    label: "messages/ko/tarot-questions.json",
+    path: "src/messages/ko/tarot-questions.json",
+  },
 ] as const;
 
 type JsonSchema =
@@ -188,8 +221,9 @@ const uiCopySchema = {
   topicSelectLabel: "string",
   topicGroupRelationship: "string",
   topicGroupCareer: "string",
+  topicGroupSelf: "string",
   questionPickerSummary: "string",
-  questionPickerOptional: "string",
+  questionPickerCount: "string",
   questionPickerIntro: "string",
   selectedQuestionLabel: "string",
   selectedQuestionFocusLabel: "string",
@@ -225,6 +259,7 @@ const uiCopySchema = {
     resultHeading: "string",
   },
   promptReady: "string",
+  promptValueSummary: "string",
   promptContextIncluded: "string",
   promptCopySuccess: "string",
   promptContentDisclosure: "string",
@@ -255,6 +290,7 @@ const uiCopySchema = {
   manualShareUrlLabel: "string",
   emptyHeading: "string",
   emptyBody: "string",
+  moneyDisclaimer: "string",
   disclaimer: "string",
   languageSwitchLabel: "string",
   dailyQuestionLink: "string",
@@ -271,6 +307,7 @@ const tarotMessagesSchema = {
   promptTemplate: {
     cardLine: "string",
     questionFocusBlock: "string",
+    topicSafetyBlock: "string",
     topicFocusBlock: "string",
     userContextBlock: "string",
     lines: ["string"],
@@ -290,6 +327,7 @@ const tarotMessagesSchema = {
     contextPlaceholder: "string",
     promptLead: "string",
     resultFrame: "string",
+    safetyInstruction: optionalSchema("string"),
   }),
 } satisfies JsonSchema;
 
@@ -464,6 +502,40 @@ const careerQuestionMessagesSchema = {
   ),
 } satisfies JsonSchema;
 
+const selfQuestionMessagesSchema = {
+  categories: exactRecordSchema(selfQuestionFocusIds, {
+    title: "string",
+    intro: "string",
+  }),
+  questions: exactRecordSchema(
+    selfQuestionDefinitions.map(({ id }) => id),
+    {
+      title: "string",
+      summary: "string",
+      focus: "string",
+      ctaLabel: "string",
+    },
+  ),
+} satisfies JsonSchema;
+
+const tarotQuestionExplorerMessagesSchema = {
+  metadata: {
+    title: "string",
+    description: "string",
+  },
+  eyebrow: "string",
+  title: "string",
+  intro: "string",
+  resultContext: "string",
+  browseHeading: "string",
+  categoryNavigationLabel: "string",
+  disclaimer: "string",
+  domains: exactRecordSchema(readingDomainIds, {
+    title: "string",
+    intro: "string",
+  }),
+} satisfies JsonSchema;
+
 describe("i18n integrity", () => {
   it("keeps locale files aligned with supported locales", () => {
     expect(Object.keys(uiCopyByLocale).sort()).toEqual(
@@ -488,6 +560,12 @@ describe("i18n integrity", () => {
       [...supportedLocales].sort(),
     );
     expect(Object.keys(careerQuestionMessagesByLocale).sort()).toEqual(
+      [...supportedLocales].sort(),
+    );
+    expect(Object.keys(selfQuestionMessagesByLocale).sort()).toEqual(
+      [...supportedLocales].sort(),
+    );
+    expect(Object.keys(tarotQuestionExplorerMessagesByLocale).sort()).toEqual(
       [...supportedLocales].sort(),
     );
   });
@@ -545,6 +623,18 @@ describe("i18n integrity", () => {
     );
   });
 
+  it("keeps self question message keys identical across locales", () => {
+    expect(collectShapePaths(koSelfQuestions)).toEqual(
+      collectShapePaths(enSelfQuestions),
+    );
+  });
+
+  it("keeps tarot question explorer keys identical across locales", () => {
+    expect(collectShapePaths(koTarotQuestions)).toEqual(
+      collectShapePaths(enTarotQuestions),
+    );
+  });
+
   it("matches supported locale JSON schemas exactly", () => {
     const schemaErrors = [
       ...collectLocaleSchemaErrors(uiCopyByLocale, uiCopySchema, "$.uiCopy"),
@@ -582,6 +672,16 @@ describe("i18n integrity", () => {
         careerQuestionMessagesByLocale,
         careerQuestionMessagesSchema,
         "$.careerQuestionMessages",
+      ),
+      ...collectLocaleSchemaErrors(
+        selfQuestionMessagesByLocale,
+        selfQuestionMessagesSchema,
+        "$.selfQuestionMessages",
+      ),
+      ...collectLocaleSchemaErrors(
+        tarotQuestionExplorerMessagesByLocale,
+        tarotQuestionExplorerMessagesSchema,
+        "$.tarotQuestionExplorerMessages",
       ),
     ];
 
@@ -641,6 +741,11 @@ describe("i18n integrity", () => {
           ["count", "max"],
         ),
         ...collectTemplatePlaceholderErrors(
+          `${locale} tarot-reading.questionPickerCount`,
+          copy.questionPickerCount,
+          ["count"],
+        ),
+        ...collectTemplatePlaceholderErrors(
           `${locale} tarot-reading.shareText`,
           copy.shareText,
           ["cardNames", "topicLabel"],
@@ -661,6 +766,11 @@ describe("i18n integrity", () => {
           ["topicPromptLead"],
         ),
         ...collectTemplatePlaceholderErrors(
+          `${locale} tarot promptTemplate.topicSafetyBlock`,
+          tarotMessages.promptTemplate.topicSafetyBlock,
+          ["topicSafetyInstruction"],
+        ),
+        ...collectTemplatePlaceholderErrors(
           `${locale} tarot promptTemplate.userContextBlock`,
           tarotMessages.promptTemplate.userContextBlock,
           ["userContext"],
@@ -675,6 +785,7 @@ describe("i18n integrity", () => {
             "readingStyleInstruction",
             "readingStyleLabel",
             "spreadLabel",
+            "topicSafetyBlock",
             "topicLabel",
             "userContextBlock",
           ],
@@ -724,6 +835,14 @@ describe("i18n integrity", () => {
       ...collectBlankStringPaths(
         careerQuestionMessagesByLocale,
         "$.careerQuestionMessages",
+      ),
+      ...collectBlankStringPaths(
+        selfQuestionMessagesByLocale,
+        "$.selfQuestionMessages",
+      ),
+      ...collectBlankStringPaths(
+        tarotQuestionExplorerMessagesByLocale,
+        "$.tarotQuestionExplorerMessages",
       ),
     ];
 

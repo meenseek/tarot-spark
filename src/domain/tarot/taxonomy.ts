@@ -1,6 +1,6 @@
 import type { TopicId } from "./ids";
 
-export const readingDomainIds = ["relationship", "career"] as const;
+export const readingDomainIds = ["relationship", "career", "self"] as const;
 export type ReadingDomainId = (typeof readingDomainIds)[number];
 
 export const relationshipFocusIds = [
@@ -40,6 +40,30 @@ export const careerQuestionFocusIds = careerFocusIds.filter(
   (focusId): focusId is CareerQuestionFocusId => focusId !== "direction",
 );
 
+export const selfFocusIds = [
+  "self-direction",
+  "money-life",
+  "study-projects",
+  "values-decisions",
+  "habits-growth",
+  "money-priorities",
+  "money-boundaries",
+  "learning-direction",
+  "project-momentum",
+] as const;
+export type SelfFocusId = (typeof selfFocusIds)[number];
+export type SelfQuestionFocusId = Exclude<
+  SelfFocusId,
+  "self-direction" | "money-life" | "study-projects"
+>;
+
+export const selfQuestionFocusIds = selfFocusIds.filter(
+  (focusId): focusId is SelfQuestionFocusId =>
+    focusId !== "self-direction" &&
+    focusId !== "money-life" &&
+    focusId !== "study-projects",
+);
+
 export const answerTargetIds = [
   "external-perception",
   "relationship",
@@ -52,6 +76,7 @@ export type CareerAnswerTargetId = Extract<
   AnswerTargetId,
   "external-perception" | "career"
 >;
+export type SelfAnswerTargetId = Extract<AnswerTargetId, "self">;
 
 export type ReadingTaxonomy =
   | {
@@ -63,6 +88,11 @@ export type ReadingTaxonomy =
       readonly domainId: "career";
       readonly focusId: CareerFocusId;
       readonly defaultAnswerTargetId: CareerAnswerTargetId;
+    }
+  | {
+      readonly domainId: "self";
+      readonly focusId: SelfFocusId;
+      readonly defaultAnswerTargetId: SelfAnswerTargetId;
     };
 
 export const topicTaxonomyById = {
@@ -90,6 +120,21 @@ export const topicTaxonomyById = {
     domainId: "career",
     focusId: "direction",
     defaultAnswerTargetId: "career",
+  },
+  "self-direction": {
+    domainId: "self",
+    focusId: "self-direction",
+    defaultAnswerTargetId: "self",
+  },
+  "money-life": {
+    domainId: "self",
+    focusId: "money-life",
+    defaultAnswerTargetId: "self",
+  },
+  "study-projects": {
+    domainId: "self",
+    focusId: "study-projects",
+    defaultAnswerTargetId: "self",
   },
 } as const satisfies Record<TopicId, ReadingTaxonomy>;
 
@@ -397,9 +442,147 @@ export const careerQuestionDefinitions = [
 
 export type CareerQuestionId = (typeof careerQuestionDefinitions)[number]["id"];
 
+export const selfQuestionDefinitions = [
+  {
+    id: "self-priority-now",
+    domainId: "self",
+    focusId: "values-decisions",
+    topicId: "self-direction",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "self-expectation-source",
+    domainId: "self",
+    focusId: "values-decisions",
+    topicId: "self-direction",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "self-review-condition",
+    domainId: "self",
+    focusId: "values-decisions",
+    topicId: "self-direction",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "self-repeating-delay",
+    domainId: "self",
+    focusId: "habits-growth",
+    topicId: "self-direction",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "self-energy-focus",
+    domainId: "self",
+    focusId: "habits-growth",
+    topicId: "self-direction",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "self-supportive-pattern",
+    domainId: "self",
+    focusId: "habits-growth",
+    topicId: "self-direction",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "money-spending-priority",
+    domainId: "self",
+    focusId: "money-priorities",
+    topicId: "money-life",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "money-want-or-need",
+    domainId: "self",
+    focusId: "money-priorities",
+    topicId: "money-life",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "money-sustainable-habit",
+    domainId: "self",
+    focusId: "money-priorities",
+    topicId: "money-life",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "money-big-purchase-check",
+    domainId: "self",
+    focusId: "money-boundaries",
+    topicId: "money-life",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "money-shared-cost",
+    domainId: "self",
+    focusId: "money-boundaries",
+    topicId: "money-life",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "money-helping-boundary",
+    domainId: "self",
+    focusId: "money-boundaries",
+    topicId: "money-life",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "study-next-focus",
+    domainId: "self",
+    focusId: "learning-direction",
+    topicId: "study-projects",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "study-method-fit",
+    domainId: "self",
+    focusId: "learning-direction",
+    topicId: "study-projects",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "study-feedback-gap",
+    domainId: "self",
+    focusId: "learning-direction",
+    topicId: "study-projects",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "project-next-step",
+    domainId: "self",
+    focusId: "project-momentum",
+    topicId: "study-projects",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "project-scope-boundary",
+    domainId: "self",
+    focusId: "project-momentum",
+    topicId: "study-projects",
+    defaultAnswerTargetId: "self",
+  },
+  {
+    id: "project-pause-signal",
+    domainId: "self",
+    focusId: "project-momentum",
+    topicId: "study-projects",
+    defaultAnswerTargetId: "self",
+  },
+] as const satisfies readonly {
+  readonly id: string;
+  readonly domainId: "self";
+  readonly focusId: SelfQuestionFocusId;
+  readonly topicId: "self-direction" | "money-life" | "study-projects";
+  readonly defaultAnswerTargetId: SelfAnswerTargetId;
+}[];
+
+export type SelfQuestionId = (typeof selfQuestionDefinitions)[number]["id"];
+
 export const publicQuestionDefinitions = [
   ...relationshipQuestionDefinitions,
   ...careerQuestionDefinitions,
+  ...selfQuestionDefinitions,
 ];
 
 export type PublicQuestionId = (typeof publicQuestionDefinitions)[number]["id"];
@@ -459,15 +642,24 @@ export function getReadingTaxonomy(
     );
   }
 
-  return question.domainId === "relationship"
-    ? {
+  switch (question.domainId) {
+    case "relationship":
+      return {
         domainId: "relationship",
         focusId: question.focusId,
         defaultAnswerTargetId: question.defaultAnswerTargetId,
-      }
-    : {
+      };
+    case "career":
+      return {
         domainId: "career",
         focusId: question.focusId,
         defaultAnswerTargetId: question.defaultAnswerTargetId,
       };
+    case "self":
+      return {
+        domainId: "self",
+        focusId: question.focusId,
+        defaultAnswerTargetId: question.defaultAnswerTargetId,
+      };
+  }
 }

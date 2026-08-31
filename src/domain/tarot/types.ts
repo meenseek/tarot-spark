@@ -10,6 +10,7 @@ export type Topic = {
   readonly contextPlaceholder: string;
   readonly promptLead: string;
   readonly resultFrame: string;
+  readonly safetyInstruction?: string;
 };
 
 export type AnswerTarget = {
@@ -42,6 +43,7 @@ export type TarotCard = {
 export type PromptTemplate = {
   readonly cardLine: string;
   readonly questionFocusBlock: string;
+  readonly topicSafetyBlock: string;
   readonly topicFocusBlock: string;
   readonly userContextBlock: string;
   readonly lines: readonly string[];

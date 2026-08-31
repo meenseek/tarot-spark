@@ -75,6 +75,25 @@ describe("POST /api/reading", () => {
     expect(providerBody).not.toContain("test-token");
   });
 
+  it("rejects self readings without contacting the provider", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+
+    for (const body of [
+      { ...validRequest, topicId: "money-life" },
+      {
+        ...validRequest,
+        questionId: "money-want-or-need",
+        topicId: "money-life",
+      },
+    ]) {
+      const response = await POST(createJsonRequest(body));
+      expect(response.status).toBe(400);
+      expect(await response.json()).toEqual({ code: "invalid-request" });
+    }
+
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it.each([
     { body: "{}", contentType: "text/plain", status: 415 },
     { body: "not-json", contentType: "application/json", status: 400 },

@@ -1,19 +1,21 @@
 import "server-only";
 
 import {
-  careerQuestionDefinitions,
   publicQuestionDefinitions,
-  relationshipQuestionDefinitions,
   type CareerQuestionFocusId,
   type CareerQuestionId,
   type RelationshipQuestionFocusId,
   type RelationshipQuestionId,
+  type SelfQuestionFocusId,
+  type SelfQuestionId,
 } from "@/domain/tarot";
 import type { Locale } from "@/i18n/config";
 import enCareerMessages from "@/messages/en/career-questions.json";
 import enRelationshipMessages from "@/messages/en/relationship-questions.json";
+import enSelfMessages from "@/messages/en/self-questions.json";
 import koCareerMessages from "@/messages/ko/career-questions.json";
 import koRelationshipMessages from "@/messages/ko/relationship-questions.json";
+import koSelfMessages from "@/messages/ko/self-questions.json";
 import type {
   PublicQuestion,
   PublicQuestionCatalog,
@@ -42,6 +44,11 @@ type CareerMessages = {
   readonly questions: Readonly<Record<CareerQuestionId, QuestionCopy>>;
 };
 
+type SelfMessages = {
+  readonly categories: Readonly<Record<SelfQuestionFocusId, GroupCopy>>;
+  readonly questions: Readonly<Record<SelfQuestionId, QuestionCopy>>;
+};
+
 const relationshipMessagesByLocale = {
   en: enRelationshipMessages,
   ko: koRelationshipMessages,
@@ -52,50 +59,63 @@ const careerMessagesByLocale = {
   ko: koCareerMessages,
 } satisfies Record<Locale, CareerMessages>;
 
+const selfMessagesByLocale = {
+  en: enSelfMessages,
+  ko: koSelfMessages,
+} satisfies Record<Locale, SelfMessages>;
+
 export function getPublicQuestionCatalog(
   locale: Locale,
 ): PublicQuestionCatalog {
   const relationshipMessages = relationshipMessagesByLocale[locale];
   const careerMessages = careerMessagesByLocale[locale];
+  const selfMessages = selfMessagesByLocale[locale];
   const questions = publicQuestionDefinitions.map((definition) => {
-    const copy =
-      definition.domainId === "relationship"
-        ? relationshipMessages.questions[definition.id]
-        : careerMessages.questions[definition.id];
+    const copy = (() => {
+      switch (definition.domainId) {
+        case "relationship":
+          return relationshipMessages.questions[definition.id];
+        case "career":
+          return careerMessages.questions[definition.id];
+        case "self":
+          return selfMessages.questions[definition.id];
+      }
+    })();
 
     return { ...definition, ...copy } as PublicQuestion;
   });
 
-  const relationshipGroups = relationshipQuestionDefinitions.reduce<
-    PublicQuestionGroup[]
-  >((groups, definition) => {
-    if (groups.some(({ id }) => id === definition.focusId)) return groups;
-    return [
-      ...groups,
-      {
-        id: definition.focusId,
-        domainId: "relationship",
-        ...relationshipMessages.categories[definition.focusId],
-        questions: questions.filter(
-          (question) =>
-            question.domainId === "relationship" &&
-            question.focusId === definition.focusId,
-        ),
-      },
-    ];
-  }, []);
-  const careerGroups = careerQuestionDefinitions.reduce<PublicQuestionGroup[]>(
+  const groups = publicQuestionDefinitions.reduce<PublicQuestionGroup[]>(
     (groups, definition) => {
-      if (groups.some(({ id }) => id === definition.focusId)) return groups;
+      if (
+        groups.some(
+          ({ domainId, id }) =>
+            domainId === definition.domainId && id === definition.focusId,
+        )
+      ) {
+        return groups;
+      }
+
+      const copy = (() => {
+        switch (definition.domainId) {
+          case "relationship":
+            return relationshipMessages.categories[definition.focusId];
+          case "career":
+            return careerMessages.categories[definition.focusId];
+          case "self":
+            return selfMessages.categories[definition.focusId];
+        }
+      })();
+
       return [
         ...groups,
         {
           id: definition.focusId,
-          domainId: "career",
-          ...careerMessages.categories[definition.focusId],
+          domainId: definition.domainId,
+          ...copy,
           questions: questions.filter(
             (question) =>
-              question.domainId === "career" &&
+              question.domainId === definition.domainId &&
               question.focusId === definition.focusId,
           ),
         },
@@ -105,7 +125,7 @@ export function getPublicQuestionCatalog(
   );
 
   return {
-    groups: [...relationshipGroups, ...careerGroups],
+    groups,
     questions,
   };
 }
