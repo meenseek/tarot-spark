@@ -38,17 +38,20 @@ structured way to reflect on a relationship.
 3. Instagram: reach visual tarot and journaling discovery with an original
    five-to-eight-slide carousel or one current-preview card image. Use the
    profile or story link.
-4. Threads: reach Korean and English public conversations with a short
+4. YouTube Shorts: reach short-form video discovery with the approved vertical
+   campaign asset and a channel profile link to the generator. Adapt the title,
+   opening frame, and call to action without adding prediction claims.
+5. Threads: reach Korean and English public conversations with a short
    observation, example prompt, and one question. Link in a relevant follow-up.
-5. Disquiet: reach Korean makers with an approved product profile and
+6. Disquiet: reach Korean makers with an approved product profile and
    product-linked build notes. Complete product review before posting, make each
    post useful without relying on the product card, and ask one concrete
    feedback question. Recheck the current product submission flow in the
    [Disquiet renewal announcement](https://disquiet.io/announcement).
-6. Naver Cafe: reach existing Korean tarot, journaling, or AI communities with
+7. Naver Cafe: reach existing Korean tarot, journaling, or AI communities with
    a value-first text post tailored to the board. Link only when the cafe
    permits it.
-7. Reddit: reach English tarot, journaling, or prompt communities with a native
+8. Reddit: reach English tarot, journaling, or prompt communities with a native
    text case study and maker disclosure. Follow each community's
    self-promotion rule.
 
@@ -111,11 +114,20 @@ independently useful.
 
 ## Four-Week Run
 
+Create two approved vertical source videos per week and publish each source
+video separately to YouTube Shorts and Instagram Reels. Publish two useful
+Threads posts and one Naver Blog guide per week. Make at most one value-first
+community post per week across Naver Cafe, Reddit, and Disquiet after checking
+the destination's current rules. Record every planned and completed
+distribution in the campaign's distribution register; a schedule without a
+public or authenticated publication record is not a completed post.
+
 ### Week 1: Establish Relevance
 
 - Publish one Naver Blog relationship-prompt guide.
 - Publish one Korean Threads prompt comparison without a link in the first post.
 - Publish one original Instagram carousel using the Lovers reference card.
+- Publish one YouTube Short with the generator in the channel profile link.
 - Read and record the rules of three candidate communities before commenting or
   posting there.
 
@@ -150,8 +162,8 @@ independently useful.
 Use only the source and campaign values implemented by the product.
 
 - `source`: `instagram`, `naver`, `disquiet`, `threads`, `kakao`, `native`, `copy`,
-  `pinterest`, or `reddit`.
-- `campaign`: `vertical-slice`, `pick-a-card`, `prompt-education`,
+  `pinterest`, `reddit`, or `youtube`.
+- `campaign`: `demo`, `vertical-slice`, `pick-a-card`, `prompt-education`,
   `deck-progress`, or `topic-guide`.
 
 The optional `question_id` is limited to one of the reviewed public preset ids.
@@ -173,6 +185,13 @@ reach `draw_start` without a topic click.
 Review sharing separately:
 
 `share_click` -> one `share_result`
+
+Keep GA acquisition dimensions separate from the product attribution payload.
+Use GA `Session source / medium` for standard referrer and campaign acquisition.
+Compare the product's `source` and `campaign` event parameters only after GA4
+custom dimensions or an Exploration exposes them. Until that setup is verified,
+report the product funnel by source as unavailable and name the missing GA4
+configuration instead of substituting session acquisition data.
 
 ## 200-Session Gate
 
