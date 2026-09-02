@@ -295,9 +295,7 @@ test.beforeEach(async ({ context }) => {
   await rejectOptionalServices(context);
 });
 
-test("keeps one canonical shell boundary across public page archetypes", async ({
-  page,
-}) => {
+test.describe.serial("canonical shell boundary", () => {
   const routes = [
     "/",
     "/daily",
@@ -308,58 +306,62 @@ test("keeps one canonical shell boundary across public page archetypes", async (
   ] as const;
 
   for (const width of [390, 1280] as const) {
-    await page.setViewportSize({ height: 844, width });
-    let expectedBoundary:
-      | {
-          footerLeft: number;
-          footerRight: number;
-          headerLeft: number;
-          headerRight: number;
-        }
-      | undefined;
+    test(`stays consistent across public pages at ${width}px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ height: 844, width });
+      let expectedBoundary:
+        | {
+            footerLeft: number;
+            footerRight: number;
+            headerLeft: number;
+            headerRight: number;
+          }
+        | undefined;
 
-    for (const route of routes) {
-      await page.goto(route);
+      for (const route of routes) {
+        await page.goto(route);
 
-      const boundary = await page.evaluate(() => {
-        const header = document.querySelector('[data-testid="site-header"]');
-        const footer = document.querySelector('[data-testid="site-footer"]');
+        const boundary = await page.evaluate(() => {
+          const header = document.querySelector('[data-testid="site-header"]');
+          const footer = document.querySelector('[data-testid="site-footer"]');
 
-        if (!header || !footer) {
-          throw new Error("Shared shell landmarks are missing");
-        }
+          if (!header || !footer) {
+            throw new Error("Shared shell landmarks are missing");
+          }
 
-        const headerRect = header.getBoundingClientRect();
-        const footerRect = footer.getBoundingClientRect();
+          const headerRect = header.getBoundingClientRect();
+          const footerRect = footer.getBoundingClientRect();
 
-        return {
-          footerLeft: footerRect.left,
-          footerRight: footerRect.right,
-          headerLeft: headerRect.left,
-          headerRight: headerRect.right,
-          viewportWidth: document.documentElement.clientWidth,
-          scrollWidth: document.documentElement.scrollWidth,
+          return {
+            footerLeft: footerRect.left,
+            footerRight: footerRect.right,
+            headerLeft: headerRect.left,
+            headerRight: headerRect.right,
+            viewportWidth: document.documentElement.clientWidth,
+            scrollWidth: document.documentElement.scrollWidth,
+          };
+        });
+
+        expect(
+          boundary.scrollWidth,
+          `${route} at ${width}px`,
+        ).toBeLessThanOrEqual(boundary.viewportWidth);
+        expect(boundary.headerLeft, route).toBe(boundary.footerLeft);
+        expect(boundary.headerRight, route).toBe(boundary.footerRight);
+
+        const comparableBoundary = {
+          footerLeft: boundary.footerLeft,
+          footerRight: boundary.footerRight,
+          headerLeft: boundary.headerLeft,
+          headerRight: boundary.headerRight,
         };
-      });
-
-      expect(
-        boundary.scrollWidth,
-        `${route} at ${width}px`,
-      ).toBeLessThanOrEqual(boundary.viewportWidth);
-      expect(boundary.headerLeft, route).toBe(boundary.footerLeft);
-      expect(boundary.headerRight, route).toBe(boundary.footerRight);
-
-      const comparableBoundary = {
-        footerLeft: boundary.footerLeft,
-        footerRight: boundary.footerRight,
-        headerLeft: boundary.headerLeft,
-        headerRight: boundary.headerRight,
-      };
-      expectedBoundary ??= comparableBoundary;
-      expect(comparableBoundary, `${route} at ${width}px`).toEqual(
-        expectedBoundary,
-      );
-    }
+        expectedBoundary ??= comparableBoundary;
+        expect(comparableBoundary, `${route} at ${width}px`).toEqual(
+          expectedBoundary,
+        );
+      }
+    });
   }
 });
 
@@ -1701,11 +1703,7 @@ for (const width of [320, 390] as const) {
   });
 }
 
-test("maps every restored illustrated card to approved art", async ({
-  page,
-}) => {
-  test.setTimeout(60_000);
-
+test.describe.serial("restored illustrated card art", () => {
   const cardBatches = [
     [
       ["the-fool", "The Fool"],
@@ -1725,68 +1723,72 @@ test("maps every restored illustrated card to approved art", async ({
     ],
   ] as const;
 
-  for (const batch of cardBatches) {
-    await page.goto(
-      `/?topic=love&spread=deep&cards=${batch
-        .map(([cardId]) => cardId)
-        .join(",")}`,
-    );
+  for (const [batchIndex, batch] of cardBatches.entries()) {
+    test(`maps batch ${batchIndex + 1} to approved art`, async ({ page }) => {
+      test.setTimeout(60_000);
 
-    for (const [cardId, cardName] of batch) {
-      const card = page.locator(`[data-card-id="${cardId}"]`);
-      const art = card.locator(`[data-art-id="${cardId}"]`);
+      await page.goto(
+        `/?topic=love&spread=deep&cards=${batch
+          .map(([cardId]) => cardId)
+          .join(",")}`,
+      );
 
-      await card.scrollIntoViewIfNeeded();
-      await expect(card.getByText(cardName, { exact: true })).toBeVisible();
-      try {
-        await expect(art).toHaveAttribute("data-art-ready", "true", {
-          timeout: 10_000,
-        });
-      } catch (error) {
-        const imageState = await page
-          .evaluate((currentCardId) => {
-            const image = document.querySelector<HTMLImageElement>(
-              `[data-art-id="${currentCardId}"]`,
-            );
+      for (const [cardId, cardName] of batch) {
+        const card = page.locator(`[data-card-id="${cardId}"]`);
+        const art = card.locator(`[data-art-id="${cardId}"]`);
 
-            return {
-              collectionError: null,
-              complete: image?.complete ?? null,
-              currentSrc: image?.currentSrc ?? null,
-              dataArtReady: image?.getAttribute("data-art-ready") ?? null,
-              naturalWidth: image?.naturalWidth ?? null,
-            };
-          }, cardId)
-          .catch((collectionError: unknown) => ({
-            collectionError:
-              collectionError instanceof Error
-                ? collectionError.message
-                : String(collectionError),
-            complete: null,
-            currentSrc: null,
-            dataArtReady: null,
-            naturalWidth: null,
-          }));
+        await card.scrollIntoViewIfNeeded();
+        await expect(card.getByText(cardName, { exact: true })).toBeVisible();
+        try {
+          await expect(art).toHaveAttribute("data-art-ready", "true", {
+            timeout: 10_000,
+          });
+        } catch (error) {
+          const imageState = await page
+            .evaluate((currentCardId) => {
+              const image = document.querySelector<HTMLImageElement>(
+                `[data-art-id="${currentCardId}"]`,
+              );
 
-        if (error instanceof Error) {
-          error.message = `Card art state at readiness timeout: ${JSON.stringify(imageState)}\n\n${error.message}`;
+              return {
+                collectionError: null,
+                complete: image?.complete ?? null,
+                currentSrc: image?.currentSrc ?? null,
+                dataArtReady: image?.getAttribute("data-art-ready") ?? null,
+                naturalWidth: image?.naturalWidth ?? null,
+              };
+            }, cardId)
+            .catch((collectionError: unknown) => ({
+              collectionError:
+                collectionError instanceof Error
+                  ? collectionError.message
+                  : String(collectionError),
+              complete: null,
+              currentSrc: null,
+              dataArtReady: null,
+              naturalWidth: null,
+            }));
+
+          if (error instanceof Error) {
+            error.message = `Card art state at readiness timeout: ${JSON.stringify(imageState)}\n\n${error.message}`;
+          }
+
+          throw error;
         }
 
-        throw error;
+        const decodedImage = await art.evaluate((element) => {
+          const image = element as HTMLImageElement;
+
+          return {
+            complete: image.complete,
+            naturalWidth: image.naturalWidth,
+          };
+        });
+
+        expect(decodedImage.complete).toBe(true);
+        expect(decodedImage.naturalWidth).toBeGreaterThan(0);
       }
-
-      const decodedImage = await art.evaluate((element) => {
-        const image = element as HTMLImageElement;
-
-        return {
-          complete: image.complete,
-          naturalWidth: image.naturalWidth,
-        };
-      });
-
-      expect(decodedImage.complete).toBe(true);
-      expect(decodedImage.naturalWidth).toBeGreaterThan(0);
-    }
+    });
   }
 });
 
