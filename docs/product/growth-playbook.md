@@ -112,17 +112,24 @@ reading starts, and successful prompt copies show durable demand for that
 specific intent and there is enough original worked material to make the page
 independently useful.
 
-## Four-Week Run
+## Experiment Sequence
 
-Create two approved vertical source videos per week and publish each source
-video separately to YouTube Shorts and Instagram Reels. Publish two useful
-Threads posts and one Naver Blog guide per week. Make at most one value-first
-community post per week across Naver Cafe, Reddit, and Disquiet after checking
-the destination's current rules. Record every planned and completed
-distribution in the campaign's distribution register; a schedule without a
-public or authenticated publication record is not a completed post.
+Treat the stages below as experiment or non-publishing preparation candidates,
+not posting instructions, quotas, or a calendar. Keep only one active experiment
+across the campaign. Move to another candidate or stage only after the selected
+experiment is judged or explicitly closed, not when a post count is completed.
+Preregister each selected experiment's complete contract in the campaign's
+distribution register before publishing. Non-publishing preparation may proceed
+separately.
 
-### Week 1: Establish Relevance
+The weekly figures are internal frequency ceilings for this campaign, not
+publishing targets. Create at most two approved vertical source videos per week,
+and publish at most two adapted posts per week on each of YouTube Shorts and
+Instagram Reels. Publish at most two Threads posts and one Naver Blog guide per
+week. Make at most one value-first community post per week across Naver Cafe,
+Reddit, and Disquiet after checking the destination's current rules.
+
+### Stage 1: Establish Relevance
 
 - Publish one Naver Blog relationship-prompt guide.
 - Publish one Korean Threads prompt comparison without a link in the first post.
@@ -131,7 +138,7 @@ public or authenticated publication record is not a completed post.
 - Read and record the rules of three candidate communities before commenting or
   posting there.
 
-### Week 2: Test The Relationship Wedge
+### Stage 2: Test The Relationship Wedge
 
 - Link the relationship-flow landing from one Naver Blog article.
 - Publish one Threads follow-up with a practical action-prompt example.
@@ -139,7 +146,7 @@ public or authenticated publication record is not a completed post.
   explicitly allowed.
 - Compare `result_view` and successful `prompt_copy` by `source`.
 
-### Week 3: Test Visual Pull
+### Stage 3: Test Visual Pull
 
 - Publish separate Fool, Lovers, and Star posts rather than a reused collage.
 - Ask one visual question per post: character, symbol, background, or palette.
@@ -148,7 +155,7 @@ public or authenticated publication record is not a completed post.
 - Compare `share_click` with `share_result`; fix failed outcomes before
   increasing posting frequency.
 
-### Week 4: Decide
+### Stage 4: Decide
 
 - Repeat the best content pillar once with a new example.
 - Stop channels that deliver visits without `result_view`.
