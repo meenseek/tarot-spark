@@ -112,14 +112,17 @@ reading starts, and successful prompt copies show durable demand for that
 specific intent and there is enough original worked material to make the page
 independently useful.
 
-## Experiment Sequence
+## Decision Sequence
 
-Treat the stages below as experiment or non-publishing preparation candidates,
-not posting instructions, quotas, or a calendar. Keep only one active experiment
-across the campaign. Move to another candidate or stage only after the selected
-experiment is judged or explicitly closed, not when a post count is completed.
-Preregister each selected experiment's complete contract in the campaign's
-distribution register before publishing. Non-publishing preparation may proceed
+Treat the stages below as comparative experiments, non-comparative
+qualifications, or non-publishing preparation candidates, not posting
+instructions, quotas, or a calendar. Keep only one active decision run—a
+comparative experiment or non-comparative qualification—across the campaign.
+Move to another candidate or stage only after the selected decision run is
+judged or explicitly closed, not when a post count is completed. Preregister
+each selected decision run's applicable contract in the campaign's distribution
+register before publishing. Independent variables, control, and treatment apply
+only to comparative experiments. Non-publishing preparation may proceed
 separately.
 
 The weekly figures are internal frequency ceilings for this campaign, not
@@ -128,6 +131,49 @@ and publish at most two adapted posts per week on each of YouTube Shorts and
 Instagram Reels. Publish at most two Threads posts and one Naver Blog guide per
 week. Make at most one value-first community post per week across Naver Cafe,
 Reddit, and Disquiet after checking the destination's current rules.
+
+### Short-Form Reach Qualification
+
+Use the first valid Korean YouTube Short as a bounded reach qualification before
+investing in another distribution experiment. This non-comparative gate
+qualifies one exact Short for one follow-up experiment. It does not prove a
+causal copy effect, virality, or product demand.
+
+The target is a Korean user who already uses generative AI for relationship
+reflection but finds that the answer ends in generic advice or isolated card
+definitions. The content should earn attention by making one controlled contrast
+useful on its own, not by claiming that one prompt is more accurate.
+
+There is no independent variable in this qualification. Its fixed content
+proposition shows one controlled contrast: the same situation, cards, reviewed
+meanings, and display order with only the answer-request structure differing
+between A and B. The campaign posting asset owns the exact title, description,
+and requests; the distribution register binds that exact asset, its digest, and
+the execution controls before publication.
+
+Do not show a generated answer or claim that one request produces a better
+result. Move through five beats: introduce the generic-answer problem, show
+request A, replace only A with request B, clarify that the cards and meanings
+did not change, and close on what the controlled contrast can reveal. The reach
+qualification asks only for viewing; it has no product-use or off-platform CTA.
+Keep the creator disclosure neutral and frame the content as entertainment and
+self-reflection. Ask for product behavior only in a separately preregistered
+activation experiment after this qualification passes.
+
+Use [YouTube Factory][youtube-factory] only through a review path that preserves
+this educational controlled-contrast brief. Do not apply a comedy-only review or
+require an owner `found_funny` decision unless the user separately chooses a
+comedy treatment for this exact Short. The Factory contract remains the source
+of truth for production gates and receipts; its receipts do not replace an
+evidence-bound YouTube Shorts UI overlay review.
+
+Use the [campaign posting checklist][campaign-posting-checklist] and distribution
+register for the exact publication controls, measurement source, checkpoint,
+threshold, and decision. A registered pass permits one activation experiment;
+verify unique attribution and the GA4 event dimensions before preregistering
+successful `prompt_copy` as its product behavior. A fail closes the reach gate
+for that exact Short but does not prove a script cause or absent product demand.
+Do not automatically repost a failed or inconclusive Short.
 
 ### Stage 1: Establish Relevance
 
@@ -301,3 +347,6 @@ Title: `I rebuilt a tarot prompt to answer first, then reality-check the reading
 Include the link only if the community rule allows it. Otherwise offer the
 prompt structure in the post and let interested users request the project name
 publicly; do not send unsolicited private messages.
+
+[campaign-posting-checklist]: https://github.com/meenseek/youtube-channel-observatory/blob/main/products/tarot-spark/social/campaigns/ai-tarot-prompt/posting-checklist.md
+[youtube-factory]: https://github.com/meenseek/youtube-factory
