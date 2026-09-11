@@ -421,9 +421,9 @@ describe("visual design system contract", () => {
       },
     } as const;
 
-    expect(packageManifest.dependencies["@measure-twice/react"]).toBe("0.4.0");
-    expect(lockfile).toContain("specifier: 0.4.0");
-    expect(lockfile).toMatch(/["']@measure-twice\/react@0\.4\.0["']:/);
+    expect(packageManifest.dependencies["@measure-twice/react"]).toBe("0.4.3");
+    expect(lockfile).toContain("specifier: 0.4.3");
+    expect(lockfile).toMatch(/["']@measure-twice\/react@0\.4\.3["']:/);
 
     Object.entries(adoptedFieldSources).forEach(([relativePath, contract]) => {
       const source = readFileSync(resolve(process.cwd(), relativePath), "utf8");
