@@ -17,10 +17,23 @@ gates pass.
 
 ## Audience
 
-Prioritize people who already use a generative AI writing tool and want a
-structured way to reflect on a relationship.
+Prioritize adults who already use an AI tool and want to try tarot for fun,
+curiosity, or self-reflection. Keep relationship questions as the current
+acquisition wedge.
 
-- Target AI users who find ordinary tarot prompts too short or generic.
+Lead with the product's simple job: draw cards for free, copy a ready-made
+prompt, and ask the AI tool you already use. Tarot Spark assembles the selected
+topic or question, drawn cards, reviewed meanings, and answer instructions.
+Free refers to Tarot Spark; the chosen AI service has its own access limits and
+pricing. Explain the answer structure after the draw-copy-ask workflow.
+
+Fun, curiosity, and convenience are valid reasons to try the product. Do not
+require a serious unresolved problem, dissatisfaction with AI, or previous tarot
+experience. Whether users find the experience easy, enjoyable, or useful remains
+to be observed; these are not demonstrated outcomes or promises of accuracy.
+
+- Include casual users who want to draw cards and ask their AI a question.
+- Include AI users who find ordinary tarot prompts too short or generic.
 - Target tarot and journaling users who prefer self-reflection over prediction.
 - Target creators who can compare the current preview illustrations and explain
   which visual details feel coherent. Use the Fool, Lovers, and Star as the
