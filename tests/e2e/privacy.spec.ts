@@ -478,7 +478,7 @@ test("clears an active advertising document before showing a reading", async ({
   await expect(page).toHaveURL("/");
   await expect(
     page.getByRole("heading", {
-      name: "Draw cards for better AI tarot answers.",
+      name: "Draw cards, then ask your AI.",
     }),
   ).toBeVisible();
   await expect(

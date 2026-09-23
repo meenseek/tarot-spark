@@ -12,11 +12,11 @@ test("loads the app shell", async ({ page }) => {
   await expect(page.getByRole("main")).toBeVisible();
   await expect(
     page.getByRole("heading", {
-      name: "Draw cards for better AI tarot answers.",
+      name: "Draw cards, then ask your AI.",
     }),
   ).toBeVisible();
   await expect(
-    page.getByText(/prompt.*two distinct interpretations.*reality check/i),
+    page.getByText(/draw cards for free.*copy the prompt.*ai tool/i),
   ).toBeVisible();
   await expect(page.getByText(/full 78-card deck/i)).toBeVisible();
 });
@@ -46,11 +46,11 @@ test("loads Korean localized content", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "ko");
   await expect(
     page.getByRole("heading", {
-      name: "AI 타로 답변, 질문부터 바꿔보세요.",
+      name: "카드를 뽑고, 평소 쓰는 AI에 물어보세요.",
     }),
   ).toBeVisible();
   await expect(
-    page.getByText(/서로 다른 해석 두 가지.*현실에서 확인할 일/),
+    page.getByText(/무료로 카드를 뽑고.*질문을 복사해 AI에 붙여 넣으세요/),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "카드 3장 뽑기" }),
@@ -380,14 +380,14 @@ test("keeps the first-time promise and draw usable at 320px", async ({
   for (const firstVisit of [
     {
       draw: "Draw 3 cards",
-      heading: "Draw cards for better AI tarot answers.",
-      intro: /prompt.*two distinct interpretations.*reality check/i,
+      heading: "Draw cards, then ask your AI.",
+      intro: /draw cards for free.*copy the prompt.*ai tool/i,
       path: "/",
     },
     {
       draw: "카드 3장 뽑기",
-      heading: "AI 타로 답변, 질문부터 바꿔보세요.",
-      intro: /서로 다른 해석 두 가지.*현실에서 확인할 일/,
+      heading: "카드를 뽑고, 평소 쓰는 AI에 물어보세요.",
+      intro: /무료로 카드를 뽑고.*질문을 복사해 AI에 붙여 넣으세요/,
       path: "/ko",
     },
   ]) {
@@ -1271,7 +1271,7 @@ test("preserves reading and private context when switching languages", async ({
 
   await expect(
     page.getByRole("heading", {
-      name: "AI 타로 답변, 질문부터 바꿔보세요.",
+      name: "카드를 뽑고, 평소 쓰는 AI에 물어보세요.",
     }),
   ).toBeVisible();
   await page.getByText("질문 다듬기").click();
