@@ -1,11 +1,11 @@
 {
   "metadata": {
     "title": "tarot-spark",
-    "description": "Draw cards and create an AI tarot prompt that asks what the cards suggest, explores two distinct interpretations, and names one reality check."
+    "description": "Draw cards for free on Tarot Spark, then copy a prompt with your question and the cards' meanings into the AI tool you already use."
   },
   "brand": "tarot-spark",
-  "heading": "Draw cards for better AI tarot answers.",
-  "intro": "Get a prompt with two distinct interpretations and one reality check.",
+  "heading": "Draw cards, then ask your AI.",
+  "intro": "Draw cards for free on Tarot Spark, then copy the prompt into the AI tool you already use. It includes your question and the cards' meanings.",
   "deckPreviewNote": "A full {count}-card deck with every Major and all four suits. All cards share one art style.",
   "personalizationHeading": "Cards and answer style",
   "personalizationIntro": "Choose how many cards to draw and how the answer should feel. Feelings are possibilities, not facts.",

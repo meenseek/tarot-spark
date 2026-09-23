@@ -254,10 +254,18 @@ Review sharing separately:
 
 Keep GA acquisition dimensions separate from the product attribution payload.
 Use GA `Session source / medium` for standard referrer and campaign acquisition.
-Compare the product's `source` and `campaign` event parameters only after GA4
-custom dimensions or an Exploration exposes them. Until that setup is verified,
-report the product funnel by source as unavailable and name the missing GA4
-configuration instead of substituting session acquisition data.
+Before judging activation by channel, verify in the Tarot Spark GA4 property
+that the emitted `source` and `campaign` parameters are available as
+[event-scoped custom dimensions](https://support.google.com/analytics/answer/14239696).
+Do not create duplicate definitions. In an Exploration, read `draw_start`,
+`result_view`, and successful `prompt_copy` with those dimensions over the same
+reporting window, excluding known internal use. Record the property, readable
+window, and source of the result in the distribution register. New definitions
+may take 24–48 hours to appear in reports; do not treat unavailable historical
+values as observed. Event totals alone do not establish a conversion rate:
+rates need a consistent attributed cohort and denominator. Until the event
+dimensions and denominator are verified, report channel-level product
+activation as unavailable instead of substituting session acquisition data.
 
 ## 200-Session Gate
 
@@ -292,23 +300,29 @@ Link only in a relevant reply. Add: `제가 만든 무료 도구 tarot-spark의
 
 ### Korean Naver Blog: Topic Guide
 
-Title: `관계 타로를 AI에 물을 때 답변이 뻔해지지 않는 프롬프트 구조`
+Title: `관계 타로 카드 뽑고 AI에 물어보는 방법`
 
 Opening:
 
-> "이 카드가 연애에서 무슨 뜻인가요?"만 입력하면 카드별 일반 의미가
-> 반복되기 쉽습니다. 관계 흐름을 살펴볼 때는 뽑힌 카드명을 정확한 순서로
-> 적고, 질문에 대한 상징적 답을 먼저 준 뒤 확인한 사실과 아직 모르는
-> 부분을 구분해 달라고 요청하는 편이 낫습니다.
+> 관계가 궁금하다면 질문 하나를 고르고 카드를 뽑아 보세요. 뽑힌 카드의
+> 순서와 뜻을 넣어 만든 질문을 복사해 평소 쓰는 AI에 붙여 넣을 수 있습니다.
+> 아래에서는 같은 카드로 만든 짧은 질문과 자세한 질문을 비교하고,
+> 카드상 해석과 현실에서 확인할 일을 어떻게 구분하는지 보여줍니다.
 
 Body order:
 
-1. Short prompt and detailed prompt comparison.
-2. Why card numbers mean draw order only.
-3. A direct symbolic answer, two interpretations, and a reality-check example.
-4. One prompt with exact card names, reviewed nonvisual meanings, the no-image
-   rule, a revision condition, and a reversible action.
-5. Maker disclosure, relationship-flow link, and disclaimer.
+1. Choose one relationship question, draw cards, and show their order and
+   reviewed meanings with screenshots.
+2. Compare a short prompt with the copied prompt for the same question and
+   cards. Explain that card numbers show draw order only.
+3. Show a direct symbolic answer, two interpretations, and a reality-check
+   example without presenting the cards as factual proof.
+4. Provide the complete example prompt with exact card names, reviewed
+   nonvisual meanings, the no-image rule, a revision condition, and a reversible
+   action.
+5. Add maker disclosure, one relationship-flow link after the useful guide, and
+   the disclaimer. Clarify that Tarot Spark is free while the chosen AI service
+   has its own access limits and pricing.
 
 ### Korean Naver Cafe: Value-First Discussion
 

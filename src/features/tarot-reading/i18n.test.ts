@@ -16,8 +16,9 @@ describe("tarot reading metadata", () => {
     process.env["NEXT_PUBLIC_SITE_URL"] = "https://tarot-spark.example";
 
     expect(getTarotReadingMetadata("ko")).toMatchObject({
+      description: expect.stringContaining("평소 쓰는 AI"),
       openGraph: {
-        description: expect.stringContaining("카드를 뽑고"),
+        description: expect.stringContaining("평소 쓰는 AI"),
         images: [
           {
             alt: "별빛 타로 카드 세 장과 tarot-spark 이름이 있는 공유 이미지",
@@ -31,6 +32,7 @@ describe("tarot reading metadata", () => {
       },
       twitter: {
         card: "summary_large_image",
+        description: expect.stringContaining("평소 쓰는 AI"),
         images: [
           {
             url: "https://tarot-spark.example/brand/tarot-spark-social-card.png",
@@ -40,7 +42,9 @@ describe("tarot reading metadata", () => {
     });
 
     expect(getTarotReadingMetadata("en")).toMatchObject({
+      description: expect.stringContaining("AI tool you already use"),
       openGraph: {
+        description: expect.stringContaining("AI tool you already use"),
         images: [
           {
             alt: "Share image with three celestial tarot cards and the tarot-spark name",
@@ -50,6 +54,9 @@ describe("tarot reading metadata", () => {
           },
         ],
         locale: "en_US",
+      },
+      twitter: {
+        description: expect.stringContaining("AI tool you already use"),
       },
     });
   });

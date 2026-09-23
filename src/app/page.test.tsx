@@ -113,11 +113,11 @@ describe("Home", () => {
     expect(screen.getByRole("main")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
-        name: "Draw cards for better AI tarot answers.",
+        name: "Draw cards, then ask your AI.",
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/prompt.*two distinct interpretations.*reality check/i),
+      screen.getByText(/draw cards for free.*copy the prompt.*ai tool/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/full 78-card deck/i)).toBeInTheDocument();
     expect(
@@ -249,11 +249,11 @@ describe("Home", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "AI 타로 답변, 질문부터 바꿔보세요.",
+        name: "카드를 뽑고, 평소 쓰는 AI에 물어보세요.",
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/서로 다른 해석 두 가지.*현실에서 확인할 일/),
+      screen.getByText(/무료로 카드를 뽑고.*질문을 복사해 AI에 붙여 넣으세요/),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", {
