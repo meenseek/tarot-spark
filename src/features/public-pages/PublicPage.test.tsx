@@ -52,12 +52,12 @@ describe("PublicPage", () => {
     );
   });
 
-  it("renders a complete English three-card method before its CTA", () => {
+  it("renders the English three-card method before its CTA", () => {
     render(<PublicPage locale="en" pageId="three-card-tarot-reading" />);
 
     expect(
       screen.getByRole("heading", {
-        name: /complete three-card tarot reading/i,
+        name: /how to read three tarot cards/i,
       }),
     ).toBeInTheDocument();
     expect(
@@ -68,7 +68,7 @@ describe("PublicPage", () => {
     expect(
       screen.getByText(/Alternative A: trust is rebuilding/i),
     ).toBeVisible();
-    expect(screen.getByText(/Real-world observation:/i)).toBeVisible();
+    expect(screen.getByText(/What to check:/i)).toBeVisible();
     expect(
       screen.getByText(/Tarot interpretations are not evidence of facts/i),
     ).toBeVisible();
@@ -107,8 +107,58 @@ describe("PublicPage", () => {
     expect(
       screen.getByText(/가장 강한 상징적 답이 현실 확인보다 먼저/i),
     ).toBeVisible();
-    expect(screen.getByText(/둘 다 버리고 질문을 다시 엽니다/i)).toBeVisible();
+    expect(
+      screen.getByText(/두 해석을 버리고 질문을 다시 엽니다/i),
+    ).toBeVisible();
   });
+
+  it.each([
+    {
+      locale: "en" as const,
+      answer:
+        /^What the cards suggest: rather than predicting a ruined future/i,
+      material: /^Interpretation material: The Tower means disruption/i,
+      formula: /what the cards suggest first.*two different ways to read them/i,
+      feedbackCheck: /^What to check: ask for one round of feedback/i,
+      feedbackRevision:
+        /^When to reconsider: if the feedback identifies a preparation gap.*role requirement that conflicts with your needs/i,
+    },
+    {
+      locale: "ko" as const,
+      answer: /^카드가 시사하는 답: 이번 실패가 미래를 정한다기보다/i,
+      material: /^해석 재료: 탑은 재난의 예고가 아니라/i,
+      formula: /카드가 시사하는 답을 먼저 묻고.*해석 두 가지/u,
+      feedbackCheck:
+        /^직접 확인할 일: 지원서나 작업물에 대한 피드백을 한 번 받고/u,
+      feedbackRevision:
+        /^해석을 다시 볼 때: 피드백에서 준비의 빈틈이 보이면.*내 필요와 맞지 않는 역할 조건이 드러나면/u,
+    },
+  ])(
+    "answers the $locale question-guide example before explaining card meanings",
+    ({
+      locale,
+      answer,
+      material,
+      formula,
+      feedbackCheck,
+      feedbackRevision,
+    }) => {
+      render(
+        <PublicPage locale={locale} pageId="how-to-ask-tarot-questions" />,
+      );
+
+      const answerParagraph = screen.getByText(answer);
+      const materialParagraph = screen.getByText(material);
+      expect(screen.getByText(formula)).toBeVisible();
+      expect(screen.getByText(feedbackCheck)).toBeVisible();
+      expect(screen.getByText(feedbackRevision)).toBeVisible();
+      expect(answerParagraph).toBeVisible();
+      expect(
+        answerParagraph.compareDocumentPosition(materialParagraph) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    },
+  );
 
   it("describes the editorial method in plain public language", () => {
     render(<PublicPage locale="en" pageId="about" />);

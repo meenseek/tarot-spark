@@ -23,7 +23,7 @@ describe("PublicQuestionExplorer", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "지금 확인할 일이 선명해지는 타로 질문을 골라보세요.",
+        name: "타로 질문을 고르고 카드를 뽑아보세요.",
       }),
     ).toBeInTheDocument();
     expect(container.querySelectorAll("[data-question-domain]")).toHaveLength(
@@ -44,7 +44,7 @@ describe("PublicQuestionExplorer", () => {
       screen.getAllByText(/돈 질문은 수입·가격·대출·빚·투자 수익/),
     ).toHaveLength(2);
     expect(
-      screen.getByText(/카드상 답, 서로 다른 해석 두 가지, 현실 확인/),
+      screen.getByText(/카드가 시사하는 답부터 말한 뒤, 가능한 해석 두 가지/),
     ).toBeInTheDocument();
   });
 

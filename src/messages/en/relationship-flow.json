@@ -5,25 +5,25 @@
   },
   "cardArtRetry": "Try again",
   "eyebrow": "Fix a generic AI tarot reading",
-  "heading": "Why AI tarot readings feel generic—and how to make a relationship reading more useful.",
-  "intro": "AI tarot answers often turn generic when a prompt asks for a prediction but leaves out the exact cards, their meanings, and a useful answer structure. This guide shows a three-card relationship example that asks for two interpretations, one unknown, one reality check, and a reversible next step. You can then build the same structure with your own draw.",
-  "heroCtaButton": "Try the free 3-card prompt",
-  "benefitsHeading": "Built for a more useful AI conversation",
+  "heading": "If AI tarot answers feel generic, try a clearer relationship question.",
+  "intro": "Asking only about the future can lead to vague AI answers when the cards and their meanings are missing. This example uses three cards to explore two possible readings, what remains unknown, what to check, and one next step. You can draw your own cards and make a question the same way.",
+  "heroCtaButton": "Draw three cards",
+  "benefitsHeading": "From drawing cards to an AI answer",
   "benefits": [
     {
-      "title": "All 78 cards included",
-      "body": "Major Arcana, Wands, Cups, Swords, and Pentacles are all available in one upright deck."
+      "title": "All 78 tarot cards",
+      "body": "Draw from all 78 cards, including the Major Arcana and Wands, Cups, Swords, and Pentacles."
     },
     {
-      "title": "One clear card list",
-      "body": "The prompt sends the exact card names in draw order plus the site's reviewed nonvisual upright meanings, without invented position labels or image descriptions."
+      "title": "Drawn card names and meanings",
+      "body": "The prompt includes each card's name and reviewed upright meaning in draw order. It does not invent artwork details or fixed positions."
     },
     {
-      "title": "Symbolic feelings first",
-      "body": "The reading first describes the feelings and relationship direction suggested by the cards, then briefly connects them to what can be checked and chosen."
+      "title": "What to ask your AI tool",
+      "body": "The prompt asks your AI tool to start with what the cards may suggest about feelings and the relationship, then briefly cover what you can check and choose."
     }
   ],
-  "stepsHeading": "How the relationship-flow reading works",
+  "stepsHeading": "How to make a relationship question",
   "steps": [
     {
       "title": "1. Add only the context you need",
@@ -34,45 +34,49 @@
       "body": "The numbers show draw order only. They do not assign past, present, future, obstacle, or advice roles. Use six cards only when three meanings are not enough to compare several aspects of the question."
     },
     {
-      "title": "3. Copy one prompt",
-      "body": "Paste the prompt into your preferred AI writing tool, then keep what is useful and question what is not."
+      "title": "3. Paste the question into an AI tool",
+      "body": "Copy the finished prompt and paste it into an AI tool you use. Question any part of the answer that does not fit your situation."
     }
   ],
-  "exampleEyebrow": "Example, not a prediction",
-  "exampleHeading": "Justice + Queen of Swords + Six of Pentacles: testing whether a relationship is becoming more balanced",
-  "exampleBody": "This example begins with the relationship answer suggested by the cards, then compares it with behavior. It does not establish another person's feelings or guarantee an outcome as fact.",
+  "exampleEyebrow": "Three-card example",
+  "exampleHeading": "Justice + Queen of Swords + Six of Pentacles: could this relationship become more balanced?",
+  "exampleBody": "First, use the three meanings to answer the question. Then separate what you can check through behavior. The cards do not establish another person's feelings or guarantee an outcome.",
   "exampleDetails": [
     {
       "title": "Starting question",
       "body": "“How do these cards suggest that this relationship could become more balanced, and what can I check in reality?”"
     },
     {
-      "title": "Symbolic interpretation material",
+      "title": "What the cards suggest",
+      "body": "These cards suggest that clearer responsibilities and respect for each person's boundaries could make the relationship more balanced. The cards alone cannot show whether that change is already happening."
+    },
+    {
+      "title": "Card meanings",
       "body": "Justice points to fair judgment, accountability, and the consequences of choice. Queen of Swords points to discernment, independence, and clear honest boundaries. Six of Pentacles points to fairness and balance in giving and receiving support. These meanings support reflection; they do not prove that the relationship is fair."
     },
     {
-      "title": "Strongest connection",
-      "body": "All three meanings reinforce accountable reciprocity: fairness needs a clear boundary and a pattern of giving and receiving that can be observed. The cards do not establish that this pattern already exists."
+      "title": "How the cards connect",
+      "body": "The cards connect through clear boundaries and responsibilities that are actually shared. They cannot show whether the relationship already works this way."
     },
     {
-      "title": "Two symbolic interpretations to compare",
-      "body": "The current imbalance may be temporary and improve once one responsibility is made explicit. It may also be a stable pattern in which one person's needs and effort repeatedly carry more weight. These are neither exclusive nor exhaustive, so both may partly fit or both may fail."
+      "title": "Two possible interpretations",
+      "body": "The imbalance may be a temporary problem that improves when one responsibility becomes clear. It may also be a lasting pattern in which one person's needs and effort carry more weight. Both interpretations may partly fit, or neither may fit."
     },
     {
-      "title": "What to observe in real life",
-      "body": "For the next week, record only whether one already-agreed responsibility is completed by the agreed time, who initiates it, and how many reminders are needed."
+      "title": "What to check",
+      "body": "For the next week, record whether one agreed task is done on time, who starts it, and how many reminders it takes."
     },
     {
       "title": "What remains unknown",
       "body": "The cards cannot establish private feelings, guarantee future effort, or determine whether the relationship is safe and suitable."
     },
     {
-      "title": "What should revise the interpretation",
-      "body": "Follow-through without reminders raises the temporary hypothesis; repeated omission raises the stable-pattern hypothesis. If the responsibility itself was unclear or unrealistic, suspend both and redesign the check."
+      "title": "When to reconsider",
+      "body": "If the agreement holds without reminders, a temporary problem seems more plausible. If the task is repeatedly missed, reconsider whether this is a lasting pattern. If the agreement was unclear or unrealistic, set both interpretations aside and find a better way to check."
     },
     {
-      "title": "Reversible next step and stop condition",
-      "body": "Write down one small change in responsibility and a one-week review point. Regardless of which hypothesis seems stronger, stop if scope expands without agreement, a boundary is mocked, pressure or retaliation appears, safety becomes a concern, or the review date arrives."
+      "title": "Next step and when to stop",
+      "body": "Write down one small change in responsibility and a date to review it in a week. Regardless of which interpretation seems right, stop if work expands without agreement, a boundary is mocked, pressure or retaliation appears, safety becomes a concern, or that date arrives."
     },
     {
       "title": "Reflection",
@@ -91,13 +95,13 @@
     },
     {
       "question": "What does the copied prompt include?",
-      "answer": "It includes your selected topic and tone, optional context if you entered it, and the exact card names in draw order with the site's reviewed nonvisual upright meanings. It explicitly says that no card images or position meanings are attached."
+      "answer": "It includes your topic, answer style, any situation you entered, and the drawn card names with their reviewed upright meanings. It asks the AI tool not to invent unseen artwork or fixed positions."
     }
   ],
-  "ctaHeading": "Ready to map the relationship flow?",
-  "ctaBody": "Start with three cards and move to six only when three meanings are not enough to compare several aspects of the question. You can change the answer tone before drawing.",
+  "ctaHeading": "Explore your relationship with three cards",
+  "ctaBody": "Start with three cards. Use six only if three are not enough to explore your question. Choose the answer style before drawing.",
   "ctaButton": "Start with three cards",
-  "deepCtaButton": "Open the six-card spread",
+  "deepCtaButton": "Draw six cards",
   "privacyNote": "No account required. Keep names and identifying details out of optional context.",
   "disclaimer": "For entertainment and self-reflection only. Not medical, legal, financial, investment, or mental-health advice."
 }

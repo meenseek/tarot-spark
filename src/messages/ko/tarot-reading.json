@@ -61,7 +61,7 @@
     "resultHeading": "AI 카드 흐름 해석"
   },
   "promptReady": "AI에 물어볼 질문이 준비됐어요.",
-  "promptValueSummary": "복사할 질문은 카드상 답, 서로 다른 해석 두 가지, 현실 확인, 작은 행동 하나를 요청합니다.",
+  "promptValueSummary": "복사할 질문은 AI에 카드가 시사하는 답부터 말한 뒤, 가능한 해석 두 가지와 직접 확인할 점, 해볼 일 하나를 알려 달라고 요청해요.",
   "promptContextIncluded": "작성한 상황도 질문에 담았어요.",
   "promptCopySuccess": "복사했어요. 사용하는 AI에 붙여 넣어 해석을 받아보세요.",
   "promptContentDisclosure": "질문 내용 보기",

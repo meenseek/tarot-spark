@@ -61,7 +61,7 @@
     "resultHeading": "AI card-flow interpretation"
   },
   "promptReady": "Your prompt for an AI tool is ready.",
-  "promptValueSummary": "Your copied prompt asks for a card-based answer, exactly two interpretations, a reality check, and one small action.",
+  "promptValueSummary": "The prompt asks your AI tool to answer from the cards first, then give two possible interpretations, something to check, and one small action.",
   "promptContextIncluded": "Your situation is included in the prompt.",
   "promptCopySuccess": "Copied. Paste it into the AI tool you use to get the reading.",
   "promptContentDisclosure": "View prompt",
