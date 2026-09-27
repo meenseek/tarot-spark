@@ -65,6 +65,11 @@ describe("RelationshipQuestionExplorer", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
+        "카드 세 장을 뽑은 뒤 완성된 질문을 복사해 평소 쓰는 AI에 붙여 넣으세요. 이름이나 개인 상황은 링크에 담기지 않습니다.",
+      ),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
         "카드 뜻: 달의 불확실성, 소드 에이스의 분명한 대화, 펜타클 2의 조율을 함께 읽습니다. 이 뜻이 두 사람의 실제 생각을 증명하지는 않습니다.",
       ),
     ).toBeVisible();
@@ -103,6 +108,11 @@ describe("RelationshipQuestionExplorer", () => {
       "/ko/relationship-tarot-questions",
     );
     expect(
+      screen.getByText(
+        "After drawing three cards, copy the finished prompt and paste it into an AI tool you use. Names and personal details are not put in the link.",
+      ),
+    ).toBeVisible();
+    expect(
       screen.getAllByText(
         /how might the other person see me, and how might I see them/,
       ).length,
@@ -139,13 +149,9 @@ describe("RelationshipQuestionExplorer", () => {
     const ko = getRelationshipQuestionExplorerShellCopy("ko");
     const en = getRelationshipQuestionExplorerShellCopy("en");
 
-    expect(ko.methodIntro).toMatch(/답을.*서로 다른 해석 두 가지/u);
     expect(ko.methodSteps[3]).toMatch(/답을 먼저.*서로 다른 해석 두 가지/u);
     expect(ko.workedExampleItems[9]).toMatch(
       /두 사람이 말한 기대가 서로 비슷하고 이후 행동도 그 말과 맞으면/u,
-    );
-    expect(en.methodIntro).toMatch(
-      /cards suggest.*two different interpretations/iu,
     );
     expect(en.methodSteps[3]).toMatch(
       /answer.*first.*two different readings/iu,
