@@ -55,30 +55,32 @@ describe("RelationshipQuestionExplorer", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", {
-        name: "여섯 단계를 전체 카드 예시로 읽는 3장 해석 가이드",
+        name: "카드 세 장 읽는 법 보기",
       }),
     ).toHaveAttribute("href", "/ko/three-card-tarot-reading");
     expect(
       screen.getByRole("heading", {
-        name: "호기심을 완결된 리딩으로 바꾸는 여섯 단계",
+        name: "질문을 고른 뒤 카드를 읽는 순서",
       }),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        "상징적 해석 재료: 달의 불확실성, 소드 에이스의 명료한 대화, 펜타클 2의 조율을 모두 사용합니다. 이 의미들은 어느 쪽의 실제 생각도 증명하지 않습니다.",
+        "카드 뜻: 달의 불확실성, 소드 에이스의 분명한 대화, 펜타클 2의 조율을 함께 읽습니다. 이 뜻이 두 사람의 실제 생각을 증명하지는 않습니다.",
       ),
     ).toBeVisible();
     expect(
-      screen.getAllByText(/상대가 나를 보는 시선과 내가 상대를 보는 시선/)
+      screen.getAllByText(/상대가 나를 어떻게 보고, 내가 상대를 어떻게 보고/)
         .length,
     ).toBeGreaterThan(0);
     expect(
-      screen.getAllByText(/두 사람의 기대가 어디에서 맞거나 어긋날 수 있는지/)
+      screen.getAllByText(/서로의 기대를 확신하지 못해 조심스러울 수 있습니다/)
         .length,
     ).toBeGreaterThan(0);
-    expect(screen.getByText(/가설의 범위:/)).toBeVisible();
-    expect(screen.getByText(/둘 다 버리고 질문을 다시 엽니다/)).toBeVisible();
-    expect(screen.getByText(/수정 조건:/)).toBeVisible();
+    expect(screen.getByText(/두 해석의 범위:/)).toBeVisible();
+    expect(
+      screen.getByText(/두 해석을 버리고 질문을 다시 엽니다/),
+    ).toBeVisible();
+    expect(screen.getByText(/해석을 다시 볼 때:/)).toBeVisible();
     expect(screen.getByText(/성찰 질문:/)).toBeVisible();
 
     expect(catalog.categories).toHaveLength(7);
@@ -102,11 +104,12 @@ describe("RelationshipQuestionExplorer", () => {
     );
     expect(
       screen.getAllByText(
-        /how the other person may see me and how I may see them/,
+        /how might the other person see me, and how might I see them/,
       ).length,
     ).toBeGreaterThan(0);
     expect(
-      screen.getAllByText(/where our expectations may align or diverge/).length,
+      screen.getAllByText(/uncertainty about expectations keeps them cautious/)
+        .length,
     ).toBeGreaterThan(0);
   });
 
@@ -120,14 +123,36 @@ describe("RelationshipQuestionExplorer", () => {
       "\n",
     );
 
-    expect(koExample).toMatch(/상대가 나를 보는 시선/u);
-    expect(koExample).toMatch(/내가 상대를 보는 시선/u);
+    expect(koExample).toMatch(/상대가 나를 어떻게 보고/u);
+    expect(koExample).toMatch(/내가 상대를 어떻게 보고/u);
     expect(koExample).toMatch(/기대/u);
     expect(koExample).not.toMatch(/호감|연애적 끌림/u);
-    expect(enExample).toMatch(/other person may see me/iu);
-    expect(enExample).toMatch(/I may see them/iu);
+    expect(enExample).toMatch(/other person see me/iu);
+    expect(enExample).toMatch(/I see them/iu);
     expect(enExample).toMatch(/expectations/iu);
     expect(enExample).not.toMatch(/attraction|romantic interest/iu);
+    expect(ko.workedExampleItems[1]).toMatch(/^카드가 시사하는 답:/u);
+    expect(en.workedExampleItems[1]).toMatch(/^What the cards suggest:/u);
+  });
+
+  it("keeps the first answer separate from two readings and compares both people's expectations", () => {
+    const ko = getRelationshipQuestionExplorerShellCopy("ko");
+    const en = getRelationshipQuestionExplorerShellCopy("en");
+
+    expect(ko.methodIntro).toMatch(/답을.*서로 다른 해석 두 가지/u);
+    expect(ko.methodSteps[3]).toMatch(/답을 먼저.*서로 다른 해석 두 가지/u);
+    expect(ko.workedExampleItems[9]).toMatch(
+      /두 사람이 말한 기대가 서로 비슷하고 이후 행동도 그 말과 맞으면/u,
+    );
+    expect(en.methodIntro).toMatch(
+      /cards suggest.*two different interpretations/iu,
+    );
+    expect(en.methodSteps[3]).toMatch(
+      /answer.*first.*two different readings/iu,
+    );
+    expect(en.workedExampleItems[9]).toMatch(
+      /both people describe similar expectations and later act in line with them/iu,
+    );
   });
 
   it("publishes canonical and alternate metadata for both locales", () => {

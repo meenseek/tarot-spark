@@ -1,6 +1,6 @@
 {
   "brand": "tarot-spark",
-  "homeLabel": "Free tarot prompt generator",
+  "homeLabel": "Draw tarot cards for free",
   "languageSwitchLabel": "Choose language",
   "pageNavigationLabel": "Public pages",
   "questionExplorerLinkLabel": "Tarot questions",
@@ -9,11 +9,11 @@
     "three-card-tarot-reading": {
       "metadata": {
         "title": "How to Read a Three-Card Tarot Spread Without Fixed Positions",
-        "description": "Use upright meanings as symbolic interpretation material, then connect alternatives, reality checks, revision conditions, and a reversible choice."
+        "description": "Connect the meanings of three cards to answer a question, consider another reading, and decide what to check in real life."
       },
       "linkLabel": "Three-card method",
-      "title": "A complete three-card tarot reading without past-present-future positions",
-      "intro": "A three-card spread does not need fixed positions to be specific. Connect each reviewed upright meaning, give the symbolic answer most strongly suggested by the spread first, then add two interpretations, a brief reality check, and a reversible choice.",
+      "title": "How to read three tarot cards without past-present-future positions",
+      "intro": "You do not need to assign past, present, and future positions to the cards. Connect their reviewed upright meanings and answer your question first. Then consider two possible interpretations, something to check, and one small action you could try.",
       "sections": [
         {
           "heading": "What a no-position spread changes",
@@ -29,19 +29,19 @@
           ],
           "ordered": true,
           "items": [
-            "Question and first answer: name one feeling, relationship direction, or decision you want to understand, then state the answer most strongly suggested by all the cards.",
-            "Interpretation material: paraphrase the supplied upright meaning of every card without adding image details or position roles. These meanings support an interpretation; they do not prove a real-world fact.",
-            "Connection: identify the strongest reinforcement, tension, progression, or integration among at least two cards.",
-            "Two interpretations: do not turn the first answer into fact. Write exactly two materially different symbolic readings supported by the same meanings; for a relationship question, compare possible emotional or relational stances rather than response scenarios.",
-            "Reality check: after the symbolic answer, briefly separate what remains unknown, one observation that could reweight or reject both interpretations, and how that finding should revise the reading.",
-            "Choice: take one small, reversible action with a stop-or-review condition based independently on cost, boundary, or deadline, then end with a reflection question that does not repeat the answer."
+            "Answer the question: name one feeling, part of a relationship, or decision you want to understand, then state what the three cards most strongly suggest.",
+            "Read the card meanings: use the upright meaning of every card without adding unseen artwork or fixed positions. These meanings do not prove real-world facts.",
+            "Connect the cards: choose the clearest way at least two card meanings support, challenge, or build on one another.",
+            "Consider two interpretations: give two different readings supported by the same cards. For a relationship question, compare possible feelings or attitudes rather than inventing future behavior.",
+            "Check in real life: name what remains unknown and what someone could say or do that would make you reconsider or set aside both readings.",
+            "Choose a next step: pick one small action and a cost, boundary, or deadline that would make you stop or review it. End with a question that adds something new."
           ]
         },
         {
-          "heading": "Open a certainty-seeking question symbolically",
+          "heading": "Change a question that asks for certainty",
           "paragraphs": [
             "Certainty-seeking: “Will this relationship definitely work?” This asks the cards to certify another person and a future result.",
-            "Symbolically open: “Which direction do these cards suggest for our feelings and relationship potential, and what could revise that reading?” This starts with the tarot answer and compares it with behavior afterward."
+            "Ask about possibilities: “What do these cards suggest about our feelings and where this relationship could go, and what might change that reading?” Read what the cards suggest first, then check actual behavior separately."
           ]
         },
         {
@@ -49,15 +49,15 @@
           "paragraphs": [
             "Question: “What should I examine before deciding whether to rebuild trust?” No temporal or advice positions are assigned.",
             "Interpretation material: The Lovers points to connection, aligned values, and a responsible choice. Two of Swords points to indecision caused by missing information or unclear criteria. The Star points to renewed hope, recovery, and honest trust after difficulty. These meanings support reflection; they do not prove that trust has recovered.",
-            "Card-based answer and connection: the spread leans toward trust having room to rebuild, but missing shared criteria make it too early to treat hope as completed repair. Choice and hope support the possibility, while Two of Swords adds the unresolved condition."
+            "What the cards suggest: trust may have room to rebuild, but without a shared way to check progress, hope alone does not show that repair has happened. The Lovers' choice and the Star's hope support the possibility, while Two of Swords points to missing information."
           ],
           "items": [
             "Alternative A: trust is rebuilding, but both people need an explicit standard for what repair looks like.",
             "Alternative B: hope is carrying more weight than current behavior, so the decision remains unclear.",
-            "Scope of the hypotheses: these are not a binary choice. Trust may be partly rebuilding while hope still outruns behavior, and neither hypothesis may fully explain the situation.",
+            "How to use both interpretations: either, both, or neither may fit. Trust may be partly rebuilding while hope still gets ahead of behavior.",
             "Unknown: the cards cannot establish the other person's private intention or whether consistency will continue.",
-            "Real-world observation: for the next week, record only whether one agreed promise happens by the agreed time and without reminders.",
-            "Revision condition: self-maintained follow-through raises the weight of A; repeated omission raises the weight of B. If the promise itself was unclear or unrealistic, suspend both and redesign the check.",
+            "What to check: for the next week, record whether one agreed promise is kept on time and without reminders.",
+            "When to reconsider: if the promise is kept without reminders, A seems more plausible. If it is repeatedly missed, reconsider B. If the promise was unclear or unrealistic, set both aside and find a better way to check.",
             "Reversible action and stop condition: write down one small agreement and a one-week review point. Stop and reassess independently of the interpretation if the scope expands without consent, a boundary is dismissed, or the review point arrives.",
             "Reflection: am I treating hope and observed change as though they were the same thing?"
           ]
@@ -66,7 +66,7 @@
           "heading": "How to avoid a generic three-card answer",
           "paragraphs": [
             "Do not write three isolated mini-definitions and call them a reading. The useful work is the connection: explain which exact meanings support the pattern, where they disagree, and what observation could change your conclusion.",
-            "Length is not the quality target. A shorter answer can be complete when every card contributes, alternatives are materially different, uncertainty is explicit, and the next step can be reversed."
+            "You do not need a long answer. A short one is enough when every card contributes, the two readings differ, the unknowns are clear, and you can undo the next step."
           ]
         },
         {
@@ -75,12 +75,12 @@
             "Before using or sharing the reading, check each condition."
           ],
           "items": [
-            "Every drawn card appears and uses its supplied upright meaning as symbolic interpretation material.",
+            "Every drawn card appears, and its upright meaning contributes to the reading.",
             "No image, reversed meaning, factual hidden-feelings claim, timeline, or fixed position was invented.",
             "At least one relationship among cards is explained with the exact meanings that support it.",
-            "The card-based answer comes before reality checking, followed by exactly two materially different interpretations identified as non-exclusive and non-exhaustive.",
-            "Unknowns and a reality check that can reweight or reject both hypotheses are separated from interpretation.",
-            "The action is small and reversible, with an independent cost, boundary, or deadline stop condition and a distinct reflection question."
+            "The answer to the question comes first, followed by two different interpretations. Either, both, or neither may fit.",
+            "The reading separates what the cards suggest, what remains unknown, and what actual words or behavior could change it.",
+            "The action is small and reversible, with a cost, boundary, or deadline for stopping regardless of the interpretation and one new question to reflect on."
           ]
         }
       ],
@@ -103,21 +103,21 @@
     "how-to-ask-tarot-questions": {
       "metadata": {
         "title": "How to Ask Tarot Questions That Read Possibilities Directly",
-        "description": "Give yes-no and feelings questions a card-based answer first, then connect uncertainty and reality checks without turning the reading into fact."
+        "description": "Ask about outcomes or feelings while keeping what the cards suggest separate from what you can check in real life."
       },
       "linkLabel": "Tarot question guide",
-      "title": "How to ask tarot questions that lead to useful reflection",
-      "intro": "A strong tarot question does not avoid what you really want to know. It asks for the answer most strongly suggested by the cards first, then keeps that answer distinct from fact, uncertainty, and what can be checked in reality.",
+      "title": "What should you ask the tarot cards?",
+      "intro": "Ask what you really want to know. Start with what the cards most strongly suggest, then separate what they cannot tell you from what you can check yourself.",
       "sections": [
         {
-          "heading": "The four boundaries of a strong question",
+          "heading": "Four things to check in your question",
           "paragraphs": [
             "Tarot may explore another person's feelings as symbolic possibilities, but it does not obtain private information or replace professional advice. A workable question stays inside four boundaries."
           ],
           "items": [
             "Directness: state what the cards suggest about the question before saying what remains unknowable.",
             "Separation: read another person's feelings as possibilities and keep them distinct from behavior or evidence that can actually be checked.",
-            "Uncertainty: compare exactly two non-exclusive, non-exhaustive symbolic interpretations and name what the cards cannot establish.",
+            "Possibilities: compare two readings supported by the cards. Either, both, or neither may fit. Name what the cards cannot establish.",
             "Scope: limit the question to a situation or near-term review point instead of an unlimited future."
           ]
         },
@@ -125,7 +125,7 @@
           "heading": "A reusable question formula",
           "paragraphs": [
             "Use: “What answer do these cards most strongly suggest about [question], what are two different interpretations supported by the same meanings, and what could revise both?”",
-            "The formula is not magic wording. Its value is structural: it puts the symbolic answer first while keeping two interpretations and real-world evidence separate."
+            "You do not need to copy the wording exactly. Ask what the cards suggest first, then ask for two different ways to read them and one thing you can check yourself."
           ]
         },
         {
@@ -143,14 +143,15 @@
           "heading": "Worked example: The Tower, Eight of Pentacles, Temperance",
           "paragraphs": [
             "Starting question: “Will this career setback ruin my future?” Rewrite: “Which assumption did the setback expose, which skill can I improve, and how can I balance recovery with a practical next attempt?”",
+            "What the cards suggest: rather than predicting a ruined future, these cards point toward examining what the setback revealed and balancing practice with recovery.",
             "Interpretation material: The Tower means disruption that exposes assumptions and requires an honest reset, not a prediction of disaster. Eight of Pentacles points to skill improving through consistent practice. Temperance points to patiently balancing and integrating different needs. These meanings do not prove how a particular employer will decide.",
             "Connection: The Tower and Eight of Pentacles form a reset-to-practice progression, while Temperance prevents practice from becoming a rushed attempt to erase the setback. Together, the cards frame the decision as learning from exposed assumptions while balancing recovery with deliberate skill-building.",
             "Two interpretations are useful for comparison: the setback may reveal a preparation gap that practice can address, or the role itself may conflict with a need that was previously ignored. They are not exclusive or exhaustive: both may partly fit, or feedback may reveal a different constraint altogether."
           ],
           "items": [
             "Unknown: whether a particular employer will make an offer.",
-            "Real-world observation: categorize one round of application or work-sample feedback as preparation, role constraints, or another constraint.",
-            "Revision condition: repeated preparation feedback raises the first hypothesis; repeated role-constraint feedback raises the second. If the feedback fits neither, suspend both and reopen the question.",
+            "What to check: ask for one round of feedback on your application or work sample, then note whether it concerns preparation, the role, or something else.",
+            "When to reconsider: if the feedback identifies a preparation gap, the first interpretation seems a little more plausible. If it reveals a role requirement that conflicts with your needs, the second seems a little more plausible. If it reveals a different problem, set both aside for now and revisit the question.",
             "Reversible action: request one specific piece of feedback and schedule one short practice block.",
             "Stop condition: end this trial at the review date, when practice cuts into recovery, or when the cost of repeating the same application approach reaches the limit you set, regardless of which hypothesis seems stronger.",
             "Reflection: how am I distinguishing a skill I can strengthen from a direction I should reconsider?"
@@ -168,10 +169,10 @@
           "paragraphs": [],
           "items": [
             "Can I answer part of this question through my own observation or choice?",
-            "Does it express another person's possible feelings symbolically without turning them into real-world facts?",
-            "Does it allow exactly two materially different, non-exclusive and non-exhaustive symbolic interpretations?",
-            "Does it name an observation that can reweight or reject both hypotheses and a condition that should reopen the interpretation?",
-            "Is the next action small enough to reverse, with an independent cost, boundary, or deadline stop condition?",
+            "Does it treat another person's feelings as possibilities rather than facts?",
+            "Does it consider two different readings and leave room for both to be wrong?",
+            "Does it name real words or behavior that could change or rule out both readings?",
+            "Can I undo the next action, and have I set a cost, boundary, or deadline for stopping regardless of the reading?",
             "Have I moved professional or safety decisions outside tarot?"
           ]
         }
@@ -195,11 +196,11 @@
     "tarot-card-combinations": {
       "metadata": {
         "title": "How to Read Tarot Card Combinations Without Memorizing Pairs",
-        "description": "Learn four meaning-grounded tarot combination relationships and work through complete three-card and six-card examples."
+        "description": "See how card meanings support, challenge, or build on one another, with three-card and six-card examples."
       },
       "linkLabel": "Card combinations",
       "title": "How to read tarot card combinations without a fixed pair dictionary",
-      "intro": "A card combination is not a secret phrase attached to two names. It uses the relationship among supplied upright meanings to give the strongest symbolic answer to the question first.",
+      "intro": "You do not need to memorize card pairs. Look at how the drawn cards' upright meanings connect, then start with what they suggest about your question.",
       "sections": [
         {
           "heading": "Four useful relationship types",
@@ -214,7 +215,7 @@
           ]
         },
         {
-          "heading": "A connection sentence that shows its material",
+          "heading": "Connect two card meanings in one sentence",
           "paragraphs": [
             "Start with: “Because [meaning A] and [meaning B], this question leans toward [strongest symbolic answer].” Then add two interpretations supported by the same meanings and paraphrase the exact parts that ground them.",
             "If you cannot finish that sentence without image symbolism, a fixed position, or outside card lore, the supplied meanings do not support the connection well enough yet."
@@ -229,10 +230,10 @@
           "items": [
             "Alternative A: the next direction is unclear because disappointment has not been named precisely.",
             "Alternative B: the loss is understood, but too many outside opinions are replacing a personal decision criterion.",
-            "Scope of the hypotheses: these are comparison tools, not exclusive or exhaustive explanations. Both may partly fit, or another constraint may matter more.",
+            "How to use both interpretations: either, both, or neither may fit. Another problem may matter more.",
             "Unknown: which new project will succeed.",
             "Real-world observation: spend twenty minutes listing what failed and what you want separately, then mark whether a direction emerged from the failure record or only after waiting for outside evaluation.",
-            "Revision condition: if naming the failure produces direction, raise A; if the criteria are already clear but action still depends on approval, raise B. If neither explains the result, suspend both.",
+            "When to reconsider: if describing the setback makes the next direction clearer, A seems more plausible. If your criteria are clear but you still wait for someone else's approval, reconsider B. If neither fits, set both aside.",
             "Reversible action and stop condition: compare one small trial against two criteria and review it the next day. End the trial regardless of the interpretation when its cost crosses your limit or the review point arrives.",
             "Reflection: when choosing a direction, which matters more right now—avoiding another disappointment or following a value I can name?"
           ]
@@ -255,12 +256,12 @@
           "items": [
             "Interpretation A: explicit roles, feedback, and resource sharing may reduce uncertainty, allowing the collaboration to continue if a small trial shows consistency.",
             "Interpretation B: even with fair terms, current fatigue and capacity may make a full commitment unsustainable, so narrowing or postponing it may be better.",
-            "Scope of the hypotheses: they are neither exclusive nor exhaustive. The terms may be good while the workload is too high, and a trial may reveal a different problem altogether.",
+            "How to use both interpretations: either, both, or neither may fit. The terms may be fair while the workload is too high, or a small trial may reveal another problem.",
             "Unknown: the cards cannot establish actual reliability, workload, feedback dynamics, or energy cost after work begins.",
             "Real-world observation: in one 30-minute planning conversation or explicitly scoped sample, record only whether roles and deadlines are clear, feedback and resources are reciprocal, and the energy cost afterward is manageable.",
-            "Revision condition: clear reciprocal terms with high strain raises B; manageable capacity with unclear scope or exchange lowers A. If the observed issue fits neither, discard both and reopen the question.",
+            "When to reconsider: if the terms are fair but the work is exhausting, B seems more plausible. If the workload is manageable but roles or exchange remain unclear, reconsider A. If neither fits what happens, set both aside and revisit the question.",
             "Reversible action: before any paid or open-ended commitment, propose one 30-minute planning session or one small trial with written scope, deliverable, and review date.",
-            "Independent stop condition: end and reassess the trial regardless of which hypothesis seems stronger if scope expands without agreement, unpaid work accumulates, a boundary is ignored, or the review date arrives.",
+            "When to stop: end and review the trial regardless of the reading if work expands without agreement, unpaid work accumulates, a boundary is ignored, or the review date arrives.",
             "Reflection: am I expanding what I can carry because I want to prove that the collaboration has potential?"
           ]
         },
@@ -280,12 +281,12 @@
           "heading": "Combination checklist",
           "paragraphs": [],
           "items": [
-            "The relationship type is named and uses exact meanings as symbolic interpretation material.",
+            "The reading explains how the cards connect and uses each card's upright meaning.",
             "Every card contributes to the synthesis.",
             "The strongest symbolic answer to the question appears before reality checking and invents no personal facts.",
-            "Exactly two symbolic interpretations are materially different and identified as non-exclusive and non-exhaustive.",
-            "One real-world observation can reweight the hypotheses or reject both.",
-            "Unknowns, a revision condition, a reversible action, and an independent cost, boundary, or deadline stop condition are explicit."
+            "The two interpretations differ, and either, both, or neither may fit.",
+            "One real word or behavior could change or rule out both interpretations.",
+            "The reading names what remains unknown, when to reconsider, one reversible action, and when to stop regardless of the interpretation."
           ]
         }
       ],
@@ -312,20 +313,20 @@
       },
       "linkLabel": "About",
       "title": "About tarot-spark",
-      "intro": "tarot-spark is a free tarot card drawing and AI prompt generator for reflective writing.",
+      "intro": "Draw tarot cards for free on tarot-spark, then copy a question with their meanings into an AI tool you already use.",
       "sections": [
         {
           "heading": "What this site does",
           "paragraphs": [
-            "You can choose a topic, reading depth, and style, add optional situation context, and copy a prompt that helps you write about the result in an AI tool.",
+            "Choose a topic, number of cards, and answer style, then draw. Add your situation only if you want to. Copy the finished prompt into an AI tool you already use.",
             "The experience is built for entertainment, journaling, and self-reflection rather than prediction or professional advice."
           ]
         },
         {
-          "heading": "How the readings work",
+          "heading": "Cards and the prompt you copy",
           "paragraphs": [
             "Each draw uses local tarot card and spread data. The site does not ask for your name, birth date, contact details, or a personal question.",
-            "The generated prompt is meant to help you explore symbols and possible perspectives. You decide what is useful and what to ignore."
+            "The prompt includes the drawn card meanings and asks for two possible interpretations. Use what helps, and set aside any part of the AI answer that does not fit."
           ]
         },
         {

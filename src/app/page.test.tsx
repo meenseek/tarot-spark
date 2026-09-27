@@ -349,7 +349,7 @@ describe("Home", () => {
       "돈 리딩은 자기 성찰용이며 재정 조언이 아닙니다. 결정 전 실제 비용과 조건을 확인하세요.",
     );
     expect(screen.getByTestId("prompt-ready")).toHaveTextContent(
-      "복사할 질문은 카드상 답, 서로 다른 해석 두 가지, 현실 확인, 작은 행동 하나를 요청합니다.",
+      "복사할 질문은 AI에 카드가 시사하는 답부터 말한 뒤, 가능한 해석 두 가지와 직접 확인할 점, 해볼 일 하나를 알려 달라고 요청해요.",
     );
     expect(
       screen.queryByRole("button", { name: "지금 바로 해석하기" }),

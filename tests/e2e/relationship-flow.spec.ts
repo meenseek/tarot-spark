@@ -12,7 +12,7 @@ test("keeps an English guide campaign through the first completed reading", asyn
   await page.goto("/relationship-flow?source=threads&campaign=topic-guide");
 
   const startLink = page.getByRole("link", {
-    name: "Try the free 3-card prompt",
+    name: "Draw three cards",
   });
 
   await expect(startLink).toBeInViewport();

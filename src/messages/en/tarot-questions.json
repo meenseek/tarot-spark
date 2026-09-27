@@ -1,12 +1,12 @@
 {
   "metadata": {
     "title": "Tarot questions for love, career, money, and daily life",
-    "description": "Browse 62 tarot questions that open the card generator with a useful focus, two interpretations, a reality check, and one small action."
+    "description": "Choose from 62 tarot questions about relationships, career, and daily life, then draw cards with your question ready."
   },
-  "eyebrow": "Question library",
-  "title": "Find a tarot question that helps you decide what to check.",
+  "eyebrow": "62 tarot questions",
+  "title": "Choose a tarot question and draw your cards.",
   "intro": "Browse 62 questions about relationships, career, money, study, projects, and your own direction. Each link opens the card generator with that question ready.",
-  "resultContext": "The copied prompt asks for a card-based answer, exactly two interpretations, a reality check, and one small action.",
+  "resultContext": "The prompt asks your AI tool to answer from the cards first, then give two possible interpretations, something to check, and one small action.",
   "browseHeading": "Browse by life area",
   "categoryNavigationLabel": "Tarot question groups",
   "disclaimer": "Tarot is for entertainment and self-reflection. Money questions do not predict income, prices, loan or debt outcomes, or investment returns; they do not tell you to buy, sell, or borrow, decide affordability, or replace qualified advice.",

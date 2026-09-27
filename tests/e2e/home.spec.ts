@@ -1080,7 +1080,7 @@ test("carries a money question from the complete catalog through a safe mobile r
     "돈 리딩은 자기 성찰용이며 재정 조언이 아닙니다. 결정 전 실제 비용과 조건을 확인하세요.",
   );
   await expect(page.getByTestId("prompt-ready")).toContainText(
-    "복사할 질문은 카드상 답, 서로 다른 해석 두 가지, 현실 확인, 작은 행동 하나를 요청합니다.",
+    "복사할 질문은 AI에 카드가 시사하는 답부터 말한 뒤, 가능한 해석 두 가지와 직접 확인할 점, 해볼 일 하나를 알려 달라고 요청해요.",
   );
   await expect(
     page.getByRole("button", { name: "지금 바로 해석하기" }),
@@ -1216,7 +1216,7 @@ test("serves every complete tarot guide at an exact localized route", async ({
 
   await expect(
     page.getByRole("heading", {
-      name: /과거·현재·미래를 정하지 않고 3장 타로를 읽는 완결된 방법/,
+      name: /과거·현재·미래를 정하지 않고 카드 세 장 읽는 법/,
     }),
   ).toBeVisible();
   await expect(page.getByText(/대안 A: 신뢰는 회복 중이지만/)).toBeVisible();
@@ -1449,7 +1449,7 @@ test("serves the relationship guide and a noindex privacy-safe share preview", a
 
   await expect(
     page.getByRole("heading", {
-      name: /why ai tarot readings feel generic/i,
+      name: /if ai tarot answers feel generic/i,
     }),
   ).toBeVisible();
   await expect(

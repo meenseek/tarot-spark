@@ -11,12 +11,23 @@ describe("RelationshipFlowLanding", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: /why ai tarot readings feel generic/i,
+        name: /if ai tarot answers feel generic/i,
       }),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole("heading", {
+        name: "From drawing cards to an AI answer",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "What to ask your AI tool" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/The prompt asks your AI tool to start/),
+    ).toBeVisible();
+    expect(
       screen.getByRole("link", {
-        name: "Try the free 3-card prompt",
+        name: "Draw three cards",
       }),
     ).toHaveAttribute("href", "/?topic=relationship-flow&style=relational");
     expect(
@@ -30,10 +41,24 @@ describe("RelationshipFlowLanding", () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "What to observe in real life" }),
+      screen.getByRole("heading", { name: "What to check" }),
     ).toBeInTheDocument();
+    const exampleHeadings = Array.from(
+      screen
+        .getByRole("heading", {
+          name: /justice \+ queen of swords \+ six of pentacles/i,
+        })
+        .closest("section")
+        ?.querySelectorAll("h3") ?? [],
+    ).map((heading) => heading.textContent);
+    expect(exampleHeadings.slice(0, 4)).toEqual([
+      "Starting question",
+      "What the cards suggest",
+      "Card meanings",
+      "How the cards connect",
+    ]);
     expect(
-      screen.getByRole("link", { name: "Open the six-card spread" }),
+      screen.getByRole("link", { name: "Draw six cards" }),
     ).toHaveAttribute(
       "href",
       "/?topic=relationship-flow&spread=deep&style=relational",
@@ -48,9 +73,16 @@ describe("RelationshipFlowLanding", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: /ai 타로 답변이 자꾸 뻔하다면/i,
+        name: /ai 타로 답변이 뻔하다면/i,
       }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "카드 뽑기부터 AI 답변까지" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "AI에 요청할 답변" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/질문을 평소 쓰는 AI에 붙여 넣으면/)).toBeVisible();
     expect(screen.getByRole("link", { name: "English" })).toHaveAttribute(
       "href",
       "/relationship-flow",
