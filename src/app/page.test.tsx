@@ -1035,6 +1035,38 @@ describe("Home", () => {
     }
   });
 
+  it("includes YouTube profile attribution in the first draw event", () => {
+    const events: {
+      readonly name: string;
+      readonly payload: Record<string, unknown>;
+    }[] = [];
+    const listener = (event: Event) => {
+      events.push((event as CustomEvent).detail);
+    };
+    window.addEventListener("tarot_spark_event", listener);
+
+    try {
+      window.history.replaceState(
+        null,
+        "",
+        "/?utm_source=youtube&utm_medium=channel&utm_campaign=profile",
+      );
+
+      render(<Home />);
+      fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
+
+      expect(events).toContainEqual({
+        name: "draw_start",
+        payload: expect.objectContaining({
+          source: "youtube",
+          campaign: "profile",
+        }),
+      });
+    } finally {
+      window.removeEventListener("tarot_spark_event", listener);
+    }
+  });
+
   it("renders a server-seeded shared result without generator controls or private handoff", async () => {
     const initialReadingState = getReadingStateFromUrl(
       getTarotData("en"),

@@ -230,7 +230,7 @@ Use only the source and campaign values implemented by the product.
 - `source`: `instagram`, `naver`, `disquiet`, `threads`, `kakao`, `native`, `copy`,
   `pinterest`, `reddit`, or `youtube`.
 - `campaign`: `demo`, `vertical-slice`, `pick-a-card`, `prompt-education`,
-  `deck-progress`, or `topic-guide`.
+  `profile`, `deck-progress`, or `topic-guide`.
 
 The optional `question_id` is limited to one of the reviewed public preset ids.
 Never add localized question text, free-form user questions, names, account

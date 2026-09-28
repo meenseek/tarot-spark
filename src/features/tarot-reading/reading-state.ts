@@ -55,6 +55,7 @@ export const shareCampaignIds = [
   "vertical-slice",
   "pick-a-card",
   "prompt-education",
+  "profile",
   "deck-progress",
   "topic-guide",
 ] as const;

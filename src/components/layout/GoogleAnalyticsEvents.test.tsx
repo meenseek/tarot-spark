@@ -84,6 +84,27 @@ describe("GoogleAnalyticsEvents", () => {
     ]);
   });
 
+  it("uses the YouTube profile attribution in the analytics page URL", () => {
+    const calls = mockGtag();
+    window.history.replaceState(
+      null,
+      "",
+      "/ko?utm_source=youtube&utm_medium=channel&utm_campaign=profile",
+    );
+
+    render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
+
+    expect(calls).toContainEqual([
+      "config",
+      "G-TEST1234",
+      expect.objectContaining({
+        page_location:
+          window.location.origin + "/ko?source=youtube&campaign=profile",
+        page_path: "/ko?source=youtube&campaign=profile",
+      }),
+    ]);
+  });
+
   it("sends page views with the active route", () => {
     const calls = mockGtag();
 
@@ -289,6 +310,14 @@ describe("GoogleAnalyticsEvents", () => {
       new CustomEvent("tarot_spark_event", {
         detail: {
           name: "result_view",
+          payload: { ...payload, source: "youtube", campaign: "profile" },
+        },
+      }),
+    );
+    window.dispatchEvent(
+      new CustomEvent("tarot_spark_event", {
+        detail: {
+          name: "result_view",
           payload: { ...payload, source: "private free text" },
         },
       }),
@@ -316,6 +345,11 @@ describe("GoogleAnalyticsEvents", () => {
         source: "youtube",
         campaign: "prompt-education",
       },
+    ]);
+    expect(calls).toContainEqual([
+      "event",
+      "result_view",
+      { ...payload, source: "youtube", campaign: "profile" },
     ]);
   });
 
