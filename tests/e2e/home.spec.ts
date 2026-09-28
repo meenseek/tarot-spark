@@ -118,6 +118,28 @@ test("normalizes the published Threads UTM campaign through the first draw", asy
   });
 });
 
+test("keeps the YouTube profile attribution through the first draw", async ({
+  page,
+}) => {
+  await page.goto(
+    "/ko?utm_source=youtube&utm_medium=channel&utm_campaign=profile",
+  );
+
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+
+  await expect(page.getByTestId("prompt-ready")).toBeVisible();
+  await expect(page).toHaveURL((url) => {
+    return (
+      url.pathname === "/ko" &&
+      url.searchParams.get("source") === "youtube" &&
+      url.searchParams.get("campaign") === "profile" &&
+      !url.searchParams.has("utm_source") &&
+      !url.searchParams.has("utm_medium") &&
+      !url.searchParams.has("utm_campaign")
+    );
+  });
+});
+
 test("keeps optional situation context discoverable before drawing", async ({
   page,
 }) => {

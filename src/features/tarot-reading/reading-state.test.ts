@@ -122,6 +122,23 @@ describe("reading URL state", () => {
     }
   });
 
+  it("normalizes the YouTube channel profile URL", () => {
+    const attribution = { campaignId: "profile", sourceId: "youtube" };
+
+    expect(
+      getReadingAttributionFromUrl(
+        "https://tarot-spark.vercel.app/ko?utm_source=youtube&utm_medium=channel&utm_campaign=profile",
+      ),
+    ).toEqual(attribution);
+    expect(
+      getReadingAttributionFromSearchParams({
+        utm_source: "youtube",
+        utm_medium: "channel",
+        utm_campaign: "profile",
+      }),
+    ).toEqual(attribution);
+  });
+
   it("does not let legacy UTM values override an explicit attribution pair", () => {
     expect(
       getReadingAttributionFromUrl(
