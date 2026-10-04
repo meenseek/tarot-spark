@@ -6,6 +6,7 @@ import { SiteSkipLink } from "./SiteSkipLink";
 type SiteShellProps = {
   readonly brand: string;
   readonly brandHref: string;
+  readonly brandNavigation?: "client" | "document";
   readonly children: ReactNode;
   readonly footerAriaLabel: string;
   readonly footerLinks: readonly SiteFooterLink[];
@@ -16,6 +17,7 @@ type SiteShellProps = {
 export function SiteShell({
   brand,
   brandHref,
+  brandNavigation = "client",
   children,
   footerAriaLabel,
   footerLinks,
@@ -35,6 +37,7 @@ export function SiteShell({
         <SiteHeader
           brand={brand}
           brandHref={brandHref}
+          brandNavigation={brandNavigation}
           localeControl={localeControl}
         />
         <main
