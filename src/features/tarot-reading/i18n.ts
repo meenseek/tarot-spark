@@ -22,8 +22,6 @@ export type TarotReadingMessages = {
   readonly contextLabel: string;
   readonly contextInputLabel: string;
   readonly contextOptional: string;
-  readonly contextEmptySummary: string;
-  readonly contextFilledSummary: string;
   readonly contextHelp: string;
   readonly contextCountLabel: string;
   readonly topicSelectorLabel: string;
@@ -131,8 +129,6 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     copyUrl: copy.copyUrl,
     copyPrompt: copy.copyPrompt,
     contextCountLabel: copy.contextCountLabel,
-    contextEmptySummary: copy.contextEmptySummary,
-    contextFilledSummary: copy.contextFilledSummary,
     contextHelp: copy.contextHelp,
     contextInputLabel: copy.contextInputLabel,
     contextLabel: copy.contextLabel,

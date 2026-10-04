@@ -64,7 +64,7 @@
       "instruction": "Give encouraging and cautionary interpretive considerations equal attention."
     },
     "direct": {
-      "label": "Direct, not deterministic",
+      "label": "Direct",
       "description": "Name the clearest theme without softening it into vagueness.",
       "instruction": "Be candid and specific without forcing certainty or increasing fear."
     },
@@ -74,7 +74,7 @@
       "instruction": "Give the card-based answer first, then briefly connect observable facts, controllable choices, and one low-pressure action."
     },
     "relational": {
-      "label": "Relationship-centered",
+      "label": "Relationship focus",
       "description": "Focus on boundaries, communication, and repeating relationship patterns.",
       "instruction": "Read feelings and relationship perceptions sensitively as possibilities grounded in the supplied meanings. Do not state hidden motives as facts, and keep behavior and boundary guidance brief and secondary."
     }
@@ -82,50 +82,50 @@
   "topics": {
     "love": {
       "label": "Love overview",
-      "contextPlaceholder": "Example: I want to move a connection forward, but I am unsure whether expressing my feelings first would be healthy.",
+      "contextPlaceholder": "Example: What should I consider before sharing my feelings?",
       "promptLead": "When the core question is about another person's feelings, first read the emotional or romantic interest and hesitation suggested by the cards, then briefly organize the user's feelings and choices.",
       "resultFrame": "Read the emotional, relational, or interpersonal direction suggested by the cards first, then consider what can be checked in reality."
     },
     "reunion": {
       "label": "Reunion",
-      "contextPlaceholder": "Example: I am considering contacting an ex and want to reflect on what must change before old problems repeat.",
+      "contextPlaceholder": "Example: What needs to change before I contact my ex?",
       "promptLead": "Help the user reflect carefully on reconnecting without rushing the choice.",
       "resultFrame": "Focus on what changed, what remains unresolved, and what the user can verify or choose."
     },
     "feelings": {
       "label": "Feelings",
-      "contextPlaceholder": "Example: Their messages have become less frequent. I want to separate observable behavior from my assumptions.",
+      "contextPlaceholder": "Example: What could their shorter replies mean?",
       "promptLead": "Directly read how the other person may see the user, where emotional or romantic interest leans, and what hesitation may be present, limited to what the supplied meanings support.",
       "resultFrame": "Explore the other person's possible view, interest, and hesitation as a symbolic reading."
     },
     "relationship-flow": {
       "label": "Relationship flow",
-      "contextPlaceholder": "Example: Conversations with someone close keep going wrong. I want to notice the pattern and what I can change.",
+      "contextPlaceholder": "Example: How can I change our communication pattern?",
       "promptLead": "First read the emotional flow and relationship perceptions suggested by the cards, then briefly identify observable interaction and what the user can change.",
       "resultFrame": "Notice the repeating pattern, where communication stalls, and what the user can try differently."
     },
     "career-direction": {
       "label": "Career direction",
-      "contextPlaceholder": "Example: I am torn between staying at my company and preparing for a new opportunity. I want one next step.",
+      "contextPlaceholder": "Example: What should guide my next career choice?",
       "promptLead": "Reflect on where effort is going and organize a realistic next action around work.",
       "resultFrame": "Center controllable choices without presenting financial or career advice."
     },
     "self-direction": {
       "label": "My direction",
-      "contextPlaceholder": "Example: I want to separate other people's expectations from the value I want to protect in my next choice.",
+      "contextPlaceholder": "Example: What matters most in my next choice?",
       "promptLead": "Separate outside expectations from the value the user actually wants to keep, then center observable evidence and one small controllable choice.",
       "resultFrame": "Focus on the value to protect, a repeating pattern, and a condition that would reopen the choice."
     },
     "money-life": {
       "label": "Money & daily life",
-      "contextPlaceholder": "Example: I want to separate impulse spending from real needs and choose one money rule to keep this month.",
+      "contextPlaceholder": "Example: What spending habit could I change this month?",
       "promptLead": "Use factual spending records and actual terms to reflect on money priorities, boundaries, and review conditions.",
       "resultFrame": "Do not treat the cards as a financial forecast. Use actual records and terms, one reversible check, and a condition to stop and review the choice. Confirm high-stakes decisions with qualified advice.",
       "safetyInstruction": "Do not predict income, prices, loans, debt, or investment returns; direct buying, selling, or borrowing; or decide affordability. Direct high-stakes decisions to qualified help or official sources."
     },
     "study-projects": {
       "label": "Study & projects",
-      "contextPlaceholder": "Example: My study or project feels stuck. I want one part to test next and a scope I can remove.",
+      "contextPlaceholder": "Example: What could I try when my project feels stuck?",
       "promptLead": "Do not predict the final outcome. Focus on one part to test now, factual feedback, scope to remove, and a condition to pause and review.",
       "resultFrame": "Look for one small next step, evidence to check, scope to remove, and a condition to pause and review."
     }

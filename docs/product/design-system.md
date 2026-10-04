@@ -168,12 +168,15 @@ instead of palette utilities or color literals.
   Selecting a question may adjust the broad topic to match; clearing only the
   question keeps that adjusted topic. Close the question picker and return
   focus to its summary after either action.
-- Keep the optional situation entry visible between topic selection and the
-  reading-preferences disclosure. Do not group it with card-count or
-  reading-style settings.
-- Let users draw without adding situation text. Keep card count and reading
-  style in a separate secondary disclosure, followed by one count-specific draw
-  action.
+- Keep the optional situation textarea directly visible between topic selection
+  and reading preferences. Mark it optional and show the privacy notice and
+  character count without a disclosure. Start with two rows and allow resizing.
+- Keep card count and answer style directly visible in setup and next-draw
+  preparation. Use compact two-column radio choices with at least 48px targets;
+  describe the selected answer style beside its group. Follow them with one
+  count-specific draw action. Defaults must remain usable without extra choices.
+- Reserve setup disclosures for the long specific-question catalog. Do not make
+  users expand a panel to inspect or change the basic draw settings.
 - Treat setup, committed result, and edit-next-draw as distinct modes. Preparing
   the next draw shows only its choices and focuses its heading. Preserve the
   committed result in state; cancelling discards the draft, restores the result

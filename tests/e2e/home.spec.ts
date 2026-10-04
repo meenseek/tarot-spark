@@ -69,9 +69,12 @@ test("keeps the Korean Instagram campaign through the first draw", async ({
   await expect(page.getByTestId("topic-select")).toHaveValue(
     "relationship-flow",
   );
-  await expect(page.getByTestId("reading-preferences-selection")).toContainText(
-    "빠른 3장 · 마음과 관계에 초점",
-  );
+  await expect(
+    page.getByRole("radio", { name: "빠른 3장", exact: true }),
+  ).toBeChecked();
+  await expect(
+    page.getByRole("radio", { name: "마음과 관계에 초점", exact: true }),
+  ).toBeChecked();
 
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
 
@@ -140,56 +143,80 @@ test("keeps the YouTube profile attribution through the first draw", async ({
   });
 });
 
-test("keeps optional situation context discoverable before drawing", async ({
+test("shows draw choices and optional context without disclosure clicks", async ({
   page,
 }) => {
-  await page.setViewportSize({ height: 844, width: 390 });
-  await page.goto("/ko");
-
-  const situation = page.getByTestId("situation-context");
-  const toggle = page.getByTestId("situation-context-toggle");
-  const draw = page.getByRole("button", { name: "카드 3장 뽑기" });
-
-  await expect(situation).not.toHaveAttribute("open", "");
-  expect(
-    await page.evaluate(() => {
-      const toggleElement = document.querySelector(
-        '[data-testid="situation-context-toggle"]',
-      );
-      const drawElement = Array.from(document.querySelectorAll("button")).find(
-        (element) => element.textContent?.includes("카드 3장 뽑기"),
-      );
-
-      return Boolean(
-        toggleElement &&
-        drawElement &&
-        toggleElement.compareDocumentPosition(drawElement) &
-          Node.DOCUMENT_POSITION_FOLLOWING,
-      );
-    }),
-  ).toBe(true);
-
-  await toggle.focus();
-  await toggle.press("Enter");
-  await expect(situation).toHaveAttribute("open", "");
-  await expect(
-    page.getByText(
-      /복사할 질문에는 포함되며, 다른 AI에 붙여 넣으면 함께 전달됩니다/,
-    ),
-  ).toBeVisible();
-  await page
-    .getByRole("textbox", { name: /상황이나 궁금한 점/ })
-    .fill("제가 바꿀 수 있는 행동을 알고 싶어요.");
-  await toggle.press("Enter");
-
-  await expect(situation).not.toHaveAttribute("open", "");
-  await expect(page.getByText("상황 입력됨 · 수정")).toBeVisible();
-  await draw.click();
-  await expect(
-    page
-      .getByTestId("prompt-ready")
-      .getByText("작성한 상황도 질문에 담았어요."),
-  ).toBeVisible();
+  for (const locale of ["ko", "en"] as const) {
+    const ko = locale === "ko";
+    await page.setViewportSize({ height: 844, width: 390 });
+    await page.goto(ko ? "/ko" : "/");
+    const form = page.getByTestId("reading-setup-form");
+    await expect(form.locator(":scope > details")).toHaveCount(1);
+    const context = page.getByRole("textbox", {
+      name: ko
+        ? "상황이나 궁금한 점 (선택)"
+        : "Your situation or question (Optional)",
+      exact: true,
+    });
+    await expect(context).toBeVisible();
+    await expect(form.getByRole("radio")).toHaveCount(6);
+    for (const option of await form.getByRole("radio").all())
+      await expect(option).toBeVisible();
+    await context.fill("I want to understand what I can change.");
+    await page
+      .getByRole("radio", {
+        name: ko ? "심화 6장" : "Deep 6-card",
+        exact: true,
+      })
+      .check();
+    await page
+      .getByRole("radio", {
+        name: ko ? "솔직하고 분명하게" : "Direct",
+        exact: true,
+      })
+      .check();
+    await expect(
+      page.getByText(ko ? /돌려 말하지 않고/ : /Name the clearest theme/),
+    ).toBeVisible();
+    await page
+      .getByRole("button", {
+        name: ko ? "카드 6장 뽑기" : "Draw 6 cards",
+        exact: true,
+      })
+      .click();
+    await expect(page.getByTestId(/^reading-card-\d+$/)).toHaveCount(6);
+    await expect(page.getByTestId("prompt-ready")).toContainText(
+      ko
+        ? "작성한 상황도 질문에 담았어요."
+        : "Your situation is included in the prompt.",
+    );
+    expect(new URL(page.url()).searchParams.get("spread")).toBe("deep");
+    expect(new URL(page.url()).searchParams.get("style")).toBe("direct");
+    expect(page.url()).not.toContain("I+want");
+    await page
+      .getByRole("button", {
+        name: ko ? "다음 카드 준비하기" : "Prepare the next draw",
+        exact: true,
+      })
+      .click();
+    await expect(context).toHaveValue(
+      "I want to understand what I can change.",
+    );
+    await page
+      .getByRole("radio", {
+        name: ko ? "빠른 3장" : "Quick 3-card",
+        exact: true,
+      })
+      .check();
+    await page
+      .getByRole("button", {
+        name: ko ? "이전 카드 결과로 돌아가기" : "Back to previous result",
+        exact: true,
+      })
+      .click();
+    await expect(page.getByTestId(/^reading-card-\d+$/)).toHaveCount(6);
+    expect(new URL(page.url()).searchParams.get("spread")).toBe("deep");
+  }
 });
 
 for (const width of [320, 390]) {
@@ -237,7 +264,6 @@ for (const readingCase of [
     await page.goto(readingCase.localePath);
 
     if (readingCase.spread === "deep") {
-      await openReadingPreferences(page);
       await page.getByRole("radio", { name: /심화 6장/ }).check();
     }
 
@@ -393,7 +419,7 @@ for (const locale of ["en", "ko"] as const) {
       const noticeBox = await notice.boundingBox();
       expect(noticeBox!.x + noticeBox!.width).toBeLessThanOrEqual(width);
       await page.getByTestId("topic-select").selectOption("reunion");
-      await page.getByTestId("situation-context-toggle").click();
+
       await page
         .getByTestId("situation-context")
         .getByRole("textbox")
@@ -491,7 +517,8 @@ test("keeps the primary draw and prompt actions ahead of optional detail", async
     .getByRole("button", { name: "카드 3장 뽑기" })
     .evaluate((element) => element.getBoundingClientRect().top + scrollY);
 
-  expect(drawTop).toBeLessThanOrEqual(1100);
+  // Basic choices and optional input are visible without expanding panels.
+  expect(drawTop).toBeLessThanOrEqual(1400);
 
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
   await expect(page.getByTestId("prompt-ready")).toBeVisible();
@@ -558,7 +585,7 @@ test("keeps the first-time promise and draw usable at 320px", async ({
       await draw.evaluate(
         (element) => element.getBoundingClientRect().top + scrollY,
       ),
-    ).toBeLessThanOrEqual(1200);
+    ).toBeLessThanOrEqual(1400);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -577,25 +604,16 @@ test("keeps every localized context example visible at 320px", async ({
       contextLabel: /Your situation or question/,
       path: "/",
       topicExamples: [
-        [
-          "love",
-          "Example: I want to move a connection forward, but I am unsure whether expressing my feelings first would be healthy.",
-        ],
-        [
-          "reunion",
-          "Example: I am considering contacting an ex and want to reflect on what must change before old problems repeat.",
-        ],
-        [
-          "feelings",
-          "Example: Their messages have become less frequent. I want to separate observable behavior from my assumptions.",
-        ],
+        ["love", "Example: What should I consider before sharing my feelings?"],
+        ["reunion", "Example: What needs to change before I contact my ex?"],
+        ["feelings", "Example: What could their shorter replies mean?"],
         [
           "relationship-flow",
-          "Example: Conversations with someone close keep going wrong. I want to notice the pattern and what I can change.",
+          "Example: How can I change our communication pattern?",
         ],
         [
           "career-direction",
-          "Example: I am torn between staying at my company and preparing for a new opportunity. I want one next step.",
+          "Example: What should guide my next career choice?",
         ],
       ],
     },
@@ -603,33 +621,18 @@ test("keeps every localized context example visible at 320px", async ({
       contextLabel: /상황이나 궁금한 점/,
       path: "/ko",
       topicExamples: [
-        [
-          "love",
-          "예: 관계를 조금 더 발전시키고 싶은데 먼저 마음을 표현해도 될지 고민돼요.",
-        ],
-        [
-          "reunion",
-          "예: 헤어진 사람에게 다시 연락할지, 같은 문제가 반복되지 않으려면 무엇이 달라져야 할지 고민돼요.",
-        ],
-        [
-          "feelings",
-          "예: 상대의 연락이 줄어서 혼란스러워요. 보이는 행동과 제 추측을 나눠보고 싶어요.",
-        ],
-        [
-          "relationship-flow",
-          "예: 가까운 사람과 대화가 자꾸 어긋나요. 반복되는 방식과 제가 바꿀 수 있는 일을 알고 싶어요.",
-        ],
-        [
-          "career-direction",
-          "예: 지금 회사에 남을지 새로운 일을 준비할지 고민돼요. 당장 해볼 일부터 정리하고 싶어요.",
-        ],
+        ["love", "예: 마음을 표현하기 전에 무엇을 살펴볼까요?"],
+        ["reunion", "예: 다시 연락하기 전에 무엇이 달라져야 할까요?"],
+        ["feelings", "예: 상대의 연락이 줄어든 건 어떤 의미일까요?"],
+        ["relationship-flow", "예: 자꾸 어긋나는 대화를 어떻게 바꿀까요?"],
+        ["career-direction", "예: 다음 커리어 선택에서 무엇을 살펴볼까요?"],
       ],
     },
   ] as const;
 
   for (const { contextLabel, path, topicExamples } of localizedExamples) {
     await page.goto(path);
-    await openSituationContext(page);
+
     const context = page.getByLabel(contextLabel);
 
     for (const [topicId, placeholder] of topicExamples) {
@@ -921,7 +924,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
   await expect(questionPickerSummary).toBeFocused();
   await expect(
     page.getByRole("button", { name: "카드 3장 뽑기" }),
-  ).toBeInViewport();
+  ).toBeVisible();
 
   await questionPickerSummary.click();
   await perceptionSummary.click();
@@ -944,7 +947,6 @@ test("uses a chosen relationship question in the generated prompt", async ({
     ),
   ).toBe(true);
 
-  await openSituationContext(page);
   await page
     .getByRole("textbox", { name: /상황이나 궁금한 점/ })
     .fill("이 내용은 다음 질문을 고르는 동안에도 유지되어야 해요.");
@@ -1012,7 +1014,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
   await expect(page.getByTestId("current-public-question")).toHaveCount(0);
   expect(page.url()).toBe(committedUrl);
   await expect(page.locator("[data-card-id]")).toHaveCount(0);
-  await openSituationContext(page);
+
   await expect(
     page.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
   ).toHaveValue("이 내용은 다음 질문을 고르는 동안에도 유지되어야 해요.");
@@ -1394,7 +1396,6 @@ test("preserves reading and private context when switching languages", async ({
     }
   });
   await page.goto("/");
-  await openSituationContext(page);
 
   await page
     .getByRole("textbox", { name: /Your situation or question/ })
@@ -1442,11 +1443,9 @@ test("creates a direct six-card prompt while keeping context private", async ({
   page,
 }) => {
   await page.goto("/");
-  await openReadingPreferences(page);
-  await openSituationContext(page);
 
   await page.getByRole("radio", { name: /Deep 6-card/ }).check();
-  await page.getByRole("radio", { name: /Direct, not deterministic/ }).check();
+  await page.getByRole("radio", { name: /Direct/ }).check();
   await page
     .getByRole("textbox", { name: /Your situation or question/ })
     .fill(
@@ -1460,7 +1459,7 @@ test("creates a direct six-card prompt while keeping context private", async ({
     "Drawn cards (6-card reading)",
   );
   await expect(page.getByLabel("Generated prompt")).toContainText(
-    "Tone: Direct, not deterministic",
+    "Tone: Direct",
   );
   await expect(page.getByLabel("Generated prompt")).toContainText(
     "Should I stay at this company?",
@@ -1486,7 +1485,6 @@ test("shows an instant Korean reading without sending private context", async ({
     });
   });
   await page.goto("/ko");
-  await openSituationContext(page);
 
   await page
     .getByRole("textbox", { name: /상황이나 궁금한 점/ })
@@ -1795,14 +1793,6 @@ test("renders a shared reading first and keeps its localized share route", async
 function expectPathname(href: string | null, pathname: string) {
   expect(href).not.toBeNull();
   expect(new URL(href ?? "http://localhost").pathname).toBe(pathname);
-}
-
-async function openReadingPreferences(page: Page) {
-  await page.getByTestId("reading-preferences-toggle").click();
-}
-
-async function openSituationContext(page: Page) {
-  await page.getByTestId("situation-context-toggle").click();
 }
 
 async function openPromptContent(page: Page) {

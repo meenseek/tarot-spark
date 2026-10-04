@@ -395,7 +395,6 @@ test("revokes analytics without losing private reading context", async ({
 }) => {
   await setStoredConsent(page, { analytics: false, advertising: false });
   await page.goto("/");
-  await openSituationContext(page);
 
   const contextInput = page.getByRole("textbox", {
     name: /Your situation or question/,
@@ -423,7 +422,6 @@ test("revokes analytics without losing private reading context", async ({
   await page.getByRole("button", { name: "Save choices" }).click();
   await reloaded;
 
-  await openSituationContext(page);
   await expect(contextInput).toHaveValue(
     "Keep this private context through consent changes.",
   );
@@ -734,7 +732,6 @@ test("clears stale private handoff before opening a clean attributed generator",
     "source",
   ]);
 
-  await openSituationContext(page);
   await expect(
     page.getByRole("textbox", {
       name: /Your situation or question/,
@@ -822,21 +819,12 @@ test("clears stale private handoff before consecutive pre-hydration navigation",
     )
     .toBeNull();
 
-  await openSituationContext(page);
   await expect(
     page.getByRole("textbox", {
       name: /상황이나 궁금한 점/,
     }),
   ).toHaveValue("");
 });
-
-async function openSituationContext(page: import("@playwright/test").Page) {
-  const disclosure = page.getByTestId("situation-context");
-
-  if ((await disclosure.getAttribute("open")) === null) {
-    await page.getByTestId("situation-context-toggle").click();
-  }
-}
 
 async function setStoredConsent(
   page: import("@playwright/test").Page,

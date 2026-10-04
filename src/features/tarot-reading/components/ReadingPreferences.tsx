@@ -26,89 +26,57 @@ export function ReadingPreferences({
   selectedStyleId,
   spreads,
 }: ReadingPreferencesProps) {
-  const selectedSpread = spreads.find(
-    (spread) => spread.id === selectedSpreadId,
-  );
   const selectedStyle = readingStyles.find(
     (style) => style.id === selectedStyleId,
   );
 
   return (
-    <details
-      className="group rounded-ts-panel border border-ts-divider bg-ts-surface shadow-ts-card"
+    <section
+      aria-label={copy.personalizationHeading}
+      className="grid gap-2 border-t border-ts-divider pt-2 sm:grid-cols-2 sm:items-start sm:gap-4"
       data-testid="reading-preferences"
-      suppressHydrationWarning
     >
-      <summary
-        className="flex min-h-12 cursor-pointer list-none flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-ts-panel px-4 py-3 text-left marker:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action [&::-webkit-details-marker]:hidden"
-        data-testid="reading-preferences-toggle"
+      <RadioGroup
+        announceError={false}
+        className="ts-choice-group ts-choice-group--settings"
+        legend={copy.spreadSelectorLabel}
+        name="tarot-spread"
+        onValueChange={(value) => onSpreadChange(value as SpreadId)}
+        value={selectedSpreadId}
       >
-        <span className="shrink-0 whitespace-nowrap text-base font-semibold text-ts-ink">
-          {copy.personalizationHeading}
-        </span>
-        <span
-          className="ml-auto flex min-w-0 items-center gap-2 text-right text-xs leading-5 text-ts-muted"
-          data-testid="reading-preferences-selection"
-        >
-          <span>
-            {[selectedSpread?.label, selectedStyle?.label]
-              .filter(Boolean)
-              .join(" · ")}
-          </span>
-          <span
-            aria-hidden="true"
-            className="text-base text-ts-action transition-transform duration-[var(--ts-motion-fast)] group-open:rotate-180"
-          >
-            ⌄
-          </span>
-        </span>
-      </summary>
+        {spreads.map((spread) => (
+          <Radio
+            appearance="card"
+            key={spread.id}
+            label={spread.label}
+            value={spread.id}
+            wrapperClassName="ts-choice-card ts-choice-card--setting"
+          />
+        ))}
+      </RadioGroup>
 
-      <div className="grid gap-5 border-t border-ts-divider p-4">
-        <p className="text-sm leading-6 text-ts-muted">
-          {copy.personalizationIntro}
-        </p>
-
-        <RadioGroup
-          announceError={false}
-          className="ts-choice-group ts-choice-group--two-column"
-          legend={copy.spreadSelectorLabel}
-          name="tarot-spread"
-          onValueChange={(value) => onSpreadChange(value as SpreadId)}
-          value={selectedSpreadId}
-        >
-          {spreads.map((spread) => (
-            <Radio
-              appearance="card"
-              description={spread.description}
-              key={spread.id}
-              label={spread.label}
-              value={spread.id}
-              wrapperClassName="ts-choice-card ts-choice-card--spread"
-            />
-          ))}
-        </RadioGroup>
-
-        <RadioGroup
-          announceError={false}
-          className="ts-choice-group ts-choice-group--two-column"
-          legend={copy.readingStyleSelectorLabel}
-          name="reading-style"
-          onValueChange={(value) => onStyleChange(value as ReadingStyleId)}
-          value={selectedStyleId}
-        >
-          {readingStyles.map((style) => (
-            <Radio
-              appearance="card"
-              description={style.description}
-              key={style.id}
-              label={style.label}
-              value={style.id}
-              wrapperClassName="ts-choice-card ts-choice-card--style"
-            />
-          ))}
-        </RadioGroup>
-      </div>
-    </details>
+      <RadioGroup
+        announceError={false}
+        className="ts-choice-group ts-choice-group--settings"
+        description={selectedStyle?.description}
+        legend={copy.readingStyleSelectorLabel}
+        name="reading-style"
+        onValueChange={(value) => onStyleChange(value as ReadingStyleId)}
+        value={selectedStyleId}
+      >
+        {readingStyles.map((style) => (
+          <Radio
+            appearance="card"
+            key={style.id}
+            label={style.label}
+            value={style.id}
+            wrapperClassName="ts-choice-card ts-choice-card--setting"
+          />
+        ))}
+      </RadioGroup>
+      <p className="text-xs leading-5 text-ts-muted sm:col-span-2">
+        {copy.personalizationIntro}
+      </p>
+    </section>
   );
 }
