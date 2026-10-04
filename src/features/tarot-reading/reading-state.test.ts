@@ -1,9 +1,10 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { getTarotData } from "@/i18n/tarot-data";
 import {
   buildReadingUrl,
   clearPrivateContextHandoff,
   consumePrivateContextHandoff,
+  getPrivateContextStorage,
   getLocalizedReadingHref,
   getLocalizedGeneratorHref,
   getLocalizedShareReadingHref,
@@ -561,6 +562,26 @@ describe("one-time locale context transfer", () => {
     expect(
       consumePrivateContextHandoff(window.sessionStorage, 1_000),
     ).toBeUndefined();
+  });
+
+  it("skips private handoff when the storage object itself is blocked", () => {
+    const getter = vi
+      .spyOn(window, "sessionStorage", "get")
+      .mockImplementation(() => {
+        throw new DOMException("Storage blocked", "SecurityError");
+      });
+    try {
+      const storage = getPrivateContextStorage();
+      expect(storage).toBeUndefined();
+      expect(() =>
+        storePrivateContextHandoff(storage, "Private context"),
+      ).not.toThrow();
+      expect(readPrivateContextHandoff(storage)).toBeUndefined();
+      expect(consumePrivateContextHandoff(storage)).toBeUndefined();
+      expect(() => clearPrivateContextHandoff(storage)).not.toThrow();
+    } finally {
+      getter.mockRestore();
+    }
   });
 
   it("does not throw when storage is unavailable", () => {

@@ -268,84 +268,217 @@ for (const readingCase of [
   });
 }
 
-test("keeps next-reading choices cancelable without replacing the current mobile result", async ({
-  page,
-}) => {
-  await page.setViewportSize({ height: 844, width: 390 });
-  await page.goto("/");
-  await page.getByRole("button", { name: "Draw 3 cards" }).click();
-  const currentCards = await page
-    .locator("[data-card-id]")
-    .evaluateAll((elements) =>
-      elements.map((element) => element.getAttribute("data-card-id")),
-    );
-  const committedUrl = page.url();
-
-  const nextReadingAction = page.getByRole("button", {
-    name: "Prepare the next draw",
-  });
-  await expect(nextReadingAction).toBeInViewport();
-  await expect(
-    page.getByRole("button", { name: "Redraw with current settings" }),
-  ).toHaveCount(0);
-  await nextReadingAction.click();
-  await expect(
-    page.getByRole("heading", { name: "Prepare the next draw" }),
-  ).toBeFocused();
-  const nextReadingEditor = page.getByRole("region", {
-    name: "Prepare the next draw",
-  });
-  await expect(nextReadingEditor).toBeVisible();
-  await expect(page.getByTestId("reading-setup-panel")).toHaveCount(0);
-  await expect(page.getByTestId("card-overview")).toBeVisible();
-  await expect(page.getByTestId("prompt-ready")).toBeVisible();
-  await expect(
-    page.getByText(
-      "Tarot content is for entertainment and self-reflection only. It is not medical, legal, financial, investment, or mental-health advice.",
-      { exact: true },
-    ),
-  ).toHaveCount(1);
-  expect(
-    await page.evaluate(() => {
-      const prompt = document.querySelector('[data-testid="prompt-ready"]');
-      const editor = document.querySelector(
-        '[data-testid="next-reading-editor"]',
-      );
-      const details = document.querySelector(
-        '[data-testid="prompt-content-disclosure"]',
-      );
-
-      return Boolean(
-        prompt &&
-        editor &&
-        details &&
-        prompt.compareDocumentPosition(editor) &
-          Node.DOCUMENT_POSITION_FOLLOWING &&
-        editor.compareDocumentPosition(details) &
-          Node.DOCUMENT_POSITION_FOLLOWING,
-      );
-    }),
-  ).toBe(true);
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= window.innerWidth,
-    ),
-  ).toBe(true);
-  await page.getByTestId("topic-select").selectOption("reunion");
-  expect(page.url()).toBe(committedUrl);
-  expect(
-    await page
+for (const width of [390, 1280] as const) {
+  test(`prepares a new draw separately and restores the result at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ height: 844, width });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+    await page.getByRole("button", { name: "Draw 3 cards" }).click();
+    const currentCards = await page
       .locator("[data-card-id]")
       .evaluateAll((elements) =>
         elements.map((element) => element.getAttribute("data-card-id")),
-      ),
-  ).toEqual(currentCards);
+      );
+    const committedUrl = page.url();
+    const committedPrompt = await page
+      .getByLabel("Generated prompt")
+      .inputValue();
 
-  await page.getByRole("button", { name: "Back to this result" }).click();
+    const nextReadingAction = page.getByRole("button", {
+      name: "Prepare the next draw",
+    });
+    await expect(nextReadingAction).toBeInViewport();
+    await nextReadingAction.click();
+    const prepHeading = page.getByRole("heading", {
+      name: "Prepare the next draw",
+    });
+    await expect(prepHeading).toBeFocused();
+    await expect(prepHeading).toBeInViewport();
+    await expect(
+      page.getByRole("region", { name: "Prepare the next draw" }),
+    ).toBeVisible();
+    await expect(page.getByTestId("reading-setup-panel")).toBeVisible();
+    await expect(page.getByTestId("card-overview")).toHaveCount(0);
+    await expect(page.getByTestId("prompt-ready")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Copy prompt" })).toHaveCount(
+      0,
+    );
+    await expect(page.getByTestId("share-options-disclosure")).toHaveCount(0);
+    await expect(
+      page.getByText(
+        "Tarot content is for entertainment and self-reflection only. It is not medical, legal, financial, investment, or mental-health advice.",
+        { exact: true },
+      ),
+    ).toHaveCount(1);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+    await page.getByTestId("topic-select").selectOption("reunion");
+    expect(page.url()).toBe(committedUrl);
+
+    await page.getByRole("button", { name: "Back to previous result" }).click();
+    await expect(nextReadingAction).toBeFocused();
+    await expect(page.getByTestId("card-overview")).toBeVisible();
+    expect(
+      await page
+        .locator("[data-card-id]")
+        .evaluateAll((elements) =>
+          elements.map((element) => element.getAttribute("data-card-id")),
+        ),
+    ).toEqual(currentCards);
+    await expect(page.getByLabel("Generated prompt")).toHaveValue(
+      committedPrompt,
+    );
+    await expect(page.locator("[data-reveal-sequence]")).toHaveCount(0);
+    expect(page.url()).toBe(committedUrl);
+    await nextReadingAction.click();
+    await expect(page.getByTestId("topic-select")).toHaveValue("love");
+    await page.getByTestId("topic-select").selectOption("reunion");
+    await page.getByRole("button", { name: "Draw 3 cards" }).click();
+    await expect(page.getByTestId("prompt-ready")).toBeVisible();
+    await expect(page).toHaveURL(
+      (url) => url.searchParams.get("topic") === "reunion",
+    );
+    await expect(page.getByTestId("reading-card-0")).toHaveAttribute(
+      "data-reveal-sequence",
+      "2",
+    );
+  });
+}
+
+for (const locale of ["en", "ko"] as const) {
+  for (const width of [320, 1280]) {
+    test(`explains same-card edits and locale cancellation in ${locale} at ${width}px`, async ({
+      page,
+    }) => {
+      const ko = locale === "ko";
+      await page.setViewportSize({ height: 900, width });
+      await page.goto(
+        `${ko ? "/ko" : "/"}?topic=love&cards=the-fool,the-magician,the-high-priestess`,
+      );
+      const copyAction = page.getByRole("button", {
+        name: ko ? "질문 복사하기" : "Copy prompt",
+      });
+      const currentEdit = page.getByTestId("current-prompt-customization");
+      const nextAction = page.getByTestId("next-reading-action");
+      await expect(currentEdit.locator("summary")).toHaveText(
+        ko ? /같은 카드로 질문 다듬기/ : /Refine the prompt for these cards/,
+      );
+      const copyBox = await copyAction.boundingBox();
+      const editBox = await currentEdit.boundingBox();
+      const nextBox = await nextAction.boundingBox();
+      expect(copyBox!.y + copyBox!.height).toBeLessThanOrEqual(editBox!.y);
+      expect(editBox!.y + editBox!.height).toBeLessThanOrEqual(nextBox!.y);
+      await currentEdit.locator("summary").click();
+      await expect(currentEdit).toContainText(
+        ko ? "복사할 질문에 바로 반영" : "update the prompt you can copy",
+      );
+      await currentEdit.getByRole("textbox").fill("Previous private situation");
+      const cards = await page
+        .locator("[data-card-id]")
+        .evaluateAll((elements) =>
+          elements.map((element) => element.getAttribute("data-card-id")),
+        );
+      await nextAction.click();
+      const notice = page.getByTestId("next-reading-locale-notice");
+      await expect(notice).toHaveText(
+        ko
+          ? "언어를 바꾸면 준비 중인 변경은 취소되고 이전 카드 결과로 돌아가요."
+          : "Changing language cancels these edits and returns to your previous result.",
+      );
+      const noticeBox = await notice.boundingBox();
+      expect(noticeBox!.x + noticeBox!.width).toBeLessThanOrEqual(width);
+      await page.getByTestId("topic-select").selectOption("reunion");
+      await page.getByTestId("situation-context-toggle").click();
+      await page
+        .getByTestId("situation-context")
+        .getByRole("textbox")
+        .fill("Uncommitted next situation");
+      await page
+        .getByRole("link", { name: ko ? "English" : "한국어", exact: true })
+        .click();
+      await expect(page.getByTestId("generator-layout")).toHaveAttribute(
+        "data-layout-mode",
+        "result",
+      );
+      await expect(page.getByTestId("next-reading-locale-notice")).toHaveCount(
+        0,
+      );
+      expect(
+        await page
+          .locator("[data-card-id]")
+          .evaluateAll((elements) =>
+            elements.map((element) => element.getAttribute("data-card-id")),
+          ),
+      ).toEqual(cards);
+      await page
+        .getByTestId("current-prompt-customization")
+        .locator("summary")
+        .click();
+      await expect(
+        page.getByTestId("current-prompt-customization").getByRole("textbox"),
+      ).toHaveValue("Previous private situation");
+      await page.getByTestId("next-reading-action").click();
+      await expect(page.getByTestId("topic-select")).toHaveValue("love");
+      await expect(
+        page.getByRole("button", {
+          name: ko ? "Back to previous result" : "이전 카드 결과로 돌아가기",
+          exact: true,
+        }),
+      ).toBeVisible();
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+    });
+  }
+}
+
+test("keeps generator and shared readings usable when session storage access is blocked", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.addInitScript(() => {
+    Object.defineProperty(window, "sessionStorage", {
+      configurable: true,
+      get: () => {
+        throw new DOMException("Storage blocked", "SecurityError");
+      },
+    });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
+  await expect(page.getByTestId("prompt-ready")).toBeVisible();
+  await page.getByRole("link", { name: "한국어", exact: true }).click();
+  await expect(page).toHaveURL(/\/ko\?/);
   await expect(
-    page.getByRole("button", { name: "Prepare the next draw" }),
-  ).toBeFocused();
-  await expect(page.getByTestId("card-overview")).toBeVisible();
+    page.getByRole("heading", {
+      name: "카드를 뽑고, 평소 쓰는 AI에 물어보세요.",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.getByTestId("prompt-ready")).toBeVisible();
+  await page.getByTestId("next-reading-action").click();
+  await page
+    .getByRole("button", { name: "이전 카드 결과로 돌아가기", exact: true })
+    .click();
+  await expect(page.getByTestId("prompt-ready")).toBeVisible();
+  await page.goto(
+    "/ko/share?topic=love&cards=the-fool,the-magician,the-high-priestess",
+  );
+  await expect(page.getByTestId("shared-reading-view")).toBeVisible();
+  await expect(page.getByTestId("prompt-ready")).toBeVisible();
+  await page.getByRole("link", { name: "내 카드 뽑기", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "카드 3장 뽑기", exact: true }),
+  ).toBeVisible();
+  expect(errors).toEqual([]);
 });
 
 test("keeps the primary draw and prompt actions ahead of optional detail", async ({
@@ -848,8 +981,8 @@ test("uses a chosen relationship question in the generated prompt", async ({
   await expect(
     page.getByRole("region", { name: "다음 카드 준비하기" }),
   ).toBeVisible();
-  await expect(page.getByTestId("card-overview")).toBeVisible();
-  await expect(page.getByTestId("prompt-ready")).toBeVisible();
+  await expect(page.getByTestId("card-overview")).toHaveCount(0);
+  await expect(page.getByTestId("prompt-ready")).toHaveCount(0);
   await expect(
     page.getByText(
       "타로는 재미와 자기 성찰을 위한 도구입니다. 의료·법률·재정·투자·정신 건강에 관한 전문 조언을 대신하지 않습니다.",
@@ -876,17 +1009,9 @@ test("uses a chosen relationship question in the generated prompt", async ({
   await expect(page.getByTestId("selected-public-question")).toContainText(
     "우리 속도는 서로에게 맞을까?",
   );
-  await expect(page.getByTestId("current-public-question")).toContainText(
-    "우리는 서로를 어떻게 보고 있을까?",
-  );
+  await expect(page.getByTestId("current-public-question")).toHaveCount(0);
   expect(page.url()).toBe(committedUrl);
-  expect(
-    await page
-      .locator("[data-card-id]")
-      .evaluateAll((elements) =>
-        elements.map((element) => element.getAttribute("data-card-id")),
-      ),
-  ).toEqual(committedCards);
+  await expect(page.locator("[data-card-id]")).toHaveCount(0);
   await openSituationContext(page);
   await expect(
     page.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
@@ -896,7 +1021,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
     /topic=feelings.*question=mutual-view/,
   );
 
-  await page.getByRole("button", { name: "지금 결과로 돌아가기" }).click();
+  await page.getByRole("button", { name: "이전 카드 결과로 돌아가기" }).click();
   await expect(page.getByTestId("public-question-picker")).toHaveCount(0);
   await expect(page.getByTestId("current-public-question")).toContainText(
     "우리는 서로를 어떻게 보고 있을까?",
@@ -1296,7 +1421,7 @@ test("preserves reading and private context when switching languages", async ({
       name: "카드를 뽑고, 평소 쓰는 AI에 물어보세요.",
     }),
   ).toBeVisible();
-  await page.getByText("질문 다듬기").click();
+  await page.getByText("같은 카드로 질문 다듬기").click();
   await openPromptContent(page);
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toBeVisible();
   await expect(

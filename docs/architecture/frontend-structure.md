@@ -243,7 +243,9 @@ src/domain/tarot -> src/i18n
 - Model the reading workflow as a feature-local tagged session with `setup`,
   `result`, and `edit-next-draw` modes. Keep committed result inputs separate
   from the cancelable next-draw draft, and make same-value transitions return
-  the identical session.
+  the identical session. Render that draft in the initial setup layout while
+  keeping the previous cards and prompt unmounted. Reattach result visibility
+  tracking when cancellation restores the result without a new draw.
 - Keep card-instance, share-change, and prompt-change ids explicit. Use them
   with operation ids so asynchronous copy and share completions update only the
   latest compatible UI while still recording an invocation-eligible terminal
@@ -251,8 +253,9 @@ src/domain/tarot -> src/i18n
 - Keep free-form tarot context in client state. A locale switch may use an
   unversioned, exact-shape, one-time `sessionStorage` handoff; the same handoff
   may preserve context across a document reload required to stop an already
-  running optional service. Reading URLs and analytics payloads must omit the
-  context.
+  running optional service. Guard storage-object access as well as method calls;
+  unavailable storage must not block generator or shared-reading flows. Reading
+  URLs and analytics payloads must omit the context.
 - Keep spread and reading-style ids in TypeScript. Localize their labels and
   prompt instructions through the tarot message data.
 - Build the user-copy prompt from exact localized card names and reviewed

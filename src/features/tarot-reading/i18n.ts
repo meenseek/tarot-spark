@@ -49,6 +49,7 @@ export type TarotReadingMessages = {
   readonly editNextReading: string;
   readonly editNextHeading: string;
   readonly editNextIntro: string;
+  readonly editLocaleNotice: string;
   readonly cancelEdit: string;
   readonly workspaceLabel: string;
   readonly cardMarkLabel: string;
@@ -146,6 +147,7 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     drawStatus: copy.drawStatus,
     editNextHeading: copy.editNextHeading,
     editNextIntro: copy.editNextIntro,
+    editLocaleNotice: copy.editLocaleNotice,
     editNextReading: copy.editNextReading,
     cancelEdit: copy.cancelEdit,
     emptyBody: copy.emptyBody,

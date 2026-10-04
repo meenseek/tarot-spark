@@ -396,11 +396,21 @@ function getStringValue(value: string | readonly string[] | undefined) {
   return typeof value === "string" ? value : undefined;
 }
 
+export function getPrivateContextStorage(): Storage | undefined {
+  try {
+    return typeof window === "undefined" ? undefined : window.sessionStorage;
+  } catch {
+    return undefined;
+  }
+}
+
 export function storePrivateContextHandoff(
-  storage: Storage,
+  storage: Storage | undefined,
   value: string,
   now = Date.now(),
 ) {
+  if (!storage) return;
+
   try {
     const normalizedValue = normalizeUserContext(value);
 
@@ -430,7 +440,7 @@ export function getPrivateContextHandoffResetScript() {
 }
 
 export function consumePrivateContextHandoff(
-  storage: Storage,
+  storage: Storage | undefined,
   now = Date.now(),
 ) {
   try {
@@ -440,7 +450,12 @@ export function consumePrivateContextHandoff(
   }
 }
 
-export function readPrivateContextHandoff(storage: Storage, now = Date.now()) {
+export function readPrivateContextHandoff(
+  storage: Storage | undefined,
+  now = Date.now(),
+) {
+  if (!storage) return undefined;
+
   let storedValue: string | null;
 
   try {
@@ -488,11 +503,13 @@ export function readPrivateContextHandoff(storage: Storage, now = Date.now()) {
   }
 }
 
-export function clearPrivateContextHandoff(storage: Storage) {
+export function clearPrivateContextHandoff(storage: Storage | undefined) {
   tryRemovePrivateContextHandoff(storage);
 }
 
-function tryRemovePrivateContextHandoff(storage: Storage) {
+function tryRemovePrivateContextHandoff(storage: Storage | undefined) {
+  if (!storage) return;
+
   try {
     storage.removeItem(privateContextHandoffStorageKey);
     removeLegacyPrivateContextHandoffs(storage);
