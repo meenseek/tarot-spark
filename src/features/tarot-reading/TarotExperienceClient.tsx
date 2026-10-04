@@ -72,6 +72,7 @@ import {
   getLocalizedReadingHref,
   getLocalizedShareReadingHref,
   getReadingAttributionFromUrl,
+  getPrivateContextStorage,
   getReadingStateFromUrl,
   getShareBaseUrl,
   readPrivateContextHandoff,
@@ -337,11 +338,13 @@ export function TarotExperienceClient({
 
   useEffect(() => {
     if (viewMode === "shared") {
-      clearPrivateContextHandoff(window.sessionStorage);
+      clearPrivateContextHandoff(getPrivateContextStorage());
       return;
     }
 
-    const transferredContext = readPrivateContextHandoff(window.sessionStorage);
+    const transferredContext = readPrivateContextHandoff(
+      getPrivateContextStorage(),
+    );
 
     if (transferredContext === undefined) {
       return;
@@ -450,6 +453,7 @@ export function TarotExperienceClient({
     locale,
     readingAttribution,
     resultViewKey,
+    session.mode,
   ]);
 
   useEffect(() => {
@@ -464,7 +468,7 @@ export function TarotExperienceClient({
       return;
     }
 
-    clearPrivateContextHandoff(window.sessionStorage);
+    clearPrivateContextHandoff(getPrivateContextStorage());
     pendingPrivateContextHandoff.current = undefined;
   }, [session]);
 
@@ -521,7 +525,11 @@ export function TarotExperienceClient({
   useEffect(() => {
     if (session.mode === "edit-next-draw" && shouldFocusEditRef.current) {
       shouldFocusEditRef.current = false;
-      editHeadingRef.current?.focus();
+      editHeadingRef.current?.focus({ preventScroll: true });
+      editHeadingRef.current?.scrollIntoView?.({
+        behavior: "auto",
+        block: "start",
+      });
       return;
     }
 
@@ -537,7 +545,7 @@ export function TarotExperienceClient({
         session.mode === "setup"
           ? session.draft.privateContext
           : session.current.inputs.privateContext;
-      storePrivateContextHandoff(window.sessionStorage, privateContext);
+      storePrivateContextHandoff(getPrivateContextStorage(), privateContext);
     };
 
     window.addEventListener(
@@ -854,7 +862,7 @@ export function TarotExperienceClient({
         session.mode === "setup"
           ? session.draft.privateContext
           : session.current.inputs.privateContext;
-      storePrivateContextHandoff(window.sessionStorage, privateContext);
+      storePrivateContextHandoff(getPrivateContextStorage(), privateContext);
     }
   }
 
@@ -1361,6 +1369,7 @@ export function TarotExperienceClient({
     }
 
     shouldFocusEditRef.current = true;
+    setDrawSequenceId(0);
     dispatchSession({ type: "ENTER_EDIT" });
   }
 
@@ -1462,14 +1471,6 @@ export function TarotExperienceClient({
             >
               {copy.editNextReading}
             </Button>
-          ) : viewMode === "generator" && session.mode === "edit-next-draw" ? (
-            <section
-              aria-labelledby="edit-next-reading-heading"
-              className="grid gap-6 rounded-ts-panel border border-ts-divider bg-ts-canvas p-4 sm:p-5"
-              data-testid="next-reading-editor"
-            >
-              {readingSetupForm}
-            </section>
           ) : undefined
         }
         shareFeedback={shareFeedback}
@@ -1485,37 +1486,34 @@ export function TarotExperienceClient({
     >
       <CelestialMark className="h-8 w-16 text-ts-gold" />
       <h1
-        className={`max-w-2xl font-ts-display text-4xl font-semibold leading-[1.12] tracking-[-0.02em] text-ts-ink sm:text-[2.75rem] lg:text-5xl ${
+        id={
+          session.mode === "edit-next-draw"
+            ? "edit-next-reading-heading"
+            : undefined
+        }
+        ref={session.mode === "edit-next-draw" ? editHeadingRef : undefined}
+        tabIndex={session.mode === "edit-next-draw" ? -1 : undefined}
+        className={`focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action max-w-2xl font-ts-display text-4xl font-semibold leading-[1.12] tracking-[-0.02em] text-ts-ink sm:text-[2.75rem] lg:text-5xl ${
           locale === "ko" ? "[word-break:keep-all]" : "[text-wrap:balance]"
         }`}
       >
-        {copy.heading}
+        {session.mode === "edit-next-draw"
+          ? copy.editNextHeading
+          : copy.heading}
       </h1>
-      <p className="max-w-xl text-base leading-7 text-ts-muted">{copy.intro}</p>
-      <p className="max-w-xl text-sm font-medium text-ts-action">
-        {deckPreviewNote}
+      <p className="max-w-xl text-base leading-7 text-ts-muted">
+        {session.mode === "edit-next-draw" ? copy.editNextIntro : copy.intro}
       </p>
+      {session.mode !== "edit-next-draw" && (
+        <p className="max-w-xl text-sm font-medium text-ts-action">
+          {deckPreviewNote}
+        </p>
+      )}
     </div>
   );
 
   const readingSetupForm = session.mode !== "result" && (
     <div className="grid gap-3 sm:gap-6" data-testid="reading-setup-form">
-      {session.mode === "edit-next-draw" && (
-        <div className="grid gap-2">
-          <h2
-            className="font-ts-display text-2xl font-semibold text-ts-ink focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action"
-            id="edit-next-reading-heading"
-            ref={editHeadingRef}
-            tabIndex={-1}
-          >
-            {copy.editNextHeading}
-          </h2>
-          <p className="text-sm leading-6 text-ts-muted">
-            {copy.editNextIntro}
-          </p>
-        </div>
-      )}
-
       <TopicSelector
         description={copy.topicSelectorDescription}
         disabled={!isHydrated}
@@ -1589,20 +1587,22 @@ export function TarotExperienceClient({
           {drawButtonLabel}
         </Button>
       </div>
-      {session.mode === "setup" && (
-        <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>
-      )}
+      <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>
     </div>
   );
 
   const readingWorkspace = (
     <section
       aria-label={copy.workspaceLabel}
-      className={`${session.mode === "setup" ? "hidden lg:grid" : "grid"} gap-4 rounded-ts-panel border border-ts-divider bg-ts-surface p-4 shadow-ts-paper sm:p-5`}
+      className={`${session.mode !== "result" ? "hidden lg:grid" : "grid"} gap-4 rounded-ts-panel border border-ts-divider bg-ts-surface p-4 shadow-ts-paper sm:p-5`}
       data-testid="reading-workspace"
       ref={readingWorkspaceRef}
     >
-      {currentResult && currentTopic && currentSpread && currentReadingStyle ? (
+      {session.mode === "result" &&
+      currentResult &&
+      currentTopic &&
+      currentSpread &&
+      currentReadingStyle ? (
         <div className="grid gap-4" data-testid="reading-result-observer">
           <div className="grid gap-1">
             <h2
@@ -1759,12 +1759,22 @@ export function TarotExperienceClient({
       footerAriaLabel={publicPageNavigationLabel}
       footerLinks={publicPageLinks}
       localeControl={
-        <LanguageSwitch
-          activeLocale={locale}
-          ariaLabel={copy.languageSwitchLabel}
-          links={languageLinks}
-          onLocaleChange={preserveContextForLocaleChange}
-        />
+        <div className="grid max-w-sm gap-2">
+          <LanguageSwitch
+            activeLocale={locale}
+            ariaLabel={copy.languageSwitchLabel}
+            links={languageLinks}
+            onLocaleChange={preserveContextForLocaleChange}
+          />
+          {session.mode === "edit-next-draw" && (
+            <p
+              className="text-xs leading-5 text-ts-muted"
+              data-testid="next-reading-locale-notice"
+            >
+              {copy.editLocaleNotice}
+            </p>
+          )}
+        </div>
       }
       skipToContentLabel={skipToContentLabel}
     >
@@ -1775,7 +1785,7 @@ export function TarotExperienceClient({
       >
         <div
           className={`w-full gap-8 ${
-            session.mode === "setup"
+            session.mode !== "result"
               ? "grid lg:grid-cols-[0.9fr_1.1fr] lg:items-center"
               : "mx-auto grid max-w-5xl"
           }`}
@@ -1784,8 +1794,13 @@ export function TarotExperienceClient({
           <div className="lg:col-start-1 lg:row-start-1">
             {generatorIntroduction}
           </div>
-          {session.mode === "setup" && (
+          {session.mode !== "result" && (
             <section
+              aria-labelledby={
+                session.mode === "edit-next-draw"
+                  ? "edit-next-reading-heading"
+                  : undefined
+              }
               className="mx-auto w-full max-w-4xl sm:rounded-ts-panel sm:border sm:border-ts-divider sm:bg-ts-surface sm:p-7 sm:shadow-ts-paper lg:col-span-2 lg:row-start-2"
               data-testid="reading-setup-panel"
             >
@@ -1794,7 +1809,7 @@ export function TarotExperienceClient({
           )}
           <div
             className={
-              session.mode === "setup"
+              session.mode !== "result"
                 ? "lg:col-start-2 lg:row-start-1"
                 : undefined
             }

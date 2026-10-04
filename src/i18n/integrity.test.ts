@@ -239,6 +239,7 @@ const uiCopySchema = {
   editNextReading: "string",
   editNextHeading: "string",
   editNextIntro: "string",
+  editLocaleNotice: "string",
   cancelEdit: "string",
   workspaceLabel: "string",
   cardMarkLabel: "string",

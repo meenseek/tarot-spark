@@ -36,12 +36,12 @@
   "resultHeading": "내 카드와 AI 질문",
   "cardOverviewLabel": "뽑은 카드",
   "currentReadingSettings": "현재 리딩",
-  "customizeCurrent": "질문 다듬기",
-  "customizeCurrentIntro": "같은 카드로 답변 느낌이나 내 상황만 바꿀 수 있어요.",
+  "customizeCurrent": "같은 카드로 질문 다듬기",
+  "customizeCurrentIntro": "카드는 그대로 두고 답변 느낌이나 내 상황을 바꿔요. 바꾸면 복사할 질문에 바로 반영돼요.",
   "editNextReading": "다음 카드 준비하기",
   "editNextHeading": "다음 카드 준비하기",
-  "editNextIntro": "다시 뽑기 전에는 지금 결과가 남아 있어요. 다음 선택을 먼저 바꿔도 돼요.",
-  "cancelEdit": "지금 결과로 돌아가기",
+  "editNextIntro": "이전 질문과 설정을 가져왔어요. 그대로 쓰거나 바꿔서 새 카드를 뽑으세요. 뽑기 전에는 이전 카드 결과로 돌아갈 수 있어요.",
+  "cancelEdit": "이전 카드 결과로 돌아가기",
   "workspaceLabel": "내 카드와 AI 질문",
   "cardMarkLabel": "타로 카드 앞면",
   "sharedReading": {
@@ -99,5 +99,6 @@
   "socialImageAlt": "별빛 타로 카드 세 장과 tarot-spark 이름이 있는 공유 이미지",
   "shareTitle": "tarot-spark 리딩",
   "shareText": "{topicLabel} 타로 질문: {cardNames}",
-  "placeholderCardName": "카드를 기다리는 중"
+  "placeholderCardName": "카드를 기다리는 중",
+  "editLocaleNotice": "언어를 바꾸면 준비 중인 변경은 취소되고 이전 카드 결과로 돌아가요."
 }

@@ -478,8 +478,6 @@ test("uses state-specific generator layouts and one filled result action", async
   const resultWorkspaceRect = await getDocumentRect(resultWorkspace);
   const cardOverview = page.getByTestId("card-overview");
   const promptReady = page.getByTestId("prompt-ready");
-  const cardOverviewRect = await getDocumentRect(cardOverview);
-  const promptReadyRect = await getDocumentRect(promptReady);
 
   await page.getByRole("button", { name: "Prepare the next draw" }).click();
   await expect(generatorLayout).toHaveAttribute(
@@ -490,39 +488,20 @@ test("uses state-specific generator layouts and one filled result action", async
     name: "Prepare the next draw",
   });
   await expect(nextReadingEditor).toBeVisible();
-  await expect(page.getByTestId("reading-setup-panel")).toHaveCount(0);
-  await expect(resultWorkspace).toBeVisible();
-  await expect(cardOverview).toBeVisible();
-  await expect(promptReady).toBeVisible();
-  expect(await getDocumentRect(resultWorkspace)).toMatchObject({
-    left: resultWorkspaceRect.left,
-    right: resultWorkspaceRect.right,
-    top: resultWorkspaceRect.top,
-    width: resultWorkspaceRect.width,
+  await expect(page.getByTestId("reading-setup-panel")).toBeVisible();
+  await expect(cardOverview).toHaveCount(0);
+  await expect(promptReady).toHaveCount(0);
+  const nextPanelBox = await nextReadingEditor.boundingBox();
+  expect(nextPanelBox).toMatchObject({
+    x: setupPanelBox?.x,
+    width: setupPanelBox?.width,
   });
-  expect(await getDocumentRect(cardOverview)).toEqual(cardOverviewRect);
-  expect(await getDocumentRect(promptReady)).toEqual(promptReadyRect);
-  expect(
-    await page.evaluate(() => {
-      const prompt = document.querySelector('[data-testid="prompt-ready"]');
-      const editor = document.querySelector(
-        '[data-testid="next-reading-editor"]',
-      );
-      const details = document.querySelector(
-        '[data-testid="prompt-content-disclosure"]',
-      );
-
-      return Boolean(
-        prompt &&
-        editor &&
-        details &&
-        prompt.compareDocumentPosition(editor) &
-          Node.DOCUMENT_POSITION_FOLLOWING &&
-        editor.compareDocumentPosition(details) &
-          Node.DOCUMENT_POSITION_FOLLOWING,
-      );
-    }),
-  ).toBe(true);
+  await expect(
+    page.getByRole("heading", { name: "Prepare the next draw" }),
+  ).toBeFocused();
+  await expect(
+    page.getByRole("heading", { name: "Prepare the next draw" }),
+  ).toBeInViewport();
   const editorFilledPrimaryCount = await nextReadingEditor
     .locator("button")
     .evaluateAll(
@@ -534,7 +513,7 @@ test("uses state-specific generator layouts and one filled result action", async
     );
   expect(editorFilledPrimaryCount).toBe(1);
   const cancelEditButton = page.getByRole("button", {
-    name: "Back to this result",
+    name: "Back to previous result",
   });
   const editDrawButton = page.getByRole("button", { name: "Draw 3 cards" });
   const cancelEditButtonBox = await cancelEditButton.boundingBox();
@@ -583,6 +562,15 @@ test("uses state-specific generator layouts and one filled result action", async
       `${width}px edit action overflow`,
     ).toBe(true);
   }
+
+  await page.setViewportSize({ height: 900, width: 1280 });
+  await page.getByRole("button", { name: "Back to previous result" }).click();
+  expect(await getDocumentRect(resultWorkspace)).toMatchObject({
+    left: resultWorkspaceRect.left,
+    right: resultWorkspaceRect.right,
+    top: resultWorkspaceRect.top,
+    width: resultWorkspaceRect.width,
+  });
 
   await page.setViewportSize({ height: 900, width: 1280 });
   await page.goto("/ko");
@@ -1503,7 +1491,11 @@ test("keeps compact Korean share actions inside a 320px viewport", async ({
   await page.goto(
     "/ko?topic=love&cards=the-fool,the-magician,the-high-priestess",
   );
+  const shareImageReady = page.waitForResponse(
+    (response) => new URL(response.url()).pathname === "/api/share-image",
+  );
   await page.getByTestId("share-options-disclosure").locator("summary").click();
+  expect((await shareImageReady).ok()).toBe(true);
   await expect(
     page.getByRole("button", { name: "Instagram용 이미지 저장" }),
   ).toBeEnabled();

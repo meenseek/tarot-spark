@@ -36,12 +36,12 @@
   "resultHeading": "Your cards and AI question",
   "cardOverviewLabel": "Drawn cards",
   "currentReadingSettings": "Current reading",
-  "customizeCurrent": "Edit this question",
-  "customizeCurrentIntro": "Change the answer style or your private context for these cards.",
+  "customizeCurrent": "Refine the prompt for these cards",
+  "customizeCurrentIntro": "Keep these cards and change the answer style or your situation. Your changes update the prompt you can copy.",
   "editNextReading": "Prepare the next draw",
   "editNextHeading": "Prepare the next draw",
-  "editNextIntro": "This result stays until you draw again. Change the next choices now if you want.",
-  "cancelEdit": "Back to this result",
+  "editNextIntro": "Your previous question and settings are ready. Keep or edit them to draw new cards. You can return to your previous result until you draw.",
+  "cancelEdit": "Back to previous result",
   "workspaceLabel": "Your cards and AI question",
   "cardMarkLabel": "Decorative tarot card mark",
   "sharedReading": {
@@ -99,5 +99,6 @@
   "socialImageAlt": "Share image with three celestial tarot cards and the tarot-spark name",
   "shareTitle": "tarot-spark reading",
   "shareText": "{topicLabel} tarot prompt: {cardNames}",
-  "placeholderCardName": "Ready"
+  "placeholderCardName": "Ready",
+  "editLocaleNotice": "Changing language cancels these edits and returns to your previous result."
 }

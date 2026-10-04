@@ -182,8 +182,6 @@ export function ReadingResult({
 
           {afterPromptAction}
 
-          {resultActions}
-
           {instantReadingEnabled && (
             <InstantReadingPanel
               copy={copy.instantReading}
@@ -195,6 +193,8 @@ export function ReadingResult({
           )}
 
           {currentCustomization}
+
+          {resultActions}
 
           <details
             className="group rounded-ts-control border border-ts-divider bg-ts-surface"

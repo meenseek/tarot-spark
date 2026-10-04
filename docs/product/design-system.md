@@ -107,8 +107,8 @@ instead of palette utilities or color literals.
     without changing the surrounding shell.
 - Treat setup, result, and edit-next-draw as separate workspace layouts. Do not
   reserve a short or empty result column beside a substantially taller setup
-  form. A result may use the full content width; edit-next-draw may use two
-  columns while the committed result remains visible.
+  form. A result may use the full content width. Preparing the next draw reuses
+  the initial setup layout and deck preview; committed result content is hidden.
 
 ## Action Hierarchy
 
@@ -174,9 +174,10 @@ instead of palette utilities or color literals.
 - Let users draw without adding situation text. Keep card count and reading
   style in a separate secondary disclosure, followed by one count-specific draw
   action.
-- Treat setup, committed result, and edit-next-draw as distinct modes. Editing
-  the next draw must keep the committed cards and prompt visible; cancelling
-  must discard the draft and restore focus to the edit trigger.
+- Treat setup, committed result, and edit-next-draw as distinct modes. Preparing
+  the next draw shows only its choices and focuses its heading. Preserve the
+  committed result in state; cancelling discards the draft, restores the result
+  and trigger focus, and does not replay the card reveal.
 - Offer one next-reading action after the primary prompt action. Route it
   through edit-next-draw so users can keep or change their choices before a new
   draw replaces the committed result. Do not use browser Back as a reading
@@ -184,14 +185,18 @@ instead of palette utilities or color literals.
 - Keep preset-question changes inside the next-draw draft so cancelling restores
   the committed result and private context. Do not use catalog navigation as a
   draft control. Locale navigation uses the committed result and may discard an
-  uncommitted next-draw draft.
+  uncommitted next-draw draft. Show this consequence beside the language controls
+  while preparing a draw.
 - Start each result with a compact three-column card overview containing card
   approved card art, neutral draw order, and the exact card name.
   Keep full card meaning in the later details
   disclosure so three- and six-card results reach the prompt action quickly.
 - Place the single generated-prompt copy action before prompt source, card
   details, sharing options, and shared-reading creation actions.
-- Keep current-prompt customization separate from edit-next-draw. Current style
+- Label current-prompt customization as editing the prompt for the same cards,
+  and place it before the next-draw action. State that edits update the copyable
+  prompt immediately; they do not update text already copied to the clipboard.
+  Keep current-prompt customization separate from edit-next-draw. Current style
   or private-context changes may update the prompt and share URL, but must not
   redraw cards or rewrite the recorded draw-style provenance.
 - Keep the full generated prompt available for review and manual-copy recovery,
