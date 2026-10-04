@@ -129,22 +129,24 @@ describe("Home", () => {
     );
     expect(
       screen
-        .getByTestId("situation-context-toggle")
+        .getByTestId("situation-context")
         .compareDocumentPosition(
           screen.getByRole("button", { name: /Draw \d cards/ }),
         ) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(
       screen
-        .getByTestId("reading-preferences-toggle")
+        .getByTestId("reading-preferences")
         .compareDocumentPosition(
           screen.getByRole("button", { name: /Draw \d cards/ }),
         ) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
-    expect(screen.getByTestId("reading-preferences")).not.toHaveAttribute(
-      "open",
-    );
-    expect(screen.getByTestId("situation-context")).not.toHaveAttribute("open");
+    expect(screen.getByRole("radio", { name: "Quick 3-card" })).toBeVisible();
+    expect(screen.getByRole("radio", { name: "Deep 6-card" })).toBeVisible();
+    expect(screen.getByRole("radio", { name: "Balanced" })).toBeChecked();
+    expect(
+      screen.getByLabelText("Your situation or question (Optional)"),
+    ).toBeVisible();
     expect(
       screen
         .getByTestId("reading-workspace")
@@ -245,7 +247,6 @@ describe("Home", () => {
 
   it("renders Korean localized content", () => {
     render(<TarotExperience locale="ko" />);
-    openSituationContext();
 
     expect(
       screen.getByRole("heading", {
@@ -263,9 +264,7 @@ describe("Home", () => {
     expect(screen.getByText(/78장 덱/)).toBeInTheDocument();
     expect(screen.getByText(/의료·법률·재정/i)).toBeInTheDocument();
     expect(
-      screen.getByText(
-        /복사할 질문에는 포함되며, 다른 AI에 붙여 넣으면 함께 전달됩니다/,
-      ),
+      screen.getByText(/AI에 복사한 질문을 보내면 상황도 전달돼요/),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "개인정보" })).toHaveAttribute(
       "href",
@@ -285,7 +284,6 @@ describe("Home", () => {
       .mockResolvedValue(Response.json(reading));
 
     render(<TarotExperience locale="ko" />);
-    openSituationContext();
 
     fireEvent.change(
       screen.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
@@ -444,41 +442,22 @@ describe("Home", () => {
 
   it("matches the context example to every selected topic", () => {
     render(<Home />);
-    openSituationContext();
 
     const context = screen.getByLabelText(/Your situation or question/);
     const topicExamples = [
-      [
-        "love",
-        "Example: I want to move a connection forward, but I am unsure whether expressing my feelings first would be healthy.",
-      ],
-      [
-        "reunion",
-        "Example: I am considering contacting an ex and want to reflect on what must change before old problems repeat.",
-      ],
-      [
-        "feelings",
-        "Example: Their messages have become less frequent. I want to separate observable behavior from my assumptions.",
-      ],
+      ["love", "Example: What should I consider before sharing my feelings?"],
+      ["reunion", "Example: What needs to change before I contact my ex?"],
+      ["feelings", "Example: What could their shorter replies mean?"],
       [
         "relationship-flow",
-        "Example: Conversations with someone close keep going wrong. I want to notice the pattern and what I can change.",
+        "Example: How can I change our communication pattern?",
       ],
-      [
-        "career-direction",
-        "Example: I am torn between staying at my company and preparing for a new opportunity. I want one next step.",
-      ],
-      [
-        "self-direction",
-        "Example: I want to separate other people's expectations from the value I want to protect in my next choice.",
-      ],
-      [
-        "money-life",
-        "Example: I want to separate impulse spending from real needs and choose one money rule to keep this month.",
-      ],
+      ["career-direction", "Example: What should guide my next career choice?"],
+      ["self-direction", "Example: What matters most in my next choice?"],
+      ["money-life", "Example: What spending habit could I change this month?"],
       [
         "study-projects",
-        "Example: My study or project feels stuck. I want one part to test next and a scope I can remove.",
+        "Example: What could I try when my project feels stuck?",
       ],
     ] as const;
 
@@ -493,28 +472,23 @@ describe("Home", () => {
     }
   });
 
-  it("keeps optional situation entry discoverable and confirms saved input", () => {
+  it("keeps optional situation entry directly editable before drawing", () => {
     render(<Home />);
 
-    const situationDisclosure = screen.getByTestId("situation-context");
-    expect(situationDisclosure).not.toHaveAttribute("open");
-    expect(screen.getByText("Make the question clearer")).toBeVisible();
-
-    openSituationContext();
-    fireEvent.change(screen.getByLabelText("Your situation or question"), {
+    const context = screen.getByLabelText(
+      "Your situation or question (Optional)",
+    );
+    expect(context).toBeVisible();
+    expect(context).not.toBeRequired();
+    fireEvent.change(context, {
       target: { value: "I want to understand what I can change." },
     });
-    fireEvent.click(screen.getByTestId("situation-context-toggle"));
-
-    expect(situationDisclosure).not.toHaveAttribute("open");
-    expect(screen.getByText("Situation added · Edit")).toBeVisible();
-    expect(
-      screen
-        .getByTestId("situation-context-toggle")
-        .compareDocumentPosition(
-          screen.getByRole("button", { name: /Draw \d cards/ }),
-        ) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    expect(context).toHaveValue("I want to understand what I can change.");
+    expect(screen.getByText("39/500 characters")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
+    expect(screen.getByTestId("prompt-ready")).toHaveTextContent(
+      "Your situation is included in the prompt.",
+    );
   });
 
   it("shares the prepared Korean result image through the system share sheet", async () => {
@@ -706,9 +680,7 @@ describe("Home", () => {
     });
 
     fireEvent.click(screen.getByText("Refine the prompt for these cards"));
-    fireEvent.click(
-      screen.getByRole("radio", { name: /Direct, not deterministic/ }),
-    );
+    fireEvent.click(screen.getByRole("radio", { name: /Direct/ }));
 
     expect(screen.getByTestId("reading-card-0")).toBe(firstDrawCard);
     expect(firstDrawCard).toHaveAttribute("data-reveal-sequence", "1");
@@ -764,10 +736,13 @@ describe("Home", () => {
   it("prepares the next draw in setup and restores the result on cancellation", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     render(<Home />);
-    openSituationContext();
-    fireEvent.change(screen.getByLabelText("Your situation or question"), {
-      target: { value: "My previous situation" },
-    });
+
+    fireEvent.change(
+      screen.getByLabelText("Your situation or question (Optional)"),
+      {
+        target: { value: "My previous situation" },
+      },
+    );
 
     fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
     const committedCardId = screen
@@ -801,13 +776,16 @@ describe("Home", () => {
         "Tarot content is for entertainment and self-reflection only. It is not medical, legal, financial, investment, or mental-health advice.",
       ),
     ).toHaveLength(1);
-    openSituationContext();
-    expect(screen.getByLabelText("Your situation or question")).toHaveValue(
-      "My previous situation",
+
+    expect(
+      screen.getByLabelText("Your situation or question (Optional)"),
+    ).toHaveValue("My previous situation");
+    fireEvent.change(
+      screen.getByLabelText("Your situation or question (Optional)"),
+      {
+        target: { value: "My next situation" },
+      },
     );
-    fireEvent.change(screen.getByLabelText("Your situation or question"), {
-      target: { value: "My next situation" },
-    });
     fireEvent.change(
       screen.getByRole("combobox", { name: "Broad reading topic" }),
       { target: { value: "reunion" } },
@@ -841,13 +819,16 @@ describe("Home", () => {
     expect(
       screen.getByRole("combobox", { name: "Broad reading topic" }),
     ).toHaveValue("love");
-    openSituationContext();
-    expect(screen.getByLabelText("Your situation or question")).toHaveValue(
-      "My previous situation",
+
+    expect(
+      screen.getByLabelText("Your situation or question (Optional)"),
+    ).toHaveValue("My previous situation");
+    fireEvent.change(
+      screen.getByLabelText("Your situation or question (Optional)"),
+      {
+        target: { value: "My next situation" },
+      },
     );
-    fireEvent.change(screen.getByLabelText("Your situation or question"), {
-      target: { value: "My next situation" },
-    });
     fireEvent.change(
       screen.getByRole("combobox", { name: "Broad reading topic" }),
       { target: { value: "reunion" } },
@@ -898,9 +879,7 @@ describe("Home", () => {
     });
 
     fireEvent.click(screen.getByText("Refine the prompt for these cards"));
-    fireEvent.click(
-      screen.getByRole("radio", { name: /Direct, not deterministic/ }),
-    );
+    fireEvent.click(screen.getByRole("radio", { name: /Direct/ }));
 
     expect(screen.getByTestId("reading-card-0")).toBe(firstCard);
     expect(new URL(window.location.href).searchParams.get("style")).toBe(
@@ -936,9 +915,7 @@ describe("Home", () => {
       renderDrawnReading();
       fireEvent.click(screen.getByRole("button", { name: "Copy prompt" }));
       fireEvent.click(screen.getByText("Refine the prompt for these cards"));
-      fireEvent.click(
-        screen.getByRole("radio", { name: /Direct, not deterministic/ }),
-      );
+      fireEvent.click(screen.getByRole("radio", { name: /Direct/ }));
 
       await act(async () => {
         resolveClipboard?.();
@@ -1016,10 +993,12 @@ describe("Home", () => {
         />,
       );
       if (viewMode === "generator") {
-        openSituationContext();
-        fireEvent.change(screen.getByLabelText("Your situation or question"), {
-          target: { value: "A private situation" },
-        });
+        fireEvent.change(
+          screen.getByLabelText("Your situation or question (Optional)"),
+          {
+            target: { value: "A private situation" },
+          },
+        );
         fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
       }
       expect(screen.getByTestId("card-overview")).toBeInTheDocument();
@@ -1276,23 +1255,11 @@ describe("Home", () => {
   it("builds a contextual direct six-card prompt without exposing context", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     render(<Home />);
-    openReadingPreferences();
-    openSituationContext();
 
-    fireEvent.click(
-      screen.getByText(
-        /Draw six cards with no assigned position meanings to explore shared patterns/,
-      ),
-    );
+    fireEvent.click(screen.getByRole("radio", { name: "Deep 6-card" }));
     expect(screen.getByRole("radio", { name: /Deep 6-card/ })).toBeChecked();
-    fireEvent.click(
-      screen.getByText(
-        /Name the clearest theme without softening it into vagueness/,
-      ),
-    );
-    expect(
-      screen.getByRole("radio", { name: /Direct, not deterministic/ }),
-    ).toBeChecked();
+    fireEvent.click(screen.getByRole("radio", { name: "Direct" }));
+    expect(screen.getByRole("radio", { name: /Direct/ })).toBeChecked();
     fireEvent.change(
       screen.getByRole("textbox", {
         name: /Your situation or question/,
@@ -1311,7 +1278,7 @@ describe("Home", () => {
       "Generated prompt",
     ) as HTMLTextAreaElement;
     expect(prompt.value).toContain("Drawn cards (6-card reading)");
-    expect(prompt.value).toContain("Tone: Direct, not deterministic");
+    expect(prompt.value).toContain("Tone: Direct");
     expect(prompt.value).toContain(
       '"My relationship with my manager is exhausting. Should I stay at this company?"',
     );
@@ -1330,7 +1297,6 @@ describe("Home", () => {
   it("preserves private context once during same-tab locale switching", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     render(<Home />);
-    openSituationContext();
 
     fireEvent.change(
       screen.getByRole("textbox", {
@@ -2133,9 +2099,7 @@ describe("Home", () => {
     const signal = fetchMock.mock.calls[0]?.[1]?.signal;
 
     fireEvent.click(screen.getByText("Refine the prompt for these cards"));
-    fireEvent.click(
-      screen.getByRole("radio", { name: /Direct, not deterministic/ }),
-    );
+    fireEvent.click(screen.getByRole("radio", { name: /Direct/ }));
 
     await waitFor(() => expect(signal?.aborted).toBe(true));
     expect(instagramButton).toBeEnabled();
@@ -2215,14 +2179,6 @@ function mockShareImageResponse() {
       status: 200,
     }),
   );
-}
-
-function openReadingPreferences() {
-  fireEvent.click(screen.getByTestId("reading-preferences-toggle"));
-}
-
-function openSituationContext() {
-  fireEvent.click(screen.getByTestId("situation-context-toggle"));
 }
 
 function openPromptContent() {

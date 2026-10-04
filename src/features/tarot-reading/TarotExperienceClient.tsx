@@ -227,7 +227,6 @@ export function TarotExperienceClient({
   const resultHeadingRef = useRef<HTMLHeadingElement | null>(null);
   const editHeadingRef = useRef<HTMLHeadingElement | null>(null);
   const editTriggerRef = useRef<HTMLButtonElement | null>(null);
-  const situationContextDisclosureRef = useRef<HTMLDetailsElement | null>(null);
   const shouldScrollToResultRef = useRef(false);
   const resultScrollBehaviorRef = useRef<ScrollBehavior>("auto");
   const shouldFocusResultRef = useRef(false);
@@ -855,9 +854,6 @@ export function TarotExperienceClient({
     }
 
     if (viewMode === "generator" && targetLocale !== locale) {
-      if (situationContextDisclosureRef.current) {
-        situationContextDisclosureRef.current.open = false;
-      }
       const privateContext =
         session.mode === "setup"
           ? session.draft.privateContext
@@ -1513,7 +1509,7 @@ export function TarotExperienceClient({
   );
 
   const readingSetupForm = session.mode !== "result" && (
-    <div className="grid gap-3 sm:gap-6" data-testid="reading-setup-form">
+    <div className="grid gap-2 sm:gap-4" data-testid="reading-setup-form">
       <TopicSelector
         description={copy.topicSelectorDescription}
         disabled={!isHydrated}
@@ -1551,7 +1547,6 @@ export function TarotExperienceClient({
         contextCountLabel={contextCountLabel}
         contextPlaceholder={selectedTopic.contextPlaceholder}
         copy={copy}
-        disclosureRef={situationContextDisclosureRef}
         onContextChange={changeDraftUserContext}
         userContext={formInputs.privateContext}
       />

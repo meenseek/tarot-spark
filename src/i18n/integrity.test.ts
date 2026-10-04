@@ -212,8 +212,6 @@ const uiCopySchema = {
   contextLabel: "string",
   contextInputLabel: "string",
   contextOptional: "string",
-  contextEmptySummary: "string",
-  contextFilledSummary: "string",
   contextHelp: "string",
   contextCountLabel: "string",
   topicSelectorLabel: "string",

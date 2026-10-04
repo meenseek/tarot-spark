@@ -596,206 +596,155 @@ test("uses state-specific generator layouts and one filled result action", async
   expect(filledPrimaryCount).toBe(1);
 });
 
-test("keeps the setup hierarchy balanced across responsive boundaries", async ({
+test("keeps visible draw settings compact across responsive boundaries", async ({
   page,
 }) => {
-  for (const width of [320, 390, 640, 767, 768, 1024, 1280] as const) {
-    await page.setViewportSize({ height: 900, width });
-    await page.goto("/ko");
-
-    const setupPanelBox = await page
-      .getByTestId("reading-setup-panel")
-      .boundingBox();
-    const dailyQuestionLinkBox = await page
-      .getByTestId("daily-question-link")
-      .boundingBox();
-    const setupActionsBox = await page
-      .getByTestId("reading-setup-actions")
-      .boundingBox();
-    const drawButtonBox = await page
-      .getByRole("button", { name: "카드 3장 뽑기" })
-      .boundingBox();
-    const topicChoiceBox = await page.getByTestId("topic-choice").boundingBox();
-    const topicSelect = page.getByTestId("topic-select");
-    const topicSelectBox = await topicSelect.boundingBox();
-    const topicSelectRootBox = await topicSelect.evaluate((element) => {
-      const root = element.closest(".ts-topic-select");
-
-      if (!root) throw new Error("Topic select application root is missing");
-
-      const rect = root.getBoundingClientRect();
-
-      return { width: rect.width, x: rect.x };
-    });
-    const preferencesToggle = page.getByTestId("reading-preferences-toggle");
-    const preferencesHeading = preferencesToggle.getByText(
-      "카드 수와 답변 느낌",
-      { exact: true },
-    );
-    const preferencesSelection = page.getByTestId(
-      "reading-preferences-selection",
-    );
-    const preferencesHeadingMetrics = await preferencesHeading.evaluate(
-      (element) => {
-        const box = element.getBoundingClientRect();
-        const lineHeight = Number.parseFloat(
-          getComputedStyle(element).lineHeight,
-        );
-
-        return { height: box.height, lineHeight, top: box.top };
-      },
-    );
-    const preferencesSelectionBox = await preferencesSelection.boundingBox();
-    const preferencesHasNoOverflow = await preferencesToggle.evaluate(
-      (element) => element.scrollWidth <= element.clientWidth,
-    );
-    expect(setupPanelBox, `${width}px setup panel`).not.toBeNull();
-    expect(dailyQuestionLinkBox, `${width}px daily link`).not.toBeNull();
-    expect(setupActionsBox, `${width}px action group`).not.toBeNull();
-    expect(drawButtonBox, `${width}px draw button`).not.toBeNull();
-    expect(topicChoiceBox, `${width}px topic choice`).not.toBeNull();
-    expect(topicSelectBox, `${width}px topic select`).not.toBeNull();
-    expect(
-      preferencesSelectionBox,
-      `${width}px preference selection`,
-    ).not.toBeNull();
-    expect(
-      preferencesHeadingMetrics.height,
-      `${width}px preference heading line count`,
-    ).toBeLessThanOrEqual(preferencesHeadingMetrics.lineHeight + 0.5);
-    expect(
-      preferencesHasNoOverflow,
-      `${width}px preference summary overflow`,
-    ).toBe(true);
-    expect(setupPanelBox, `${width}px focused-section alignment`).toMatchObject(
-      {
-        x: dailyQuestionLinkBox?.x,
-        width: dailyQuestionLinkBox?.width,
-      },
-    );
-    expect(drawButtonBox, `${width}px full-width primary action`).toMatchObject(
-      {
-        x: setupActionsBox?.x,
-        width: setupActionsBox?.width,
-      },
-    );
-    expect(topicChoiceBox, `${width}px topic row alignment`).toMatchObject({
-      x: setupActionsBox?.x,
-      width: setupActionsBox?.width,
-    });
-    if (width < 768) {
-      expect(
-        topicSelectRootBox,
-        `${width}px stacked full-width select`,
-      ).toMatchObject({
-        x: topicChoiceBox?.x,
-        width: topicChoiceBox?.width,
+  for (const ko of [true, false]) {
+    for (const width of [320, 390, 640, 767, 768, 1024, 1280]) {
+      await page.setViewportSize({ height: 900, width });
+      await page.goto(ko ? "/ko" : "/");
+      const form = page.getByTestId("reading-setup-form");
+      const actionsBox = await page
+        .getByTestId("reading-setup-actions")
+        .boundingBox();
+      const draw = page.getByRole("button", {
+        name: ko ? "카드 3장 뽑기" : "Draw 3 cards",
+        exact: true,
       });
-    } else {
-      expect(
-        Math.abs(
-          (topicChoiceBox?.x ?? 0) +
-            (topicChoiceBox?.width ?? 0) -
-            (topicSelectRootBox.x + topicSelectRootBox.width),
-        ),
-        `${width}px right-aligned compact select`,
-      ).toBeLessThanOrEqual(2);
-      expect(topicSelectRootBox.width).toBeLessThanOrEqual(449);
-      expect(topicSelectRootBox.x).toBeGreaterThan(topicChoiceBox?.x ?? 0);
-    }
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= window.innerWidth,
-      ),
-      `${width}px horizontal overflow`,
-    ).toBe(true);
-
-    await expectTopicSelectLayout(
-      topicSelect,
-      `${width}px Korean setup`,
-      koreanTopicSelectContract,
-    );
-    await expect(topicSelect).toHaveValue("love");
-
-    if (width === 320) {
-      expect(
-        await page
-          .getByRole("button", { name: "카드 3장 뽑기" })
-          .evaluate((element) => element.getBoundingClientRect().top + scrollY),
-        "320px Korean draw action position with optional question row",
-      ).toBeLessThanOrEqual(1000);
-    }
-
-    if (width >= 1024) {
-      expect(
-        preferencesHeadingMetrics.top,
-        `${width}px desktop preference summary row`,
-      ).toBe(preferencesSelectionBox?.y);
-    }
-  }
-
-  for (const width of [320, 640, 767, 768, 1024] as const) {
-    await page.setViewportSize({ height: 900, width });
-    await page.goto("/");
-
-    const topicSelect = page.getByTestId("topic-select");
-    await expectTopicSelectLayout(
-      topicSelect,
-      `${width}px English setup`,
-      englishTopicSelectContract,
-    );
-    await expect(topicSelect).toHaveValue("love");
-
-    if (width === 320 || width === 767) {
-      const geometryBeforeSelection = await topicSelect.boundingBox();
-
-      await topicSelect.selectOption("career-direction");
-      const geometryAfterSelection = await topicSelect.boundingBox();
-
-      expect(geometryAfterSelection, `${width}px selection geometry`).toEqual(
-        geometryBeforeSelection,
+      const drawBox = await draw.boundingBox();
+      expect(drawBox, `${width}px full-width draw`).toMatchObject({
+        x: actionsBox?.x,
+        width: actionsBox?.width,
+      });
+      const panelBox = await page
+        .getByTestId("reading-setup-panel")
+        .boundingBox();
+      const dailyBox = await page
+        .getByTestId("daily-question-link")
+        .boundingBox();
+      expect(panelBox).toMatchObject({
+        x: dailyBox?.x,
+        width: dailyBox?.width,
+      });
+      await expect(form.locator(":scope > details")).toHaveCount(1);
+      await expect(form.getByRole("textbox")).toBeVisible();
+      await expect(form.getByRole("radio")).toHaveCount(6);
+      const names = ko
+        ? [
+            "빠른 3장",
+            "심화 6장",
+            "균형 있게",
+            "솔직하고 분명하게",
+            "현실적인 행동",
+            "마음과 관계에 초점",
+          ]
+        : [
+            "Quick 3-card",
+            "Deep 6-card",
+            "Balanced",
+            "Direct",
+            "Practical",
+            "Relationship focus",
+          ];
+      for (const name of names) {
+        const radio = page.getByRole("radio", { name, exact: true });
+        await expect(radio).toBeVisible();
+        const target = page
+          .locator(".ts-choice-card--setting")
+          .filter({ has: radio });
+        const box = await target.boundingBox();
+        expect(box?.height, `${width}px choice height`).toBeGreaterThanOrEqual(
+          48,
+        );
+        expect(
+          await target.evaluate(
+            (el) =>
+              el.scrollWidth <= Math.ceil(el.getBoundingClientRect().width),
+          ),
+          `${width}px ${name} option overflow`,
+        ).toBe(true);
+      }
+      const quick = page.getByRole("radio", {
+        name: ko ? "빠른 3장" : "Quick 3-card",
+        exact: true,
+      });
+      const deep = page.getByRole("radio", {
+        name: ko ? "심화 6장" : "Deep 6-card",
+        exact: true,
+      });
+      await expect(quick).toBeChecked();
+      await expect(
+        form.getByRole("radio", {
+          name: ko ? "균형 있게" : "Balanced",
+          exact: true,
+        }),
+      ).toBeChecked();
+      const quickBox = await page
+        .locator(".ts-choice-card--setting")
+        .filter({ has: quick })
+        .boundingBox();
+      const deepBox = await page
+        .locator(".ts-choice-card--setting")
+        .filter({ has: deep })
+        .boundingBox();
+      expect(quickBox?.y).toBe(deepBox?.y);
+      expect(deepBox?.x).toBeGreaterThan(quickBox?.x ?? 0);
+      const topic = page.getByTestId("topic-select");
+      await expectTopicSelectLayout(
+        topic,
+        `${width}px ${ko ? "Korean" : "English"} setup`,
+        ko ? koreanTopicSelectContract : englishTopicSelectContract,
       );
-      await expect(topicSelect).toHaveValue("career-direction");
+      const topicBox = await page.getByTestId("topic-choice").boundingBox();
+      const selectRootBox = await topic.evaluate((el) => {
+        const box = el.closest(".ts-topic-select")?.getBoundingClientRect();
+        return { x: box?.x ?? 0, width: box?.width ?? 0 };
+      });
+      expect(topicBox).toMatchObject({
+        x: actionsBox?.x,
+        width: actionsBox?.width,
+      });
+      if (width < 768) {
+        expect(selectRootBox).toMatchObject({
+          x: topicBox?.x,
+          width: topicBox?.width,
+        });
+      } else {
+        expect(selectRootBox.width).toBeLessThanOrEqual(449);
+        expect(selectRootBox.x).toBeGreaterThan(topicBox?.x ?? 0);
+        expect(
+          Math.abs(
+            (topicBox?.x ?? 0) +
+              (topicBox?.width ?? 0) -
+              selectRootBox.x -
+              selectRootBox.width,
+          ),
+        ).toBeLessThanOrEqual(2);
+      }
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= window.innerWidth,
+        ),
+        `${width}px overflow`,
+      ).toBe(true);
+      if (width === 320) {
+        // Always-visible choices and optional input replace two disclosure rows.
+        expect(
+          await draw.evaluate((el) => el.getBoundingClientRect().top + scrollY),
+        ).toBeLessThanOrEqual(1400);
+        // System-font wrapping varies between macOS and Linux.
+        expect((await form.boundingBox())?.height).toBeLessThanOrEqual(
+          ko ? 950 : 1050,
+        );
+      }
+      const before = await topic.boundingBox();
+      await topic.selectOption("career-direction");
+      expect(await topic.boundingBox()).toEqual(before);
       expect(new URL(page.url()).searchParams.get("topic")).toBe(
         "career-direction",
       );
     }
-
-    if (width === 320) {
-      expect(
-        await page
-          .getByRole("button", { name: "Draw 3 cards" })
-          .evaluate((element) => element.getBoundingClientRect().top + scrollY),
-        "320px English draw action remains within the first 1024px",
-      ).toBeLessThanOrEqual(1024);
-    }
   }
-
-  await page.setViewportSize({ height: 900, width: 320 });
-  await page.goto("/");
-  const englishPreferencesToggle = page.getByTestId(
-    "reading-preferences-toggle",
-  );
-  const englishPreferencesHeading = englishPreferencesToggle.getByText(
-    "Cards and answer style",
-    { exact: true },
-  );
-  const englishHeadingIsOneLine = await englishPreferencesHeading.evaluate(
-    (element) => {
-      const box = element.getBoundingClientRect();
-      const lineHeight = Number.parseFloat(
-        getComputedStyle(element).lineHeight,
-      );
-
-      return box.height <= lineHeight + 0.5;
-    },
-  );
-  expect(englishHeadingIsOneLine).toBe(true);
-  expect(
-    await englishPreferencesToggle.evaluate(
-      (element) => element.scrollWidth <= element.clientWidth,
-    ),
-  ).toBe(true);
 });
 
 test("keeps the grouped topic select compact in the next-reading editor", async ({
@@ -925,20 +874,24 @@ test("preserves app-owned textarea geometry after package styles", async ({
 }) => {
   await page.setViewportSize({ height: 844, width: 390 });
   await page.goto("/");
-  await page.getByTestId("situation-context-toggle").click();
 
-  const setupContext = page.getByLabel("Your situation or question", {
-    exact: true,
-  });
+  const setupContext = page.getByLabel(
+    "Your situation or question (Optional)",
+    {
+      exact: true,
+    },
+  );
   await expect(setupContext).toBeVisible();
   const contextDisclosureText = await page
     .getByTestId("situation-context")
     .innerText();
-  expect(contextDisclosureText.match(/Add your situation/g)).toHaveLength(1);
+  expect(
+    contextDisclosureText.match(/Your situation or question/g),
+  ).toHaveLength(1);
   await expect(
-    page.getByText("Your situation or question", { exact: true }),
+    page.getByText("Your situation or question (Optional)", { exact: true }),
   ).toBeVisible();
-  await expect(setupContext).toHaveCSS("min-height", "160px");
+  await expect(setupContext).toHaveCSS("min-height", "72px");
   await expect(setupContext).toHaveCSS("padding", "12px");
   await expect(setupContext).toHaveCSS("font-size", "14px");
   await expect(setupContext).toHaveCSS("line-height", "24px");
@@ -964,7 +917,7 @@ test("preserves app-owned textarea geometry after package styles", async ({
   });
 
   await page.setViewportSize({ height: 900, width: 640 });
-  await expect(setupContext).toHaveCSS("min-height", "112px");
+  await expect(setupContext).toHaveCSS("min-height", "72px");
 
   await page.goto(
     "/?topic=love&cards=the-fool,the-magician,the-high-priestess",
@@ -997,7 +950,6 @@ test("leaves choice-card colors with the package in forced-colors mode", async (
 }) => {
   await page.emulateMedia({ forcedColors: "active" });
   await page.goto("/");
-  await page.getByTestId("reading-preferences-toggle").click();
 
   const quick = page.getByRole("radio", { name: /Quick 3-card/ });
   const quickCard = page.locator(".ts-choice-card").filter({ has: quick });
@@ -1034,9 +986,8 @@ test("keeps an external situation-textarea focus outline in forced colors", asyn
 }) => {
   await page.emulateMedia({ forcedColors: "active" });
   await page.goto("/");
-  await page.getByTestId("situation-context-toggle").click();
 
-  const context = page.getByLabel("Your situation or question", {
+  const context = page.getByLabel("Your situation or question (Optional)", {
     exact: true,
   });
   await context.focus();
@@ -1064,7 +1015,6 @@ test("keeps adopted choice cards on public tokens and full-card activation", asy
 }) => {
   await page.setViewportSize({ height: 844, width: 390 });
   await page.goto("/");
-  await page.getByTestId("reading-preferences-toggle").click();
 
   const quick = page.getByRole("radio", { name: /Quick 3-card/ });
   const deep = page.getByRole("radio", { name: /Deep 6-card/ });

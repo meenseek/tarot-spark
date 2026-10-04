@@ -29,6 +29,21 @@ test("renders a localized cardless preset without JavaScript", async ({
   await expect(page.locator('input[name="reading-style"]:checked')).toHaveValue(
     "direct",
   );
+  await expect(
+    page.getByRole("radio", { name: "심화 6장", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("radio", { name: "솔직하고 분명하게", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("textbox", {
+      name: "상황이나 궁금한 점 (선택)",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByTestId("reading-setup-form").locator(":scope > details"),
+  ).toHaveCount(1);
 });
 
 test("renders a selected career question without JavaScript", async ({
