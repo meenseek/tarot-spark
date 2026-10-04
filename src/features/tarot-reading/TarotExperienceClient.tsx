@@ -1751,6 +1751,7 @@ export function TarotExperienceClient({
     <SiteShell
       brand={copy.brand}
       brandHref={createOwnReadingHref}
+      brandNavigation="document"
       footerAriaLabel={publicPageNavigationLabel}
       footerLinks={publicPageLinks}
       localeControl={

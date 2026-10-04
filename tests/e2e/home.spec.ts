@@ -58,6 +58,126 @@ test("loads Korean localized content", async ({ page }) => {
   await expect(page.getByText(/78장 덱/)).toBeVisible();
 });
 
+for (const locale of ["ko", "en"] as const) {
+  for (const width of [390, 1280]) {
+    test(`resets the reading through the home brand in ${locale} at ${width}px`, async ({
+      page,
+    }) => {
+      const ko = locale === "ko";
+      const home = ko ? "/ko" : "/";
+      const context = page.getByRole("textbox", {
+        name: ko
+          ? "상황이나 궁금한 점 (선택)"
+          : "Your situation or question (Optional)",
+        exact: true,
+      });
+      const quick = page.getByRole("radio", {
+        name: ko ? "빠른 3장" : "Quick 3-card",
+        exact: true,
+      });
+      const deep = page.getByRole("radio", {
+        name: ko ? "심화 6장" : "Deep 6-card",
+        exact: true,
+      });
+      const direct = page.getByRole("radio", {
+        name: ko ? "솔직하고 분명하게" : "Direct",
+        exact: true,
+      });
+      const brand = page
+        .getByTestId("site-header")
+        .getByRole("link", { name: "tarot-spark", exact: true });
+
+      async function expectCleanHome() {
+        await expect(page).toHaveURL((url) => {
+          return url.pathname === home && url.search === "";
+        });
+        await expect(page.getByTestId("generator-layout")).toHaveAttribute(
+          "data-layout-mode",
+          "setup",
+        );
+        await expect(page.getByTestId("reading-setup-form")).toBeVisible();
+        await expect(page.getByTestId("reading-result-observer")).toHaveCount(
+          0,
+        );
+        await expect(page.getByTestId("next-reading-action")).toHaveCount(0);
+        await expect(page.getByTestId("topic-select")).toHaveValue("love");
+        await expect(quick).toBeChecked();
+        await expect(
+          page.getByRole("radio", {
+            name: ko ? "균형 있게" : "Balanced",
+            exact: true,
+          }),
+        ).toBeChecked();
+        await expect(context).toHaveValue("");
+      }
+
+      await page.setViewportSize({ height: 844, width });
+      await page.goto(home);
+      await context.fill("A private situation for this reading.");
+      if (width === 1280) await deep.check();
+      await page
+        .getByRole("button", {
+          name: ko
+            ? `카드 ${width === 1280 ? 6 : 3}장 뽑기`
+            : `Draw ${width === 1280 ? 6 : 3} cards`,
+          exact: true,
+        })
+        .click();
+      await expect(page.getByTestId(/^reading-card-\d+$/)).toHaveCount(
+        width === 1280 ? 6 : 3,
+      );
+      if (width === 390) {
+        await brand.focus();
+        await brand.press("Enter");
+      } else {
+        await brand.click();
+      }
+      await expectCleanHome();
+
+      await page.getByTestId("topic-select").selectOption("career-direction");
+      await context.fill("A setup draft that should be cleared.");
+      await deep.check();
+      await direct.check();
+      await brand.click();
+      await expectCleanHome();
+
+      await page
+        .getByRole("button", {
+          name: ko ? "카드 3장 뽑기" : "Draw 3 cards",
+          exact: true,
+        })
+        .click();
+      await page.getByTestId("next-reading-action").click();
+      await context.fill("An uncommitted next reading.");
+      await deep.check();
+      await direct.check();
+      await brand.click();
+      await expectCleanHome();
+    });
+  }
+}
+
+test("keeps campaign attribution when the home brand restarts a reading", async ({
+  page,
+}) => {
+  await page.goto("/ko?source=instagram&campaign=prompt-education");
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+  await expect(page.getByTestId("next-reading-action")).toBeVisible();
+  await page
+    .getByTestId("site-header")
+    .getByRole("link", { name: "tarot-spark", exact: true })
+    .click();
+  await expect(page).toHaveURL(
+    "/ko?source=instagram&campaign=prompt-education",
+  );
+  await expect(page.getByTestId("generator-layout")).toHaveAttribute(
+    "data-layout-mode",
+    "setup",
+  );
+  await expect(page.getByTestId("reading-result-observer")).toHaveCount(0);
+  await expect(page.getByTestId("reading-setup-form")).toBeVisible();
+});
+
 test("keeps the Korean Instagram campaign through the first draw", async ({
   page,
 }) => {
@@ -441,6 +561,11 @@ for (const locale of ["en", "ko"] as const) {
             elements.map((element) => element.getAttribute("data-card-id")),
           ),
       ).toEqual(cards);
+      await expect(page.getByTestId("prompt-ready")).toContainText(
+        ko
+          ? "Your situation is included in the prompt."
+          : "작성한 상황도 질문에 담았어요.",
+      );
       await page
         .getByTestId("current-prompt-customization")
         .locator("summary")
