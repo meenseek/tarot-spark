@@ -113,13 +113,12 @@ describe("Home", () => {
     expect(screen.getByRole("main")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
-        name: "Draw cards, then ask your AI.",
+        name: "Draw your cards.",
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/draw cards for free.*copy the prompt.*ai tool/i),
+      screen.getByText(/copy your card prompt and ask your AI/i),
     ).toBeInTheDocument();
-    expect(screen.getByText(/full 78-card deck/i)).toBeInTheDocument();
     expect(
       screen.getByText(/entertainment and self-reflection only/i),
     ).toBeInTheDocument();
@@ -250,18 +249,17 @@ describe("Home", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "카드를 뽑고, 평소 쓰는 AI에 물어보세요.",
+        name: "카드를 뽑아보세요.",
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/무료로 카드를 뽑고.*질문을 복사해 AI에 붙여 넣으세요/),
+      screen.getByText(/뽑은 카드로 만든 질문을 복사해 AI에 물어보세요/),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", {
         name: /카드 \d장 뽑기/,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/78장 덱/)).toBeInTheDocument();
     expect(screen.getByText(/의료·법률·재정/i)).toBeInTheDocument();
     expect(
       screen.getByText(/AI에 복사한 질문을 보내면 상황도 전달돼요/),

@@ -14,7 +14,6 @@ export type TarotReadingMessages = {
   readonly brand: string;
   readonly heading: string;
   readonly intro: string;
-  readonly deckPreviewNote: string;
   readonly personalizationHeading: string;
   readonly personalizationIntro: string;
   readonly spreadSelectorLabel: string;
@@ -137,7 +136,6 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     customizeCurrent: copy.customizeCurrent,
     customizeCurrentIntro: copy.customizeCurrentIntro,
     dailyQuestionLink: copy.dailyQuestionLink,
-    deckPreviewNote: copy.deckPreviewNote,
     disclaimer: copy.disclaimer,
     drawButton: copy.drawButton,
     drawStatus: copy.drawStatus,

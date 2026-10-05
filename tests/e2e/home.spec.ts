@@ -12,13 +12,12 @@ test("loads the app shell", async ({ page }) => {
   await expect(page.getByRole("main")).toBeVisible();
   await expect(
     page.getByRole("heading", {
-      name: "Draw cards, then ask your AI.",
+      name: "Draw your cards.",
     }),
   ).toBeVisible();
   await expect(
-    page.getByText(/draw cards for free.*copy the prompt.*ai tool/i),
+    page.getByText(/copy your card prompt and ask your AI/i),
   ).toBeVisible();
-  await expect(page.getByText(/full 78-card deck/i)).toBeVisible();
 });
 
 test("serves stable card art and redirects the issued deck path", async ({
@@ -46,16 +45,15 @@ test("loads Korean localized content", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "ko");
   await expect(
     page.getByRole("heading", {
-      name: "카드를 뽑고, 평소 쓰는 AI에 물어보세요.",
+      name: "카드를 뽑아보세요.",
     }),
   ).toBeVisible();
   await expect(
-    page.getByText(/무료로 카드를 뽑고.*질문을 복사해 AI에 붙여 넣으세요/),
+    page.getByText(/뽑은 카드로 만든 질문을 복사해 AI에 물어보세요/),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "카드 3장 뽑기" }),
   ).toBeVisible();
-  await expect(page.getByText(/78장 덱/)).toBeVisible();
 });
 
 for (const locale of ["ko", "en"] as const) {
@@ -610,7 +608,7 @@ test("keeps generator and shared readings usable when session storage access is 
   await expect(page).toHaveURL(/\/ko\?/);
   await expect(
     page.getByRole("heading", {
-      name: "카드를 뽑고, 평소 쓰는 AI에 물어보세요.",
+      name: "카드를 뽑아보세요.",
       exact: true,
     }),
   ).toBeVisible();
@@ -687,14 +685,14 @@ test("keeps the first-time promise and draw usable at 320px", async ({
   for (const firstVisit of [
     {
       draw: "Draw 3 cards",
-      heading: "Draw cards, then ask your AI.",
-      intro: /draw cards for free.*copy the prompt.*ai tool/i,
+      heading: "Draw your cards.",
+      intro: /copy your card prompt and ask your AI/i,
       path: "/",
     },
     {
       draw: "카드 3장 뽑기",
-      heading: "카드를 뽑고, 평소 쓰는 AI에 물어보세요.",
-      intro: /무료로 카드를 뽑고.*질문을 복사해 AI에 붙여 넣으세요/,
+      heading: "카드를 뽑아보세요.",
+      intro: /뽑은 카드로 만든 질문을 복사해 AI에 물어보세요/,
       path: "/ko",
     },
   ]) {
@@ -1544,7 +1542,7 @@ test("preserves reading and private context when switching languages", async ({
 
   await expect(
     page.getByRole("heading", {
-      name: "카드를 뽑고, 평소 쓰는 AI에 물어보세요.",
+      name: "카드를 뽑아보세요.",
     }),
   ).toBeVisible();
   await page.getByText("같은 카드로 질문 다듬기").click();
