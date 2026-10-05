@@ -670,17 +670,6 @@ export function TarotExperienceClient({
       })),
     [publicReadingState, readingAttribution, viewMode],
   );
-  const deckPreviewNote = useMemo(
-    () =>
-      formatTemplateStrict(
-        copy.deckPreviewNote,
-        {
-          count: String(tarotData.cards.length),
-        },
-        `${locale} tarot-reading.deckPreviewNote`,
-      ),
-    [copy.deckPreviewNote, locale, tarotData.cards.length],
-  );
 
   function chooseTopic(topicId: TopicId) {
     if (session.mode === "result" || formInputs.topicId === topicId) {
@@ -1500,11 +1489,6 @@ export function TarotExperienceClient({
       <p className="max-w-xl text-base leading-7 text-ts-muted">
         {session.mode === "edit-next-draw" ? copy.editNextIntro : copy.intro}
       </p>
-      {session.mode !== "edit-next-draw" && (
-        <p className="max-w-xl text-sm font-medium text-ts-action">
-          {deckPreviewNote}
-        </p>
-      )}
     </div>
   );
 
