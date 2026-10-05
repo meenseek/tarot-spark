@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   readingStyleIds,
   spreadIds,
@@ -93,6 +93,8 @@ const shareOutcomes = [
 ] as const;
 
 type GtagArguments =
+  | [command: "js", startedAt: Date]
+  | [command: "set", settings: Record<string, string>]
   | [
       command: "config",
       targetId: string,
@@ -128,16 +130,32 @@ export function GoogleAnalyticsEvents({
   measurementId,
 }: GoogleAnalyticsEventsProps) {
   const pathname = usePathname();
+  const previousPage = useRef<{ measurementId: string; url: string } | null>(
+    null,
+  );
 
   useEffect(() => {
     const pageUrl = getAnalyticsPageUrl(pathname, window.location.href);
-
-    sendGtag("config", measurementId, {
-      page_location: pageUrl.toString(),
+    const url = pageUrl.toString();
+    if (
+      previousPage.current?.measurementId === measurementId &&
+      previousPage.current.url === url
+    ) {
+      return;
+    }
+    const page = {
+      page_location: url,
       page_path: `${pageUrl.pathname}${pageUrl.search}`,
       page_title: document.title,
-      send_page_view: true,
-    });
+      page_referrer: "",
+    };
+    if (!previousPage.current) sendGtag("js", new Date());
+    if (previousPage.current?.measurementId !== measurementId) {
+      sendGtag("config", measurementId, { ...page, send_page_view: false });
+    }
+    sendGtag("set", page);
+    sendGtag("event", "page_view", { ...page, send_to: measurementId });
+    previousPage.current = { measurementId, url };
   }, [measurementId, pathname]);
 
   useEffect(() => {
@@ -148,7 +166,18 @@ export function GoogleAnalyticsEvents({
         return;
       }
 
-      sendGtag("event", detail.name, detail.payload);
+      const pageUrl = getAnalyticsPageUrl(
+        window.location.pathname,
+        window.location.href,
+      );
+      sendGtag("event", detail.name, {
+        ...detail.payload,
+        page_location: pageUrl.toString(),
+        page_path: `${pageUrl.pathname}${pageUrl.search}`,
+        page_title: document.title,
+        page_referrer: "",
+        send_to: measurementId,
+      });
     };
 
     window.addEventListener("tarot_spark_event", listener);
@@ -158,7 +187,7 @@ export function GoogleAnalyticsEvents({
       clearAnalyticsReady();
       window.removeEventListener("tarot_spark_event", listener);
     };
-  }, []);
+  }, [measurementId]);
 
   return null;
 }
@@ -169,8 +198,21 @@ function getAnalyticsPageUrl(pathname: string, href: string) {
   const attribution = getReadingAttributionFromUrl(href);
 
   if (attribution) {
-    pageUrl.searchParams.set("source", attribution.sourceId);
-    pageUrl.searchParams.set("campaign", attribution.campaignId);
+    pageUrl.searchParams.set("utm_source", attribution.sourceId);
+    pageUrl.searchParams.set("utm_campaign", attribution.campaignId);
+    const sources = currentUrl.searchParams.getAll("utm_source");
+    const campaigns = currentUrl.searchParams.getAll("utm_campaign");
+    const mediums = currentUrl.searchParams.getAll("utm_medium");
+    if (
+      sources.length === 1 &&
+      sources[0] === attribution.sourceId &&
+      campaigns.length === 1 &&
+      campaigns[0] === attribution.campaignId &&
+      mediums.length === 1 &&
+      (mediums[0] === "social" || mediums[0] === "channel")
+    ) {
+      pageUrl.searchParams.set("utm_medium", mediums[0]);
+    }
   }
 
   return pageUrl;
@@ -180,9 +222,11 @@ function sendGtag(...args: GtagArguments) {
   window.dataLayer = window.dataLayer ?? [];
   window.gtag =
     window.gtag ??
-    ((...gtagArgs: GtagArguments) => {
-      window.dataLayer?.push(gtagArgs);
-    });
+    function () {
+      // The Google tag consumes Arguments entries rather than arrays.
+      // eslint-disable-next-line prefer-rest-params
+      window.dataLayer?.push(arguments);
+    };
 
   window.gtag(...args);
 }

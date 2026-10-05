@@ -37,6 +37,12 @@ unset for local development or preview deployments that should not send GA data.
 When configured, Analytics defaults on unless the browser has a stored
 site-level opt-out. Google Consent Mode v2 defaults the four relevant consent
 signals to denied in the EEA, UK, and Switzerland and to granted elsewhere.
+The client configures the tag once and sends one manual `page_view` for each
+route change. Disable Enhanced Measurement in the production web stream so
+automatic history, form and link events do not bypass the payload allowlist.
+Page URLs contain only the route and complete allowlisted campaign attribution;
+query input and referrers are excluded. Verify real navigation and tarot events
+in the matching stream's Realtime or DebugView after deployment.
 
 Set `NEXT_PUBLIC_ADSENSE_CLIENT_ID` to the Google AdSense client id, such as
 `ca-pub-0000000000000000`, to add the account metadata, provide the client id

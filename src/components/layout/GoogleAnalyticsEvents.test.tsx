@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, render } from "@testing-library/react";
-import { useEffect } from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { StrictMode, useEffect } from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   runWhenAnalyticsReady,
   trackEvent,
@@ -10,13 +10,19 @@ import { GoogleAnalyticsEvents } from "./GoogleAnalyticsEvents";
 
 const originalUrl = window.location.href;
 
+const navigation = vi.hoisted(() => ({ pathname: "/ko" }));
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/ko",
+  usePathname: () => navigation.pathname,
 }));
 
 describe("GoogleAnalyticsEvents", () => {
+  beforeEach(() => {
+    window.history.replaceState(null, "", "/ko");
+  });
   afterEach(() => {
     cleanup();
+    navigation.pathname = "/ko";
     vi.restoreAllMocks();
     Reflect.deleteProperty(window, "gtag");
     Reflect.deleteProperty(window, "dataLayer");
@@ -34,11 +40,10 @@ describe("GoogleAnalyticsEvents", () => {
     render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
 
     expect(calls).toContainEqual([
-      "config",
-      "G-TEST1234",
+      "set",
       expect.objectContaining({
-        page_location: `${window.location.origin}/ko?source=disquiet&campaign=vertical-slice`,
-        page_path: "/ko?source=disquiet&campaign=vertical-slice",
+        page_location: `${window.location.origin}/ko?utm_source=disquiet&utm_campaign=vertical-slice`,
+        page_path: "/ko?utm_source=disquiet&utm_campaign=vertical-slice",
       }),
     ]);
   });
@@ -54,8 +59,7 @@ describe("GoogleAnalyticsEvents", () => {
     render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
 
     expect(calls).toContainEqual([
-      "config",
-      "G-TEST1234",
+      "set",
       expect.objectContaining({
         page_location: `${window.location.origin}/ko`,
         page_path: "/ko",
@@ -74,12 +78,12 @@ describe("GoogleAnalyticsEvents", () => {
     render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
 
     expect(calls).toContainEqual([
-      "config",
-      "G-TEST1234",
+      "set",
       expect.objectContaining({
         page_location:
-          window.location.origin + "/ko?source=threads&campaign=demo",
-        page_path: "/ko?source=threads&campaign=demo",
+          window.location.origin +
+          "/ko?utm_source=threads&utm_campaign=demo&utm_medium=social",
+        page_path: "/ko?utm_source=threads&utm_campaign=demo&utm_medium=social",
       }),
     ]);
   });
@@ -95,12 +99,13 @@ describe("GoogleAnalyticsEvents", () => {
     render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
 
     expect(calls).toContainEqual([
-      "config",
-      "G-TEST1234",
+      "set",
       expect.objectContaining({
         page_location:
-          window.location.origin + "/ko?source=youtube&campaign=profile",
-        page_path: "/ko?source=youtube&campaign=profile",
+          window.location.origin +
+          "/ko?utm_source=youtube&utm_campaign=profile&utm_medium=channel",
+        page_path:
+          "/ko?utm_source=youtube&utm_campaign=profile&utm_medium=channel",
       }),
     ]);
   });
@@ -111,13 +116,99 @@ describe("GoogleAnalyticsEvents", () => {
     render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
 
     expect(calls).toContainEqual([
-      "config",
-      "G-TEST1234",
+      "set",
       expect.objectContaining({
         page_location: `${window.location.origin}/ko`,
         page_path: "/ko",
-        send_page_view: true,
       }),
+    ]);
+    expect(calls).toContainEqual([
+      "event",
+      "page_view",
+      expect.objectContaining({ send_to: "G-TEST1234" }),
+    ]);
+  });
+
+  it.each(["utm_medium=private-input", "utm_medium=social&utm_medium=channel"])(
+    "drops untrusted or ambiguous campaign medium: %s",
+    (medium) => {
+      const calls = mockGtag();
+      window.history.replaceState(
+        null,
+        "",
+        `/ko?utm_source=youtube&utm_campaign=profile&${medium}`,
+      );
+      render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
+      expect(calls).toContainEqual([
+        "event",
+        "page_view",
+        expect.objectContaining({
+          page_location: `${window.location.origin}/ko?utm_source=youtube&utm_campaign=profile`,
+        }),
+      ]);
+    },
+  );
+
+  it("configures once and sends one view per navigation under StrictMode", () => {
+    const calls = mockGtag();
+    const view = render(
+      <StrictMode>
+        <GoogleAnalyticsEvents measurementId="G-TEST1234" />
+      </StrictMode>,
+    );
+    navigation.pathname = "/ko/about";
+    window.history.replaceState(null, "", "/ko/about");
+    view.rerender(
+      <StrictMode>
+        <GoogleAnalyticsEvents measurementId="G-TEST1234" />
+      </StrictMode>,
+    );
+    expect(calls.filter(([command]) => command === "config")).toHaveLength(1);
+    expect(
+      calls.filter(
+        ([command, name]) => command === "event" && name === "page_view",
+      ),
+    ).toHaveLength(2);
+    expect(calls).toContainEqual([
+      "event",
+      "page_view",
+      expect.objectContaining({
+        page_location: `${window.location.origin}/ko/about`,
+        page_path: "/ko/about",
+        page_referrer: "",
+      }),
+    ]);
+    window.dispatchEvent(
+      new CustomEvent("tarot_spark_event", {
+        detail: {
+          name: "topic_click",
+          payload: { locale: "ko", topic_id: "love" },
+        },
+      }),
+    );
+    expect(calls).toContainEqual([
+      "event",
+      "topic_click",
+      withPageMetadata({ locale: "ko", topic_id: "love" }),
+    ]);
+    expect(calls).toContainEqual([
+      "config",
+      "G-TEST1234",
+      expect.objectContaining({ send_page_view: false, page_referrer: "" }),
+    ]);
+  });
+
+  it("queues Arguments that the Google tag can consume before it loads", () => {
+    render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
+    for (const entry of window.dataLayer ?? []) {
+      expect(Object.prototype.toString.call(entry)).toBe("[object Arguments]");
+    }
+    expect(
+      window.dataLayer?.map((entry) => Array.from(entry as IArguments)),
+    ).toContainEqual([
+      "event",
+      "page_view",
+      expect.objectContaining({ send_to: "G-TEST1234" }),
     ]);
   });
 
@@ -140,19 +231,20 @@ describe("GoogleAnalyticsEvents", () => {
     expect(calls).toContainEqual([
       "event",
       "topic_click",
-      {
+      withPageMetadata({
         locale: "ko",
         topic_id: "love",
-      },
+      }),
     ]);
   });
 
   it("queues analytics calls before the Google script installs gtag", () => {
     render(<GoogleAnalyticsEvents measurementId="G-TEST1234" />);
 
-    expect(window.dataLayer).toContainEqual([
-      "config",
-      "G-TEST1234",
+    expect(
+      window.dataLayer?.map((entry) => Array.from(entry as IArguments)),
+    ).toContainEqual([
+      "set",
       expect.objectContaining({
         page_path: "/ko",
       }),
@@ -252,21 +344,21 @@ describe("GoogleAnalyticsEvents", () => {
     expect(calls).toContainEqual([
       "event",
       "share_result",
-      { ...payload, outcome: "shared" },
+      withPageMetadata({ ...payload, outcome: "shared" }),
     ]);
     expect(calls).not.toContainEqual([
       "event",
       "share_result",
-      { ...payload, outcome: "private free text" },
+      withPageMetadata({ ...payload, outcome: "private free text" }),
     ]);
     expect(calls).toContainEqual([
       "event",
       "share_result",
-      {
+      withPageMetadata({
         ...payload,
         method: "instagram_image",
         outcome: "download_started",
-      },
+      }),
     ]);
   });
 
@@ -326,11 +418,11 @@ describe("GoogleAnalyticsEvents", () => {
     expect(calls).toContainEqual([
       "event",
       "result_view",
-      {
+      withPageMetadata({
         ...payload,
         source: "instagram",
         campaign: "vertical-slice",
-      },
+      }),
     ]);
     expect(calls).not.toContainEqual([
       "event",
@@ -340,16 +432,16 @@ describe("GoogleAnalyticsEvents", () => {
     expect(calls).toContainEqual([
       "event",
       "result_view",
-      {
+      withPageMetadata({
         ...payload,
         source: "youtube",
         campaign: "prompt-education",
-      },
+      }),
     ]);
     expect(calls).toContainEqual([
       "event",
       "result_view",
-      { ...payload, source: "youtube", campaign: "profile" },
+      withPageMetadata({ ...payload, source: "youtube", campaign: "profile" }),
     ]);
   });
 
@@ -383,7 +475,7 @@ describe("GoogleAnalyticsEvents", () => {
     expect(calls).toContainEqual([
       "event",
       "result_view",
-      { ...payload, question_id: "mutual-view" },
+      withPageMetadata({ ...payload, question_id: "mutual-view" }),
     ]);
     expect(
       calls.filter(
@@ -420,7 +512,11 @@ describe("GoogleAnalyticsEvents", () => {
       }),
     );
 
-    expect(calls).toContainEqual(["event", "result_view", payload]);
+    expect(calls).toContainEqual([
+      "event",
+      "result_view",
+      withPageMetadata(payload),
+    ]);
     expect(
       calls.filter(
         ([command, eventName]) =>
@@ -456,13 +552,17 @@ describe("GoogleAnalyticsEvents", () => {
       );
     }
 
-    expect(calls).toContainEqual(["event", "result_view", payload]);
+    expect(calls).toContainEqual([
+      "event",
+      "result_view",
+      withPageMetadata(payload),
+    ]);
     expect(
       calls.filter(
         ([command, eventName]) =>
           command === "event" && eventName === "result_view",
       ),
-    ).toEqual([["event", "result_view", payload]]);
+    ).toEqual([["event", "result_view", withPageMetadata(payload)]]);
   });
 
   it("captures an event waiting for the analytics listener exactly once", () => {
@@ -484,7 +584,7 @@ describe("GoogleAnalyticsEvents", () => {
       [
         "event",
         "result_view",
-        {
+        withPageMetadata({
           locale: "en",
           topic_id: "relationship-flow",
           spread_id: "quick",
@@ -493,7 +593,7 @@ describe("GoogleAnalyticsEvents", () => {
           card_count: 3,
           source: "instagram",
           campaign: "vertical-slice",
-        },
+        }),
       ],
     ]);
   });
@@ -526,4 +626,15 @@ function mockGtag() {
     calls.push([...args]);
   };
   return calls;
+}
+
+function withPageMetadata(payload: Record<string, string | number | boolean>) {
+  return {
+    ...payload,
+    page_location: window.location.origin + navigation.pathname,
+    page_path: navigation.pathname,
+    page_title: document.title,
+    page_referrer: "",
+    send_to: "G-TEST1234",
+  };
 }
