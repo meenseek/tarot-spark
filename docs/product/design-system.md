@@ -182,6 +182,13 @@ the number or order of its DOM wrappers.
   count-specific draw action. Defaults must remain usable without extra choices.
 - Reserve setup disclosures for the long specific-question catalog. Do not make
   users expand a panel to inspect or change the basic draw settings.
+- Mount larger 5:7 artwork only while card details are open: 140px on narrow
+  screens and 180px from 640px. Synchronize with restored disclosure state,
+  reuse loading and retry behavior, and do not replay the reveal.
+- After successful prompt copy, show quiet ChatGPT, Claude, and Gemini homepage
+  links. On failure, show them with manual-copy-first instructions. Require a
+  user click, open a new tab without a referrer, and send no prompt data. Hide
+  the links when prompt changes invalidate the copy state.
 - Treat setup, committed result, and edit-next-draw as distinct modes. Preparing
   the next draw shows only its choices and focuses its heading. Preserve the
   committed result in state; cancelling discards the draft, restores the result

@@ -7,8 +7,12 @@ import {
   TextField,
 } from "@measure-twice/react";
 import Image from "next/image";
-import { type ReactNode, type Ref, useEffect, useRef } from "react";
-import { secondaryButtonClassName } from "@/components/visual/class-names";
+import { type ReactNode, type Ref, useEffect, useRef, useState } from "react";
+import {
+  brandLinkClassName,
+  secondaryButtonClassName,
+} from "@/components/visual/class-names";
+import { TarotCardArt } from "@/components/visual/TarotCardArt";
 import type { DrawnCard, InstantReading } from "@/domain/tarot";
 import type { TarotReadingCopy } from "../i18n";
 import type { CopyState, InstagramImageStatus, ShareFeedback } from "../types";
@@ -74,6 +78,11 @@ export function ReadingResult({
   onPrepareInstagramImage,
   onShareReading,
 }: ReadingResultProps) {
+  const cardDetailsRef = useRef<HTMLDetailsElement | null>(null);
+  const [cardDetailsOpen, setCardDetailsOpen] = useState(false);
+  useEffect(() => {
+    setCardDetailsOpen(cardDetailsRef.current?.open ?? false);
+  }, []);
   const promptDisclosureRef = useRef<HTMLDetailsElement | null>(null);
   const promptTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const shareDisclosureRef = useRef<HTMLDetailsElement | null>(null);
@@ -182,6 +191,42 @@ export function ReadingResult({
 
           {afterPromptAction}
 
+          {(copyState === "copied" || copyState === "failed") && (
+            <div className="grid gap-2" data-testid="ai-handoff">
+              <p className="text-sm leading-6 text-ts-muted">
+                {copyState === "failed"
+                  ? copy.aiHandoff.manualIntro
+                  : copy.aiHandoff.intro}
+              </p>
+              <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold text-ts-action">
+                <a
+                  className={brandLinkClassName}
+                  href="https://chatgpt.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {copy.aiHandoff.chatgpt}
+                </a>
+                <a
+                  className={brandLinkClassName}
+                  href="https://claude.ai/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {copy.aiHandoff.claude}
+                </a>
+                <a
+                  className={brandLinkClassName}
+                  href="https://gemini.google.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {copy.aiHandoff.gemini}
+                </a>
+              </div>
+            </div>
+          )}
+
           {instantReadingEnabled && (
             <InstantReadingPanel
               copy={copy.instantReading}
@@ -232,6 +277,8 @@ export function ReadingResult({
           <details
             className="group rounded-ts-control border border-ts-divider bg-ts-surface"
             data-testid="card-details-disclosure"
+            ref={cardDetailsRef}
+            onToggle={(event) => setCardDetailsOpen(event.currentTarget.open)}
             suppressHydrationWarning
           >
             <summary className={disclosureSummaryClassName}>
@@ -261,15 +308,30 @@ export function ReadingResult({
                     </h3>
                   </div>
 
-                  <div className="grid gap-3 rounded-ts-inset border border-ts-divider bg-ts-surface p-4">
-                    <CardDetail
-                      label={copy.cardDetails.meaning}
-                      value={card.meaning}
-                    />
-                    <CardDetail
-                      label={copy.cardDetails.reflection}
-                      value={card.reflection}
-                    />
+                  <div className="grid gap-4 sm:grid-cols-[180px_minmax(0,1fr)]">
+                    <div
+                      className="relative mx-auto aspect-[5/7] w-[140px] overflow-hidden rounded-ts-inset bg-ts-surface sm:w-[180px]"
+                      data-testid="card-detail-art"
+                    >
+                      {cardDetailsOpen && (
+                        <TarotCardArt
+                          cardId={card.id}
+                          retryLabel={copy.instantReading.retry}
+                          loading="lazy"
+                          sizes="(min-width: 640px) 180px, 140px"
+                        />
+                      )}
+                    </div>
+                    <div className="grid content-start gap-3 rounded-ts-inset border border-ts-divider bg-ts-surface p-4">
+                      <CardDetail
+                        label={copy.cardDetails.meaning}
+                        value={card.meaning}
+                      />
+                      <CardDetail
+                        label={copy.cardDetails.reflection}
+                        value={card.reflection}
+                      />
+                    </div>
                   </div>
                 </article>
               ))}

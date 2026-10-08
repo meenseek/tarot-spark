@@ -13,6 +13,7 @@ type TarotCardArtProps = {
   readonly revealSequence?: number;
   readonly shouldReveal?: boolean;
   readonly sizes?: string;
+  readonly loading?: "eager" | "lazy";
 };
 
 export function TarotCardArt({
@@ -22,6 +23,7 @@ export function TarotCardArt({
   revealSequence = 0,
   shouldReveal = false,
   sizes = "5rem",
+  loading = "eager",
 }: TarotCardArtProps) {
   const artSource = cardId ? cardArtSources[cardId] : undefined;
   const [retryAttempt, setRetryAttempt] = useState(0);
@@ -109,7 +111,7 @@ export function TarotCardArt({
             data-art-ready={isArtReady}
             fill
             key={requestKey}
-            loading="eager"
+            loading={loading}
             onError={() => setFailedRequestKey(requestKey)}
             onLoad={() => setReadyRequestKey(requestKey)}
             ref={artImageRef}

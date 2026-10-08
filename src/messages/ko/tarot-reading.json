@@ -97,5 +97,12 @@
   "shareTitle": "tarot-spark 리딩",
   "shareText": "{topicLabel} 타로 질문: {cardNames}",
   "placeholderCardName": "카드를 기다리는 중",
-  "editLocaleNotice": "언어를 바꾸면 준비 중인 변경은 취소되고 이전 카드 결과로 돌아가요."
+  "editLocaleNotice": "언어를 바꾸면 준비 중인 변경은 취소되고 이전 카드 결과로 돌아가요.",
+  "aiHandoff": {
+    "intro": "AI를 열고 복사한 질문을 붙여넣어 주세요.",
+    "manualIntro": "질문을 수동으로 복사한 다음 AI를 열어 붙여넣어 주세요.",
+    "chatgpt": "ChatGPT 열기",
+    "claude": "Claude 열기",
+    "gemini": "Gemini 열기"
+  }
 }
