@@ -11,8 +11,8 @@ importers:
         specifier: ^5.3.0
         version: 5.3.0
       "@measure-twice/react":
-        specifier: 0.4.4
-        version: 0.4.4(eslint@9.39.4(jiti@2.7.0))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(stylelint@17.14.1(typescript@5.9.3))(typescript-eslint@8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))
+        specifier: 0.4.5
+        version: 0.4.5(eslint@9.39.4(jiti@2.7.0))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(stylelint@17.14.1(typescript@5.9.3))(typescript-eslint@8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))
       next:
         specifier: 16.2.6
         version: 16.2.6(@babel/core@7.29.0)(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -1013,10 +1013,10 @@ packages:
         integrity: sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==,
       }
 
-  "@measure-twice/react@0.4.4":
+  "@measure-twice/react@0.4.5":
     resolution:
       {
-        integrity: sha512-Y3F12n4nYbfqHw+9TSqS0h/TO5j92EjoshUQCcjq9RVS5SiMXjNdgpI6LEPlFek+URWO/TxN6mZl8zDFu0tHlw==,
+        integrity: sha512-HEQit65TngfiBHrvCQ9gmAlGuj0YaT0SXAw/8iRX1a4kQ7HvZedBtFvb31dyCA0lNlfi+6CQzVo8gAqWR3iTwA==,
       }
     peerDependencies:
       eslint: ">=9.0.0 <10.0.0"
@@ -2730,6 +2730,7 @@ packages:
         integrity: sha512-XoMjdBOwe/esVgEvLmNsD3IRHkm7fbKIUGvrleloJXUZgDHig2IPWNniv+GwjyJXzuNqVjlr5+4yVUZjycJwfQ==,
       }
     engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: "*"
@@ -5779,7 +5780,7 @@ snapshots:
 
   "@keyv/serialize@1.1.1": {}
 
-  "@measure-twice/react@0.4.4(eslint@9.39.4(jiti@2.7.0))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(stylelint@17.14.1(typescript@5.9.3))(typescript-eslint@8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))":
+  "@measure-twice/react@0.4.5(eslint@9.39.4(jiti@2.7.0))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(stylelint@17.14.1(typescript@5.9.3))(typescript-eslint@8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))":
     dependencies:
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
