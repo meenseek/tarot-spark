@@ -19,7 +19,8 @@ Use this map when reading, adding, moving, or reviewing repository documents.
   and tarot guardrails apply.
 - `docs/operations` answers how deployed systems are configured, released,
   monitored, and recovered. Create this directory only when an operations
-  procedure exists.
+  procedure exists. Start with [Service lifecycle](operations/service-lifecycle.md)
+  for decision, release, support, recovery, and closure handoffs.
 
 ## Category Tests
 
