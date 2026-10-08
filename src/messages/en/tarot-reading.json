@@ -97,5 +97,12 @@
   "shareTitle": "tarot-spark reading",
   "shareText": "{topicLabel} tarot prompt: {cardNames}",
   "placeholderCardName": "Ready",
-  "editLocaleNotice": "Changing language cancels these edits and returns to your previous result."
+  "editLocaleNotice": "Changing language cancels these edits and returns to your previous result.",
+  "aiHandoff": {
+    "intro": "Open an AI and paste the question you copied.",
+    "manualIntro": "Copy the question manually, then open an AI and paste it.",
+    "chatgpt": "Open ChatGPT",
+    "claude": "Open Claude",
+    "gemini": "Open Gemini"
+  }
 }

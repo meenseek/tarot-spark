@@ -16,6 +16,13 @@ export type TarotReadingMessages = {
   readonly intro: string;
   readonly personalizationHeading: string;
   readonly personalizationIntro: string;
+  readonly aiHandoff: {
+    readonly intro: string;
+    readonly manualIntro: string;
+    readonly chatgpt: string;
+    readonly claude: string;
+    readonly gemini: string;
+  };
   readonly spreadSelectorLabel: string;
   readonly readingStyleSelectorLabel: string;
   readonly contextLabel: string;
@@ -120,6 +127,7 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
 
   return {
     brand: copy.brand,
+    aiHandoff: copy.aiHandoff,
     cardCountLabel: copy.cardCountLabel,
     cardDetails: copy.cardDetails,
     cardMarkLabel: copy.cardMarkLabel,

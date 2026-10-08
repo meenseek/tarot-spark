@@ -206,6 +206,13 @@ const uiCopySchema = {
   intro: "string",
   personalizationHeading: "string",
   personalizationIntro: "string",
+  aiHandoff: {
+    intro: "string",
+    manualIntro: "string",
+    chatgpt: "string",
+    claude: "string",
+    gemini: "string",
+  },
   spreadSelectorLabel: "string",
   readingStyleSelectorLabel: "string",
   contextLabel: "string",
