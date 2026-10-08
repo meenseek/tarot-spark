@@ -30,7 +30,11 @@ export function SituationContextInput({
         id="tarot-user-context"
         label={`${copy.contextInputLabel} (${copy.contextOptional})`}
         maxLength={maxUserContextLength}
-        onChange={(event) => onContextChange(event.currentTarget.value)}
+        onChange={(event) =>
+          onContextChange(
+            event.currentTarget.value.slice(0, maxUserContextLength),
+          )
+        }
         placeholder={contextPlaceholder}
         rows={2}
         value={userContext}

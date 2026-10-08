@@ -489,6 +489,64 @@ describe("Home", () => {
     );
   });
 
+  it("bounds oversized draft input before drawing a contextual prompt", () => {
+    render(<Home />);
+
+    const context = screen.getByLabelText(
+      "Your situation or question (Optional)",
+    );
+    const acceptedContext = "a".repeat(500);
+    fireEvent.change(context, {
+      target: { value: `${acceptedContext}discarded-tail` },
+    });
+
+    expect(context).toHaveValue(acceptedContext);
+    expect(screen.getByText("500/500 characters")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
+    openPromptContent();
+    const prompt = screen.getByLabelText(
+      "Generated prompt",
+    ) as HTMLTextAreaElement;
+    expect(prompt.value).toContain(acceptedContext);
+    expect(prompt.value).not.toContain("discarded-tail");
+    expect(window.location.search).not.toContain("context");
+    expect(window.location.search).not.toContain(acceptedContext);
+  });
+
+  it("bounds oversized result input and still copies the current prompt", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+    render(<Home />);
+    fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
+    const resultUrl = window.location.href;
+    fireEvent.click(screen.getByText("Refine the prompt for these cards"));
+
+    const context = screen.getByLabelText(
+      "Your situation or question (Optional)",
+    );
+    const acceptedContext = "b".repeat(500);
+    fireEvent.change(context, {
+      target: { value: `${acceptedContext}discarded-tail` },
+    });
+    expect(context).toHaveValue(acceptedContext);
+    expect(screen.getByText("500/500 characters")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Copy prompt" }));
+    await waitFor(() => {
+      expect(writeText).toHaveBeenCalledWith(
+        expect.stringContaining(acceptedContext),
+      );
+    });
+    expect(writeText.mock.calls[0]?.[0]).not.toContain("discarded-tail");
+    expect(window.location.href).toBe(resultUrl);
+
+    fireEvent.change(context, { target: { value: "A shorter question." } });
+    expect(context).toHaveValue("A shorter question.");
+    expect(screen.getByText("19/500 characters")).toBeVisible();
+  });
+
   it("shares the prepared Korean result image through the system share sheet", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     const share = vi.fn(() => Promise.resolve());
