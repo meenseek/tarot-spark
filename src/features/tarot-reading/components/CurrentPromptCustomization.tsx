@@ -72,7 +72,11 @@ export function CurrentPromptCustomization({
           className="ts-textarea-input ts-textarea-input--current"
           label={`${copy.contextInputLabel} (${copy.contextOptional})`}
           maxLength={maxUserContextLength}
-          onChange={(event) => onContextChange(event.currentTarget.value)}
+          onChange={(event) =>
+            onContextChange(
+              event.currentTarget.value.slice(0, maxUserContextLength),
+            )
+          }
           placeholder={contextPlaceholder}
           value={userContext}
           wrapperClassName="ts-field ts-context-field"

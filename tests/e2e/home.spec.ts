@@ -337,6 +337,90 @@ test("shows draw choices and optional context without disclosure clicks", async 
   }
 });
 
+for (const width of [390, 1280]) {
+  test(`finishes a reading after oversized situation input at ${width}px`, async ({
+    page,
+  }) => {
+    const pageErrors: string[] = [];
+    page.on("pageerror", (error) => pageErrors.push(error.message));
+    await page.setViewportSize({ height: 844, width });
+
+    for (const locale of ["ko", "en"] as const) {
+      const ko = locale === "ko";
+      await page.goto(ko ? "/ko" : "/");
+      const context = page.getByRole("textbox", {
+        name: ko
+          ? "상황이나 궁금한 점 (선택)"
+          : "Your situation or question (Optional)",
+        exact: true,
+      });
+      await context.fill(`${"a".repeat(500)}discarded-tail`);
+      await expect(context).toHaveValue("a".repeat(500));
+      await page
+        .getByRole("button", {
+          name: ko ? "카드 3장 뽑기" : "Draw 3 cards",
+          exact: true,
+        })
+        .click();
+      const resultUrl = page.url();
+      await expect(page.getByTestId(/^reading-card-\d+$/)).toHaveCount(3);
+      const cardIds = await page
+        .locator("[data-card-id]")
+        .evaluateAll((cards) =>
+          cards.map((card) => card.getAttribute("data-card-id")),
+        );
+      await page
+        .getByTestId("current-prompt-customization")
+        .locator("summary")
+        .click();
+      await context.fill(`${"b".repeat(500)}discarded-tail`);
+      await expect(context).toHaveValue("b".repeat(500));
+      await expect(
+        page.getByText(ko ? "500/500자" : "500/500 characters", {
+          exact: true,
+        }),
+      ).toBeVisible();
+      await openPromptContent(page);
+      const prompt = page.getByLabel(
+        ko ? "AI에 붙여 넣을 질문" : "Generated prompt",
+      );
+      await expect(prompt).toContainText("b".repeat(500));
+      await expect(prompt).not.toContainText("discarded-tail");
+      await page
+        .getByRole("button", {
+          name: ko ? "질문 복사하기" : "Copy prompt",
+          exact: true,
+        })
+        .click();
+      await expect(
+        page.getByRole("button", {
+          name: ko ? "복사했어요" : "Copied",
+          exact: true,
+        }),
+      ).toBeVisible();
+      expect(page.url()).toBe(resultUrl);
+      expect(page.url()).not.toContain("context");
+      expect(page.url()).not.toContain("b".repeat(500));
+
+      await page.reload();
+      await expect(page.getByTestId(/^reading-card-\d+$/)).toHaveCount(3);
+      expect(
+        await page
+          .locator("[data-card-id]")
+          .evaluateAll((cards) =>
+            cards.map((card) => card.getAttribute("data-card-id")),
+          ),
+      ).toEqual(cardIds);
+      await page
+        .getByTestId("current-prompt-customization")
+        .locator("summary")
+        .click();
+      await expect(context).toHaveValue("");
+    }
+    expect(pageErrors).toEqual([]);
+  });
+}
+
 for (const width of [320, 390]) {
   test(`keeps the compact result within ${width}px`, async ({ page }) => {
     await page.setViewportSize({ height: 844, width });
