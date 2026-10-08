@@ -1331,8 +1331,8 @@ describe("Home", () => {
           name: /상황이나 궁금한 점/,
         }),
       ).toHaveValue("My manager relationship is difficult.");
+      expect(window.sessionStorage.length).toBe(0);
     });
-    expect(window.sessionStorage.length).toBe(0);
     openPromptContent();
     expect(
       (screen.getByLabelText("AI에 붙여 넣을 질문") as HTMLTextAreaElement)
