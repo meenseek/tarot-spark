@@ -90,6 +90,11 @@ instead of palette utilities or color literals.
 - Keep hover and pressed states within the action and blush token families.
 - Reduce animation and transition durations when reduced motion is requested.
 
+Verify package fields through their public labels and app-owned wrapper classes.
+Keyboard focus checks compare the visible field before and after focus. Internal
+frame geometry belongs to the package tests; consumer tests do not depend on
+the number or order of its DOM wrappers.
+
 ## Page Architecture
 
 - Wrap every public page in the shared `SiteShell`. The shell owns the canvas,

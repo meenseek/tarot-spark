@@ -22,6 +22,25 @@ type RectGeometry = {
   readonly width: number;
 };
 
+async function expectVisibleSituationFocus(page: Page, input: Locator) {
+  const field = page.locator(".ts-context-field").filter({ has: input });
+  await expect(field).toHaveCount(1);
+  await input.focus();
+  await page.keyboard.press("Tab");
+  await expect(input).not.toBeFocused();
+  const unfocused = await field.screenshot({
+    animations: "disabled",
+    caret: "hide",
+  });
+  await page.keyboard.press("Shift+Tab");
+  await expect(input).toBeFocused();
+  const focused = await field.screenshot({
+    animations: "disabled",
+    caret: "hide",
+  });
+  expect(focused.equals(unfocused)).toBe(false);
+}
+
 async function getDocumentRect(locator: Locator): Promise<RectGeometry> {
   return locator.evaluate((element) => {
     const rect = element.getBoundingClientRect();
@@ -895,26 +914,7 @@ test("preserves app-owned textarea geometry after package styles", async ({
   await expect(setupContext).toHaveCSS("padding", "12px");
   await expect(setupContext).toHaveCSS("font-size", "14px");
   await expect(setupContext).toHaveCSS("line-height", "24px");
-  await setupContext.focus();
-  expect(
-    await setupContext.evaluate((element) => {
-      const control = element.parentElement;
-      if (!control) {
-        throw new Error("Expected the textarea control wrapper.");
-      }
-      const style = getComputedStyle(control);
-
-      return {
-        outlineOffset: style.outlineOffset,
-        outlineStyle: style.outlineStyle,
-        outlineWidth: style.outlineWidth,
-      };
-    }),
-  ).toEqual({
-    outlineOffset: "-2px",
-    outlineStyle: "solid",
-    outlineWidth: "2px",
-  });
+  await expectVisibleSituationFocus(page, setupContext);
 
   await page.setViewportSize({ height: 900, width: 640 });
   await expect(setupContext).toHaveCSS("min-height", "72px");
@@ -981,33 +981,19 @@ test("leaves choice-card colors with the package in forced-colors mode", async (
   });
 });
 
-test("keeps an external situation-textarea focus outline in forced colors", async ({
+test("keeps situation-textarea keyboard focus visible in forced colors", async ({
   page,
 }) => {
   await page.emulateMedia({ forcedColors: "active" });
+  expect(
+    await page.evaluate(() => matchMedia("(forced-colors: active)").matches),
+  ).toBe(true);
   await page.goto("/");
 
   const context = page.getByLabel("Your situation or question (Optional)", {
     exact: true,
   });
-  await context.focus();
-  const focusStyle = await context.evaluate((element) => {
-    const control = element.parentElement;
-    if (!control) {
-      throw new Error("Expected the textarea control wrapper.");
-    }
-    const style = getComputedStyle(control);
-
-    return {
-      outlineOffset: style.outlineOffset,
-      outlineStyle: style.outlineStyle,
-      outlineWidth: style.outlineWidth,
-    };
-  });
-
-  expect(focusStyle.outlineOffset).toBe("2px");
-  expect(focusStyle.outlineStyle).not.toBe("none");
-  expect(Number.parseFloat(focusStyle.outlineWidth)).toBeGreaterThan(0);
+  await expectVisibleSituationFocus(page, context);
 });
 
 test("keeps adopted choice cards on public tokens and full-card activation", async ({
