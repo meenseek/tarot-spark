@@ -89,6 +89,7 @@ the expected keys.
 - [Versioning and generated artifacts](docs/engineering/versioning-and-artifacts.md)
 - [Phase-gated delivery](docs/workflow/delivery-phases.md)
 - [Growth playbook](docs/product/growth-playbook.md)
+- [Service lifecycle](docs/operations/service-lifecycle.md)
 - [Revenue validation plan](docs/product/revenue-validation-plan.md)
 
 The repository keeps only the final 78-card runtime deck and its lightweight

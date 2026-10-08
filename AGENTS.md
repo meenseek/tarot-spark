@@ -16,6 +16,8 @@ Keep task details in the linked docs; do not duplicate them here.
   read `docs/engineering/versioning-and-artifacts.md`.
 - Product, analytics, AdSense, SEO, or tarot content changes: read
   `docs/product/guardrails.md`.
+- Service decisions, support, incident recovery, or closure: read
+  `docs/operations/service-lifecycle.md`.
 - Issue creation or issue planning: read `docs/workflow/issues.md`.
 - Branch naming, creation, or updates: read `docs/workflow/branches.md`.
 - Commit messages: read `docs/workflow/commits.md`.
