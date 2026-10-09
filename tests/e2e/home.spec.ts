@@ -602,8 +602,17 @@ for (const locale of ["en", "ko"] as const) {
       expect(copyBox!.y + copyBox!.height).toBeLessThanOrEqual(editBox!.y);
       expect(editBox!.y + editBox!.height).toBeLessThanOrEqual(nextBox!.y);
       await currentEdit.locator("summary").click();
-      await expect(currentEdit).toContainText(
-        ko ? "복사할 질문에 바로 반영" : "update the prompt you can copy",
+      const customizationGuidance = currentEdit.getByText(
+        ko
+          ? "복사할 질문은 바로 바뀌지만 이미 복사한 내용은 그대로예요."
+          : "The prompt updates immediately, but text you already copied stays the same.",
+        { exact: false },
+      );
+      await expect(customizationGuidance).toBeVisible();
+      await expect(customizationGuidance).toContainText(
+        ko
+          ? "바꾼 질문을 쓰려면 다시 복사해 주세요."
+          : "Copy the prompt again after making changes.",
       );
       await currentEdit.getByRole("textbox").fill("Previous private situation");
       const cards = await page

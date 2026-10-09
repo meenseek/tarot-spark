@@ -34,7 +34,7 @@
   "cardOverviewLabel": "Drawn cards",
   "currentReadingSettings": "Current reading",
   "customizeCurrent": "Refine the prompt for these cards",
-  "customizeCurrentIntro": "Keep these cards and change the answer style or your situation. Your changes update the prompt you can copy.",
+  "customizeCurrentIntro": "Keep these cards and change the answer style or your situation. The prompt updates immediately, but text you already copied stays the same. Copy the prompt again after making changes.",
   "editNextReading": "Prepare the next draw",
   "editNextHeading": "Prepare the next draw",
   "editNextIntro": "Your previous question and settings are ready. Keep or edit them to draw new cards. You can return to your previous result until you draw.",

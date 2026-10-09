@@ -34,7 +34,7 @@
   "cardOverviewLabel": "뽑은 카드",
   "currentReadingSettings": "현재 리딩",
   "customizeCurrent": "같은 카드로 질문 다듬기",
-  "customizeCurrentIntro": "카드는 그대로 두고 답변 느낌이나 내 상황을 바꿔요. 바꾸면 복사할 질문에 바로 반영돼요.",
+  "customizeCurrentIntro": "카드는 그대로 두고 답변 느낌이나 내 상황을 바꿔요. 복사할 질문은 바로 바뀌지만 이미 복사한 내용은 그대로예요. 바꾼 질문을 쓰려면 다시 복사해 주세요.",
   "editNextReading": "다음 카드 준비하기",
   "editNextHeading": "다음 카드 준비하기",
   "editNextIntro": "이전 질문과 설정을 가져왔어요. 그대로 쓰거나 바꿔서 새 카드를 뽑으세요. 뽑기 전에는 이전 카드 결과로 돌아갈 수 있어요.",
