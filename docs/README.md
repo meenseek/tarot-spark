@@ -15,11 +15,12 @@ Use this map when reading, adding, moving, or reviewing repository documents.
   review gates.
 - `docs/engineering` answers what standards repository artifacts must satisfy
   and which verification commands prove readiness.
-- `docs/product` answers what product, content, analytics, monetization, SEO,
+- `docs/product` answers what public product, content, analytics, SEO,
   and tarot guardrails apply.
 - `docs/operations` answers how deployed systems are configured, released,
-  monitored, and recovered. Create this directory only when an operations
-  procedure exists. Start with [Service lifecycle](operations/service-lifecycle.md)
+  monitored, and recovered. Use [Launch readiness](operations/launch-readiness.md)
+  for production, advertising, and commerce checks. Start with
+  [Service lifecycle](operations/service-lifecycle.md)
   for decision, release, support, recovery, and closure handoffs.
 
 ## Category Tests
@@ -29,6 +30,15 @@ Use this map when reading, adding, moving, or reviewing repository documents.
 - Use `engineering` when the reader asks, "What standard or check applies?"
 - Use `product` when the reader asks, "What product constraint applies?"
 - Use `operations` when the reader asks, "How is this run after release?"
+
+## Public Documentation Boundary
+
+Keep contributor instructions, architecture, product safety, and technical
+verification contracts here. Keep business targets, pricing and resource
+assumptions, channel plans, unpublished copy, and campaign observations in
+owner-controlled operating records. Do not name or link a private repository
+without a separate publication decision. Apply the shared
+[document ownership and publication boundary](https://github.com/meenseek/.github/blob/main/docs/repository-rules.md#문서-소유권).
 
 ## Adding Or Moving Docs
 
