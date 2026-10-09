@@ -17,7 +17,7 @@
 
 ## Verification
 
-Follow `docs/contributing/quality-gates.md`.
+Follow `docs/engineering/verification-gates.md`.
 
 Common checks:
 
@@ -34,7 +34,7 @@ Additional code-bearing checks:
 
 PR readiness:
 
-- [ ] Commit sign-off trailers satisfy `docs/contributing/commit-messages.md`
+- [ ] Commit sign-off trailers satisfy `docs/workflow/commits.md`
 
 N/A or unverified:
 

@@ -1,117 +1,17 @@
-# Growth Playbook
+# Growth And Measurement Contract
 
-## Goal
+## Scope
 
-Acquire the first 200 analyzable reading sessions without mass posting, private
-messages, prediction claims, or personal-data collection. Treat a successful
-`prompt_copy` as activation. Treat `share_click` as intent and `share_result` as
-the terminal share outcome.
+Use this document for public discovery, event semantics, and privacy-safe
+attribution. Acquisition targets, channel choices, campaign limits, commercial
+plans, and unpublished copy belong to owner-controlled operating records.
+An implementation or measurement gate does not authorize publication.
 
-Keep the complete 78-card runtime deck available as one atomic release. Never
-expose a partial illustrated deck or tie card coverage to the 200-session
-acquisition gate.
+Keep the complete 78-card runtime deck available as one atomic release. Do not
+tie card coverage to an acquisition threshold. Follow the
+[product guardrails](guardrails.md) and [card art bible](card-art-bible.md).
 
-Use the [revenue validation plan](revenue-validation-plan.md) for monetization.
-Start its interest test only after its production-integrity and activation
-gates pass.
-
-## Audience
-
-Prioritize adults who already use an AI tool and want to try tarot for fun,
-curiosity, or self-reflection. Keep relationship questions as the current
-acquisition wedge.
-
-Lead with the product's simple job: draw cards for free, copy a ready-made
-prompt, and ask the AI tool you already use. Tarot Spark assembles the selected
-topic or question, drawn cards, reviewed meanings, and answer instructions.
-Free refers to Tarot Spark; the chosen AI service has its own access limits and
-pricing. Explain the answer structure after the draw-copy-ask workflow.
-
-Fun, curiosity, and convenience are valid reasons to try the product. Do not
-require a serious unresolved problem, dissatisfaction with AI, or previous tarot
-experience. Whether users find the experience easy, enjoyable, or useful remains
-to be observed; these are not demonstrated outcomes or promises of accuracy.
-
-- Include casual users who want to draw cards and ask their AI a question.
-- Include AI users who find ordinary tarot prompts too short or generic.
-- Target tarot and journaling users who prefer self-reflection over prediction.
-- Target creators who can compare the current preview illustrations and explain
-  which visual details feel coherent. Use the Fool, Lovers, and Star as the
-  canonical feedback subset.
-- Do not target minors, crisis communities, mental-health support groups, or
-  people seeking medical, legal, financial, investment, or safety decisions.
-
-## Channel Order
-
-1. Relationship-flow landing: reach people actively reflecting on a
-   relationship with the search guide and direct generator CTA.
-2. Naver Blog: reach Korean search users interested in AI or tarot how-to
-   content with a complete worked guide and screenshots. Link once after the
-   useful content; do not pad the article to hit a character target.
-3. Instagram: reach visual tarot and journaling discovery with an original
-   five-to-eight-slide carousel or one current-preview card image. Use the
-   profile or story link.
-4. YouTube Shorts: reach short-form video discovery with the approved vertical
-   campaign asset and a channel profile link to the generator. Adapt the title,
-   opening frame, and call to action without adding prediction claims.
-5. Threads: reach Korean and English public conversations with a short
-   observation, example prompt, and one question. Link in a relevant follow-up.
-6. Disquiet: reach Korean makers with an approved product profile and
-   product-linked build notes. Complete product review before posting, make each
-   post useful without relying on the product card, and ask one concrete
-   feedback question. Recheck the current product submission flow in the
-   [Disquiet renewal announcement](https://disquiet.io/announcement).
-7. Naver Cafe: reach existing Korean tarot, journaling, or AI communities with
-   a value-first text post tailored to the board. Link only when the cafe
-   permits it.
-8. Reddit: reach English tarot, journaling, or prompt communities with a native
-   text case study and maker disclosure. Follow each community's
-   self-promotion rule.
-
-Do not automate community posting. Review the destination's current rules before
-each post. Do not reuse the same title and body across communities.
-
-Reddit defines repeated or unsolicited mass activity as spam and advises
-contributors to check each community's rules. Some communities use a
-self-promotion ratio near 10 percent:
-[Reddit spam policy](https://support.reddithelp.com/hc/en-us/articles/360043504051-Spam)
-and
-[Reddit community spam guidance](https://support.reddithelp.com/hc/en-us/articles/28012014962580-How-do-I-keep-spam-out-of-my-community).
-
-Naver may restrict mechanically mass-produced promotional posts, repeated
-outbound links, hidden keywords, and posts that include personal information:
-[Naver Cafe search limits](https://help.naver.com/service/5626/contents/22945?lang=ko)
-and
-[Naver promotional-post guidance](https://help.naver.com/service/19212/contents/7997?lang=ko&osType=COMMONOS).
-
-Instagram and Threads should receive original posts without repetitive comments,
-artificial engagement, or unsolicited commercial contact:
-[Instagram Community Guidelines](https://www.facebook.com/help/instagram/477434105621119/)
-and
-[Threads launch and policy scope](https://about.fb.com/news/2023/07/introducing-threads-new-app-text-sharing/).
-
-## Content Pillars
-
-Use one clear job per post.
-
-1. Prompt education: compare a predictive one-line question with the published
-   reflective-question method and explain what changed.
-2. Pick a card: show two or three symbols and ask a reflective question without
-   revealing a prediction.
-3. Relationship guide: separate symbolic interpretation material from factual
-   proof, keep two alternatives open, and show how reality could revise them.
-4. Combination method: demonstrate reinforcement, tension, progression, or
-   integration with supplied upright meanings and an observable check.
-5. Deck progress: show the Fool, Lovers, or Star from the canonical feedback
-   subset and ask about frame, character, symbol, and palette consistency.
-6. Build notes: share a concrete privacy or content decision, such as excluding
-   personal context from URLs.
-
-Every post should disclose that tarot-spark is the author's project when a link
-is present. Every tarot post should frame the content as entertainment and
-self-reflection.
-
-### Relationship Question Explorer Contract
+## Relationship Question Explorer Contract
 
 Publish relationship discovery as one substantial localized explorer, not as
 one thin page per question. The explorer groups 30 reviewed presets into seven
@@ -124,104 +24,6 @@ count. Consider splitting out a question only after search impressions,
 reading starts, and successful prompt copies show durable demand for that
 specific intent and there is enough original worked material to make the page
 independently useful.
-
-## Decision Sequence
-
-Treat the stages below as comparative experiments, non-comparative
-qualifications, or non-publishing preparation candidates, not posting
-instructions, quotas, or a calendar. Keep only one active decision run—a
-comparative experiment or non-comparative qualification—across the campaign.
-Move to another candidate or stage only after the selected decision run is
-judged or explicitly closed, not when a post count is completed. Preregister
-each selected decision run's applicable contract in the campaign's distribution
-register before publishing. Independent variables, control, and treatment apply
-only to comparative experiments. Non-publishing preparation may proceed
-separately.
-
-The weekly figures are internal frequency ceilings for this campaign, not
-publishing targets. Create at most two approved vertical source videos per week,
-and publish at most two adapted posts per week on each of YouTube Shorts and
-Instagram Reels. Publish at most two Threads posts and one Naver Blog guide per
-week. Make at most one value-first community post per week across Naver Cafe,
-Reddit, and Disquiet after checking the destination's current rules.
-
-### Short-Form Reach Qualification
-
-Use the first valid Korean YouTube Short as a bounded reach qualification before
-investing in another distribution experiment. This non-comparative gate
-qualifies one exact Short for one follow-up experiment. It does not prove a
-causal copy effect, virality, or product demand.
-
-The target is a Korean user who already uses generative AI for relationship
-reflection but finds that the answer ends in generic advice or isolated card
-definitions. The content should earn attention by making one controlled contrast
-useful on its own, not by claiming that one prompt is more accurate.
-
-There is no independent variable in this qualification. Its fixed content
-proposition shows one controlled contrast: the same situation, cards, reviewed
-meanings, and display order with only the answer-request structure differing
-between A and B. The campaign posting asset owns the exact title, description,
-and requests; the distribution register binds that exact asset, its digest, and
-the execution controls before publication.
-
-Do not show a generated answer or claim that one request produces a better
-result. Move through five beats: introduce the generic-answer problem, show
-request A, replace only A with request B, clarify that the cards and meanings
-did not change, and close on what the controlled contrast can reveal. The reach
-qualification asks only for viewing; it has no product-use or off-platform CTA.
-Keep the creator disclosure neutral and frame the content as entertainment and
-self-reflection. Ask for product behavior only in a separately preregistered
-activation experiment after this qualification passes.
-
-Use [YouTube Factory][youtube-factory] only through a review path that preserves
-this educational controlled-contrast brief. Do not apply a comedy-only review or
-require an owner `found_funny` decision unless the user separately chooses a
-comedy treatment for this exact Short. The Factory contract remains the source
-of truth for production gates and receipts; its receipts do not replace an
-evidence-bound YouTube Shorts UI overlay review.
-
-Use the [campaign posting checklist][campaign-posting-checklist] and distribution
-register for the exact publication controls, measurement source, checkpoint,
-threshold, and decision. A registered pass permits one activation experiment;
-verify unique attribution and the GA4 event dimensions before preregistering
-successful `prompt_copy` as its product behavior. A fail closes the reach gate
-for that exact Short but does not prove a script cause or absent product demand.
-Do not automatically repost a failed or inconclusive Short.
-
-### Stage 1: Establish Relevance
-
-- Publish one Naver Blog relationship-prompt guide.
-- Publish one Korean Threads prompt comparison without a link in the first post.
-- Publish one original Instagram carousel using the Lovers reference card.
-- Publish one YouTube Short with the generator in the channel profile link.
-- Read and record the rules of three candidate communities before commenting or
-  posting there.
-
-### Stage 2: Test The Relationship Wedge
-
-- Link the relationship-flow landing from one Naver Blog article.
-- Publish one Threads follow-up with a practical action-prompt example.
-- Make one community post only where self-promotion and outbound links are
-  explicitly allowed.
-- Compare `result_view` and successful `prompt_copy` by `source`.
-
-### Stage 3: Test Visual Pull
-
-- Publish separate Fool, Lovers, and Star posts rather than a reused collage.
-- Ask one visual question per post: character, symbol, background, or palette.
-- Use the best-performing reference card as the first frame of an Instagram
-  carousel.
-- Compare `share_click` with `share_result`; fix failed outcomes before
-  increasing posting frequency.
-
-### Stage 4: Decide
-
-- Repeat the best content pillar once with a new example.
-- Stop channels that deliver visits without `result_view`.
-- Keep channels that deliver successful `prompt_copy` without safety or privacy
-  complaints.
-- Review the 200-session gate without changing the complete 78-card art release
-  or substituting name faces.
 
 ## Measurement Contract
 
@@ -260,120 +62,35 @@ that the emitted `source` and `campaign` parameters are available as
 Do not create duplicate definitions. In an Exploration, read `draw_start`,
 `result_view`, and successful `prompt_copy` with those dimensions over the same
 reporting window, excluding known internal use. Record the property, readable
-window, and source of the result in the distribution register. New definitions
+window, and source of the result with the applicable decision evidence. New definitions
 may take 24–48 hours to appear in reports; do not treat unavailable historical
 values as observed. Event totals alone do not establish a conversion rate:
 rates need a consistent attributed cohort and denominator. Until the event
 dimensions and denominator are verified, report channel-level product
 activation as unavailable instead of substituting session acquisition data.
 
-## 200-Session Gate
+### Analyzable Sessions
 
-Proceed to the next illustration rollout only when all conditions are true.
+Define an analyzable reading session as a GA session in which:
 
-- At least 200 analyzable reading sessions have been observed.
-- Prompt copies occur across more than one topic and are not limited to internal
-  tests.
-- Share failures are understood and no privacy-bearing URL has been observed.
-- No unresolved high-severity safety, accessibility, or localization defect
-  remains.
-- Feedback on the Fool, Lovers, and Star supports one common frame, character
-  grammar, symbol density, and palette direction.
+- Analytics was active under the applicable site-level and regional controls
+  before the measured interaction;
+- one or more valid `result_view` events occurred; and
+- internal, developer, and identified bot traffic was excluded.
 
-If a condition fails, improve the vertical slice and collect another cohort.
+Record site-level opt-out rate only when a privacy-approved, aggregate all-visit
+denominator exists without identifying users. Otherwise, do not calculate or
+claim an opt-out rate. Do not add interactions that occurred before Analytics
+became active to the analyzable-session denominator.
 
-## Ready-To-Adapt Posts
+### Offer And Checkout Events
 
-### Korean Threads: Prompt Education
+Before adding offer or checkout behavior, apply this event contract.
 
-> 타로 카드 뜻을 길게 붙여도 AI 답변이 짧고 비슷해지는 이유는 "무엇을
-> 비교하고 어떻게 답할지"가 빠져 있기 때문이었습니다.
->
-> 그래서 질문에 대한 카드상 답을 먼저 말하게 하고, 그 답을 사실의
-> 증거로 쓰지 않은 채 서로 다른 두 해석과 현실에서 확인할 기준,
-> 멈출 조건까지 이어지게 바꿨습니다.
->
-> 관계 리딩에서 카드명 외에 꼭 필요하다고 느끼는 정보는 무엇인가요?
-
-Link only in a relevant reply. Add: `제가 만든 무료 도구 tarot-spark의
-관계 흐름 페이지입니다.`
-
-### Korean Naver Blog: Topic Guide
-
-Title: `관계 타로 카드 뽑고 AI에 물어보는 방법`
-
-Opening:
-
-> 관계가 궁금하다면 질문 하나를 고르고 카드를 뽑아 보세요. 뽑힌 카드의
-> 순서와 뜻을 넣어 만든 질문을 복사해 평소 쓰는 AI에 붙여 넣을 수 있습니다.
-> 아래에서는 같은 카드로 만든 짧은 질문과 자세한 질문을 비교하고,
-> 카드상 해석과 현실에서 확인할 일을 어떻게 구분하는지 보여줍니다.
-
-Body order:
-
-1. Choose one relationship question, draw cards, and show their order and
-   reviewed meanings with screenshots.
-2. Compare a short prompt with the copied prompt for the same question and
-   cards. Explain that card numbers show draw order only.
-3. Show a direct symbolic answer, two interpretations, and a reality-check
-   example without presenting the cards as factual proof.
-4. Provide the complete example prompt with exact card names, reviewed
-   nonvisual meanings, the no-image rule, a revision condition, and a reversible
-   action.
-5. Add maker disclosure, one relationship-flow link after the useful guide, and
-   the disclaimer. Clarify that Tarot Spark is free while the chosen AI service
-   has its own access limits and pricing.
-
-### Korean Naver Cafe: Value-First Discussion
-
-Title: `카드 뜻 나열 대신 스프레드 전체를 연결하는 질문 방식`
-
-> 카드별 뜻을 하나씩 묻는 것보다 "강화, 긴장, 전개, 통합 중 어떤 관계가
-> 가장 강한지"를 먼저 고르게 하니 답변의 반복이 줄었습니다.
->
-> 여기에 같은 카드 의미로 가능한 비배타적 상징 해석을 정확히 두 개
-> 남기고, 무엇을 확인하면 둘의 비중을 바꾸거나 모두 버려야 하는지와
-> 해석의 승패와 별개로 멈출 조건까지 정리하게 했습니다.
-> 여러분은 여러 장 리딩에서 카드 사이의 연결을 어떤 질문으로
-> 끌어내시나요?
-
-Add a link and maker disclosure only when the cafe and board explicitly allow
-self-promotion.
-
-### Instagram Carousel: Lovers Pilot
-
-1. `상대의 마음을 카드상 가능성으로 먼저 읽는 관계 타로 질문`
-2. `카드 의미는 해석 재료이지 사실의 증거가 아니다`
-3. `양자택일이 아닌 두 상징적 해석`
-4. `무엇을 보면 둘의 비중을 바꾸거나 모두 버릴까?`
-5. `관찰과 별개로 언제 시험을 멈출까?`
-6. `작은 행동 하나와 멈출 조건 하나`
-7. `The Lovers: 선택과 상호성은 말보다 행동에서 보이는가?`
-8. `오락과 자기 성찰 전용 | tarot-spark`
-
-Use the canonical Lovers art. Do not add synthetic testimonials or outcome
-claims.
-
-### English Reddit: Native Text Case Study
-
-Title: `I rebuilt a tarot prompt to answer first, then reality-check the reading`
-
-> I was getting the same pattern from AI tarot prompts: three isolated card
-> definitions, a vague conclusion, and no distinction between evidence and
-> projection.
->
-> I changed the structure so the prompt uses exact card names in draw order,
-> treats their meanings as symbolic material rather than proof, answers the
-> actual question first, keeps exactly two non-exclusive interpretations open,
-> and then names what would reweight or reject both, plus an independent reason
-> to stop the test.
->
-> I built the free prototype, tarot-spark. I am looking for feedback on whether
-> the simpler output is easier to understand, not for predictive accuracy.
-
-Include the link only if the community rule allows it. Otherwise offer the
-prompt structure in the post and let interested users request the project name
-publicly; do not send unsolicited private messages.
-
-[campaign-posting-checklist]: https://github.com/meenseek/youtube-channel-observatory/blob/main/products/tarot-spark/social/campaigns/ai-tarot-prompt/posting-checklist.md
-[youtube-factory]: https://github.com/meenseek/youtube-factory
+An implementation may add `offer_view`, `offer_click`, `sample_download`, and
+`checkout_click` only because the core reading events cannot represent these
+actions. Allow only stable `product_id`, `placement`, `locale`, and existing
+`source` and `campaign` values. Reject free text, names, email addresses, order
+ids, and tarot context. Send events only after analytics is ready and dedupe
+session-scoped events. Cover the validator, consent states, dedupe behavior,
+and both locales with tests.

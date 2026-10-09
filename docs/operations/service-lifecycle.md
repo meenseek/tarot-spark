@@ -9,10 +9,12 @@ handoff; it does not set new growth thresholds, commerce terms, or schedules.
 
 ## Choose The Next Decision
 
-1. Read the [growth playbook](../product/growth-playbook.md#decision-sequence)
-   and [revenue validation plan](../product/revenue-validation-plan.md). Bind the
-   selected goal, current phase, next gate, and proceed, hold, or stop criteria
-   to their owner source and the current observation period.
+1. Read the applicable owner-approved business or campaign decision record,
+   the public [measurement contract](../product/growth-playbook.md#measurement-contract),
+   and [launch-readiness gates](launch-readiness.md). Bind the selected goal,
+   current phase, next gate, and proceed, hold, or stop criteria to their owner
+   source and the current observation period. If the business record is
+   unavailable, leave that decision pending.
 2. Check the active decision run and its campaign register before selecting
    another publishing or activation candidate. Missing attribution, samples,
    or required observations leave the decision pending. Reach, product use,
@@ -59,7 +61,8 @@ to Git, analytics, campaign records, or company reports.
    [privacy copy](../../src/messages/en/public-pages.json), including any
    processor involved. A free-reading fix does not prove email deletion or a
    provider refund. Recheck each requested effect at its owner.
-4. Before paid launch, use the revenue plan's commerce-readiness gate to
+4. Before paid launch, use the
+   [commerce-readiness gate](launch-readiness.md#commerce-readiness) to
    establish the real provider, fulfillment, support owner, response terms,
    refunds, receipts, and data obligations. If these are unresolved, keep
    checkout unpublished. Do not invent a response deadline or refund policy.

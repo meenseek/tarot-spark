@@ -54,7 +54,7 @@ choice or enable advertising delivery by themselves.
 Set `NEXT_PUBLIC_ADSENSE_SCRIPT_ENABLED=true` only after the production
 integrity, route-isolation, AdSense approval, and Google-certified regional CMP
 and TCF checks in the
-[revenue validation plan](docs/product/revenue-validation-plan.md) pass. Leave
+[launch-readiness gates](docs/operations/launch-readiness.md) pass. Leave
 it unset or set it to `false` to keep advertising delivery off while preserving
 the account metadata and authorized seller record. When enabled, the AdSense
 script defaults on unless the browser has a stored site-level opt-out and loads
@@ -88,9 +88,9 @@ the expected keys.
 - [Card art bible](docs/product/card-art-bible.md)
 - [Versioning and generated artifacts](docs/engineering/versioning-and-artifacts.md)
 - [Phase-gated delivery](docs/workflow/delivery-phases.md)
-- [Growth playbook](docs/product/growth-playbook.md)
+- [Growth and measurement contract](docs/product/growth-playbook.md)
 - [Service lifecycle](docs/operations/service-lifecycle.md)
-- [Revenue validation plan](docs/product/revenue-validation-plan.md)
+- [Launch readiness](docs/operations/launch-readiness.md)
 
 The repository keeps only the final 78-card runtime deck and its lightweight
 integrity test. Keep future prompts, raw generations, review artifacts, and
