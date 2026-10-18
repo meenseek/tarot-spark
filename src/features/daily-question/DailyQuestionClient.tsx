@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { AttributionLink as Link } from "@/components/layout/AttributionLink";
 import { useEffect, useState } from "react";
 import { LocaleSwitch } from "@/components/layout/LocaleSwitch";
 import { SiteShell } from "@/components/layout/SiteShell";

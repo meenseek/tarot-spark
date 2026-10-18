@@ -1,4 +1,6 @@
 import type { Locale } from "@/i18n/config";
+import { AttributionNavigationScript } from "@/components/layout/AttributionLink";
+import { getSiteUrl } from "@/i18n/seo";
 import { getGoogleAdSenseScriptClientId } from "@/integrations/google-adsense/config";
 import { PrivacyConsent } from "./PrivacyConsent";
 import { getPrivacyConsentCopy } from "./i18n";
@@ -13,14 +15,18 @@ export function OptionalGoogleServices({
   locale,
 }: OptionalGoogleServicesProps) {
   return (
-    <PrivacyConsent
-      advertisingClientId={getGoogleAdSenseScriptClientId() ?? undefined}
-      analyticsMeasurementId={getGoogleAnalyticsMeasurementId()}
-      copy={getPrivacyConsentCopy(locale)}
-      defaultPreferences={{ analytics: true, advertising: true }}
-    >
-      {children}
-    </PrivacyConsent>
+    <>
+      <AttributionNavigationScript />
+      <PrivacyConsent
+        advertisingClientId={getGoogleAdSenseScriptClientId() ?? undefined}
+        analyticsMeasurementId={getGoogleAnalyticsMeasurementId()}
+        analyticsOrigin={getSiteUrl().origin}
+        copy={getPrivacyConsentCopy(locale)}
+        defaultPreferences={{ analytics: true, advertising: true }}
+      >
+        {children}
+      </PrivacyConsent>
+    </>
   );
 }
 

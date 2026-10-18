@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@measure-twice/react";
-import Link from "next/link";
+import { AttributionLink as Link } from "@/components/layout/AttributionLink";
 import {
   type MouseEvent,
   useEffect,
@@ -1448,6 +1448,7 @@ export function TarotExperienceClient({
             <Button
               className="ts-secondary-action w-full sm:w-fit"
               data-testid="next-reading-action"
+              disabled={!isHydrated}
               onClick={enterEditNextDraw}
               ref={editTriggerRef}
               tone="neutral"

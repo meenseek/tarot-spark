@@ -78,6 +78,10 @@ Define an analyzable reading session as a GA session in which:
 - one or more valid `result_view` events occurred; and
 - internal, developer, and identified bot traffic was excluded.
 
+Exclude individual deployment URLs and other non-production origins from the
+operating cohort. Preserve valid campaign attribution through internal content
+navigation; do not infer it for a fresh untagged visit.
+
 Record site-level opt-out rate only when a privacy-approved, aggregate all-visit
 denominator exists without identifying users. Otherwise, do not calculate or
 claim an opt-out rate. Do not add interactions that occurred before Analytics

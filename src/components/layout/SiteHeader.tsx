@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AttributionLink as Link } from "@/components/layout/AttributionLink";
 import type { ReactNode } from "react";
 import { brandLinkClassName } from "@/components/visual/class-names";
 

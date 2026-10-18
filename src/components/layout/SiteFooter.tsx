@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AttributionLink as Link } from "@/components/layout/AttributionLink";
 import { footerLinkClassName } from "@/components/visual/class-names";
 import { PrivacySettingsButton } from "./PrivacySettingsControl";
 

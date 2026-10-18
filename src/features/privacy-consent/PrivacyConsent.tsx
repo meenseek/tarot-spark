@@ -36,6 +36,7 @@ type FailClosedCarrier = "session-storage" | "cookie";
 
 type PrivacyConsentProps = {
   readonly analyticsMeasurementId?: string | undefined;
+  readonly analyticsOrigin?: string | undefined;
   readonly advertisingClientId?: string | undefined;
   readonly children: React.ReactNode;
   readonly copy: PrivacyConsentCopy;
@@ -45,6 +46,7 @@ type PrivacyConsentProps = {
 
 export function PrivacyConsent({
   analyticsMeasurementId,
+  analyticsOrigin,
   advertisingClientId,
   children,
   copy,
@@ -333,8 +335,11 @@ export function PrivacyConsent({
       }}
     >
       {!mustWithholdChildrenForStorageFailure && children}
-      {preferences?.analytics && analyticsMeasurementId && (
-        <GoogleAnalytics measurementId={analyticsMeasurementId} />
+      {preferences?.analytics && analyticsMeasurementId && analyticsOrigin && (
+        <GoogleAnalytics
+          allowedOrigin={analyticsOrigin}
+          measurementId={analyticsMeasurementId}
+        />
       )}
       {shouldLoadAdvertising && advertisingClientId && (
         <GoogleAdSenseScript

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AttributionLink as Link } from "@/components/layout/AttributionLink";
 import { secondaryButtonClassName } from "@/components/visual/class-names";
 import type { Locale } from "@/i18n/config";
 import { getPublicQuestionReadingPath } from "./paths";

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { AttributionLink as Link } from "@/components/layout/AttributionLink";
 import type { Locale } from "@/i18n/config";
 import {
   interactiveFocusClassName,
