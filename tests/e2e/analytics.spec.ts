@@ -105,6 +105,188 @@ for (const query of [
   });
 }
 
+for (const viewport of [
+  { width: 390, height: 844 },
+  { width: 1280, height: 900 },
+]) {
+  test(`keeps attribution through daily, guides, locales and questions at width ${viewport.width}`, async ({
+    page,
+    context,
+  }) => {
+    await isolateAnalytics(context);
+    await page.setViewportSize(viewport);
+    await page.goto("/?source=threads&campaign=profile");
+    const pair = "source=threads&campaign=profile";
+    await expect(page.getByTestId("daily-question-link")).toHaveAttribute(
+      "href",
+      `/daily?${pair}`,
+    );
+    await page.getByTestId("daily-question-link").click();
+    await expect(page).toHaveURL(`/daily?${pair}`);
+    const dailyReturn = page.getByTestId("daily-card").getByRole("link");
+    await expect(dailyReturn).toHaveAttribute("href", `/?${pair}`);
+    await dailyReturn.click();
+    await expect(page).toHaveURL(`/?${pair}`);
+    await expect(page.getByTestId("daily-question-link")).toBeVisible();
+    const guide = page
+      .getByTestId("site-footer")
+      .locator('a[href^="/how-to-ask-tarot-questions"]');
+    await expect(guide).toHaveAttribute(
+      "href",
+      `/how-to-ask-tarot-questions?${pair}`,
+    );
+    await guide.click();
+    await expect(page).toHaveURL(`/how-to-ask-tarot-questions?${pair}`);
+    await expect(page.getByRole("article")).toBeVisible();
+    const korean = page.getByRole("link", { name: "한국어", exact: true });
+    await expect(korean).toHaveAttribute(
+      "href",
+      `/ko/how-to-ask-tarot-questions?${pair}`,
+    );
+    await korean.click();
+    await expect(page).toHaveURL(
+      new RegExp(`/ko/how-to-ask-tarot-questions\\?${pair}$`),
+    );
+    await expect(
+      page.getByRole("link", { name: "한국어", exact: true }),
+    ).toHaveAttribute("aria-current", "page");
+    const english = page.getByRole("link", { name: "English", exact: true });
+    await expect(english).toHaveAttribute(
+      "href",
+      `/how-to-ask-tarot-questions?${pair}`,
+    );
+    await english.click();
+    await expect(page).toHaveURL(`/how-to-ask-tarot-questions?${pair}`);
+    await expect(
+      page.getByRole("link", { name: "English", exact: true }),
+    ).toHaveAttribute("aria-current", "page");
+    const catalog = page
+      .getByTestId("site-footer")
+      .locator('a[href^="/tarot-questions"]');
+    await expect(catalog).toHaveAttribute("href", `/tarot-questions?${pair}`);
+    await catalog.click();
+    await expect(page).toHaveURL(`/tarot-questions?${pair}`);
+    const firstGroup = page
+      .getByTestId("public-question-catalog-list")
+      .locator("details")
+      .first();
+    if ((await firstGroup.getAttribute("open")) === null) {
+      await firstGroup.locator("summary").click();
+    }
+    const reading = firstGroup.getByRole("link").first();
+    await expect(reading).toHaveAttribute("href", new RegExp(pair));
+    await reading.click();
+    await completeReading(page);
+    for (const entry of await coreEvents(page)) {
+      expect(entry[2]).toEqual(
+        expect.objectContaining({ source: "threads", campaign: "profile" }),
+      );
+    }
+  });
+}
+
+for (const width of [390, 1280]) {
+  test(`keeps native guide and locale navigation before hydration at width ${width}`, async ({
+    page,
+    context,
+  }) => {
+    await isolateAnalytics(context);
+    await page.setViewportSize({ width, height: 900 });
+    const hydrationErrors: string[] = [];
+    page.on("console", (message) => {
+      if (message.type() === "error" && /hydrat/i.test(message.text())) {
+        hydrationErrors.push(message.text());
+      }
+    });
+    let releaseScripts: () => void = () => undefined;
+    const scriptsReady = new Promise<void>((resolve) => {
+      releaseScripts = resolve;
+    });
+    let heldRequests = 0;
+    await page.route("**/_next/static/**/*.js", async (route) => {
+      heldRequests += 1;
+      await scriptsReady;
+      await route.continue();
+    });
+    try {
+      await page.goto(
+        "/how-to-ask-tarot-questions?utm_source=threads&utm_campaign=profile&context=private-entry",
+        { waitUntil: "commit" },
+      );
+      const firstKoreanLink = page.getByRole("link", {
+        name: "한국어",
+        exact: true,
+      });
+      await firstKoreanLink.click({ button: "right", noWaitAfter: true });
+      await page.keyboard.press("Escape");
+      await expect(page).toHaveURL(
+        /\/how-to-ask-tarot-questions\?utm_source=threads&utm_campaign=profile&context=private-entry$/,
+      );
+      await expect(firstKoreanLink).toHaveAttribute(
+        "href",
+        "/ko/how-to-ask-tarot-questions?source=threads&campaign=profile",
+      );
+      releaseScripts();
+      await expect
+        .poll(() => page.evaluate(() => window.tarotSparkAnalyticsReady))
+        .toBe(true);
+      await expect(firstKoreanLink).toHaveAttribute(
+        "href",
+        "/ko/how-to-ask-tarot-questions?source=threads&campaign=profile",
+      );
+      expect(hydrationErrors).toEqual([]);
+
+      let releaseNextDocument: () => void = () => undefined;
+      const nextDocumentReady = new Promise<void>((resolve) => {
+        releaseNextDocument = resolve;
+      });
+      await page.unroute("**/_next/static/**/*.js");
+      releaseScripts = releaseNextDocument;
+      await page.route("**/_next/static/**/*.js", async (route) => {
+        heldRequests += 1;
+        await nextDocumentReady;
+        await route.continue();
+      });
+      await page.goto(
+        "/how-to-ask-tarot-questions?source=threads&campaign=profile&context=private-entry",
+        { waitUntil: "commit" },
+      );
+      await page
+        .getByRole("link", { name: "한국어", exact: true })
+        .click({ noWaitAfter: true });
+      await expect(page).toHaveURL(
+        /\/ko\/how-to-ask-tarot-questions\?source=threads&campaign=profile$/,
+      );
+      await page
+        .getByRole("link", { name: "English", exact: true })
+        .click({ noWaitAfter: true });
+      await expect(page).toHaveURL(
+        /\/how-to-ask-tarot-questions\?source=threads&campaign=profile$/,
+      );
+      await page
+        .getByTestId("site-header")
+        .getByRole("link")
+        .first()
+        .click({ noWaitAfter: true });
+      await expect(page).toHaveURL(/\/\?source=threads&campaign=profile$/);
+      expect(heldRequests).toBeGreaterThan(0);
+      expect(
+        await page.evaluate(() => window.tarotSparkAnalyticsReady),
+      ).not.toBe(true);
+      releaseScripts();
+      await completeReading(page);
+      for (const entry of await coreEvents(page)) {
+        expect(entry[2]).toEqual(
+          expect.objectContaining({ source: "threads", campaign: "profile" }),
+        );
+      }
+      expect(hydrationErrors).toEqual([]);
+    } finally {
+      releaseScripts();
+    }
+  });
+}
+
 test("queues one sanitized page view per route and forwards a real draw", async ({
   page,
   context,
@@ -159,7 +341,10 @@ test("queues one sanitized page view per route and forwards a real draw", async 
     )
     .toBe(1);
   await page.getByRole("link", { name: "About", exact: true }).click();
-  await expect(page).toHaveURL(/\/about$/, { timeout: 15_000 });
+  await expect(page).toHaveURL(
+    /\/about\?source=disquiet&campaign=vertical-slice$/,
+    { timeout: 15_000 },
+  );
   await expect
     .poll(
       async () =>
@@ -177,8 +362,11 @@ test("queues one sanitized page view per route and forwards a real draw", async 
       .at(-1)?.[2],
   ).toEqual(
     expect.objectContaining({
-      page_location: new URL("/about", page.url()).toString(),
-      page_path: "/about",
+      page_location: new URL(
+        "/about?utm_source=disquiet&utm_campaign=vertical-slice",
+        page.url(),
+      ).toString(),
+      page_path: "/about?utm_source=disquiet&utm_campaign=vertical-slice",
       page_referrer: "",
     }),
   );

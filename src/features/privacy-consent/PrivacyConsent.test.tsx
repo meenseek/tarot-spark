@@ -91,12 +91,14 @@ describe("PrivacyConsent", () => {
     expect(
       await screen.findByRole("button", { name: "Privacy choices" }),
     ).toBeVisible();
-    expect(
-      document.querySelector('script[src*="googletagmanager.com"]'),
-    ).not.toBeNull();
-    expect(
-      document.querySelector('script[src*="googlesyndication.com"]'),
-    ).not.toBeNull();
+    await waitFor(() => {
+      expect(
+        document.querySelector('script[src*="googletagmanager.com"]'),
+      ).not.toBeNull();
+      expect(
+        document.querySelector('script[src*="googlesyndication.com"]'),
+      ).not.toBeNull();
+    });
     expect(window.localStorage.getItem(getConsentStorageKey())).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "Privacy choices" }));
@@ -993,6 +995,7 @@ function getConsentElement(
     <PrivacyConsent
       advertisingClientId={advertisingClientId}
       analyticsMeasurementId={analyticsMeasurementId}
+      analyticsOrigin={window.location.origin}
       copy={copy}
       defaultPreferences={defaultPreferences}
       reloadDocument={reloadDocument}

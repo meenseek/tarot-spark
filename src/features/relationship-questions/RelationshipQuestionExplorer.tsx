@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AttributionLink as Link } from "@/components/layout/AttributionLink";
 import { LocaleSwitch } from "@/components/layout/LocaleSwitch";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { CelestialMark } from "@/components/visual/CelestialMark";

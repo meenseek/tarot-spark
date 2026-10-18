@@ -33,7 +33,12 @@ leave it unset so share links use the production origin.
 
 Set `NEXT_PUBLIC_GA_ID` to the Google Analytics measurement ID, such as
 `G-XXXXXXXXXX`, to enable page view tracking and tarot behavior events. Leave it
-unset for local development or preview deployments that should not send GA data.
+unset for local development and preview deployments. Analytics loads only when
+the browser origin matches the configured production origin from
+`NEXT_PUBLIC_SITE_URL` (or the documented site URL fallback). With the canonical
+production site URL configured, individual deployment URLs do not load the
+Analytics tag or forward events through the current app.
+Use a mock measurement ID and a matching local site URL for isolated tests.
 When configured, Analytics defaults on unless the browser has a stored
 site-level opt-out. Google Consent Mode v2 defaults the four relevant consent
 signals to denied in the EEA, UK, and Switzerland and to granted elsewhere.
@@ -43,6 +48,8 @@ automatic history, form and link events do not bypass the payload allowlist.
 Page URLs contain only the route and complete allowlisted campaign attribution;
 query input and referrers are excluded. Verify real navigation and tarot events
 in the matching stream's Realtime or DebugView after deployment.
+Internal content, language and reading links retain a complete allowlisted
+campaign pair. A fresh untagged visit does not reuse a prior campaign.
 
 Set `NEXT_PUBLIC_ADSENSE_CLIENT_ID` to the Google AdSense client id, such as
 `ca-pub-0000000000000000`, to add the account metadata, provide the client id

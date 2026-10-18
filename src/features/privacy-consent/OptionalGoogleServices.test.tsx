@@ -9,6 +9,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 const originalAnalyticsId = process.env["NEXT_PUBLIC_GA_ID"];
+const originalSiteUrl = process.env["NEXT_PUBLIC_SITE_URL"];
 const originalAdvertisingId = process.env["NEXT_PUBLIC_ADSENSE_CLIENT_ID"];
 const originalAdvertisingScriptEnabled =
   process.env["NEXT_PUBLIC_ADSENSE_SCRIPT_ENABLED"];
@@ -17,7 +18,14 @@ describe("OptionalGoogleServices", () => {
   afterEach(() => {
     cleanup();
     window.localStorage.clear();
+    document
+      .querySelectorAll('script[src*="googletagmanager.com"]')
+      .forEach((script) => script.remove());
+    Reflect.deleteProperty(window, "dataLayer");
+    Reflect.deleteProperty(window, "gtag");
+    Reflect.deleteProperty(window, "tarotSparkAnalyticsReady");
     restoreEnvironmentVariable("NEXT_PUBLIC_GA_ID", originalAnalyticsId);
+    restoreEnvironmentVariable("NEXT_PUBLIC_SITE_URL", originalSiteUrl);
     restoreEnvironmentVariable(
       "NEXT_PUBLIC_ADSENSE_CLIENT_ID",
       originalAdvertisingId,
@@ -52,6 +60,7 @@ describe("OptionalGoogleServices", () => {
 
   it("offers analytics only when the measurement id is valid", async () => {
     process.env["NEXT_PUBLIC_GA_ID"] = "G-TEST1234";
+    process.env["NEXT_PUBLIC_SITE_URL"] = window.location.origin;
     disableAdvertising();
 
     render(
@@ -78,6 +87,30 @@ describe("OptionalGoogleServices", () => {
     expect(
       window.localStorage.getItem("tarot-spark.optional-services-consent"),
     ).toBeNull();
+  });
+
+  it("does not send analytics from an alternate deployment origin", async () => {
+    process.env["NEXT_PUBLIC_GA_ID"] = "G-ALTERNATE1234";
+    process.env["NEXT_PUBLIC_SITE_URL"] = "https://canonical.example";
+    disableAdvertising();
+    window.localStorage.setItem(
+      "tarot-spark.optional-services-consent",
+      JSON.stringify({ analytics: true, advertising: false }),
+    );
+    render(
+      <OptionalGoogleServices locale="ko">
+        <main>카드 리딩</main>
+        <SiteFooter ariaLabel="페이지 탐색" links={[]} />
+      </OptionalGoogleServices>,
+    );
+    await screen.findByRole("button", { name: "개인정보 설정" });
+    expect(
+      document.querySelector('script[src*="googletagmanager.com"]'),
+    ).toBeNull();
+    expect(window.tarotSparkAnalyticsReady).not.toBe(true);
+    expect(
+      window.localStorage.getItem("tarot-spark.optional-services-consent"),
+    ).toBe(JSON.stringify({ analytics: true, advertising: false }));
   });
 });
 
