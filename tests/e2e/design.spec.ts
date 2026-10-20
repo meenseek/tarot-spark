@@ -649,11 +649,11 @@ test("uses state-specific generator layouts and one filled result action", async
   expect(filledPrimaryCount).toBe(1);
 });
 
-test("keeps visible draw settings compact across responsive boundaries", async ({
-  page,
-}) => {
-  for (const ko of [true, false]) {
-    for (const width of [320, 390, 640, 751, 755, 767, 768, 1023, 1024, 1280]) {
+for (const ko of [true, false]) {
+  for (const width of [320, 390, 640, 751, 755, 767, 768, 1023, 1024, 1280]) {
+    test(`keeps draw settings compact: ${ko ? "ko" : "en"} ${width}px`, async ({
+      page,
+    }) => {
       await page.setViewportSize({ height: 900, width });
       await page.goto(ko ? "/ko" : "/");
       await page.evaluate(() => document.fonts.ready);
@@ -849,9 +849,9 @@ test("keeps visible draw settings compact across responsive boundaries", async (
       await picker.locator(":scope > summary").click();
       await draw.scrollIntoViewIfNeeded();
       await expect(draw).toBeInViewport();
-    }
+    });
   }
-});
+}
 
 test("completes an expanded-question setup by keyboard in short windows", async ({
   page,

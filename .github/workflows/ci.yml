@@ -61,8 +61,70 @@ jobs:
         if: ${{ matrix.playwright == true }}
         run: pnpm exec playwright install --with-deps chromium webkit
 
+      - name: Prepare temporary image request diagnostics
+        if: ${{ matrix.playwright == true }}
+        run: |
+          cat > "${RUNNER_TEMP}/tarot-image-diagnostic.cjs" <<'NODE'
+          const http = require("node:http");
+          const originalEmit = http.Server.prototype.emit;
+          let count = 0;
+          function log(value) {
+            try {
+              console.error("IMAGE_REQUEST_DIAGNOSTIC", JSON.stringify(value));
+            } catch {}
+          }
+          http.Server.prototype.emit = function (event, ...args) {
+            try {
+              if (event === "request") {
+                const [request, response] = args;
+                const url = new URL(request.url, "http://127.0.0.1");
+                const image = url.searchParams.get("url") ?? url.pathname;
+                if (
+                  (url.pathname === "/_next/image" || url.pathname.startsWith("/cards/")) &&
+                  /^\/cards\/[a-z0-9-]+\.jpg$/.test(image)
+                ) {
+                  count += 1;
+                  if (count <= 1024) {
+                    const started = performance.now();
+                    const identity = {
+                      pid: process.pid,
+                      id: count,
+                      path: url.pathname,
+                      image,
+                      width: Number(url.searchParams.get("w")) || null,
+                    };
+                    log({ ...identity, phase: "request", at: started });
+                    for (const phase of ["finish", "close"]) {
+                      response.once(phase, () => {
+                        try {
+                          log({
+                            ...identity,
+                            phase,
+                            elapsed: performance.now() - started,
+                            status: response.statusCode,
+                            finished: response.writableFinished,
+                          });
+                        } catch {}
+                      });
+                    }
+                  } else if (count === 1025) {
+                    log({ pid: process.pid, phase: "limit", limit: 1024 });
+                  }
+                }
+              }
+            } catch {}
+            return originalEmit.call(this, event, ...args);
+          };
+          NODE
+
       - name: Run ${{ matrix.name }}
-        run: ${{ matrix.command }}
+        env:
+          DEBUG: ${{ matrix.playwright && 'pw:webserver' || '' }}
+        run: |
+          if [ "${{ matrix.playwright }}" = "true" ]; then
+            export NODE_OPTIONS="${NODE_OPTIONS:+${NODE_OPTIONS} }--require=${RUNNER_TEMP}/tarot-image-diagnostic.cjs"
+          fi
+          ${{ matrix.command }}
 
       - name: Upload E2E failure evidence
         if: ${{ failure() && matrix.playwright == true }}
