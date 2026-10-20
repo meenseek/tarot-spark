@@ -1932,6 +1932,42 @@ test.describe.serial("restored illustrated card art", () => {
   }
 });
 
+test("loads enlarged art for restored cards", async ({ page }) => {
+  const cardIds = ["swords-7", "pentacles-5", "cups-7"];
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.goto(`/?topic=love&cards=${cardIds.join(",")}`);
+
+  const details = page.getByTestId("card-details-disclosure");
+  const art = page.getByTestId("card-detail-art").locator("[data-art-id]");
+  await expect(art).toHaveCount(0);
+  await details.locator("summary").focus();
+  await details.locator("summary").press("Enter");
+  await expect(art).toHaveCount(cardIds.length);
+
+  for (const cardId of cardIds) {
+    const image = page
+      .getByTestId("card-detail-art")
+      .locator(`[data-art-id="${cardId}"]`);
+    await image.scrollIntoViewIfNeeded();
+    await expect(image).toHaveAttribute("loading", "lazy");
+    await expect(image).toHaveAttribute("data-art-ready", "true");
+    const decoded = await image.evaluate(async (element) => {
+      const image = element as HTMLImageElement;
+      await image.decode();
+      return {
+        complete: image.complete,
+        currentSrc: image.currentSrc,
+        naturalWidth: image.naturalWidth,
+      };
+    });
+    expect(decoded.complete).toBe(true);
+    expect(decoded.naturalWidth).toBeGreaterThan(0);
+    expect(new URL(decoded.currentSrc).searchParams.get("url")).toBe(
+      `/cards/${cardId}.jpg`,
+    );
+  }
+});
+
 test("loads final art for localized cards across the full deck", async ({
   page,
 }) => {
