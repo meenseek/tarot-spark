@@ -10,7 +10,7 @@ export default defineConfig({
   reporter: "list",
   use: {
     baseURL,
-    trace: "on-first-retry",
+    trace: "retain-on-failure",
   },
   webServer: {
     command: `pnpm exec next dev --hostname 127.0.0.1 --port ${port}`,
