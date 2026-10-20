@@ -58,6 +58,16 @@ for (const locale of ["ko", "en"] as const) {
           })
           .click();
         await expect(page.getByTestId("prompt-ready")).toBeVisible();
+        const overviewArt = page
+          .getByTestId("card-overview")
+          .locator("[data-card-art-frame]");
+        await expect(overviewArt).toHaveCount(count);
+        for (const frame of await overviewArt.all()) {
+          await expect(frame).toHaveCSS(
+            "width",
+            width === 390 ? "80px" : "112px",
+          );
+        }
         await expect(page.getByTestId("ai-handoff")).toHaveCount(0);
         await expect(
           page.getByTestId("card-detail-art").locator("img"),

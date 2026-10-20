@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@import "@fontsource/noto-sans-kr/400.css";
+@import "@fontsource/noto-sans-kr/500.css";
+@import "@fontsource/noto-sans-kr/600.css";
 
 :root {
   color-scheme: light;
@@ -18,8 +21,8 @@
   --ts-color-danger: #8c2f4a;
   --ts-color-success: var(--ts-color-action);
   --ts-font-sans:
-    ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    "Noto Sans KR", ui-sans-serif, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", "Apple SD Gothic Neo", sans-serif;
   --ts-font-display:
     "Iowan Old Style", "Palatino Linotype", "Noto Serif KR", "Nanum Myeongjo",
     AppleMyungjo, Georgia, serif;
@@ -133,9 +136,15 @@ body {
   background: var(--ts-color-canvas);
   color: var(--ts-color-ink);
   font-family: var(--ts-font-sans);
+  line-height: 1.65;
 }
 
 /* Tarot Spark owns component placement and product-specific sizing. */
+.ts-reading-setup {
+  container-type: inline-size;
+  container-name: reading-setup;
+}
+
 .ts-topic-select {
   width: 100%;
   max-width: none;
@@ -149,9 +158,29 @@ body {
   --mt-focus-ring-offset: calc(-1 * var(--mt-control-border-width));
 }
 
-@media (min-width: 48rem) {
+@container reading-setup (min-width: 40rem) {
+  .ts-topic-choice {
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 28rem);
+    align-items: center;
+    column-gap: 2rem;
+  }
+
   .ts-topic-select {
     max-width: 28rem;
+  }
+
+  .ts-reading-preferences,
+  .ts-question-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ts-reading-preferences {
+    align-items: start;
+    gap: 1rem;
+  }
+
+  .ts-reading-preferences > p {
+    grid-column: 1 / -1;
   }
 }
 
@@ -241,8 +270,8 @@ body {
 
 .ts-field .ts-textarea-input {
   padding: 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.75rem;
 }
 
 .ts-field .ts-textarea-input--context {

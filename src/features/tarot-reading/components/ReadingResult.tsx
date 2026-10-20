@@ -124,7 +124,7 @@ export function ReadingResult({
         <>
           <section
             aria-labelledby="prompt-ready-heading"
-            className="flex flex-col gap-3 rounded-ts-control border-2 border-ts-action bg-ts-blush p-4 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-4 rounded-ts-control border border-ts-divider bg-ts-canvas p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5"
             data-analytics-result-view-target=""
             data-testid="prompt-ready"
             ref={promptReadyRef}
@@ -296,7 +296,7 @@ export function ReadingResult({
             >
               {cards.map(({ card }, index) => (
                 <article
-                  className="grid gap-4 rounded-ts-control border border-ts-divider bg-ts-canvas p-4"
+                  className="grid gap-4 border-b border-ts-divider pb-6 last:border-0 last:pb-0"
                   key={card.id}
                 >
                   <div className="grid gap-1 border-b border-ts-divider pb-3">
@@ -322,7 +322,7 @@ export function ReadingResult({
                         />
                       )}
                     </div>
-                    <div className="grid content-start gap-3 rounded-ts-inset border border-ts-divider bg-ts-surface p-4">
+                    <div className="grid content-start gap-4">
                       <CardDetail
                         label={copy.cardDetails.meaning}
                         value={card.meaning}

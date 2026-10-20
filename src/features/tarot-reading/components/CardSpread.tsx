@@ -36,7 +36,7 @@ export function CardSpread({
         }));
 
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-3 gap-4">
       {displayCards.map((displayCard, index) => {
         const revealStyle = shouldReveal
           ? ({
@@ -47,7 +47,7 @@ export function CardSpread({
 
         return (
           <article
-            className={`grid grid-cols-[6rem_minmax(0,1fr)] grid-rows-[auto_1fr] gap-x-4 rounded-ts-control border border-ts-divider bg-ts-surface p-4 text-left text-ts-ink shadow-ts-card sm:min-h-56 sm:grid-cols-1 sm:grid-rows-[auto_1fr_auto] sm:gap-x-0 sm:p-2 ${
+            className={`grid min-w-0 justify-items-center gap-2 text-center text-ts-ink ${
               shouldReveal ? "ts-card-arrive" : ""
             }`}
             data-card-id={displayCard.cardId}
@@ -57,12 +57,18 @@ export function CardSpread({
             key={`${index}:${displayCard.cardId ?? "placeholder"}:${shouldReveal ? revealSequence : "static"}`}
             style={revealStyle}
           >
-            <div className="col-start-2 row-start-1 flex min-w-0 items-start justify-between gap-3 text-xs font-semibold text-ts-muted sm:col-start-1">
+            <div
+              className={
+                displayCard.cardId
+                  ? "text-xs font-semibold text-ts-muted"
+                  : "sr-only"
+              }
+            >
               <span>{String(index + 1).padStart(2, "0")}</span>
             </div>
-            <div className="col-start-1 row-span-2 row-start-1 flex items-center justify-center sm:col-start-1 sm:row-span-1 sm:row-start-2">
+            <div className="flex items-center justify-center">
               <div
-                className="relative grid aspect-[5/7] w-24 place-items-center overflow-hidden rounded-ts-control bg-ts-canvas text-ts-action sm:w-22"
+                className="relative grid aspect-[5/7] w-20 max-w-full place-items-center overflow-hidden rounded-ts-control bg-ts-canvas text-ts-action shadow-ts-card sm:w-24"
                 data-card-art-frame=""
               >
                 <TarotCardArt
@@ -71,7 +77,7 @@ export function CardSpread({
                   retryLabel={retryLabel}
                   revealSequence={revealSequence}
                   shouldReveal={shouldReveal}
-                  sizes="(max-width: 639px) 6rem, 5.5rem"
+                  sizes="(min-width: 640px) 96px, 80px"
                 />
                 <span
                   aria-hidden="true"
@@ -81,7 +87,7 @@ export function CardSpread({
                 <span className="sr-only">{cardMarkLabel}</span>
               </div>
             </div>
-            <div className="col-start-2 row-start-2 min-w-0 self-end sm:col-start-1 sm:row-start-3">
+            <div className={displayCard.cardId ? "min-w-0" : "sr-only"}>
               <h2 className="font-ts-display text-xl font-semibold">
                 {displayCard.cardName}
               </h2>

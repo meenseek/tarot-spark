@@ -62,7 +62,7 @@ const rootTokens = {
   "--ts-color-danger": "#8c2f4a",
   "--ts-color-success": "var(--ts-color-action)",
   "--ts-font-sans":
-    'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif',
+    '"Noto Sans KR", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", sans-serif',
   "--ts-font-display":
     '"Iowan Old Style", "Palatino Linotype", "Noto Serif KR", "Nanum Myeongjo", AppleMyungjo, Georgia, serif',
   "--ts-radius-panel": "0.875rem",
@@ -343,7 +343,7 @@ describe("visual design system contract", () => {
       /\.ts-context-field:focus-within\s*{[^}]*--mt-focus-ring-offset:\s*calc\(-1 \* var\(--mt-control-border-width\)\);/,
     );
     expect(css).toMatch(
-      /@media \(min-width: 48rem\)\s*{[\s\S]*?\.ts-topic-select\s*{[^}]*max-width:\s*28rem;/,
+      /@container reading-setup \(min-width: 40rem\)\s*{[\s\S]*?\.ts-topic-select\s*{[^}]*max-width:\s*28rem;/,
     );
     expect(css).toMatch(
       /\.ts-skip-link\s*{[^}]*border-width:\s*2px;[^}]*box-shadow:\s*none;/,
@@ -364,7 +364,7 @@ describe("visual design system contract", () => {
       /@media \(min-width: 40rem\)\s*{[\s\S]*?\.ts-choice-group--two-column\s*{[^}]*--mt-radio-group-options-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/,
     );
     expect(css).toMatch(
-      /\.ts-field\s+\.ts-textarea-input\s*{[^}]*padding:\s*0\.75rem;[^}]*font-size:\s*0\.875rem;[^}]*line-height:\s*1\.5rem;/,
+      /\.ts-field\s+\.ts-textarea-input\s*{[^}]*padding:\s*0\.75rem;[^}]*font-size:\s*1rem;[^}]*line-height:\s*1\.75rem;/,
     );
     expect(css).toMatch(
       /\.ts-field\s+\.ts-textarea-input--prompt\s*{[^}]*min-height:\s*14rem;[^}]*padding:\s*1rem;/,

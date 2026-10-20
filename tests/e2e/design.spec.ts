@@ -126,11 +126,20 @@ async function expectCardSpreadLayout(page: Page, expectedCardCount: number) {
     });
   });
 
+  const minimumArtWidth =
+    (page.viewportSize()?.width ?? 1280) >= 640 ? 112 : 80;
+
   for (const [index, geometry] of layout.entries()) {
     expectContained(geometry.card, geometry.frame, `card ${index} frame`);
     expectContained(geometry.card, geometry.position, `card ${index} position`);
     expectContained(geometry.card, geometry.heading, `card ${index} heading`);
     expect(geometry.frameContentRatio).toBeCloseTo(5 / 7, 2);
+    expect(
+      geometry.frame.width,
+      `card ${index} artwork prominence`,
+    ).toBeGreaterThanOrEqual(
+      Math.min(minimumArtWidth, geometry.card.width) - 1,
+    );
     expect(
       rectanglesOverlap(geometry.frame, geometry.position),
       `card ${index} frame and position overlap`,
@@ -418,6 +427,7 @@ test("uses state-specific generator layouts and one filled result action", async
 }) => {
   await page.setViewportSize({ height: 900, width: 1280 });
   await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
 
   const generatorLayout = page.getByTestId("generator-layout");
   const generatorIntro = page.getByTestId("generator-intro");
@@ -452,17 +462,21 @@ test("uses state-specific generator layouts and one filled result action", async
   expect(setupDrawButtonBox).not.toBeNull();
   expect(topicChoiceBox).not.toBeNull();
   expect(topicSelectBox).not.toBeNull();
-  expect(setupPanelBox?.y ?? 0).toBeGreaterThanOrEqual(
-    Math.max(
-      (generatorIntroBox?.y ?? 0) + (generatorIntroBox?.height ?? 0),
-      (setupWorkspaceBox?.y ?? 0) + (setupWorkspaceBox?.height ?? 0),
-    ),
+  expect(setupPanelBox?.y ?? 0).toBeCloseTo(generatorIntroBox?.y ?? 0, 0);
+  expect(setupPanelBox?.x ?? 0).toBeGreaterThanOrEqual(
+    (generatorIntroBox?.x ?? 0) + (generatorIntroBox?.width ?? 0),
   );
-  expect(setupPanelBox?.width ?? 0).toBeLessThanOrEqual(896);
-  expect(setupPanelBox).toMatchObject({
-    x: dailyQuestionLinkBox?.x,
-    width: dailyQuestionLinkBox?.width,
-  });
+  expect(setupWorkspaceBox?.y ?? 0).toBeGreaterThanOrEqual(
+    (generatorIntroBox?.y ?? 0) + (generatorIntroBox?.height ?? 0),
+  );
+  expect(setupWorkspaceBox?.x).toBe(generatorIntroBox?.x);
+  expect((setupPanelBox?.x ?? 0) + (setupPanelBox?.width ?? 0)).toBeCloseTo(
+    (generatorStateLayoutBox?.x ?? 0) + (generatorStateLayoutBox?.width ?? 0),
+    0,
+  );
+  expect(dailyQuestionLinkBox?.y ?? 0).toBeGreaterThanOrEqual(
+    (setupPanelBox?.y ?? 0) + (setupPanelBox?.height ?? 0),
+  );
   expect(generatorStateLayoutBox?.width ?? 0).toBeGreaterThan(
     setupPanelBox?.width ?? Number.POSITIVE_INFINITY,
   );
@@ -482,6 +496,16 @@ test("uses state-specific generator layouts and one filled result action", async
     x: setupActionsBox?.x,
     width: setupActionsBox?.width,
   });
+  await expect(topicSelect).toBeInViewport();
+  await expect(setupPanel.locator(".ts-primary-action")).toHaveCount(1);
+  const preferencesBox = await page
+    .getByTestId("reading-preferences")
+    .boundingBox();
+  expect(setupActionsBox?.y ?? 0).toBeGreaterThanOrEqual(
+    (preferencesBox?.y ?? 0) + (preferencesBox?.height ?? 0),
+  );
+  await setupDrawButton.scrollIntoViewIfNeeded();
+  await expect(setupDrawButton).toBeInViewport();
 
   await setupDrawButton.click();
   await expect(generatorLayout).toHaveAttribute("data-layout-mode", "result");
@@ -619,9 +643,10 @@ test("keeps visible draw settings compact across responsive boundaries", async (
   page,
 }) => {
   for (const ko of [true, false]) {
-    for (const width of [320, 390, 640, 767, 768, 1024, 1280]) {
+    for (const width of [320, 390, 640, 751, 755, 767, 768, 1023, 1024, 1280]) {
       await page.setViewportSize({ height: 900, width });
       await page.goto(ko ? "/ko" : "/");
+      await page.evaluate(() => document.fonts.ready);
       const form = page.getByTestId("reading-setup-form");
       const actionsBox = await page
         .getByTestId("reading-setup-actions")
@@ -641,10 +666,22 @@ test("keeps visible draw settings compact across responsive boundaries", async (
       const dailyBox = await page
         .getByTestId("daily-question-link")
         .boundingBox();
-      expect(panelBox).toMatchObject({
-        x: dailyBox?.x,
-        width: dailyBox?.width,
-      });
+      if (width < 1024) {
+        expect(panelBox).toMatchObject({
+          x: dailyBox?.x,
+          width: dailyBox?.width,
+        });
+      } else {
+        const stateBox = await page
+          .getByTestId("generator-state-layout")
+          .boundingBox();
+        expect((panelBox?.x ?? 0) + (panelBox?.width ?? 0)).toBeCloseTo(
+          (stateBox?.x ?? 0) + (stateBox?.width ?? 0),
+          0,
+        );
+        expect(panelBox?.width ?? 0).toBeLessThan(stateBox?.width ?? 0);
+        await expect(page.getByTestId("topic-select")).toBeInViewport();
+      }
       await expect(form.locator(":scope > details")).toHaveCount(1);
       await expect(form.getByRole("textbox")).toBeVisible();
       await expect(form.getByRole("radio")).toHaveCount(6);
@@ -723,7 +760,8 @@ test("keeps visible draw settings compact across responsive boundaries", async (
         x: actionsBox?.x,
         width: actionsBox?.width,
       });
-      if (width < 768) {
+      const formWidth = (await form.boundingBox())?.width ?? 0;
+      if (formWidth < 640) {
         expect(selectRootBox).toMatchObject({
           x: topicBox?.x,
           width: topicBox?.width,
@@ -762,6 +800,101 @@ test("keeps visible draw settings compact across responsive boundaries", async (
       expect(new URL(page.url()).searchParams.get("topic")).toBe(
         "career-direction",
       );
+
+      const preferenceGroups = page
+        .getByTestId("reading-preferences")
+        .locator(".ts-choice-group--settings");
+      const spreadBox = await preferenceGroups.nth(0).boundingBox();
+      const styleBox = await preferenceGroups.nth(1).boundingBox();
+      if (formWidth < 640) {
+        expect(styleBox?.y ?? 0).toBeGreaterThanOrEqual(
+          (spreadBox?.y ?? 0) + (spreadBox?.height ?? 0),
+        );
+      } else {
+        expect(styleBox?.y).toBe(spreadBox?.y);
+        expect(styleBox?.x ?? 0).toBeGreaterThan(spreadBox?.x ?? 0);
+      }
+
+      const picker = page.getByTestId("public-question-picker");
+      await picker.locator(":scope > summary").click();
+      const options = page.getByTestId("public-question-option");
+      const firstOption = await options.nth(0).boundingBox();
+      const secondOption = await options.nth(1).boundingBox();
+      if (formWidth < 640) {
+        expect(secondOption?.y ?? 0).toBeGreaterThanOrEqual(
+          (firstOption?.y ?? 0) + (firstOption?.height ?? 0),
+        );
+      } else {
+        expect(secondOption?.y).toBe(firstOption?.y);
+      }
+      for (const option of await options.all()) {
+        expect(
+          await option.evaluate(
+            (element) =>
+              element.scrollWidth <=
+              Math.ceil(element.getBoundingClientRect().width),
+          ),
+        ).toBe(true);
+      }
+      await picker.locator(":scope > summary").click();
+      await draw.scrollIntoViewIfNeeded();
+      await expect(draw).toBeInViewport();
+    }
+  }
+});
+
+test("completes an expanded-question setup by keyboard in short windows", async ({
+  page,
+}) => {
+  for (const ko of [true, false]) {
+    for (const width of [390, 1280]) {
+      await page.setViewportSize({ height: 600, width });
+      await page.goto(ko ? "/ko" : "/");
+      const form = page.getByTestId("reading-setup-form");
+      const topic = page.getByTestId("topic-select");
+      const picker = page.getByTestId("public-question-picker");
+      const summary = picker.locator(":scope > summary");
+      await tabTo(page, topic);
+      await page.keyboard.press("Tab");
+      await expect(summary).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(picker).toHaveAttribute("open", "");
+      await tabTo(page, page.getByTestId("public-question-option").first());
+      await page.keyboard.press("Enter");
+      await expect(picker).not.toHaveAttribute("open", "");
+      await expect(summary).toBeFocused();
+      await page.keyboard.press("Tab");
+      await expect(form.getByRole("textbox")).toBeFocused();
+      await page.keyboard.insertText("I want to pause before replying.");
+      await page.keyboard.press("Tab");
+      await expect(
+        form.getByRole("radio", { name: ko ? /빠른 3장/ : /Quick 3-card/ }),
+      ).toBeFocused();
+      await page.keyboard.press("ArrowRight");
+      await expect(
+        form.getByRole("radio", { name: ko ? /심화 6장/ : /Deep 6-card/ }),
+      ).toBeChecked();
+      await page.keyboard.press("Tab");
+      await expect(
+        form.getByRole("radio", { name: ko ? /균형 있게/ : /Balanced/ }),
+      ).toBeFocused();
+      await page.keyboard.press("ArrowRight");
+      await expect(
+        form.getByRole("radio", { name: ko ? /솔직하고 분명하게/ : /Direct/ }),
+      ).toBeChecked();
+      await page.keyboard.press("Tab");
+      const draw = page.getByRole("button", {
+        name: ko ? "카드 6장 뽑기" : "Draw 6 cards",
+        exact: true,
+      });
+      await expect(draw).toBeFocused();
+      await expect(draw).toBeInViewport();
+      await page.keyboard.press("Enter");
+      await expect(page.getByTestId("prompt-ready")).toBeVisible();
+      await expect(page.getByTestId("card-overview").locator("li")).toHaveCount(
+        6,
+      );
+      await expect(page.getByTestId("reading-setup-form")).toHaveCount(0);
     }
   }
 });
@@ -878,6 +1011,7 @@ test("locks the semantic token values and primary visual roles", async ({
   await expect(
     page.getByRole("combobox", { name: "Broad reading topic" }),
   ).toHaveValue("love");
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
   await expect(page.getByTestId("reading-workspace")).toHaveCSS(
     "background-color",
     colors.surface,
@@ -912,8 +1046,8 @@ test("preserves app-owned textarea geometry after package styles", async ({
   ).toBeVisible();
   await expect(setupContext).toHaveCSS("min-height", "72px");
   await expect(setupContext).toHaveCSS("padding", "12px");
-  await expect(setupContext).toHaveCSS("font-size", "14px");
-  await expect(setupContext).toHaveCSS("line-height", "24px");
+  await expect(setupContext).toHaveCSS("font-size", "16px");
+  await expect(setupContext).toHaveCSS("line-height", "28px");
   await expectVisibleSituationFocus(page, setupContext);
 
   await page.setViewportSize({ height: 900, width: 640 });

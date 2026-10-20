@@ -176,7 +176,7 @@ export function PublicQuestionPicker({
                   ⌄
                 </span>
               </summary>
-              <div className="grid gap-3 border-t border-ts-divider p-3 md:grid-cols-2">
+              <div className="ts-question-options grid gap-3 border-t border-ts-divider p-3">
                 {group.questions.map((question) => {
                   const isSelected = selectedQuestion?.id === question.id;
 

@@ -17,10 +17,10 @@ export function CardOverview({
 }: CardOverviewProps) {
   return (
     <section aria-label={ariaLabel} data-testid="card-overview">
-      <ol className="grid grid-cols-3 gap-2 sm:gap-3">
+      <ol className="grid grid-cols-3 gap-x-3 gap-y-5 py-2 sm:gap-x-6">
         {cards.map(({ card }, index) => (
           <li
-            className={`grid min-w-0 content-start justify-items-center gap-1 rounded-ts-control border border-ts-divider bg-ts-canvas px-1.5 py-2 text-center sm:px-2 ${
+            className={`grid min-w-0 grid-cols-[minmax(0,1fr)] content-start justify-items-center gap-1.5 text-center ${
               revealSequence > 0 ? "ts-card-arrive" : ""
             }`}
             data-card-id={card.id}
@@ -41,7 +41,7 @@ export function CardOverview({
             }
           >
             <div
-              className="relative aspect-[5/7] w-12 overflow-hidden rounded-ts-inset bg-ts-surface sm:w-14"
+              className="relative aspect-[5/7] w-20 min-w-0 max-w-full overflow-hidden rounded-ts-control bg-ts-surface shadow-ts-card sm:w-28"
               data-card-art-frame=""
             >
               <TarotCardArt
@@ -50,18 +50,18 @@ export function CardOverview({
                 retryLabel={retryLabel}
                 revealSequence={revealSequence}
                 shouldReveal={revealSequence > 0}
-                sizes="3.5rem"
+                sizes="(min-width: 640px) 112px, 80px"
               />
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-10 rounded-ts-inset ring-1 ring-inset ring-ts-divider"
+                className="pointer-events-none absolute inset-0 z-10 rounded-ts-control ring-1 ring-inset ring-ts-divider"
                 data-card-art-frame-border=""
               />
             </div>
-            <span className="text-[0.6875rem] font-semibold leading-4 text-ts-action sm:text-xs">
+            <span className="mt-1 text-xs font-semibold leading-4 text-ts-action">
               {String(index + 1).padStart(2, "0")}
             </span>
-            <span className="text-xs font-semibold leading-4 text-ts-ink sm:text-sm sm:leading-5">
+            <span className="font-ts-display text-sm font-semibold leading-5 text-ts-ink [overflow-wrap:anywhere] [word-break:keep-all] sm:text-lg sm:leading-6">
               {card.name}
             </span>
           </li>
