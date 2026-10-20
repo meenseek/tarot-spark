@@ -48,7 +48,7 @@ export function InstantReadingPanel({
     >
       <div className="grid gap-1">
         <h2
-          className="font-ts-display text-2xl font-semibold text-ts-ink"
+          className="font-ts-display text-2xl font-semibold text-ts-ink [&:lang(ko)]:break-keep"
           id="instant-reading-heading"
         >
           {copy.heading}

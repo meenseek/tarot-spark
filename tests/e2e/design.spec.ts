@@ -1442,6 +1442,74 @@ test("keeps the card back visible until delayed card art can reveal", async ({
   );
 });
 
+test("keeps Korean result title words intact without changing English", async ({
+  page,
+}) => {
+  const cards = "the-fool,the-magician,the-high-priestess";
+  for (const width of [320, 390, 1280]) {
+    await page.setViewportSize({ height: 900, width });
+    await page.goto(`/ko?cards=${cards}`, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => document.fonts.ready);
+    for (const [id, text] of [
+      ["prompt-ready-heading", "AI에 물어볼 질문이 준비됐어요."],
+      ["instant-reading-heading", "카드의 흐름 바로 읽기"],
+    ] as const) {
+      const heading = page.locator(`#${id}`);
+      await expect(heading).toBeVisible();
+      await expect(heading).toHaveText(text);
+      await expect(heading).toHaveCSS("word-break", "keep-all");
+      const words = await heading.evaluate((element) => {
+        const node = element.firstChild;
+        if (!(node instanceof Text)) throw new Error("Missing heading text");
+        return Array.from(node.data.matchAll(/[가-힣]+/g), (match) => ({
+          word: match[0],
+          tops: Array.from(match[0], (_, index) => {
+            const range = document.createRange();
+            range.setStart(node, match.index + index);
+            range.setEnd(node, match.index + index + 1);
+            const rect = range.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0)
+              throw new Error("Unmeasurable title character");
+            return rect.top;
+          }),
+        }));
+      });
+      expect(words.length, `${width}px ${id} measured words`).toBeGreaterThan(
+        0,
+      );
+      for (const { word, tops } of words) {
+        expect(tops.length).toBeGreaterThan(0);
+        expect(tops, `${width}px ${id} ${word} stays on one line`).toEqual(
+          Array(tops.length).fill(tops[0]),
+        );
+      }
+      const box = await heading.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box?.x).toBeGreaterThanOrEqual(0);
+      expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(width);
+    }
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  }
+
+  for (const width of [390, 1280]) {
+    await page.setViewportSize({ height: 900, width });
+    await page.goto(`/?cards=${cards}`, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => document.fonts.ready);
+    const heading = page.locator("#prompt-ready-heading");
+    await expect(heading).toHaveText("Your prompt for an AI tool is ready.");
+    await expect(heading).toHaveCSS("word-break", "normal");
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  }
+});
+
 for (const width of [320, 360, 390] as const) {
   test(`keeps the complete Korean reading flow inside ${width}px`, async ({
     page,
