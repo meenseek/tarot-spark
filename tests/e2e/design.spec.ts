@@ -494,7 +494,11 @@ test("uses state-specific generator layouts and one filled result action", async
   expect(
     (await page.getByTestId("reading-setup-form").boundingBox())?.width ?? 0,
   ).toBeLessThan(640);
-  expect(topicSelectBox).toMatchObject({
+  const topicSelectRootBox = await topicSelect.evaluate((element) => {
+    const box = element.closest(".ts-topic-select")?.getBoundingClientRect();
+    return { x: box?.x, width: box?.width };
+  });
+  expect(topicSelectRootBox).toMatchObject({
     x: topicChoiceBox?.x,
     width: topicChoiceBox?.width,
   });
@@ -1921,14 +1925,17 @@ test("loads final art for localized cards across the full deck", async ({
       images: summarize(images),
       fontStatus: document.fonts.status,
       loadedNotoFaces: Array.from(document.fonts).filter(
-        (font) => font.family.includes("Noto Sans KR") && font.status === "loaded",
+        (font) =>
+          font.family.includes("Noto Sans KR") && font.status === "loaded",
       ).length,
       sameOriginFonts: fonts.every(
         (entry) => new URL(entry.name).origin === location.origin,
       ),
     };
   });
-  console.log(`LOCAL_ART_RESOURCE_EVIDENCE ${JSON.stringify(resourceEvidence)}`);
+  console.log(
+    `LOCAL_ART_RESOURCE_EVIDENCE ${JSON.stringify(resourceEvidence)}`,
+  );
   expect(resourceEvidence.fontStatus).toBe("loaded");
   expect(resourceEvidence.loadedNotoFaces).toBeGreaterThan(0);
   expect(resourceEvidence.fonts.count).toBeGreaterThan(0);
