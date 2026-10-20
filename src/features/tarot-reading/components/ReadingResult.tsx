@@ -131,7 +131,7 @@ export function ReadingResult({
           >
             <div className="grid gap-1">
               <h2
-                className="font-ts-display text-xl font-semibold text-ts-ink"
+                className="font-ts-display text-xl font-semibold text-ts-ink [&:lang(ko)]:break-keep"
                 id="prompt-ready-heading"
               >
                 {copy.promptReady}
