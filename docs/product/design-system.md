@@ -167,8 +167,10 @@ the number or order of its DOM wrappers.
 - When the selected topic belongs to `money-life`, keep a compact localized
   self-reflection and non-financial-advice notice directly below the
   topic/question control and repeat it with the committed result.
-- Keep the topic heading and helper beside a compact select from 768px upward.
-  Stack them and let the select fill the available width below 768px.
+- Arrange topic copy, reading-preference groups, and question options side by
+  side when the setup form has at least 40rem of content width. Stack them in
+  narrower forms, including the desktop side panel; keep radio options in two
+  columns with their 48px targets.
 - Let users either draw with the broad topic or choose a specific question.
   Selecting a question may adjust the broad topic to match; clearing only the
   question keeps that adjusted topic. Close the question picker and return
@@ -182,6 +184,10 @@ the number or order of its DOM wrappers.
   count-specific draw action. Defaults must remain usable without extra choices.
 - Reserve setup disclosures for the long specific-question catalog. Do not make
   users expand a panel to inspect or change the basic draw settings.
+- Show the labeled start of setup on entry. Keep one draw action directly after
+  the settings in reading and keyboard order, reachable by normal page scroll
+  without covering fields. Longer copy, an expanded catalog, and short windows
+  may place the action below the initial viewport.
 - Mount larger 5:7 artwork only while card details are open: 140px on narrow
   screens and 180px from 640px. Synchronize with restored disclosure state,
   reuse loading and retry behavior, and do not replay the reveal.
@@ -206,6 +212,9 @@ the number or order of its DOM wrappers.
   approved card art, neutral draw order, and the exact card name.
   Keep full card meaning in the later details
   disclosure so three- and six-card results reach the prompt action quickly.
+- Fit each overview frame inside its own column. Use at most 80px of art below
+  640px and 112px above it, shrinking in narrow columns while retaining the 5:7
+  ratio and keeping retry controls inside the frame.
 - Place the single generated-prompt copy action before prompt source, card
   details, sharing options, and shared-reading creation actions.
 - Label current-prompt customization as editing the prompt for the same cards,

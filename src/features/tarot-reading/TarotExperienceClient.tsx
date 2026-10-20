@@ -1494,7 +1494,10 @@ export function TarotExperienceClient({
   );
 
   const readingSetupForm = session.mode !== "result" && (
-    <div className="grid gap-2 sm:gap-4" data-testid="reading-setup-form">
+    <div
+      className="ts-reading-setup grid gap-2 sm:gap-4"
+      data-testid="reading-setup-form"
+    >
       <TopicSelector
         description={copy.topicSelectorDescription}
         disabled={!isHydrated}
@@ -1574,7 +1577,11 @@ export function TarotExperienceClient({
   const readingWorkspace = (
     <section
       aria-label={copy.workspaceLabel}
-      className={`${session.mode !== "result" ? "hidden lg:grid" : "grid"} gap-4 rounded-ts-panel border border-ts-divider bg-ts-surface p-4 shadow-ts-paper sm:p-5`}
+      className={
+        session.mode !== "result"
+          ? "hidden lg:grid"
+          : "grid gap-4 rounded-ts-panel border border-ts-divider bg-ts-surface p-4 shadow-ts-paper sm:p-6"
+      }
       data-testid="reading-workspace"
       ref={readingWorkspaceRef}
     >
@@ -1767,7 +1774,7 @@ export function TarotExperienceClient({
         <div
           className={`w-full gap-8 ${
             session.mode !== "result"
-              ? "grid lg:grid-cols-[0.9fr_1.1fr] lg:items-center"
+              ? "grid lg:grid-cols-[0.85fr_1.15fr] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-12"
               : "mx-auto grid max-w-5xl"
           }`}
           data-testid="generator-state-layout"
@@ -1782,7 +1789,7 @@ export function TarotExperienceClient({
                   ? "edit-next-reading-heading"
                   : undefined
               }
-              className="mx-auto w-full max-w-4xl sm:rounded-ts-panel sm:border sm:border-ts-divider sm:bg-ts-surface sm:p-7 sm:shadow-ts-paper lg:col-span-2 lg:row-start-2"
+              className="mx-auto w-full max-w-4xl sm:rounded-ts-panel sm:border sm:border-ts-divider sm:bg-ts-surface sm:p-6 sm:shadow-ts-paper lg:col-start-2 lg:row-span-2 lg:row-start-1"
               data-testid="reading-setup-panel"
             >
               {readingSetupForm}
@@ -1791,7 +1798,7 @@ export function TarotExperienceClient({
           <div
             className={
               session.mode !== "result"
-                ? "lg:col-start-2 lg:row-start-1"
+                ? "hidden lg:block lg:col-start-1 lg:row-start-2 lg:max-w-sm"
                 : undefined
             }
           >

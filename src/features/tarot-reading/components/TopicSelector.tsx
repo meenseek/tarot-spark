@@ -32,10 +32,7 @@ export function TopicSelector({
   const descriptionId = useId();
 
   return (
-    <div
-      className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(18rem,28rem)] md:items-center md:gap-8"
-      data-testid="topic-choice"
-    >
+    <div className="ts-topic-choice grid gap-3" data-testid="topic-choice">
       <div className="grid gap-1">
         <p className="font-semibold text-ts-ink">{heading}</p>
         <p className="text-xs leading-5 text-ts-muted" id={descriptionId}>

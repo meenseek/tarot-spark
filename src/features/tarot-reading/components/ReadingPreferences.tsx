@@ -33,7 +33,7 @@ export function ReadingPreferences({
   return (
     <section
       aria-label={copy.personalizationHeading}
-      className="grid gap-2 border-t border-ts-divider pt-2 sm:grid-cols-2 sm:items-start sm:gap-4"
+      className="ts-reading-preferences grid gap-2 border-t border-ts-divider pt-2"
       data-testid="reading-preferences"
     >
       <RadioGroup
@@ -74,7 +74,7 @@ export function ReadingPreferences({
           />
         ))}
       </RadioGroup>
-      <p className="text-xs leading-5 text-ts-muted sm:col-span-2">
+      <p className="text-xs leading-5 text-ts-muted">
         {copy.personalizationIntro}
       </p>
     </section>
