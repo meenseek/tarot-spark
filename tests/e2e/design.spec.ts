@@ -491,7 +491,13 @@ test("uses state-specific generator layouts and one filled result action", async
         ((topicSelectBox?.x ?? 0) + (topicSelectBox?.width ?? 0)),
     ),
   ).toBeLessThanOrEqual(2);
-  expect(topicSelectBox?.width ?? 0).toBeLessThanOrEqual(449);
+  expect(
+    (await page.getByTestId("reading-setup-form").boundingBox())?.width ?? 0,
+  ).toBeLessThan(640);
+  expect(topicSelectBox).toMatchObject({
+    x: topicChoiceBox?.x,
+    width: topicChoiceBox?.width,
+  });
   expect(setupDrawButtonBox).toMatchObject({
     x: setupActionsBox?.x,
     width: setupActionsBox?.width,
@@ -1859,7 +1865,9 @@ test("loads final art for localized cards across the full deck", async ({
 }) => {
   await page.goto(
     "/ko?topic=love&spread=deep&cards=wands-queen,swords-3,cups-ace,pentacles-king,the-devil,the-world",
+    { waitUntil: "domcontentloaded" },
   );
+  await page.evaluate(() => document.fonts.ready);
 
   for (const [cardId, cardName] of [
     ["wands-queen", "완드 퀸"],
@@ -1871,11 +1879,61 @@ test("loads final art for localized cards across the full deck", async ({
   ] as const) {
     const card = page.locator(`[data-card-id="${cardId}"]`);
     await expect(card.getByText(cardName, { exact: true })).toBeVisible();
-    await expect(card.locator(`[data-art-id="${cardId}"]`)).toHaveAttribute(
-      "data-art-ready",
-      "true",
-    );
+    const art = card.locator(`[data-art-id="${cardId}"]`);
+    await expect(art).toHaveAttribute("data-art-ready", "true");
+    const decodedArt = await art.evaluate(async (element) => {
+      const image = element as HTMLImageElement;
+      await image.decode();
+      return { complete: image.complete, naturalWidth: image.naturalWidth };
+    });
+    expect(decodedArt.complete).toBe(true);
+    expect(decodedArt.naturalWidth).toBeGreaterThan(0);
   }
+
+  const resourceEvidence = await page.evaluate(() => {
+    const resources = performance.getEntriesByType(
+      "resource",
+    ) as PerformanceResourceTiming[];
+    const fonts = resources.filter((entry) =>
+      /\.woff2?(?:[?#]|$)/.test(entry.name),
+    );
+    const images = resources.filter(
+      (entry) => new URL(entry.name).pathname === "/_next/image",
+    );
+    const summarize = (entries: PerformanceResourceTiming[]) => ({
+      count: entries.length,
+      encodedBodyBytes: entries.reduce(
+        (total, entry) => total + entry.encodedBodySize,
+        0,
+      ),
+      transferBytes: entries.reduce(
+        (total, entry) => total + entry.transferSize,
+        0,
+      ),
+      requests: entries.map((entry) => ({
+        path: new URL(entry.name).pathname + new URL(entry.name).search,
+        encodedBodyBytes: entry.encodedBodySize,
+        transferBytes: entry.transferSize,
+      })),
+    });
+    return {
+      fonts: summarize(fonts),
+      images: summarize(images),
+      fontStatus: document.fonts.status,
+      loadedNotoFaces: Array.from(document.fonts).filter(
+        (font) => font.family.includes("Noto Sans KR") && font.status === "loaded",
+      ).length,
+      sameOriginFonts: fonts.every(
+        (entry) => new URL(entry.name).origin === location.origin,
+      ),
+    };
+  });
+  console.log(`LOCAL_ART_RESOURCE_EVIDENCE ${JSON.stringify(resourceEvidence)}`);
+  expect(resourceEvidence.fontStatus).toBe("loaded");
+  expect(resourceEvidence.loadedNotoFaces).toBeGreaterThan(0);
+  expect(resourceEvidence.fonts.count).toBeGreaterThan(0);
+  expect(resourceEvidence.sameOriginFonts).toBe(true);
+  expect(resourceEvidence.images.count).toBeGreaterThanOrEqual(6);
 });
 
 test("uses the same paper system on Daily and public pages", async ({
