@@ -402,7 +402,7 @@ for (const width of [390, 1280]) {
       expect(page.url()).not.toContain("context");
       expect(page.url()).not.toContain("b".repeat(500));
 
-      await page.reload();
+      await page.reload({ waitUntil: "domcontentloaded" });
       await expect(page.getByTestId(/^reading-card-\d+$/)).toHaveCount(3);
       expect(
         await page
