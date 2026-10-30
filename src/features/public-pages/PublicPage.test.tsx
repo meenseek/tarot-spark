@@ -25,7 +25,7 @@ describe("PublicPage", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/for up to 60 seconds/i)).toBeVisible();
     expect(screen.getByText(/Google AdSense and its partners/i)).toBeVisible();
-    expect(screen.getByText(/sent.*to Cloudflare Workers AI/i)).toBeVisible();
+    expect(screen.getByText(/sent.*to OpenAI/i)).toBeVisible();
     expect(screen.queryByText(/Google Gemini API/i)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "About" })).toHaveAttribute(
       "href",
@@ -207,7 +207,7 @@ describe("PublicPage", () => {
     expect(
       screen.getByText(/공개 성찰 질문의 미리 작성된 초점 문구/i),
     ).toBeVisible();
-    expect(screen.getByText(/Cloudflare Workers AI에 보내/i)).toBeVisible();
+    expect(screen.getByText(/OpenAI Responses API에 보내/i)).toBeVisible();
     expect(screen.queryByText(/Google Gemini API/i)).not.toBeInTheDocument();
     expect(
       screen.getByText(

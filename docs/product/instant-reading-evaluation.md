@@ -7,7 +7,7 @@ readings. Implementation and deterministic tests may run behind the server-side
 feature flag while it is disabled by default.
 
 - Evaluate Korean readings only.
-- Use the source-fixed Cloudflare Workers AI model and direct REST endpoint.
+- Use the source-fixed OpenAI `gpt-6-luna` model and direct Responses API endpoint.
 - Send only selected public options and reviewed upright meanings in draw order.
 - Keep card names, images, internal ids, and free-form situation text out of the
   provider request, logs, analytics, URLs, shares, and stored evidence.
@@ -19,7 +19,10 @@ feature flag while it is disabled by default.
 ## Runtime Contract
 
 The production request must use the fixed model, prompt, marker grammar,
-generation limits, response limits, and timeouts in source. The provider output
+generation limits, response limits, and timeouts in source. Use `store: false`,
+non-streaming foreground requests, and no tools or conversation state. Accept
+only a completed response with one completed assistant text message; reject
+errors, incomplete responses, refusals, and unexpected content. The provider output
 must contain every required marker once and in order. The server must reject
 missing, duplicated, reordered, oversized, non-Korean, technical, or high-risk
 output before returning escaped plain text to the browser.
@@ -49,24 +52,31 @@ Before the first evaluation call and again before public activation:
 
 - confirm the fixed model and direct REST API remain available;
 - confirm commercial-use terms, retention, training use, subprocessors, and the
-  actual Workers AI account settings;
-- keep the token scoped to Workers AI and stored only in `.env.local` or the
-  hosting platform's server-only environment;
-- confirm the account is on the intended free boundary and cannot create paid
-  overage;
-- record representative neuron use per quick and deep reading without recording
-  account or token identifiers;
-- confirm no AI Gateway logging, R2, KV, Durable Objects, Vectorize, or other
-  storage is attached to the request path;
+  actual OpenAI API account settings;
+- use a project key from the API organization linked to the claimed subscription
+  benefit, stored only in `.env.local` or the hosting platform's server-only
+  environment;
+- confirm the grant, remaining free balance, expiry, project spend limit, and
+  account recharge settings cannot lead to unapproved paid usage; free credits
+  expire each subscription billing cycle, and purchased credits may be consumed
+  after the free balance runs out;
+- confirm `store: false` is applied; this disables stored responses, not the
+  provider's abuse monitoring or prompt cache retention. Verify actual data
+  controls and keep training-data sharing off;
+- record representative input, cached input, output tokens, and latency per
+  quick and deep reading without account, key, or request identifiers;
+- confirm no files, conversations, vector stores, background requests, external
+  tools, or separate storage service is attached to the request path;
 - confirm the server and browser deadlines, output-token bound, response-size
   bound, cancellation, and feature-flag shutdown work as documented.
 
 Use the current official references when checking these facts:
 
-- [Workers AI REST API](https://developers.cloudflare.com/workers-ai/get-started/rest-api/)
-- [Workers AI model](https://developers.cloudflare.com/workers-ai/models/qwen3-30b-a3b-fp8/)
-- [Workers AI pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/)
-- [Workers AI data usage](https://developers.cloudflare.com/workers-ai/platform/data-usage/)
+- [Responses API](https://developers.openai.com/api/reference/resources/responses/methods/create)
+- [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna)
+- [API subscription credits](https://developers.openai.com/api/docs/guides/chatgpt-api-credits)
+- [API data controls](https://developers.openai.com/api/docs/guides/your-data)
+- [API pricing](https://developers.openai.com/api/docs/pricing)
 
 ## Fixed Review Matrix
 

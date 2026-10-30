@@ -1,10 +1,9 @@
 import "server-only";
 
-export const cloudflareInstantReadingModel = "@cf/qwen/qwen3-30b-a3b-fp8";
+export const openaiInstantReadingModel = "gpt-6-luna";
 
 export type InstantReadingProviderConfig = {
-  readonly accountId: string;
-  readonly apiToken: string;
+  readonly apiKey: string;
 };
 
 export function isInstantReadingEnabled() {
@@ -14,8 +13,7 @@ export function isInstantReadingEnabled() {
 export function getInstantReadingProviderConfig():
   | InstantReadingProviderConfig
   | undefined {
-  const accountId = process.env["CLOUDFLARE_ACCOUNT_ID"]?.trim();
-  const apiToken = process.env["CLOUDFLARE_API_TOKEN"]?.trim();
+  const apiKey = process.env["OPENAI_API_KEY"]?.trim();
 
-  return accountId && apiToken ? { accountId, apiToken } : undefined;
+  return apiKey ? { apiKey } : undefined;
 }
