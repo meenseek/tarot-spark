@@ -14,17 +14,18 @@ import {
 } from "@/domain/tarot";
 import { getPublicQuestionCatalog } from "@/features/reading-questions";
 import {
-  cloudflareInstantReadingModel,
+  openaiInstantReadingModel,
   type InstantReadingProviderConfig,
 } from "./instant-reading-config";
 
 export const instantReadingRequestTimeoutMs = 20_000;
 export const maximumInstantReadingProviderBytes = 32_768;
+export const openaiInstantReadingUrl = "https://api.openai.com/v1/responses";
 export const instantReadingGenerationConfig = {
-  max_tokens: 1_400,
+  max_output_tokens: 2_400,
+  reasoning: { effort: "none" },
+  store: false,
   stream: false,
-  temperature: 0.3,
-  top_p: 0.9,
 } as const;
 
 const instantReadingSystemInstruction = `당신은 한국어 타로 성찰문을 작성합니다.
@@ -138,23 +139,16 @@ export function buildInstantReadingPrompt(
   ].join("\n");
 }
 
-export function buildCloudflareInstantReadingBody(
+export function buildOpenAIInstantReadingBody(
   tarotData: LocaleTarotData,
   request: InstantReadingRequest,
 ) {
   return {
     ...instantReadingGenerationConfig,
-    messages: [
-      { content: instantReadingSystemInstruction, role: "system" },
-      { content: buildInstantReadingPrompt(tarotData, request), role: "user" },
-    ],
+    model: openaiInstantReadingModel,
+    instructions: instantReadingSystemInstruction,
+    input: buildInstantReadingPrompt(tarotData, request),
   };
-}
-
-export function getCloudflareInstantReadingUrl(accountId: string) {
-  return `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(
-    accountId,
-  )}/ai/run/${cloudflareInstantReadingModel}`;
 }
 
 export async function requestInstantReading(
@@ -175,20 +169,15 @@ export async function requestInstantReading(
     : timeoutController.signal;
 
   try {
-    const response = await fetchImpl(
-      getCloudflareInstantReadingUrl(providerConfig.accountId),
-      {
-        body: JSON.stringify(
-          buildCloudflareInstantReadingBody(tarotData, request),
-        ),
-        headers: {
-          Authorization: `Bearer ${providerConfig.apiToken}`,
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        signal,
+    const response = await fetchImpl(openaiInstantReadingUrl, {
+      body: JSON.stringify(buildOpenAIInstantReadingBody(tarotData, request)),
+      headers: {
+        Authorization: `Bearer ${providerConfig.apiKey}`,
+        "Content-Type": "application/json",
       },
-    );
+      method: "POST",
+      signal,
+    });
 
     if (!response.ok) {
       void response.body?.cancel();
@@ -206,7 +195,7 @@ export async function requestInstantReading(
       throw new InstantReadingResponseError();
     }
 
-    const text = extractCloudflareResponse(payload);
+    const text = extractOpenAIResponse(payload);
     if (!text) throw new InstantReadingResponseError();
 
     const reading = validateInstantReadingText(text, request);
@@ -299,17 +288,45 @@ function assertInstantReadingRequestEligible(request: InstantReadingRequest) {
   }
 }
 
-function extractCloudflareResponse(payload: unknown) {
+function extractOpenAIResponse(payload: unknown) {
   if (
     !isRecord(payload) ||
-    payload["success"] !== true ||
-    !isRecord(payload["result"]) ||
-    typeof payload["result"]["response"] !== "string"
+    payload["status"] !== "completed" ||
+    payload["error"] != null ||
+    payload["incomplete_details"] != null ||
+    !Array.isArray(payload["output"])
   ) {
     return undefined;
   }
 
-  return payload["result"]["response"];
+  let text: string | undefined;
+  for (const item of payload["output"]) {
+    if (!isRecord(item)) return undefined;
+    if (item["type"] === "reasoning") continue;
+    if (
+      text !== undefined ||
+      item["type"] !== "message" ||
+      item["role"] !== "assistant" ||
+      item["status"] !== "completed" ||
+      !Array.isArray(item["content"]) ||
+      item["content"].length === 0
+    ) {
+      return undefined;
+    }
+    const parts: string[] = [];
+    for (const part of item["content"]) {
+      if (
+        !isRecord(part) ||
+        part["type"] !== "output_text" ||
+        typeof part["text"] !== "string"
+      ) {
+        return undefined;
+      }
+      parts.push(part["text"]);
+    }
+    text = parts.join("");
+  }
+  return text;
 }
 
 async function readBoundedResponseText(

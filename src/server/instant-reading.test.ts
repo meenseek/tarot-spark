@@ -10,9 +10,9 @@ import {
 import { getPublicQuestionCatalog } from "@/features/reading-questions";
 import { getTarotData } from "@/i18n/tarot-data";
 import {
-  buildCloudflareInstantReadingBody,
+  buildOpenAIInstantReadingBody,
   buildInstantReadingPrompt,
-  getCloudflareInstantReadingUrl,
+  openaiInstantReadingUrl,
   instantReadingGenerationConfig,
   InstantReadingAbortedError,
   InstantReadingResponseError,
@@ -20,7 +20,7 @@ import {
   isInstantReadingRequestConsistent,
   requestInstantReading,
 } from "./instant-reading";
-import { cloudflareInstantReadingModel } from "./instant-reading-config";
+import { openaiInstantReadingModel } from "./instant-reading-config";
 
 const tarotData = getTarotData("ko");
 const request = {
@@ -33,23 +33,22 @@ const request = {
   styleId: "balanced",
   topicId: "love",
 } as const satisfies InstantReadingRequest;
-const providerConfig = { accountId: "account/id", apiToken: "secret-token" };
+const providerConfig = { apiKey: "secret-token" };
 
-describe("Cloudflare instant reading adapter", () => {
+describe("OpenAI instant reading adapter", () => {
   it("builds one fixed, bounded request without private or card identifiers", async () => {
-    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(
-      Response.json({
-        result: { response: createValidText() },
-        success: true,
-      }),
-    );
+    const fetchImpl = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(
+        Response.json(createProviderPayload(createValidText())),
+      );
 
     await expect(
       requestInstantReading(tarotData, request, { fetchImpl, providerConfig }),
     ).resolves.toEqual({ text: createValidText() });
     expect(fetchImpl).toHaveBeenCalledTimes(1);
     expect(fetchImpl).toHaveBeenCalledWith(
-      `https://api.cloudflare.com/client/v4/accounts/account%2Fid/ai/run/${cloudflareInstantReadingModel}`,
+      "https://api.openai.com/v1/responses",
       expect.objectContaining({
         headers: {
           Authorization: "Bearer secret-token",
@@ -60,8 +59,18 @@ describe("Cloudflare instant reading adapter", () => {
     );
 
     const body = JSON.parse(String(fetchImpl.mock.calls[0]?.[1]?.body));
-    expect(body).toEqual(buildCloudflareInstantReadingBody(tarotData, request));
+    expect(body).toEqual(buildOpenAIInstantReadingBody(tarotData, request));
     expect(body).toMatchObject(instantReadingGenerationConfig);
+    expect(body).toMatchObject({
+      model: openaiInstantReadingModel,
+      store: false,
+      stream: false,
+      reasoning: { effort: "none" },
+      max_output_tokens: 2_400,
+    });
+    expect(body.input).toBe(buildInstantReadingPrompt(tarotData, request));
+    expect(body).not.toHaveProperty("tools");
+    expect(body).not.toHaveProperty("previous_response_id");
     expect(JSON.stringify(body)).not.toContain("the-fool");
     expect(JSON.stringify(body)).not.toContain("바보");
     expect(JSON.stringify(body)).not.toContain("privateContext");
@@ -87,9 +96,7 @@ describe("Cloudflare instant reading adapter", () => {
   });
 
   it("uses the exact direct endpoint", () => {
-    expect(getCloudflareInstantReadingUrl("abc")).toBe(
-      `https://api.cloudflare.com/client/v4/accounts/abc/ai/run/${cloudflareInstantReadingModel}`,
-    );
+    expect(openaiInstantReadingUrl).toBe("https://api.openai.com/v1/responses");
   });
 
   it("builds a prompt from reviewed meanings in draw order", () => {
@@ -133,9 +140,7 @@ describe("Cloudflare instant reading adapter", () => {
     expect(broadPrompt).toContain(`질문의 초점: ${topic.promptLead}`);
     expect(broadPrompt.split(safetyLine)).toHaveLength(2);
     expect(
-      JSON.stringify(
-        buildCloudflareInstantReadingBody(tarotData, broadRequest),
-      ),
+      JSON.stringify(buildOpenAIInstantReadingBody(tarotData, broadRequest)),
     ).toContain(safetyLine);
 
     for (const question of questions) {
@@ -152,7 +157,7 @@ describe("Cloudflare instant reading adapter", () => {
       expect(prompt.split(safetyLine)).toHaveLength(2);
       expect(
         JSON.stringify(
-          buildCloudflareInstantReadingBody(tarotData, candidateRequest),
+          buildOpenAIInstantReadingBody(tarotData, candidateRequest),
         ),
       ).toContain(safetyLine);
     }
@@ -325,12 +330,63 @@ describe("Cloudflare instant reading adapter", () => {
   });
 
   it.each([
-    Response.json({ success: false, errors: [{ message: "rejected" }] }),
-    Response.json({ success: true, result: {} }),
-    new Response("not-json"),
+    Response.json({ status: "failed", error: { message: "rejected" } }),
+    Response.json({ status: "completed", output: [] }),
     Response.json({
-      result: { response: createValidText().replace("[가능성 B]", "[누락]") },
-      success: true,
+      ...createProviderPayload(createValidText()),
+      status: "incomplete",
+    }),
+    Response.json({
+      ...createProviderPayload(createValidText()),
+      error: { code: "error" },
+    }),
+    Response.json({
+      ...createProviderPayload(createValidText()),
+      incomplete_details: { reason: "max_output_tokens" },
+    }),
+    Response.json({ success: true, result: { response: createValidText() } }),
+    new Response("not-json"),
+    Response.json(
+      createProviderPayload(createValidText().replace("[가능성 B]", "[누락]")),
+    ),
+    ...[
+      {
+        type: "message",
+        role: "assistant",
+        status: "incomplete",
+        content: [{ type: "output_text", text: createValidText() }],
+      },
+      {
+        type: "message",
+        role: "user",
+        status: "completed",
+        content: [{ type: "output_text", text: createValidText() }],
+      },
+      {
+        type: "message",
+        role: "assistant",
+        status: "completed",
+        content: [{ type: "refusal", refusal: "Cannot answer" }],
+      },
+      {
+        type: "message",
+        role: "assistant",
+        status: "completed",
+        content: [
+          { type: "output_text", text: createValidText() },
+          { type: "refusal", refusal: "Cannot answer" },
+        ],
+      },
+      { type: "message", role: "assistant", status: "completed", content: [] },
+      { type: "function_call", name: "unexpected" },
+      null,
+    ].map((item) => Response.json({ status: "completed", output: [item] })),
+    Response.json({
+      status: "completed",
+      output: [
+        ...createProviderPayload(createValidText()).output,
+        ...createProviderPayload(createValidText()).output,
+      ],
     }),
   ])("rejects a malformed provider response", async (response) => {
     await expect(
@@ -340,6 +396,37 @@ describe("Cloudflare instant reading adapter", () => {
       }),
     ).rejects.toBeInstanceOf(InstantReadingResponseError);
   });
+
+  it("reads the assistant text after a reasoning item", async () => {
+    const payload = createProviderPayload(createValidText());
+    await expect(
+      requestInstantReading(tarotData, request, {
+        providerConfig,
+        fetchImpl: vi.fn<typeof fetch>().mockResolvedValue(
+          Response.json({
+            ...payload,
+            output: [{ type: "reasoning", summary: [] }, ...payload.output],
+          }),
+        ),
+      }),
+    ).resolves.toEqual({ text: createValidText() });
+  });
+
+  it.each([401, 429, 500])(
+    "does not retry provider HTTP %i",
+    async (status) => {
+      const fetchImpl = vi
+        .fn<typeof fetch>()
+        .mockResolvedValue(new Response("provider details", { status }));
+      await expect(
+        requestInstantReading(tarotData, request, {
+          fetchImpl,
+          providerConfig,
+        }),
+      ).rejects.toMatchObject({ status });
+      expect(fetchImpl).toHaveBeenCalledTimes(1);
+    },
+  );
 
   it("rejects a provider body before buffering beyond the byte cap", async () => {
     await expect(
@@ -381,6 +468,22 @@ describe("Cloudflare instant reading adapter", () => {
     await expect(cancelled).rejects.toBeInstanceOf(InstantReadingAbortedError);
   });
 });
+
+function createProviderPayload(text: string) {
+  return {
+    status: "completed",
+    error: null,
+    incomplete_details: null,
+    output: [
+      {
+        type: "message",
+        role: "assistant",
+        status: "completed",
+        content: [{ type: "output_text", text }],
+      },
+    ],
+  };
+}
 
 function createValidText() {
   return `[전체 흐름]

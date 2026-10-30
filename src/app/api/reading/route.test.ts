@@ -2,8 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { POST } from "./route";
 
 const originalEnabled = process.env["TAROT_INSTANT_READING_ENABLED"];
-const originalAccount = process.env["CLOUDFLARE_ACCOUNT_ID"];
-const originalToken = process.env["CLOUDFLARE_API_TOKEN"];
+const originalKey = process.env["OPENAI_API_KEY"];
 const validRequest = {
   cards: [
     { cardId: "the-fool" },
@@ -18,22 +17,19 @@ const validRequest = {
 describe("POST /api/reading", () => {
   beforeEach(() => {
     process.env["TAROT_INSTANT_READING_ENABLED"] = "true";
-    process.env["CLOUDFLARE_ACCOUNT_ID"] = "test-account";
-    process.env["CLOUDFLARE_API_TOKEN"] = "test-token";
+    process.env["OPENAI_API_KEY"] = "test-token";
   });
 
   afterEach(() => {
     restoreEnv("TAROT_INSTANT_READING_ENABLED", originalEnabled);
-    restoreEnv("CLOUDFLARE_ACCOUNT_ID", originalAccount);
-    restoreEnv("CLOUDFLARE_API_TOKEN", originalToken);
+    restoreEnv("OPENAI_API_KEY", originalKey);
     vi.restoreAllMocks();
     vi.useRealTimers();
   });
 
-  it("fails closed before parsing or contacting Cloudflare", async () => {
+  it("fails closed before parsing or contacting OpenAI", async () => {
     process.env["TAROT_INSTANT_READING_ENABLED"] = "false";
-    delete process.env["CLOUDFLARE_ACCOUNT_ID"];
-    delete process.env["CLOUDFLARE_API_TOKEN"];
+    delete process.env["OPENAI_API_KEY"];
     const fetchMock = vi.spyOn(globalThis, "fetch");
 
     const response = await POST(new Request("http://localhost/api/reading"));
@@ -44,7 +40,7 @@ describe("POST /api/reading", () => {
   });
 
   it("returns unavailable without credentials and never contacts a provider", async () => {
-    delete process.env["CLOUDFLARE_API_TOKEN"];
+    delete process.env["OPENAI_API_KEY"];
     const fetchMock = vi.spyOn(globalThis, "fetch");
     const response = await POST(createJsonRequest(validRequest));
 
@@ -55,13 +51,20 @@ describe("POST /api/reading", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("treats a blank key as unavailable without contacting the provider", async () => {
+    process.env["OPENAI_API_KEY"] = "   ";
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    const response = await POST(createJsonRequest(validRequest));
+    expect(response.status).toBe(503);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("returns one escaped-text contract and sends no private context", async () => {
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      Response.json({
-        result: { response: createValidText() },
-        success: true,
-      }),
-    );
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(
+        Response.json(createProviderPayload(createValidText())),
+      );
 
     const response = await POST(createJsonRequest(validRequest));
 
@@ -69,7 +72,11 @@ describe("POST /api/reading", () => {
     expect(response.headers.get("cache-control")).toBe("no-store");
     expect(await response.json()).toEqual({ text: createValidText() });
     expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock.mock.calls[0]?.[0]).toBe(
+      "https://api.openai.com/v1/responses",
+    );
     const providerBody = String(fetchMock.mock.calls[0]?.[1]?.body);
+    expect(JSON.parse(providerBody)).toMatchObject({ store: false });
     expect(providerBody).not.toContain("privateContext");
     expect(providerBody).not.toContain("the-fool");
     expect(providerBody).not.toContain("test-token");
@@ -176,7 +183,7 @@ describe("POST /api/reading", () => {
 
   it.each([
     new Response("quota", { status: 429 }),
-    Response.json({ success: true, result: { response: "invalid" } }),
+    Response.json(createProviderPayload("invalid")),
     new Response("x".repeat(40_000)),
   ])(
     "collapses provider failures into one unavailable response",
@@ -203,6 +210,20 @@ function createJsonRequest(body: unknown) {
 function restoreEnv(key: string, value: string | undefined) {
   if (value === undefined) delete process.env[key];
   else process.env[key] = value;
+}
+
+function createProviderPayload(text: string) {
+  return {
+    status: "completed",
+    output: [
+      {
+        type: "message",
+        role: "assistant",
+        status: "completed",
+        content: [{ type: "output_text", text }],
+      },
+    ],
+  };
 }
 
 function createValidText() {
