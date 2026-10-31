@@ -288,7 +288,7 @@ const workplaceExternalPossessiveEvaluationPattern = new RegExp(
   "u",
 );
 const medicationNounEndSource = String.raw`(?=(?:은|는|이|가|을|를|의|도|만|부터|까지|으로)?(?:\s|$|[,.!?]|중단|변경|조절|증량|감량|복용|투약|먹|드))`;
-const ordinaryYakNounSource = String.raw`(?:[가-힣]*(?:예약|요약|청약|활약)|절약|기약|도약|비약|서약|언약|공약|조약|협약|계약|특약|제약|집약|축약)`;
+const ordinaryYakNounSource = String.raw`(?:[가-힣]*(?:(?:예약|청약)(?:제)?|요약|활약)|절약|기약|도약|비약|서약|언약|공약|조약|협약|계약|특약|제약|집약|축약)`;
 const medicationNounSource = String.raw`(?<![가-힣])(?!${ordinaryYakNounSource}${medicationNounEndSource})[가-힣]*약(?:물|제)?${medicationNounEndSource}`;
 const unsafePatterns = [
   /(?:반드시|틀림없이|확실히).{0,32}(?:연락|재회|성공|합격|결혼|일어납니다|됩니다)/u,
