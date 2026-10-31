@@ -188,11 +188,11 @@ const pastPerceptionPredicatePattern =
 const progressivePerceptionPredicatePattern =
   /(?:보|여기|생각|판단|평가|인식|느끼|믿|신뢰|기대|우려|인정|간주)고\s*있(?:습니다|어요)/gu;
 const possiblePerceptionPattern =
-  /(?:가능성|수\s*있|읽힐|읽힙|읽혀|시사|기울|보일|보입|것\s*같|듯(?:하|합|해)|모양(?:이|입|이에|예))/u;
+  /(?:가능성|수\s*도?\s*있|읽힐|읽힙|읽혀|시사|기울|보일|보입|것\s*같|듯(?:하|합|해)|모양(?:이|입|이에|예))/u;
 const epistemicPossibilityCalibrationPattern =
   /(?:가능성(?:이|은|도)?(?:\s*(?:(?:있|없|높|낮|작)(?:으)?|크)(?:습니다|어요|지만|으나|고|며|면서|으면서|으며|는데|어도|아도|여도|니|으니|는지)?|\s*(?:큰|작은)\s*편(?:입니다|이에요|예요)?|\s*열려\s*있(?:습니다|어요)?|\s*남아\s*있(?:습니다|어요)?)?|가능성에\s*무게가\s*실(?:립니다|려요))(?:(?:라는|다는)\s*것(?:입니다|이에요|예요))?$/u;
 const claimCalibrationPattern =
-  /(?:수\s*있(?:습니다|어요|지만|으나|고|으며|는지)?|읽힐|읽힙|읽혀|시사(?:합니다|해요|하는)?|기울(?:어|수)?|보일|보입|것\s*같(?:습니다|아요)?|듯(?:합니다|해요)|모양(?:입니다|이에요|예요))(?:(?:라는|다는)\s*것(?:입니다|이에요|예요))?$/u;
+  /(?:수\s*도?\s*있(?:습니다|어요|지만|으나|고|으며|는지)?|읽힐|읽힙|읽혀|시사(?:합니다|해요|하는)?|기울(?:어|수)?|보일|보입|것\s*같(?:습니다|아요)?|듯(?:합니다|해요)|모양(?:입니다|이에요|예요))(?:(?:라는|다는)\s*것(?:입니다|이에요|예요))?$/u;
 const intrinsicallyCalibratedPredicatePattern =
   /(?:(?<![가-힣])보입니다|(?:해|아|어)\s*보입니다|보여요)$/u;
 const uncertainPerceptionPattern =
@@ -297,8 +297,72 @@ const unsafePatterns = [
   /자해|자살|죽는 방법|몰래\s*(?:확인|감시)|미행|강제로/u,
   /역방향|역위치|리버스|뒤집힌\s*카드/u,
   /카드\s*(?:그림|이미지)|그림에서|이미지에서|보이는\s*인물/u,
-  /(?:과거|현재|미래|원인|장애물|조언)\s*(?:의\s*)?(?:자리|위치)/u,
 ] as const;
+const spreadPositionReferencePattern =
+  /(과거|현재|미래|원인|장애물|조언)\s*(?:의\s*)?(?:자리|위치)/gu;
+const workplaceContextPattern =
+  /업무|직장|직무|일터|협업|기술|배(?:움|우|울|워)|과제|이직|변화\s*준비/u;
+const numberedMeaningPattern =
+  /(?:첫|두|세|네|다섯|여섯|[1-6])\s*(?:번째|번)\s*의미/u;
+const omittedSlotSubjectPattern =
+  /(?:[1-6]\s*번|(?:첫|두|세|네|다섯|여섯)\s*번째)(?:은|는|이|가)[^.!?！？\n,，]{0,24}$/u;
+const positionAssignmentPredicatePattern =
+  /(?:뜻합니다|의미합니다|나타냅니다|가리킵니다|상징합니다)/u;
+const certainEmbeddedPremisePattern =
+  /(?:다는|라는)\s*(?:(?:이미\s*)?(?:확정된|확인된|증명된)|기정사실인|명백한|분명한|확실한)\s*(?:사실|진실|결론|전제|판단)/gu;
+const cardInstrumentSource = String.raw`(?:타로|카드|상징|해석)(?:의\s*의미)?(?:만)?(?:으로|로|를\s*통해)`;
+const externalVerificationStateSource = String.raw`(?:상대(?:방)?|그\s*사람|그분|${workplaceExternalPeopleLexemeSource})(?:의)?\s*(?:실제\s*)?(?:마음|감정|생각|의도|평가|판단|인상|기대)(?:은|는|이|가|을|를)?\s*`;
+const externalVerificationStatePattern = new RegExp(
+  externalVerificationStateSource,
+  "u",
+);
+const verificationQuestionSource = String.raw`(?:(?:무엇인지|어떤지|어떤\s*상태인지|사실인지|진짜인지|맞는지)\s*)?`;
+const verificationAdverbSource = String.raw`(?:(?:직접|다시|함께|한\s*번)\s*)*`;
+const verificationSuggestionSource = String.raw`(?:확인(?:해\s*보세요|하세요)|알아보세요)$`;
+const cardBasedExternalVerificationPattern = new RegExp(
+  String.raw`(?:${cardInstrumentSource}\s*${verificationAdverbSource}${externalVerificationStateSource}${verificationQuestionSource}${verificationAdverbSource}|${externalVerificationStateSource}${verificationQuestionSource}${cardInstrumentSource}\s*${verificationAdverbSource})${verificationSuggestionSource}`,
+  "u",
+);
+
+function hasUnsupportedSpreadPositionReference(
+  value: string,
+  request: InstantReadingRequest,
+) {
+  return getSentencesPreservingEndings(value).some((sentence) =>
+    getClaimScopes(stripSentenceEnding(sentence)).some((scope) =>
+      [...scope.matchAll(spreadPositionReferencePattern)].some((match) => {
+        const start = match.index ?? 0;
+        const prefix = scope.slice(0, start);
+        const suffix = scope.slice(start + match[0].length);
+        const isWorkplaceReference =
+          request.topicId === "career-direction" &&
+          match[1] === "현재" &&
+          workplaceContextPattern.test(scope) &&
+          (/^에서(?:의|는|도)?\s/u.test(suffix) ||
+            /^(?:를|을)\s*(?:시험|점검|검토|살펴)/u.test(suffix)) &&
+          !/카드(?!상)/u.test(scope) &&
+          !(
+            omittedSlotSubjectPattern.test(prefix) &&
+            positionAssignmentPredicatePattern.test(suffix)
+          ) &&
+          !numberedMeaningPattern.test(suffix) &&
+          !new RegExp(
+            String.raw`${numberedMeaningPattern.source}(?:는|가|를|을|은|이)\s*$`,
+            "u",
+          ).test(prefix);
+        return !isWorkplaceReference;
+      }),
+    ),
+  );
+}
+
+function hasCardBasedExternalVerificationClaim(value: string) {
+  return getSentencesPreservingEndings(value).some((sentence) =>
+    getClaimScopes(stripSentenceEnding(sentence)).some((scope) =>
+      cardBasedExternalVerificationPattern.test(scope),
+    ),
+  );
+}
 
 export function parseInstantReadingRequest(
   value: unknown,
@@ -402,6 +466,8 @@ export function validateInstantReadingText(
     totalLength > range.max ||
     technicalPattern.test(text) ||
     unsafePatterns.some((pattern) => pattern.test(text)) ||
+    hasUnsupportedSpreadPositionReference(text, request) ||
+    hasCardBasedExternalVerificationClaim(text) ||
     !hasKoreanMajority(text)
   ) {
     return undefined;
@@ -998,6 +1064,95 @@ function hasUncalibratedExternalDeclarativeClaim(
   });
 }
 
+const judgmentPredicateStemPattern =
+  /(?:보|봐|봤|여기|여겨|여겼|생각하|생각했|판단하|판단했|평가하|평가했|인식하|인식했|느끼|느껴|느꼈|믿|믿었|신뢰하|신뢰했|기대하|기대했|우려하|우려했|인정하|인정했|간주하|간주했|취급하|취급했|분류하|분류했|규정하|규정했|평하|평했|대하|대했|대접하|치|넣|놓|알|알았|말하|말했)$/u;
+const completedClassificationPattern =
+  /(?:으?로|(?:이)?라고|다고|다는)\s*[가-힣\s]{1,48}$/u;
+const calibratedDescriptionContinuationPattern =
+  /^(?:[^.!?！？\n]{0,64}(?:으?로|(?:이)?라고|다고)\s*[가-힣\s]{1,32}|[^.!?！？\n]{0,64}(?:보일|느껴질|읽힐)\s*)(?:가능성|수\s*도?\s*있)/u;
+const calibratedPersonDescriptionPattern =
+  /^[^.!?！？\n,，]{0,80}(?:사람|인물|직원|동료|후보)(?:으?로|이라고)\s*(?:볼|보일|읽힐|여길|평가할|인식할)\s*(?:가능성|수\s*도?\s*있)/u;
+
+function isCalibratedDescriptionContinuation(
+  prefix: string,
+  stem: string | undefined,
+  connector: string | undefined,
+  suffix: string,
+) {
+  if (!stem && connector === "하지만") {
+    const readerObject = getLastPatternMatch(
+      prefix,
+      readerPerceptionObjectPattern,
+    );
+    if (!readerObject) return false;
+    const readerModifier = prefix.slice(
+      (readerObject.index ?? 0) + readerObject[0].length,
+    );
+    const intentionStem = /([가-힣]+)려$/u.exec(readerModifier)?.[1] ?? "";
+    return (
+      /(?:결과|정보|업무|역할|책임|성과)(?:을|를)[^.!?！？\n]{0,32}려$/u.test(
+        readerModifier,
+      ) &&
+      !judgmentPredicateStemPattern.test(intentionStem) &&
+      !attractionIntentLexemePattern.test(intentionStem) &&
+      calibratedPersonDescriptionPattern.test(suffix)
+    );
+  }
+  if (completedClassificationPattern.test(prefix)) return false;
+  const describesReaderReflection =
+    Boolean(stem) &&
+    /^(?:돌아보|되돌아보|돌이켜보)$/u.test(stem!) &&
+    /(?:선택|경험|기억|과정|결정)(?:을|를)\s*$/u.test(
+      prefix.slice(0, -stem!.length),
+    ) &&
+    hasReaderPerceptionTarget(prefix) &&
+    calibratedPersonDescriptionPattern.test(suffix);
+  if (
+    stem &&
+    ((judgmentPredicateStemPattern.test(stem) && !describesReaderReflection) ||
+      attractionIntentLexemePattern.test(stem))
+  ) {
+    return false;
+  }
+
+  if (stem && /^(?:고|며)$/u.test(connector ?? "")) {
+    return calibratedDescriptionContinuationPattern.test(suffix);
+  }
+  if (stem && connector === "지만") {
+    const coordinatedPossibility = getLastPatternMatch(
+      prefix,
+      /(?:볼|보일|읽힐)\s*가능성(?:과|와)\s*[,，]?\s*/u,
+    );
+    if (!coordinatedPossibility) return false;
+    const continuation = prefix.slice(
+      (coordinatedPossibility.index ?? 0) + coordinatedPossibility[0].length,
+    );
+    return (
+      !relationshipEmbeddedExternalSubjectPattern.test(continuation) &&
+      !workplaceEmbeddedExternalSubjectPattern.test(continuation) &&
+      !explicitReaderSubjectPattern.test(continuation) &&
+      !hasReaderPerceptionTarget(continuation) &&
+      calibratedDescriptionContinuationPattern.test(suffix)
+    );
+  }
+  return false;
+}
+
+function isSharedComparisonModality(
+  prefix: string,
+  stem: string | undefined,
+  connector: string | undefined,
+  suffix: string,
+) {
+  return (
+    connector === "거나" &&
+    /^(?:맞|어긋나|엇갈리)$/u.test(stem ?? "") &&
+    /(?:^|[,，])\s*두\s*시선(?:은|이)\s/u.test(prefix) &&
+    /^(?:맞|어긋|엇갈)/u.test(suffix) &&
+    claimCalibrationPattern.test(suffix)
+  );
+}
+
 function getExternalDeclarativeClaimScopes(
   value: string,
   externalSubjectPattern: RegExp,
@@ -1013,7 +1168,7 @@ function getExternalDeclarativeClaimScopes(
     const punctuatedEnding = boundary[5];
     if (
       boundary[3] === "고" &&
-      /^\s*있(?:을|는|었|어|습니다|어요)/u.test(
+      /^\s*(?:있(?:을|는|었|어|습니다|어요)|싶)/u.test(
         value.slice(boundaryIndex + boundary[0].length),
       )
     ) {
@@ -1027,25 +1182,30 @@ function getExternalDeclarativeClaimScopes(
           ? boundaryIndex + punctuatedEnding.length
           : boundaryIndex;
     const candidate = value.slice(scopeStart, candidateEnd).trim();
-    const judgmentPredicateStem =
-      /(?:보|봐|봤|여기|여겨|여겼|생각하|생각했|판단하|판단했|평가하|평가했|인식하|인식했|느끼|느껴|느꼈|믿|믿었|신뢰하|신뢰했|기대하|기대했|우려하|우려했|인정하|인정했|간주하|간주했|취급하|취급했|분류하|분류했|규정하|규정했|평하|평했|대하|대했|대접하|치|넣|놓|알|알았|말하|말했)$/u;
+    const suffix = value.slice(boundaryIndex + boundary[0].length).trim();
+    const connector = boundary[3] ?? boundary[1];
     const isCalibratedAttributiveContinuation =
-      Boolean(stem) &&
-      /^(?:고|며)$/u.test(boundary[3] ?? "") &&
-      !judgmentPredicateStem.test(stem!) &&
-      /^(?:[^.!?！？\n]{0,64}(?:으?로|(?:이)?라고|다고)\s*[가-힣\s]{1,32}|[^.!?！？\n]{0,64}(?:보일|느껴질|읽힐)\s*)(?:가능성|수\s*있)/u.test(
-        value.slice(boundaryIndex + boundary[0].length).trim(),
-      );
+      isCalibratedDescriptionContinuation(candidate, stem, connector, suffix);
+    if (
+      isCalibratedAttributiveContinuation ||
+      isSharedComparisonModality(candidate, stem, connector, suffix)
+    ) {
+      continue;
+    }
     const hasCompletedExternalClaim =
       !stem ||
-      (!isCalibratedAttributiveContinuation &&
-        externalSubjectPattern.test(candidate) &&
+      (externalSubjectPattern.test(candidate) &&
         hasReaderPerceptionTarget(candidate)) ||
-      /(?:으?로|(?:이)?라고|다고|다는)\s*[가-힣\s]{1,48}$/u.test(candidate) ||
-      judgmentPredicateStem.test(stem);
+      completedClassificationPattern.test(candidate) ||
+      judgmentPredicateStemPattern.test(stem);
     if (!hasCompletedExternalClaim) continue;
     scopes.push(
-      value.slice(scopeStart, boundaryIndex + boundary[0].length).trim(),
+      value
+        .slice(
+          scopeStart,
+          stem ? boundaryIndex + boundary[0].length : candidateEnd,
+        )
+        .trim(),
     );
     scopeStart = boundaryIndex + boundary[0].length;
   }
@@ -1200,7 +1360,9 @@ function hasUnsafeEmbeddedExternalClaim(
             questionFragment.index < embeddedClaim.index) ||
           indirectQuestionPattern.test(embeddedClaimScope));
       return (
-        !asksAboutEmbeddedClaim && !isCalibratedClaimScope(embeddedClaimScope)
+        !asksAboutEmbeddedClaim &&
+        !isGroundingClaimScope(embeddedClaimScope) &&
+        !isCalibratedClaimScope(embeddedClaimScope)
       );
     });
   });
@@ -1345,7 +1507,7 @@ function getClaimScopes(claimScope: string) {
     const completedPhrase = match[3];
     if (
       connector === "고" &&
-      /^\s*있(?:을|는|었|어|습니다|어요)/u.test(
+      /^\s*(?:있(?:을|는|었|어|습니다|어요)|싶)/u.test(
         claimScope.slice(matchIndex + match[0].length),
       )
     ) {
@@ -1356,6 +1518,21 @@ function getClaimScopes(claimScope: string) {
       : completedPhrase
         ? matchIndex + completedPhrase.length
         : matchIndex;
+    const candidate = claimScope.slice(scopeStart, scopeEnd).trim();
+    const suffix = claimScope.slice(matchIndex + match[0].length).trim();
+    const effectiveConnector =
+      connector ?? (/^하지만/u.test(match[0]) ? "하지만" : undefined);
+    if (
+      isCalibratedDescriptionContinuation(
+        candidate,
+        stem,
+        effectiveConnector,
+        suffix,
+      ) ||
+      isSharedComparisonModality(candidate, stem, effectiveConnector, suffix)
+    ) {
+      continue;
+    }
     scopes.push(claimScope.slice(scopeStart, scopeEnd));
     scopeStart = matchIndex + match[0].length;
   }
@@ -1369,6 +1546,8 @@ function isGroundingClaimScope(claimScope: string) {
       /^(?:아직\s*모르는\s*점|관찰할\s*점|다시\s*볼\s*조건|작은\s*행동|멈추거나\s*다시\s*볼\s*조건):\s*/u,
       "",
     )
+    .trim()
+    .replace(/[,，;；]+$/u, "")
     .trim();
   const usesCardsAsProof = /(?:타로|카드|상징|해석)/u.test(
     normalizedClaimScope,
@@ -1378,6 +1557,7 @@ function isGroundingClaimScope(claimScope: string) {
       normalizedClaimScope,
     );
   return (
+    isNonFactualGroundingScope(normalizedClaimScope) ||
     externalPerceptionVerificationActionPattern.test(normalizedClaimScope) ||
     readerGroundingActionPattern.test(normalizedClaimScope) ||
     (realityGroundingActionPattern.test(normalizedClaimScope) &&
@@ -1394,7 +1574,57 @@ function isGroundingClaimScope(claimScope: string) {
   );
 }
 
+function hasCertainEmbeddedPremise(value: string) {
+  return [...value.matchAll(certainEmbeddedPremisePattern)].some((match) => {
+    const suffix = value.slice((match.index ?? 0) + match[0].length).trim();
+    const questionsCertainty =
+      /^(?:인지(?:는)?|(?:이|가)?\s*(?:맞는지|참인지|정확한지|확실한지|사실인지))/u.test(
+        suffix,
+      );
+    const deniesCertainty =
+      /^(?:(?:이|가|은|는)\s*)?(?:아니|아닐|아닌|아님|없)/u.test(suffix) ||
+      /^(?:을|를)\s*(?:내릴|도출할|확정할|삼을)\s*수(?:는|도)?\s*없/u.test(
+        suffix,
+      );
+    return !questionsCertainty && !deniesCertainty;
+  });
+}
+
+function isNonFactualGroundingScope(value: string) {
+  if (
+    /(?:타로|카드|상징|해석)/u.test(value) ||
+    hasCertainEmbeddedPremise(value) ||
+    /(?:사실|진실)(?:임을|이라는|이라고|인\s*(?:점|것)|을|를|은|는|이|가|로)/u.test(
+      value,
+    ) ||
+    /[가-힣]+(?:니다|요|죠)\s*[,，;；:：—–-]/u.test(value)
+  ) {
+    return false;
+  }
+
+  return (
+    /(?:는지|은지|인지|을지|할지|될지)(?:가|를|도|는)?\s*(?:(?:직접|함께|차분히|다시|한\s*번|실제\s*피드백을|대화로)\s*)*(?:살펴보세요|지켜보세요|확인(?:해\s*보세요|하세요|할\s*부분입니다)|물어보세요|보게\s*합니다|중요합니다)$/u.test(
+      value,
+    ) ||
+    /(?:는지|은지|인지|을지|할지|될지)(?:는|를|가)?$/u.test(value) ||
+    (/^(?:이|그)\s*의미(?:는|가)\s/u.test(value) &&
+      !relationshipEmbeddedExternalSubjectPattern.test(value) &&
+      !workplaceEmbeddedExternalSubjectPattern.test(value) &&
+      !externalVerificationStatePattern.test(value) &&
+      !explicitReaderSubjectPattern.test(value) &&
+      /(?:(?:점검|확인)하는|살피는)\s*관점입니다$/u.test(value))
+  );
+}
+
 function isCalibratedClaimScope(claimScope: string) {
+  if (
+    hasCertainEmbeddedPremise(claimScope) ||
+    /(?:다는|라는)\s*(?:사실|진실)(?:임을|이라는|이라고|인\s*(?:점|것)|을|를|은|는|이|가|로)/u.test(
+      claimScope,
+    )
+  ) {
+    return false;
+  }
   return (
     epistemicPossibilityCalibrationPattern.test(claimScope) ||
     claimCalibrationPattern.test(claimScope) ||
@@ -1426,7 +1656,10 @@ function hasUnsafeFactualPerceptionClaim(
       );
       const claimStart = Math.max(anchor.index, boundaryStart);
       const claimScope = sentence.slice(claimStart, claimEnd);
-      if (!isCalibratedClaimScope(claimScope)) {
+      if (
+        !isGroundingClaimScope(getFinalClaimScope(sentence, claimEnd)) &&
+        !isCalibratedClaimScope(claimScope)
+      ) {
         return true;
       }
     }
@@ -1448,6 +1681,7 @@ function hasUnsafeHiddenClaim(
       const claimEnd = (match.index ?? 0) + match[0].length;
       const claimScope = getFinalClaimScope(sentence, claimEnd);
       const calibratedClaim = getFinalClaimScope(match[0], match[0].length);
+      if (isGroundingClaimScope(claimScope)) continue;
       const hasSubject = subjectPattern.test(claimScope);
       const isPossible = possiblePerceptionPattern.test(calibratedClaim);
       const isExplicitlyUncertain =
@@ -1576,8 +1810,9 @@ function hasValidActionLines(value: string, questionId?: string) {
   const [smallActionLine, stopConditionLine] = value.split("\n");
   const smallAction = smallActionLine!.slice(actionLabels[0].length).trim();
   const stopCondition = stopConditionLine!.slice(actionLabels[1].length).trim();
+  const actionForSentenceCount = maskBalancedQuotedQuestionMarks(smallAction);
   const hasOneSmallActionSentence =
-    getSentencesPreservingEndings(smallAction).length === 1;
+    getSentencesPreservingEndings(actionForSentenceCount).length === 1;
   const hasUnsafeAttractionActionClaim = hasUnsafeActionClaim(
     smallAction,
     questionId,
@@ -1587,6 +1822,24 @@ function hasValidActionLines(value: string, questionId?: string) {
     !hasUnsafeAttractionActionClaim &&
     /세요[.。]?$/u.test(smallAction) &&
     /면\s+이\s*행동을\s*멈추고\s*다시\s*판단하세요[.。]?$/u.test(stopCondition)
+  );
+}
+
+function maskBalancedQuotedQuestionMarks(value: string) {
+  const closingQuotes: string[] = [];
+  for (const character of value) {
+    if (character === "“") {
+      closingQuotes.push("”");
+    } else if (character === '"') {
+      if (closingQuotes.at(-1) === '"') closingQuotes.pop();
+      else closingQuotes.push('"');
+    } else if (character === "”" && closingQuotes.pop() !== "”") {
+      return value;
+    }
+  }
+  if (closingQuotes.length > 0) return value;
+  return value.replace(/“[^”\n]*”|"[^"\n]*"/gu, (quotation) =>
+    quotation.replace(/[?？]/gu, ""),
   );
 }
 

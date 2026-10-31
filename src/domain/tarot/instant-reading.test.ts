@@ -1239,6 +1239,298 @@ describe("instant reading domain", () => {
     }
   });
 
+  it("accepts indirect observation questions and reflective checks", () => {
+    const originalObservation =
+      "관찰할 점: 다음 대화에서 질문에 대한 답과 이후 행동이 일정하게 이어지는지 살펴보세요.";
+    const observationCases = [
+      {
+        readingRequest: { ...request, questionId: "how-they-see-me" },
+        line: "상대가 당신의 말과 행동을 신뢰할 만하다고 직접 표현하는지 살펴보세요.",
+      },
+      {
+        readingRequest: { ...request, questionId: "how-they-see-me" },
+        line: "상대가 실제로 당신의 어떤 면을 인상 깊게 보는지, 그리고 그 인상이 얼마나 지속되는지는 카드로 확인할 수 없습니다.",
+      },
+      {
+        readingRequest: {
+          ...request,
+          topicId: "career-direction",
+          questionId: "career-manager-view",
+        },
+        line: "상사가 당신의 업무를 신뢰한다고 직접 말하는지 실제 피드백을 살펴보세요.",
+      },
+      ...[
+        "상대가 당신을 신뢰한다고 말한 것이 사실인지 직접 물어보세요.",
+        "상대가 당신을 신뢰한다는 가정이 맞는지 실제 피드백을 살펴보세요.",
+        "상대가 당신을 사랑한다는 확정된 결론인지 실제 피드백을 살펴보세요.",
+        "상대가 당신을 사랑한다는 확정된 결론을 내릴 수 없습니다. 실제 마음은 말과 행동으로 확인해야 합니다.",
+        "카드로 정리한 질문을 상대에게 전하기 전에 문장이 짧은지 확인해 보세요.",
+        "카드로는 상대의 마음을 알 수 없으니 대화와 행동으로 직접 확인해 보세요.",
+        "카드로는 상대의 마음을 알 수 없어서 실제 대화로 확인해 보세요.",
+      ].map((line) => ({
+        readingRequest: {
+          ...request,
+          topicId: "feelings",
+          questionId: "interest-or-kindness",
+        } as const,
+        line,
+      })),
+    ] as const;
+
+    for (const { readingRequest, line } of observationCases) {
+      const text = createValidText(3).replace(
+        originalObservation,
+        `관찰할 점: ${line}`,
+      );
+      expect(validateInstantReadingText(text, readingRequest)?.text, line).toBe(
+        text,
+      );
+    }
+
+    for (const [original, replacement] of [
+      [
+        "새 가능성을 열어 두되 아직 확인하지 않은 기대를 사실처럼 단정하지 않는 태도를 살펴봅니다.",
+        "속도를 조율할 때는 한쪽만 맞추기보다 시간과 관심을 공정하게 주고받는지가 중요합니다.",
+      ],
+      [
+        "열린 가능성과 능동적인 표현이 서로 힘을 보태는 동시에, 아픈 감정을 건너뛰면 속도가 현실보다 앞설 수 있다는 긴장이 가장 두드러집니다.",
+        "이 연결은 추억이 불러오는 감정만으로 결론 내리기보다, 그 사람과 다시 관계를 맺고 싶은 마음이 현재의 바람과 현실에 맞는지 함께 보게 합니다.",
+      ],
+    ]) {
+      const text = createValidText(3).replace(original!, replacement!);
+      expect(validateInstantReadingText(text, request)?.text).toBe(text);
+    }
+  });
+
+  it("keeps calibrated person modifiers and shared comparisons together", () => {
+    const originalOverall =
+      "새로운 가능성을 향한 움직임과 분명한 표현이 함께 필요하지만, 아직 확인하지 않은 부분은 현실의 대화로 살펴야 기대와 관찰을 구분할 수 있습니다.";
+    const originalCard =
+      "새 가능성을 열어 두되 아직 확인하지 않은 기대를 사실처럼 단정하지 않는 태도를 살펴봅니다.";
+    const mutualRequest = {
+      ...request,
+      topicId: "feelings",
+      questionId: "mutual-view",
+    } as const;
+    const careerRequest = {
+      ...request,
+      topicId: "career-direction",
+      questionId: "career-workplace-image",
+    } as const;
+
+    for (const overall of [
+      "카드상 상대는 독자를 지난 선택을 돌아보고 신중하게 새 방향을 살피는 사람으로 볼 가능성에 무게가 실립니다.",
+      "독자는 상대의 태도에서 안정적인 시작과 꾸준한 실행을 기대할 수 있지만, 두 시선은 책임과 부담을 어디까지 감당할지에서 맞거나 어긋날 수 있습니다.",
+      "상대는 독자를 신중한 사람으로 볼 수도 있습니다. 실제 인상은 말과 행동으로 확인해야 하며 다른 해석도 함께 살펴야 합니다.",
+    ]) {
+      const text = createValidText(3).replace(originalOverall, overall);
+      expect(
+        validateInstantReadingText(text, mutualRequest)?.text,
+        overall,
+      ).toBe(text);
+    }
+    for (const line of [
+      "상대의 시선에서는 독자가 이전의 선택을 되짚고 책임 있게 새로운 방향에 응답하는 사람으로 읽힐 가능성이 있습니다.",
+      "독자의 시선에서는 상대가 책임을 많이 짊어진 듯 보여, 관계에서 무엇을 우선하는지 확인하고 싶은 기대가 생길 수 있습니다.",
+      "독자는 상대의 멈춤이나 신중함을 회복을 위한 여유로 볼 수도, 판단을 미루는 태도로 느낄 수도 있습니다.",
+      "독자는 꾸준한 실행과 신뢰를 상대에게 기대할 수 있지만, 상대가 독자에게도 그런 지속성을 기대하는지는 대화로 확인할 부분입니다.",
+    ]) {
+      const text = createValidText(3).replace(originalCard, line);
+      expect(validateInstantReadingText(text, mutualRequest)?.text, line).toBe(
+        text,
+      );
+    }
+    for (const overall of [
+      "카드상 동료들은 독자를 함께 일하는 만족을 만들 수 있는 사람으로 볼 가능성과, 신중하게 정보를 관리하지만 때로는 지나치게 통제적으로 보일 가능성을 함께 시사합니다.",
+      "다른 해석은 동료들이 독자를 결과를 안정적으로 지키려 하지만 정보나 결정권을 쉽게 나누지 않는 사람으로 평가할 수 있다는 것입니다.",
+    ]) {
+      const text = createValidText(3).replace(originalOverall, overall);
+      expect(
+        validateInstantReadingText(text, careerRequest)?.text,
+        overall,
+      ).toBe(text);
+    }
+    const reviewedImpression = createValidText(3).replace(
+      originalCard,
+      "이 의미는 함께 일하는 과정에서 소속감과 공동의 성과를 북돋는 사람이라는 인상을 점검하는 관점입니다.",
+    );
+    expect(
+      validateInstantReadingText(reviewedImpression, careerRequest)?.text,
+    ).toBe(reviewedImpression);
+  });
+
+  it("preserves independent judgments and inherited person subjects", () => {
+    const originalOverall =
+      "새로운 가능성을 향한 움직임과 분명한 표현이 함께 필요하지만, 아직 확인하지 않은 부분은 현실의 대화로 살펴야 기대와 관찰을 구분할 수 있습니다.";
+    for (const overall of [
+      "상대는 독자를 과소평가하고 책임감 있는 사람으로 볼 가능성이 있습니다.",
+      "상대는 독자를 내려다보고 새로운 사람으로 볼 가능성이 있습니다.",
+      "그 사람의 관점에서 독자는 특별한 사람이거나 차분할 가능성이 있습니다.",
+      "그 사람의 관점에서 독자는 신중할 가능성이 있지만, 다정하거나 활기가 많을 수 있습니다.",
+    ]) {
+      const text = createValidText(3).replace(
+        originalOverall,
+        `${overall} 실제 평가는 대화와 피드백으로 따로 확인해야 합니다.`,
+      );
+      expect(
+        validateInstantReadingText(text, {
+          ...request,
+          questionId: "how-they-see-me",
+        }),
+        overall,
+      ).toBeUndefined();
+    }
+    for (const overall of [
+      "상사는 독자를 재평가하고 준비된 사람으로 볼 가능성이 있습니다.",
+      "동료들은 독자를 과소평가하지만 다른 인상일 가능성도 있습니다.",
+      "동료들이 독자를 비난하려 하지만 실수를 쉽게 인정하지 않는 사람으로 평가할 수 있습니다.",
+    ]) {
+      const text = createValidText(3).replace(
+        originalOverall,
+        `${overall} 실제 평가는 대화와 피드백으로 따로 확인해야 합니다.`,
+      );
+      expect(
+        validateInstantReadingText(text, {
+          ...request,
+          topicId: "career-direction",
+          questionId: "career-manager-view",
+        }),
+        overall,
+      ).toBeUndefined();
+    }
+    const factualAttraction = createValidText(3).replace(
+      originalOverall,
+      "상대는 독자를 사랑하고 다정한 사람으로 볼 가능성도 있습니다. 실제 감정은 말과 행동으로 확인해야 합니다.",
+    );
+    expect(
+      validateInstantReadingText(factualAttraction, {
+        ...request,
+        topicId: "feelings",
+        questionId: "interest-or-kindness",
+      }),
+    ).toBeUndefined();
+  });
+
+  it("counts a quoted question as part of one suggested action", () => {
+    const originalAction =
+      "작은 행동: 부담이 적은 질문 하나를 골라 서로 확인할 수 있는 범위에서 짧게 대화해 보세요.";
+    for (const action of [
+      "작은 행동: 부담이 적은 대화에서 “서로에게 편안한 관계의 속도는 어떤 모습인가요?”라고 한 번 물어보세요.",
+      '작은 행동: 부담이 적은 대화에서 "서로에게 편안한 속도는 무엇인가요?"라고 한 번 물어보세요.',
+    ]) {
+      const text = createValidText(3).replace(originalAction, action);
+      expect(validateInstantReadingText(text, request)?.text).toBe(text);
+    }
+    for (const action of [
+      "작은 행동: “어떤 속도가 편한가요?”라고 물어보세요. 다른 질문도 한 번 건네 보세요.",
+      "작은 행동: “어떤 속도가 편한가요?라고 한 번 물어보세요.",
+      '작은 행동: “조용히 "어떤 속도가 편한가요?"라고 한 번 물어보세요.',
+      "작은 행동: “상대의 호감을 사실로 받아들이세요?”라고 말해 보세요.",
+    ]) {
+      const text = createValidText(3).replace(originalAction, action);
+      expect(
+        validateInstantReadingText(text, {
+          ...request,
+          topicId: "feelings",
+          questionId: "interest-or-kindness",
+        }),
+        action,
+      ).toBeUndefined();
+    }
+  });
+
+  it("rejects factual premises and card-based verification of another mind", () => {
+    const originalObservation =
+      "관찰할 점: 다음 대화에서 질문에 대한 답과 이후 행동이 일정하게 이어지는지 살펴보세요.";
+    const attractionRequest = {
+      ...request,
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+    } as const;
+
+    for (const line of [
+      "상대가 당신을 신뢰할 만하다고 말했습니다. 그 이유를 확인해 보세요.",
+      "상대가 당신을 신뢰할 만하다고 말했으며, 그 이유가 무엇인지 확인해 보세요.",
+      "상대가 당신을 신뢰할 만하다고 말했습니다, 그 이유가 무엇인지 확인해 보세요.",
+      "상대가 당신을 사랑한다는 사실을 인정할 수 있는지 확인해 보세요.",
+      "상대가 당신을 사랑한다는 사실을 인정할 수 있는지 그리고 그 이유가 무엇인지 확인해 보세요.",
+      "상대가 당신을 사랑한다는 확정된 결론으로 관계를 점검하는 관점입니다.",
+      "상대가 당신을 사랑한다는 확정된 결론을 근거로 관계를 점검하는 관점입니다.",
+      "상대가 당신을 사랑한다는 확정된 결론이 무엇을 뜻하는지 실제 피드백을 살펴보세요.",
+      "이 의미는 상대가 당신을 사랑한다는 결론을 근거로 관계를 점검하는 관점입니다.",
+      "카드로 상대의 실제 마음이 무엇인지 확인해 보세요.",
+      "카드로는 알 수 없지만, 카드로 다시 상대의 실제 마음을 확인해 보세요.",
+      "상대의 실제 마음을 카드로 확인해 보세요.",
+    ]) {
+      const text = createValidText(3).replace(
+        originalObservation,
+        `관찰할 점: ${line}`,
+      );
+      expect(
+        validateInstantReadingText(text, attractionRequest),
+        line,
+      ).toBeUndefined();
+    }
+
+    const workplaceText = createValidText(3).replace(
+      originalObservation,
+      "관찰할 점: 상사가 당신의 업무를 신뢰한다고 말했습니다. 그 이유를 확인해 보세요.",
+    );
+    expect(
+      validateInstantReadingText(workplaceText, {
+        ...request,
+        topicId: "career-direction",
+        questionId: "career-manager-view",
+      }),
+    ).toBeUndefined();
+  });
+
+  it("distinguishes the current workplace from invented spread positions", () => {
+    const careerRequest = { ...request, topicId: "career-direction" } as const;
+    const originalOverall =
+      "새로운 가능성을 향한 움직임과 분명한 표현이 함께 필요하지만, 아직 확인하지 않은 부분은 현실의 대화로 살펴야 기대와 관찰을 구분할 수 있습니다.";
+
+    for (const workplaceReference of [
+      "현재 자리에서 기술과 협업을 배우는 기회가 있는지 살펴보고, 새 선택에 필요한 시간과 자원도 함께 비교할 수 있습니다.",
+      "현재 자리를 시험할 가치는 실제로 배움과 협업의 여지가 확인되는지에 달려 있다는 해석이 가능합니다. 변화 준비의 부담도 함께 살펴볼 수 있습니다.",
+      "현재 위치에서의 업무를 점검하고, 새로운 기술을 익히는 데 필요한 시간과 자원을 함께 비교할 수 있습니다.",
+    ]) {
+      const text = createValidText(3).replace(
+        originalOverall,
+        workplaceReference,
+      );
+      expect(validateInstantReadingText(text, careerRequest)?.text).toBe(text);
+    }
+
+    const numberedWorkplaceLine = createValidText(3).replace(
+      "새 가능성을 열어 두되 아직 확인하지 않은 기대를 사실처럼 단정하지 않는 태도를 살펴봅니다.",
+      "이 의미는 현재 자리에서 배울 기회가 있는지 점검하고, 협업을 통해 더 시험해 볼 여지를 살펴보는 관점입니다.",
+    );
+    expect(
+      validateInstantReadingText(numberedWorkplaceLine, careerRequest)?.text,
+    ).toBe(numberedWorkplaceLine);
+
+    for (const inventedPosition of [
+      "첫 번째 카드는 현재 위치에서의 업무 상태를 뜻합니다. 새로운 선택에 필요한 시간과 자원도 함께 점검할 수 있습니다.",
+      "현재 자리에서 첫 번째 의미는 업무 상태를 뜻합니다. 새로운 선택에 필요한 시간과 자원도 함께 점검할 수 있습니다.",
+      "첫 번째 의미는 현재 위치에서의 업무 상태를 뜻합니다. 새로운 선택에 필요한 시간과 자원도 함께 점검할 수 있습니다.",
+      "첫 번째 카드는 미래 자리에서의 업무 상태를 뜻합니다. 새로운 선택에 필요한 시간과 자원도 함께 점검할 수 있습니다.",
+      "현재 자리는 업무의 상태를 뜻합니다. 새로운 선택에 필요한 시간과 자원도 함께 점검할 수 있습니다.",
+      "1번은 현재 위치에서의 업무 상태를 뜻합니다. 새로운 선택에 필요한 시간과 자원도 함께 점검할 수 있습니다.",
+      "첫 번째는 현재 자리에서의 업무 상태를 나타냅니다. 새로운 선택에 필요한 시간과 자원도 함께 점검할 수 있습니다.",
+      "두 번째가 현재 위치에서의 업무 상태를 가리킵니다. 새로운 선택에 필요한 시간과 자원도 함께 점검할 수 있습니다.",
+    ]) {
+      const text = createValidText(3).replace(
+        originalOverall,
+        inventedPosition,
+      );
+      expect(
+        validateInstantReadingText(text, careerRequest),
+        inventedPosition,
+      ).toBeUndefined();
+    }
+  });
+
   it("treats reality checks as grounding without factualizing attraction", () => {
     const originalUnknown =
       "아직 모르는 점: 현재 정보만으로는 서로 같은 기대와 관계의 속도를 원하는지 알 수 없습니다.";
