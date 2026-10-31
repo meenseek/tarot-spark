@@ -3215,6 +3215,107 @@ describe("instant reading domain", () => {
     expect(validateInstantReadingText(text, request)).toBeUndefined();
   });
 
+  it.each([
+    "말과 약속을 일관되게 지키는지를 직접 확인하세요.",
+    "예약 내용을 직접 다시 확인하세요.",
+    "서로 정리한 요약 내용을 실제 말과 비교해 보세요.",
+    "실제로 확인한 신호와 약간 다른 해석을 차분히 비교해 보세요.",
+    "질문 하나를 건네고 상대가 대화를 이어 가는지 살펴보세요.",
+    "질문 하나에 대해 상대가 대화를 이어 가는지 살펴보세요.",
+    "하나의 질문을 정하고 상대가 대화를 이어 가는지 살펴보세요.",
+  ])(
+    "keeps ordinary nouns out of medication and reader matches: %s",
+    (line) => {
+      const text = createValidText(3).replace(
+        /^관찰할 점: [^\n]+/mu,
+        `관찰할 점: ${line}`,
+      );
+      expect(validateInstantReadingText(text, request)?.text).toBe(text);
+    },
+  );
+
+  it.each([
+    "약을 복용하세요.",
+    "약 먹으세요.",
+    "약먹으세요.",
+    "약을 먹어 보세요.",
+    "약을 드세요.",
+    "약을 드시지 마세요.",
+    "혈압약을 계속 먹으세요.",
+    "약물 복용을 시작하세요.",
+    "항우울제를 복용하세요.",
+  ])("rejects medication directives with or without spaces: %s", (line) => {
+    const text = createValidText(3).replace(
+      /^\[전체 흐름\]\n[^\n]+/u,
+      `[전체 흐름]\n새로운 가능성과 분명한 표현을 함께 살피는 태도가 필요합니다. ${line}`,
+    );
+    expect(validateInstantReadingText(text, request)).toBeUndefined();
+  });
+
+  it.each([
+    "상대는 나를 신뢰합니다.",
+    "상대는 나에게 믿음을 두고 있습니다.",
+    "상대는 나에 대해 좋은 사람이라고 판단합니다.",
+    "상대는 나의 성실함을 인정합니다.",
+    "상대가나를좋아합니다.",
+  ])("still rejects factual claims about the actual reader: %s", (line) => {
+    const text = createValidText(3).replace(
+      /^\[전체 흐름\]\n[^\n]+/u,
+      `[전체 흐름]\n${line} 다만 실제 반응과 카드의 의미를 함께 확인할 필요가 있습니다.`,
+    );
+    expect(validateInstantReadingText(text, request)).toBeUndefined();
+  });
+
+  it.each([
+    [
+      "romantic-partner-impression",
+      "독자는 잠재적 연애 상대에게 차분한 파트너로 보일 가능성이 있습니다. 다만 실제 인상은 직접 확인할 부분입니다.",
+      true,
+    ],
+    [
+      "romantic-partner-impression",
+      "카드상 잠재적 연애 상대에게 차분한 파트너라는 인상을 줄 가능성이 있습니다. 다만 실제 인상은 직접 확인할 부분입니다.",
+      true,
+    ],
+    [
+      "romantic-partner-impression",
+      "카드상 잠재적인 연애 상대에게는 안정적인 파트너라는 인상을 줄 수 있습니다. 다만 현실의 인상은 직접 확인할 부분입니다.",
+      true,
+    ],
+    [
+      "how-they-see-me",
+      "카드상 잠재적 연애 상대에게 차분한 파트너라는 인상을 줄 가능성이 있습니다. 다만 실제 인상은 직접 확인할 부분입니다.",
+      false,
+    ],
+    [
+      "romantic-partner-impression",
+      "상대가 독자를 사랑할 가능성이 있습니다. 다만 실제 반응과 카드의 의미를 함께 확인할 필요가 있습니다.",
+      false,
+    ],
+    [
+      "romantic-partner-impression",
+      "상대는 독자를 연애 상대로 보고 있습니다. 다만 실제 반응과 카드의 의미를 함께 확인할 필요가 있습니다.",
+      false,
+    ],
+    [
+      "romantic-partner-impression",
+      "카드상 잠재적 연애 상대에게 좋은 인상을 줄 가능성이 있습니다. 상대가 독자를 사랑할 가능성이 있습니다.",
+      false,
+    ],
+  ] as const)(
+    "limits the requested romantic audience to its own reference: %s / %s",
+    (questionId, overall, accepted) => {
+      const text = createValidText(3).replace(
+        /^\[전체 흐름\]\n[^\n]+/u,
+        `[전체 흐름]\n${overall}`,
+      );
+      expect(
+        validateInstantReadingText(text, { ...request, questionId }) !==
+          undefined,
+      ).toBe(accepted);
+    },
+  );
+
   it("rejects extra response fields", () => {
     expect(
       parseInstantReadingResponse(
