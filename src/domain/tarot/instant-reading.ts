@@ -1516,6 +1516,12 @@ function hasUnsafePerspectiveContextClaim(
     ) {
       return true;
     }
+    if (
+      !isQuestion &&
+      isReaderControlledRecipientReflection(sentence, perspectivePattern)
+    ) {
+      return false;
+    }
     const claimScopes = getClaimScopes(claimScope);
     const scopesToCheck = isQuestion ? claimScopes.slice(0, -1) : claimScopes;
     return (
@@ -1527,6 +1533,70 @@ function hasUnsafePerspectiveContextClaim(
           perspectiveReflectionScopePattern.test(scope) ||
           (isQuestion && questionFragmentPattern.test(scope)),
       )
+    );
+  });
+}
+
+const recipientReflectionEndingPattern = /는\s*관점(?:입니다|이에요)$/u;
+const readerControlledConductStemPattern =
+  /(?:설명하|전하|요청하|조율하|존중하|정리하|조절하|관리하|다루|정하)$/u;
+const readerControlledRestraintStemPattern =
+  /(?:떠넘기지|재촉하지|강요하지|단정하지|압박하지)\s*않$/u;
+const externalActorOrOwnerPattern = new RegExp(
+  String.raw`(?<![가-힣])(?:${relationshipExternalSubjectLexemeSource}|${workplacePerspectiveOwnerSource})(?:들)?(?:${externalSubjectParticleSource}|의)`,
+  "u",
+);
+const recipientReflectionClassificationPattern =
+  /(?:사람|인물|유형|파트너|연인|이성|직원|인재|후보|동료)(?:으?로|이라는|이라고|인|입니다|이에요)/u;
+const recipientReflectionPerceptionStemPattern =
+  /(?:인정|평가|신뢰)(?:받|하|되)|여겨지|보이|느껴지|(?:판단|인식|간주)(?:하|되)/u;
+
+function isReaderControlledRecipientReflection(
+  sentence: string,
+  perspectivePattern: RegExp,
+) {
+  if (
+    !recipientReflectionEndingPattern.test(sentence) ||
+    !/[가-힣]+(?:을|를)(?=\s|$)/u.test(sentence) ||
+    externalActorOrOwnerPattern.test(sentence) ||
+    embeddedExternalClaimMarkerPattern.test(sentence)
+  ) {
+    return false;
+  }
+
+  const anchors = [
+    ...sentence.matchAll(new RegExp(perspectivePattern.source, "gu")),
+  ];
+  if (
+    anchors.length === 0 ||
+    anchors.some(
+      (anchor) =>
+        !/(?:에게|한테|께)(?:는)?$/u.test(anchor[0]) ||
+        !/^(?:도)?(?:\s|$|[,，;；])/u.test(
+          sentence.slice(anchor.index + anchor[0].length),
+        ),
+    )
+  ) {
+    return false;
+  }
+
+  const withoutRecipients = sentence.replace(
+    new RegExp(perspectivePattern.source, "gu"),
+    " ",
+  );
+  if (
+    recipientReflectionClassificationPattern.test(withoutRecipients) ||
+    recipientReflectionPerceptionStemPattern.test(withoutRecipients)
+  ) {
+    return false;
+  }
+
+  // Keep the actor and action object before the recipient when checking clauses.
+  return getClaimScopes(sentence).every((scope) => {
+    const conduct = scope.replace(recipientReflectionEndingPattern, "").trim();
+    return (
+      readerControlledConductStemPattern.test(conduct) ||
+      readerControlledRestraintStemPattern.test(conduct)
     );
   });
 }

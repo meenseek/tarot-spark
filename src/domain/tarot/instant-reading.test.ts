@@ -3334,6 +3334,110 @@ describe("instant reading domain", () => {
     },
   );
 
+  it.each([
+    [
+      "relationship",
+      "답을 기다리는 동안 생길 수 있는 기대나 불안을 상대에게 떠넘기지 않고, 차분히 다루는 관점입니다.",
+      true,
+    ],
+    [
+      "relationship",
+      "연락의 목적을 상대에게 짧게 설명하고, 답을 재촉하지 않는 관점입니다.",
+      true,
+    ],
+    [
+      "career",
+      "업무 범위를 상사에게 분명히 전하고, 추가 요청은 조율하는 관점입니다.",
+      true,
+    ],
+    ["career", "요청할 내용을 동료한테 정리해 전하는 관점입니다.", true],
+    ["career", "업무상의 경계를 상사께 분명히 전하는 관점입니다.", true],
+    [
+      "relationship",
+      "자신의 기준을 상대에게 차분히 설명하는 관점입니다.",
+      true,
+    ],
+    [
+      "relationship",
+      "기대와 불안을 상대에게 떠넘기지 않고, 스스로 조절하는 관점입니다.",
+      true,
+    ],
+    [
+      "relationship",
+      "기대와 불안을 상대에게는 떠넘기지 않고, 스스로 다루는 관점입니다.",
+      true,
+    ],
+    [
+      "relationship",
+      "상대에게 독자는 차분한 사람으로 보일 가능성이 있습니다.",
+      true,
+    ],
+    [
+      "career",
+      "상사에게 독자는 책임감 있는 동료로 보일 가능성이 있습니다.",
+      true,
+    ],
+    ["relationship", "상대에게 독자는 다정한 사람입니다.", false],
+    ["relationship", "상대에게는 특별한 사람이라는 관점입니다.", false],
+    ["career", "상사에게는 핵심 인재로 인정받는 관점입니다.", false],
+    ["relationship", "상대에게 호감이 있다는 관점입니다.", false],
+    ["career", "상사에게는 유능하고, 업무 범위를 조율하는 관점입니다.", false],
+    ["career", "상사에게 유능하고, 업무 범위를 조율하는 관점입니다.", false],
+    [
+      "career",
+      "상사의 눈에는 독자가 유능하고, 업무 범위를 상사에게 설명하는 관점입니다.",
+      false,
+    ],
+    [
+      "relationship",
+      "연락의 목적을 상대에게 짧게 설명하는 관점입니다. 상대는 독자를 좋아합니다.",
+      false,
+    ],
+    [
+      "relationship",
+      "연락의 목적을 상대에게 설명하고, 상대는 독자를 좋아하는 관점입니다.",
+      false,
+    ],
+    ["career", "상사에게 독자가 유능하다는 평가를 설명하는 관점입니다.", false],
+    ["relationship", "상대에게 독자가 연인이라고 전하는 관점입니다.", false],
+    ["relationship", "상대에게 약을 중단하라고 설명하는 관점입니다.", false],
+    [
+      "relationship",
+      "상대에게 대답을 강요하고, 연락의 목적을 설명하는 관점입니다.",
+      false,
+    ],
+    ["career", "상사가 업무 범위를 동료에게 설명하는 관점입니다.", false],
+    [
+      "relationship",
+      "상대가 숨겨 둔 불안을 상대에게 설명하고, 대화의 범위를 정하는 관점입니다.",
+      false,
+    ],
+    [
+      "relationship",
+      "상대의 숨겨진 불안을 상대에게 설명하고, 대화의 범위를 정하는 관점입니다.",
+      false,
+    ],
+    [
+      "relationship",
+      "독자는 자신의 감정을 상대에게 떠넘기지 않고, 차분히 다루는 관점입니다.",
+      true,
+    ],
+  ] as const)(
+    "distinguishes recipient conduct from external viewpoints: %s / %s",
+    (domain, line, accepted) => {
+      const text = createValidText(3).replace(/^3\. [^\n]+/mu, `3. ${line}`);
+      const readingText =
+        domain === "career" ? text.replaceAll("관계", "협업") : text;
+      const readingRequest =
+        domain === "career"
+          ? { ...request, topicId: "career-direction" as const }
+          : request;
+      expect(
+        validateInstantReadingText(readingText, readingRequest) !== undefined,
+      ).toBe(accepted);
+    },
+  );
+
   it("rejects extra response fields", () => {
     expect(
       parseInstantReadingResponse(
