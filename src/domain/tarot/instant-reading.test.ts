@@ -1239,6 +1239,694 @@ describe("instant reading domain", () => {
     }
   });
 
+  it.each([
+    {
+      line: "상대가 당신을 사랑한다고 말하는지 모르지만 언제 연락할지 확인해 보세요.",
+      accepted: true,
+    },
+    {
+      line: "상대가 당신의 입장을 어떻게 이해하는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      line: "상대가 당신을 사랑할 뿐더러 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      line: "상대가 당신을 사랑하는 터라 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      line: "상대가 당신을 사랑한 상태라 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      line: "상대가 당신을 사랑하던 중에 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    { line: "상대의 마음은 어떤지 직접 물어보세요.", accepted: true },
+    {
+      line: "상대가 당신을 신중한 사람으로 보는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      line: "상대는 당신을 신뢰한다고 직접 말하는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      line: "상대가 당신을 사랑한다고 하여 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      line: "상대가 당신을 사랑하는터라 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      line: "상대가 당신을 사랑하던중에 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      line: "상대가 당신을 사랑할뿐더러 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      line: "상대가 당신을 사랑한상태라 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      line: "상대가 당신을 사랑함에 따라 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      line: "상대가 당신을 좋아하게 되자 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      line: "상대가 당신의 제안을 어떻게 받아들이는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      line: "상대가 당신을 개인적으로 어떻게 보는지 직접 물어보세요.",
+      accepted: true,
+    },
+  ])(
+    "limits the grounding exemption to the actual question complement: $line",
+    ({ line, accepted }) => {
+      const text = createValidText(3).replace(
+        "관찰할 점: 다음 대화에서 질문에 대한 답과 이후 행동이 일정하게 이어지는지 살펴보세요.",
+        `관찰할 점: ${line}`,
+      );
+      expect(
+        validateInstantReadingText(text, {
+          ...request,
+          topicId: "feelings",
+          questionId: "interest-or-kindness",
+        }) !== undefined,
+      ).toBe(accepted);
+    },
+  );
+
+  it.each([
+    "상대가 당신을 사랑하길래 언제 연락할지 확인해 보세요.",
+    "상대가 당신을 사랑하는 데다 언제 연락할지 확인해 보세요.",
+  ])("rejects independent reasons before an observation: %s", (line) => {
+    const text = createValidText(3).replace(
+      "관찰할 점: 다음 대화에서 질문에 대한 답과 이후 행동이 일정하게 이어지는지 살펴보세요.",
+      `관찰할 점: ${line}`,
+    );
+    expect(
+      validateInstantReadingText(text, {
+        ...request,
+        topicId: "feelings",
+        questionId: "interest-or-kindness",
+      }),
+    ).toBeUndefined();
+  });
+
+  it.each([
+    {
+      topicId: "love",
+      questionId: "how-they-see-me",
+      line: "상대가 당신을 신뢰할 가능성이 있으므로 실제 피드백이 어떤지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "career-direction",
+      questionId: "career-manager-view",
+      line: "상사가 당신의 업무를 신뢰한다고 직접 말하는지 실제 피드백을 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "career-direction",
+      questionId: "career-manager-view",
+      line: "상사가 당신을 신뢰하므로 어떤 역할을 맡길지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑하므로 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑합니다, 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑하지만 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑한다면 어떤 말과 행동이 이어질지 확인해 보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "love",
+      questionId: "how-they-see-me",
+      line: "상대가 당신의 말과 행동을 신뢰할 만하다고 직접 표현하는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대의 실제 마음은 확인할 수 없으므로 대화에서 어떻게 표현하는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑하지 않으므로 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "career-direction",
+      questionId: "career-manager-view",
+      line: "상사가 당신을 신뢰하는 만큼 어떤 역할을 맡길지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 좋아했기에 어떤 대화를 원할지 살펴보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑하기 때문에 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 신뢰한다고 말한 것이 사실인지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "career-direction",
+      questionId: "career-manager-view",
+      line: "동료들이 당신을 인정해서 어떤 역할을 기대하는지 살펴보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑해서 어떤 관계를 원할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑하는지는 실제 말과 행동으로 확인해 보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑한 뒤에 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑하는지는 알 수 없으므로 실제 행동을 확인해 보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "그 사람이 당신을 어떻게 보는지 확인한 뒤 어떤 행동을 할지 정해 보세요.",
+      accepted: true,
+    },
+  ] as const)(
+    "checks each premise independently of the observation suffix: $line",
+    ({ topicId, questionId, line, accepted }) => {
+      const text = createValidText(3).replace(
+        "관찰할 점: 다음 대화에서 질문에 대한 답과 이후 행동이 일정하게 이어지는지 살펴보세요.",
+        `관찰할 점: ${line}`,
+      );
+      expect(
+        validateInstantReadingText(text, {
+          ...request,
+          topicId,
+          questionId,
+        }) !== undefined,
+      ).toBe(accepted);
+    },
+  );
+
+  it.each([
+    {
+      topicId: "career-direction",
+      questionId: "career-manager-view",
+      line: "상사가 당신에게 어떤 업무를 맡기는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 먼저 어떻게 보는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 평소에 어떻게 보는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 다정한 사람으로 보는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 편한 사람으로 여기는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑하는 마음을 어떻게 표현하는지 살펴보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대의 반응은 어떤지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대의 사랑하는 마음은 당신에게 어떻게 표현되는지 살펴보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑하고언제연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑하니언제연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대의 의도는 어떤지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 보고 있는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑하니까연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑하니연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대의 깊은 사랑은 당신에게 어떻게 표현되는지 살펴보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대의 반응은 당신의 제안에 어떻게 달라지는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 믿었고연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 보고싶은지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 좋아했으니연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신의 경계를 넘어서는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신의 경계를 넘어서고 있는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑함을 어떻게 확인할지 살펴보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑한것을 어떻게 확인할지 살펴보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑해서다정하게 보는지 직접 물어보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신에게 불안함을 어떻게 표현하는지 살펴보세요.",
+      accepted: true,
+    },
+  ] as const)(
+    "keeps lexical variation while preserving one question scope: $line",
+    ({ topicId, questionId, line, accepted }) => {
+      const text = createValidText(3).replace(
+        "관찰할 점: 다음 대화에서 질문에 대한 답과 이후 행동이 일정하게 이어지는지 살펴보세요.",
+        `관찰할 점: ${line}`,
+      );
+      expect(
+        validateInstantReadingText(text, {
+          ...request,
+          topicId,
+          questionId,
+        }) !== undefined,
+      ).toBe(accepted);
+    },
+  );
+
+  it("rejects an unsupported prefix after repeated valid arguments", () => {
+    const line = `상대가 당신을 ${"마음을 ".repeat(20)}사랑하는터라 언제 연락할지 확인해 보세요.`;
+    const text = createValidText(3).replace(
+      "관찰할 점: 다음 대화에서 질문에 대한 답과 이후 행동이 일정하게 이어지는지 살펴보세요.",
+      `관찰할 점: ${line}`,
+    );
+    expect(
+      validateInstantReadingText(text, {
+        ...request,
+        topicId: "feelings",
+        questionId: "interest-or-kindness",
+      }),
+    ).toBeUndefined();
+  });
+
+  it.each([
+    "상사가 당신의 영어 서류를 어떻게 평가하는지 직접 물어보세요.",
+    "상사가 당신의 분위기에 어떻게 반응하는지 살펴보세요.",
+    "상사가 당신에 대해서 어떻게 평가하는지 직접 물어보세요.",
+  ])(
+    "keeps noun and postpositional arguments inside a question: %s",
+    (line) => {
+      const text = createValidText(3).replace(
+        "관찰할 점: 다음 대화에서 질문에 대한 답과 이후 행동이 일정하게 이어지는지 살펴보세요.",
+        `관찰할 점: ${line}`,
+      );
+      expect(
+        validateInstantReadingText(text, {
+          ...request,
+          topicId: "career-direction",
+          questionId: "career-manager-view",
+        })?.text,
+      ).toBe(text);
+    },
+  );
+
+  it.each([
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑하므로 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑함으로 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 친구로 보는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑한상태로 언제 연락할지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 동반자로 보는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "career-direction",
+      questionId: "career-manager-view",
+      line: "상사가 당신을 게임으로 어떻게 평가하는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 방금 어떻게 보는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "career-direction",
+      questionId: "career-manager-view",
+      line: "상사가 당신을 이름으로 어떻게 부르는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 나를 지금 어떻게 보는지 확인해 보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "career-direction",
+      questionId: "career-manager-view",
+      line: "상사가 당신을 당신의 영어 서류로 어떻게 평가하는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 오늘 어떻게 보는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "career-direction",
+      questionId: "career-manager-view",
+      line: "상사가 당신을 믿음으로 어떤 역할을 맡길지 확인해 보세요.",
+      accepted: false,
+    },
+  ] as const)(
+    "keeps time and noun-case roles without factual premises: $line",
+    ({ topicId, questionId, line, accepted }) => {
+      const text = createValidText(3).replace(
+        "관찰할 점: 다음 대화에서 질문에 대한 답과 이후 행동이 일정하게 이어지는지 살펴보세요.",
+        `관찰할 점: ${line}`,
+      );
+      expect(
+        validateInstantReadingText(text, {
+          ...request,
+          topicId,
+          questionId,
+        }) !== undefined,
+      ).toBe(accepted);
+    },
+  );
+
+  it.each([
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑해서자연스럽게 보는지 직접 물어보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 더 좋아하는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "career-direction",
+      questionId: "career-manager-view",
+      line: "상사가 당신을 어느 정도 신뢰하는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 잘 보고 있는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신에게 얼마나 자연스럽게 반응하는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신에게 자연스럽게 반응하는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 신뢰한다고 말하지 않는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 전혀 좋아하지 않는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 자주 찾는지 살펴보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 좋아했던게 어떤 의미인지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑한게 어떤 의미인지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 혹시 좋아하는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 사랑하는게 어떤 의미인지 확인해 보세요.",
+      accepted: false,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 꽤 좋아하는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 정말 좋아하는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 가끔 떠올리는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "feelings",
+      questionId: "interest-or-kindness",
+      line: "상대가 당신을 슬쩍 보는지 직접 물어보세요.",
+      accepted: true,
+    },
+    {
+      topicId: "career-direction",
+      questionId: "career-manager-view",
+      line: "상사가 당신을 매우 신뢰하는지 직접 물어보세요.",
+      accepted: true,
+    },
+  ] as const)(
+    "recognizes modifier roles without nominal premises: $line",
+    ({ topicId, questionId, line, accepted }) => {
+      const text = createValidText(3).replace(
+        "관찰할 점: 다음 대화에서 질문에 대한 답과 이후 행동이 일정하게 이어지는지 살펴보세요.",
+        `관찰할 점: ${line}`,
+      );
+      expect(
+        validateInstantReadingText(text, {
+          ...request,
+          topicId,
+          questionId,
+        }) !== undefined,
+      ).toBe(accepted);
+    },
+  );
+
+  it.each([
+    { line: "상대가 당신을 오히려 좋아하는지 직접 물어보세요." },
+    { line: "상대가 당신을 좀더 좋아하는지 직접 물어보세요." },
+    { line: "상대가 당신을 꽤나 좋아하는지 직접 물어보세요." },
+    { line: "상대가 당신을 완전 좋아하는지 직접 물어보세요." },
+    { line: "상대가 당신을 언뜻 좋아하는지 직접 물어보세요." },
+    { line: "상대가 당신을 아무래도 좋아하는지 직접 물어보세요." },
+    { line: "상대가 당신을 엄청 좋아하는지 직접 물어보세요." },
+    { line: "상대가 당신을 은근 좋아하는지 직접 물어보세요." },
+  ] as const)(
+    "keeps irregular modifier and degree-composition forms: $line",
+    ({ line }) => {
+      const text = createValidText(3).replace(
+        "관찰할 점: 다음 대화에서 질문에 대한 답과 이후 행동이 일정하게 이어지는지 살펴보세요.",
+        `관찰할 점: ${line}`,
+      );
+      expect(
+        validateInstantReadingText(text, {
+          ...request,
+          topicId: "feelings",
+          questionId: "interest-or-kindness",
+        })?.text,
+      ).toBe(text);
+    },
+  );
+
   it("accepts indirect observation questions and reflective checks", () => {
     const originalObservation =
       "관찰할 점: 다음 대화에서 질문에 대한 답과 이후 행동이 일정하게 이어지는지 살펴보세요.";

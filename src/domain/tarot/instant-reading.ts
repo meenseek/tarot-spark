@@ -172,7 +172,7 @@ const relationshipEmbeddedExternalSubjectPattern = new RegExp(
   "u",
 );
 const relationshipExternalAttractionStateSubjectPattern =
-  /(?:(?:상대(?:방)?|그\s*사람|그분)(?:\s*(?:(?:쪽|측)(?:의)?|안의)|의)?\s*(?:호감|애정|연정|연애\s*감정|끌림|설렘|두근거림|관심|마음|감정)(?:은|는|이|가)(?:\s|$)|(?:상대(?:방)?|그\s*사람|그분)(?:의)?\s*마음(?:은|는|이|가)?\s*(?:독자|나|저|당신)\s*쪽으로)/u;
+  /(?:(?:상대(?:방)?|그\s*사람|그분)(?:\s*(?:(?:쪽|측)(?:의)?|안의)|의)?(?![가-힣])\s*(?:[가-힣]+\s+){0,2}?(?:사랑|호감|애정|연정|연애\s*감정|끌림|설렘|두근거림|관심|마음|감정)(?:은|는|이|가)(?:\s|$)|(?:상대(?:방)?|그\s*사람|그분)(?:의)?\s*마음(?:은|는|이|가)?\s*(?:독자|나|저|당신)\s*쪽으로)/u;
 const workplaceEmbeddedExternalSubjectPattern = new RegExp(
   String.raw`(?:${workplaceExternalPeopleLexemeSource}${externalSubjectParticleSource}|${workplaceExternalCollectiveLexemeSource}(?:들)?(?:${externalSubjectParticleSource}|에서(?:는)?|에선))(?:\s|$)`,
   "u",
@@ -221,8 +221,11 @@ const cardExternalPerceptionObjectPattern =
 const readerPerceptionObjectPattern = /(?:독자|나|저|당신)(?:을|를)(?:\s|$)/u;
 const readerPerceptionDativePattern =
   /(?:(?:독자|나|저|당신)(?:에게|한테|께)|(?:내|제)게)(?:는)?(?:\s|$)/u;
-const readerPerceptionAboutPattern =
-  /(?:독자|나|저|당신)에\s*(?:(?:대|관)해(?:서)?(?:는)?|대한|관한)(?:\s|$)/u;
+const readerPerceptionAboutSource = String.raw`(?:독자|나|저|당신)에\s*(?:(?:대|관)해(?:서)?(?:는)?|대한|관한)`;
+const readerPerceptionAboutPattern = new RegExp(
+  String.raw`${readerPerceptionAboutSource}(?:\s|$)`,
+  "u",
+);
 const readerPerceptionPossessivePattern =
   /(?:(?:독자|나|저|당신)의|(?<![가-힣])(?:내|제))\s+(?=[가-힣])/u;
 const embeddedExternalClaimMarkerPattern = /(?:다는|다고|라는|라고)/u;
@@ -274,10 +277,6 @@ const relationshipExternalPossessiveEvaluationPattern = new RegExp(
 );
 const workplaceExternalPossessiveEvaluationPattern = new RegExp(
   String.raw`(?:${workplaceExternalPeopleLexemeSource}|${workplaceExternalCollectiveLexemeSource})(?:의)\s*(?:평가|판단|생각|인상|시선)(?:은|는|이|가|에서)(?:\s|$)`,
-  "u",
-);
-const externalPerceptionVerificationActionPattern = new RegExp(
-  String.raw`^(?:${relationshipExternalSubjectLexemeSource}(?:들)?|${workplaceExternalPeopleLexemeSource}|${workplaceExternalCollectiveLexemeSource})(?:은|는|이|가|께서(?:는)?|에서(?:는)?)\s+(?:독자|나|저|당신)(?:을|를)\s*(?:어떻게|어떤|무엇으로)[^.!?！？\n]{0,24}(?:는지|은지|인지)[^.!?！？\n]{0,32}(?:묻|물어보|질문|확인)[^.!?！？\n]{0,12}세요$`,
   "u",
 );
 const unsafePatterns = [
@@ -906,6 +905,11 @@ function hasFactualExplicitRelationshipExternalClaim(value: string) {
       : [sentence];
     return claimScopes.some(
       (claimScope) =>
+        (isIndirectGroundingQuestion(claimScope) !== undefined &&
+          hasUncalibratedExternalStateDeclarativeClaim(
+            claimScope,
+            relationshipExternalAttractionStateSubjectPattern,
+          )) ||
         hasUnsafeFactualPerceptionClaim(
           claimScope,
           relationshipAudienceBearingReaderAnchorPattern,
@@ -1153,21 +1157,46 @@ function isSharedComparisonModality(
   );
 }
 
+// Both splitters share clause syntax, but retain their own inheritance policy.
+const claimPredicateConnectorSource = String.raw`으면서도|면서도|으면서|면서|는데도|은데도|인데도|으니까|니까|으니|는데|은데|인데|으며|해도|어도|아도|여도|더라도|거나|으나|지만|으므로|므로|길래|해서|어서|아서|여서|느라고|느라|기\s*때문에`;
+const claimScopeBoundaryPattern = new RegExp(
+  String.raw`(하지만|그러나|반면|다만|그리고|또한)(?:\s*[,，]?\s*)|([가-힣]+?)(${claimPredicateConnectorSource}|(?<=[하했되됐있없않았었였높낮크작])기에|(?<![다라자냐])고도|(?<![다라])고|며|니|되)(?=\s*[,，]?\s+)|([가-힣]+(?:한|은|는|인)\s*(?:채|대신|만큼|덕분에|탓에|까닭에|데다|뒤(?:에)?|후(?:에)?|다음(?:에)?))(?:\s*[,，]?\s+)|([가-힣]+(?:니다|요|죠))\s*(?:[,，;；:：]|[—–-])\s*`,
+  "gu",
+);
+
+function* getClaimBoundaryMatches(value: string) {
+  for (const match of value.matchAll(claimScopeBoundaryPattern)) {
+    const beforeConnector = value.slice(
+      0,
+      (match.index ?? 0) + (match[2]?.length ?? 0),
+    );
+    if (
+      match[3] === "해서" &&
+      /(?:에\s*(?:대|관)|(?:을|를)\s*통)$/u.test(beforeConnector)
+    )
+      continue;
+    yield match;
+  }
+}
+
 function getExternalDeclarativeClaimScopes(
   value: string,
   externalSubjectPattern: RegExp,
 ) {
   const scopes: string[] = [];
   let scopeStart = 0;
-  for (const boundary of value.matchAll(
-    /(하지만|그러나|반면|다만|그리고|또한)(?:\s*[,，]?\s*)|([가-힣]+?)(으면서도|면서도|으면서|면서|는데도|은데도|인데도|으니까|니까|으니|는데|은데|인데|으며|해도|어도|아도|여도|더라도|거나|으나|지만|(?<![다라자냐])고도|(?<![다라])고|며|니|되)(?=\s*[,，]?\s+)|([가-힣]+(?:한|은|는|인)\s*(?:채|대신))(?:\s*[,，]?\s+)|([가-힣]+(?:니다|요|죠))\s*(?:[,，;；:：]|[—–-])\s*/gu,
-  )) {
+  for (const boundary of getClaimBoundaryMatches(value)) {
     const boundaryIndex = boundary.index ?? 0;
-    const stem = boundary[2];
-    const completedPhrase = boundary[4];
-    const punctuatedEnding = boundary[5];
+    const [
+      ,
+      transition,
+      stem,
+      matchedConnector,
+      completedPhrase,
+      punctuatedEnding,
+    ] = boundary;
     if (
-      boundary[3] === "고" &&
+      matchedConnector === "고" &&
       /^\s*(?:있(?:을|는|었|어|습니다|어요)|싶)/u.test(
         value.slice(boundaryIndex + boundary[0].length),
       )
@@ -1183,7 +1212,7 @@ function getExternalDeclarativeClaimScopes(
           : boundaryIndex;
     const candidate = value.slice(scopeStart, candidateEnd).trim();
     const suffix = value.slice(boundaryIndex + boundary[0].length).trim();
-    const connector = boundary[3] ?? boundary[1];
+    const connector = matchedConnector ?? transition;
     const isCalibratedAttributiveContinuation =
       isCalibratedDescriptionContinuation(candidate, stem, connector, suffix);
     if (
@@ -1498,13 +1527,9 @@ function stripSentenceEnding(value: string) {
 function getClaimScopes(claimScope: string) {
   const scopes: string[] = [];
   let scopeStart = 0;
-  for (const match of claimScope.matchAll(
-    /(?:하지만|그러나|반면|다만|그리고|또한)(?:\s*[,，]?\s*)|([가-힣]+?)(으면서도|면서도|으면서|면서|는데도|은데도|인데도|으니까|니까|으니|는데|은데|인데|으며|해도|어도|아도|여도|더라도|거나|으나|지만|(?<![다라자냐])고도|(?<![다라])고|며|니|되)(?=\s*[,，]?\s+)|([가-힣]+(?:한|은|는|인)\s*(?:채|대신))(?:\s*[,，]?\s+)/gu,
-  )) {
+  for (const match of getClaimBoundaryMatches(claimScope)) {
     const matchIndex = match.index ?? 0;
-    const stem = match[1];
-    const connector = match[2];
-    const completedPhrase = match[3];
+    const [, , stem, connector, completedPhrase, punctuatedEnding] = match;
     if (
       connector === "고" &&
       /^\s*(?:있(?:을|는|었|어|습니다|어요)|싶)/u.test(
@@ -1517,7 +1542,9 @@ function getClaimScopes(claimScope: string) {
       ? matchIndex + stem.length
       : completedPhrase
         ? matchIndex + completedPhrase.length
-        : matchIndex;
+        : punctuatedEnding
+          ? matchIndex + punctuatedEnding.length
+          : matchIndex;
     const candidate = claimScope.slice(scopeStart, scopeEnd).trim();
     const suffix = claimScope.slice(matchIndex + match[0].length).trim();
     const effectiveConnector =
@@ -1547,8 +1574,21 @@ function isGroundingClaimScope(claimScope: string) {
       "",
     )
     .trim()
+    .replace(/^[,，;；]+/u, "")
     .replace(/[,，;；]+$/u, "")
     .trim();
+  return getClaimScopes(normalizedClaimScope).every(
+    (scope) =>
+      isAtomicGroundingClaimScope(scope) || isCalibratedClaimScope(scope),
+  );
+}
+
+function isAtomicGroundingClaimScope(normalizedClaimScope: string) {
+  // Question-shaped clauses have one authority; broader action patterns cannot
+  // override a rejected question span.
+  if (isIndirectGroundingQuestion(normalizedClaimScope) !== undefined) {
+    return isNonFactualGroundingScope(normalizedClaimScope);
+  }
   const usesCardsAsProof = /(?:타로|카드|상징|해석)/u.test(
     normalizedClaimScope,
   );
@@ -1558,9 +1598,14 @@ function isGroundingClaimScope(claimScope: string) {
     );
   return (
     isNonFactualGroundingScope(normalizedClaimScope) ||
-    externalPerceptionVerificationActionPattern.test(normalizedClaimScope) ||
+    /^(?:(?:직접|다시|함께|차분히)\s*)*(?:확인|비교|구분|검토|점검|관찰|기록|정리|대조)(?:해야\s*합니다|해야\s*해요|합니다|해요|해\s*보세요|하세요)$/u.test(
+      normalizedClaimScope,
+    ) ||
     readerGroundingActionPattern.test(normalizedClaimScope) ||
-    (realityGroundingActionPattern.test(normalizedClaimScope) &&
+    ((realityGroundingActionPattern.test(normalizedClaimScope) ||
+      /^(?:실제|현실(?:의)?)\s+(?:인상|평가|판단|기대|감정|마음|행동|말|피드백|신호|근거|사실)(?:은|는|이|가|을|를)[^.!?！？\n]{0,56}(?:묻|확인하|비교하|살펴보|살피|구분하|검토하|점검하|관찰하|기록하|정리하|대조하|참고하|되짚)$/u.test(
+        normalizedClaimScope,
+      )) &&
       hasConcreteRealityEvidence &&
       !usesCardsAsProof) ||
     (externalAttractionGroundingActionPattern.test(normalizedClaimScope) &&
@@ -1603,10 +1648,7 @@ function isNonFactualGroundingScope(value: string) {
   }
 
   return (
-    /(?:는지|은지|인지|을지|할지|될지)(?:가|를|도|는)?\s*(?:(?:직접|함께|차분히|다시|한\s*번|실제\s*피드백을|대화로)\s*)*(?:살펴보세요|지켜보세요|확인(?:해\s*보세요|하세요|할\s*부분입니다)|물어보세요|보게\s*합니다|중요합니다)$/u.test(
-      value,
-    ) ||
-    /(?:는지|은지|인지|을지|할지|될지)(?:는|를|가)?$/u.test(value) ||
+    isIndirectGroundingQuestion(value) === true ||
     (/^(?:이|그)\s*의미(?:는|가)\s/u.test(value) &&
       !relationshipEmbeddedExternalSubjectPattern.test(value) &&
       !workplaceEmbeddedExternalSubjectPattern.test(value) &&
@@ -1616,7 +1658,264 @@ function isNonFactualGroundingScope(value: string) {
   );
 }
 
+function isIndirectGroundingQuestion(value: string) {
+  const question =
+    /^([^.!?！？\n]+지)(?:가|를|도|는)?(?:\s*(?:(?:직접|함께|차분히|부담\s*없이|다시|한\s*번|한\s*명에게|당사자에게|실제\s*피드백을|실제\s*말과\s*행동으로|대화로)\s*)*(?:살펴보세요|지켜보세요|확인(?:해\s*보세요|하세요|할\s*부분입니다|한\s*(?:뒤|후)(?:에)?)|물어보세요|정해\s*보세요|보게\s*합니다|중요합니다))?$/u.exec(
+      value,
+    );
+  if (!question?.[1]) return undefined;
+  return isSupportedGroundingQuestionPredicate(question[1]);
+}
+
+// Recognize the question span positively. An arbitrary earlier predicate must
+// never borrow the final question's grounding exemption.
+const independentPredicateOperatorSource = String.raw`${claimPredicateConnectorSource}|[하했되됐있없않았었였](?:고|니|며|되)(?!있|싶)|때문에|(?:는|던|한|은|인|할|될|을)(?:터라|중에|뿐더러|상태라|탓에|덕분에|까닭에|채로)|게(?:되자|됐|된)|다고|라고|다며|라며|합니다|습니다|했어요|해요|입니다|이에요|예요`;
+const independentPredicateConnectorPattern = new RegExp(
+  String.raw`${independentPredicateOperatorSource}|기에|(?:함|됨|있음|없음)(?:에|으로)`,
+  "gu",
+);
+
+function isAtomicGroundingPredicate(value: string) {
+  const compact = value.replace(/\s+/gu, "");
+  if (/[가-힣](?:언제|어떻게|무엇|어떤|얼마나|왜)/u.test(compact)) return false;
+  for (const match of compact.matchAll(independentPredicateConnectorPattern)) {
+    const suffix = compact.slice((match.index ?? 0) + match[0].length);
+    // A lexical stem such as 넘어서- can end in the same syllables as a
+    // connector. An inflection alone does not introduce another predicate.
+    if (!/^(?:는지|는|면|고(?:있는지|싶은지))?$/u.test(suffix)) return false;
+  }
+  return true;
+}
+
+function hasGroundingQuestionEnding(value: string) {
+  const compact = value.replace(/\s+/gu, "");
+  if (!compact.endsWith("지")) return false;
+  const syllable = compact.charCodeAt(compact.length - 2) - 0xac00;
+  return (
+    syllable >= 0 &&
+    syllable <= 0x2ba3 &&
+    (syllable % 28 === 4 || syllable % 28 === 8)
+  );
+}
+
+function hasGroundingAdnominalEnding(value: string) {
+  const syllable = value.charCodeAt(value.length - 1) - 0xac00;
+  return syllable >= 0 && syllable <= 0x2ba3 && syllable % 28 === 4;
+}
+
+function isExternalPredicateNominal(nominal: string) {
+  const stems: string[] = [];
+  if (nominal.endsWith("음")) stems.push(nominal.slice(0, -1));
+  const last = nominal.charCodeAt(nominal.length - 1);
+  const syllable = last - 0xac00;
+  if (syllable >= 0 && syllable <= 0x2ba3 && syllable % 28 === 16) {
+    stems.push(nominal.slice(0, -1) + String.fromCharCode(last - 16));
+  }
+  return stems.some(
+    (stem) =>
+      judgmentPredicateStemPattern.test(stem) ||
+      attractionIntentLexemePattern.test(stem),
+  );
+}
+
+function hasFactualNominalGroundingPrefix(prefix: string) {
+  const hasExternalSubject =
+    relationshipEmbeddedExternalSubjectPattern.test(prefix) ||
+    workplaceEmbeddedExternalSubjectPattern.test(prefix);
+  let hasObject = false;
+  for (const word of prefix.matchAll(/[가-힣]+/gu)) {
+    if (!/(?:으로|을|를|이|가|은|는)$/u.test(word[0])) continue;
+    const nominal = word[0].replace(/(?:으로|을|를|이|가|은|는)$/u, "");
+    const predicateNominal =
+      isExternalPredicateNominal(nominal) ||
+      (nominal.endsWith("것") &&
+        hasGroundingAdnominalEnding(nominal.slice(0, -1)));
+    const beforeNominal = prefix.slice(0, (word.index ?? 0) + word[0].length);
+    const hasReaderOperand =
+      /(?:^|\s)(?:(?:독자|나|저|당신)(?:을|를|은|는|이|가)|(?:내|제)가)/u.test(
+        beforeNominal,
+      );
+    if (
+      hasExternalSubject &&
+      predicateNominal &&
+      (hasObject || hasReaderOperand)
+    )
+      return true;
+    hasObject ||= /(?:을|를)$/u.test(word[0]);
+  }
+  return false;
+}
+
+const isSupportedGroundingQuestionPredicate = (() => {
+  const questionToken = String.raw`(?:[가-힣]+지|[가-힣]+\s+(?:(?:수(?:는|도)?)\s*)?(?:있는지|없는지|되는지|될지|좋은지|괜찮은지|싶은지|싶을지|않는지|않을지|못하는지|못할지))`;
+  const productiveAdverb = String.raw`[가-힣]+(?:게|히|적으로|껏)`;
+  const temporalAdverb = String.raw`(?:지금|방금|오늘|어제|내일|그동안|늘|항상|먼저|나중|평소|최근|요즘|현재|이전|이후|다음|처음|그후|그전)(?:에|에는|에도|은|는)?`;
+  const degreeAdverb = String.raw`(?:(?:좀|조금|훨씬|한층|더욱)\s*더|정말|진짜|엄청|완전|무지|매우|아주|너무|무척|몹시|꽤(?:나)?|제법|퍽|참|훨씬|더|덜|가장|조금|좀|많이|약간|다소|한층|한결|더욱|그만큼|어느\s+정도)`;
+  const frequencyAdverb = String.raw`(?:자주|종종|가끔|때때로|간혹|보통|대개|주로|자꾸|줄곧|매번)`;
+  const modalAdverb = String.raw`(?:아무래도|어쩐지|설마|혹시|혹여|어쩌면|아마|아직|벌써|비교적|대체로|전혀|별로|그다지|좀처럼|도무지|거의|아예)`;
+  const mannerAdverb = String.raw`(?:은근|언뜻|오히려|도리어|차라리|잘|못|바로|그냥|그저|단지|오직|따로|각자|혼자|슬쩍|살짝|가까이|깊이|높이|멀리|빨리|일부러|일단|우선|곧|금방|잠깐|잠시|선뜻|기꺼이)`;
+  const qualifier = String.raw`(?:실제로|실제|직접|함께|차분히|부담\s*없이|다시|이미|계속|꾸준히|서로|그런|대해|대해서|관해|관해서|통해|통해서|현재의|지금의|공정하게|균형\s+있게|인상\s+깊게|${degreeAdverb}|${frequencyAdverb}|${modalAdverb}|${mannerAdverb}|${productiveAdverb}|${temporalAdverb}|어떻게|어떤|어느|무슨|무엇|얼마나|왜|언제)`;
+  const externalArgument = String.raw`(?:${relationshipExternalSubjectLexemeSource}|${workplaceExternalPeopleLexemeSource}|${workplaceExternalCollectiveLexemeSource})(?:은|는|이|가|께서|의|과|와)`;
+  const readerArgument = String.raw`(?:${readerPerceptionAboutSource}|(?:독자|나|저|당신)(?:은|는|이|가|을|를|(?:에게|한테)(?:도|는)?|의)|(?:내|제)(?:가|게))`;
+  const nounCase = String.raw`(?:으로|로|을|를|이|가|은|는|의|과|와|(?:에|에서)(?:는|도)?)`;
+  const ownedArgument = String.raw`(?:(?:독자|나|저|당신)의|내|제)\s+(?:(?:어떤|어느|여러|실제)\s+)?(?:[가-힣]+\s+){0,2}?[가-힣]+${nounCase}`;
+  const publicNoun = String.raw`(?:마음|감정|호감|관심|말|행동|인상|평가|판단|생각|업무|역할|관계|시선|면|부분|점|속도|경계|가능성|질문|답|표현|기준|조건|시간|기분|입장|의견|신호|근거|정보|피드백|바람|현실|대화|회의|협업|상황|과정|자리)`;
+  const publicArgument = String.raw`${publicNoun}${nounCase}`;
+  const externalOwnedArgument = String.raw`(?:${relationshipExternalSubjectLexemeSource}|${workplaceExternalPeopleLexemeSource}|${workplaceExternalCollectiveLexemeSource})의\s+[가-힣]+${nounCase}`;
+  const classificationArgument = String.raw`[가-힣]+(?:으로|로)`;
+  const objectArgument = String.raw`[가-힣]+(?:을|를|과|와)`;
+  const conditional = String.raw`(?:[가-힣]+면|(?:속도|경계|균형)(?:을|를)\s+(?:조율|점검|조정)할\s+때(?:는)?|한쪽만\s+맞추기보다)`;
+  const desireArgument = String.raw`(?:관계|대화)(?:를|을)\s+(?:맺고|이어가고|나누고)\s+싶은\s+마음(?:은|이)`;
+  const reflectionFrame = String.raw`(?:이|그)\s*(?:의미|연결|흐름)(?:은|는)\s+(?:추억|기억|경험)(?:이|가)\s+불러오는\s+(?:감정|기대|바람)(?:만)?으로\s+결론\s+내리기보다[,，]?`;
+  const perceptionArgument = String.raw`(?:어떤|어느|무슨)\s+(?:사람|인물|직원|동료|후보|상대|파트너|기준|관점|방식|태도)(?:으로|로)`;
+  // Parse prefixes left to right, without revisiting an accepted noun phrase.
+  // A repeated ambiguous regex prefix can otherwise backtrack exponentially.
+  const prefixAtoms = [
+    ownedArgument,
+    reflectionFrame,
+    desireArgument,
+    perceptionArgument,
+    conditional,
+    externalOwnedArgument,
+    externalArgument,
+    readerArgument,
+    publicArgument,
+    classificationArgument,
+    objectArgument,
+    qualifier,
+  ].map((source) => ({
+    pattern: new RegExp(String.raw`^(?:${source})(?=\s|$)`, "u"),
+    externalOwned: source === externalOwnedArgument,
+    qualifier: source === qualifier,
+    reader: source === readerArgument,
+    readerOwned: source === ownedArgument,
+    noun: [
+      ownedArgument,
+      publicArgument,
+      externalOwnedArgument,
+      classificationArgument,
+    ].includes(source),
+  }));
+  const hasSupportedPrefix = (prefix: string) => {
+    let remaining = prefix.trim();
+    let externalTopic = false;
+    while (remaining) {
+      const parsed = prefixAtoms
+        .map((atom) => ({ ...atom, value: atom.pattern.exec(remaining)?.[0] }))
+        .find((atom) => atom.value);
+      if (!parsed?.value) return false;
+      if (parsed.noun && /로$/u.test(parsed.value)) {
+        const lastWord = parsed.value.split(/\s+/u).at(-1)!;
+        const boundary = [...getClaimBoundaryMatches(`${lastWord} `)].at(-1);
+        if (
+          (boundary &&
+            boundary.index === 0 &&
+            boundary[0].trim() === lastWord) ||
+          /(?:함|됨|있음|없음)으로$/u.test(lastWord) ||
+          /(?:는|던|한|은|인|할|될|을)(?:상태|채)로$/u.test(lastWord)
+        )
+          return false;
+      }
+      // An external topic cannot also introduce a relative noun phrase.
+      // The final question, adverbs and a recipient can follow it directly.
+      if (
+        externalTopic &&
+        !parsed.qualifier &&
+        !parsed.readerOwned &&
+        !(parsed.reader && /(?:에게|한테|께)(?:도|는)?$/u.test(parsed.value))
+      )
+        return false;
+      externalTopic ||=
+        parsed.externalOwned && /(?:은|는)$/u.test(parsed.value);
+      remaining = remaining.slice(parsed.value.length).trimStart();
+    }
+    return true;
+  };
+  const reportAdverb = String.raw`(?:(?:직접|실제로|분명히)\s+)*`;
+  const factualQuestion = String.raw`(?:것(?:이|은)|게|(?:내용|말|표현|이야기)(?:이|은))\s*(?:사실인지|맞는지|정확한지)`;
+  const premiseQuestion = String.raw`(?:(?:이미\s*)?(?:확정된|확인된|증명된)\s*)?(?:가정|전제|결론|판단)(?:인지|이\s*(?:맞는지|사실인지))`;
+  const quotedPredicate = String.raw`[가-힣]+(?:\s+만하)?(?:다고|라고|다는|라는)`;
+  const descriptor = String.raw`[가-힣]+(?:\s+만한)?`;
+  // Captures are only grammatical fields; ordinary noun arguments are not
+  // classified by their syllables or a dictionary of permitted verbs.
+  const pattern = new RegExp(
+    String.raw`(?:^|\s)(?:(${quotedPredicate})\s*(?:${reportAdverb}(${questionToken})|([가-힣]+)\s*${factualQuestion}|${premiseQuestion})|(${descriptor})\s+(?:사람|인물|직원|동료|후보|상대|파트너)(?:으로|로|이라고)\s+(${questionToken})|(${questionToken}))$`,
+    "u",
+  );
+  const adverbPattern = new RegExp(String.raw`^${productiveAdverb}$`, "u");
+  return (value: string) => {
+    const match = pattern.exec(value);
+    if (!match) return false;
+    const [
+      ,
+      quoted,
+      report,
+      pastReport,
+      description,
+      descriptionQuestion,
+      simple,
+    ] = match;
+    const prefixValue = value.slice(0, match.index);
+    if (
+      !hasSupportedPrefix(prefixValue) ||
+      hasFactualNominalGroundingPrefix(prefixValue)
+    )
+      return false;
+    for (const word of prefixValue.match(/[가-힣]+/gu) ?? []) {
+      if (
+        adverbPattern.test(word) &&
+        word.endsWith("게") &&
+        hasGroundingAdnominalEnding(word.slice(0, -1))
+      )
+        return false;
+
+      if (
+        (adverbPattern.test(word) || /면$/u.test(word)) &&
+        !isAtomicGroundingPredicate(word)
+      )
+        return false;
+    }
+    for (const predicate of [simple, report, descriptionQuestion]) {
+      if (
+        predicate &&
+        (!hasGroundingQuestionEnding(predicate) ||
+          !isAtomicGroundingPredicate(predicate))
+      )
+        return false;
+    }
+    if (
+      quoted &&
+      !isAtomicGroundingPredicate(
+        quoted.replace(/(?:다고|라고|다는|라는)$/u, ""),
+      )
+    )
+      return false;
+    for (const modifier of [pastReport, description]) {
+      if (
+        modifier &&
+        (!hasGroundingAdnominalEnding(modifier) ||
+          !isAtomicGroundingPredicate(modifier))
+      )
+        return false;
+    }
+    return true;
+  };
+})();
+
+function stripFinalClaimConnector(value: string) {
+  const boundary = [...getClaimBoundaryMatches(`${value} `)].at(-1);
+  const stem = boundary?.[2];
+  if (
+    !stem ||
+    (boundary.index ?? 0) + boundary[0].trimEnd().length !== value.length
+  ) {
+    return value;
+  }
+  return value.slice(0, boundary.index) + stem;
+}
+
 function isCalibratedClaimScope(claimScope: string) {
+  claimScope = stripFinalClaimConnector(claimScope);
   if (
     hasCertainEmbeddedPremise(claimScope) ||
     /(?:다는|라는)\s*(?:사실|진실)(?:임을|이라는|이라고|인\s*(?:점|것)|을|를|은|는|이|가|로)/u.test(
