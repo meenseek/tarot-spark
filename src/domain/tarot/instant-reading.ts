@@ -218,16 +218,24 @@ const cardExternalPerceptionFactualizerPattern = new RegExp(
 );
 const cardExternalPerceptionObjectPattern =
   /(?:(?:독자|나|저|당신)(?:을|를)[^.!?！？\n]{0,40}(?:으?로|(?:이)?라고)|(?:상대(?:방)?|그\s*사람|그분|상사|관리자|팀장|리더|동료|팀원|면접관)(?:의)?\s*(?:시선|인상|판단|평가|생각|기대)|(?:상대(?:방)?|그\s*사람|그분|상사|관리자|팀장|리더|동료|팀원|면접관)[^.!?！？\n]{0,40}(?:독자|나|저|당신)(?:을|를|에게|한테|께))/u;
-const readerPerceptionObjectPattern = /(?:독자|나|저|당신)(?:을|를)(?:\s|$)/u;
-const readerPerceptionDativePattern =
-  /(?:(?:독자|나|저|당신)(?:에게|한테|께)|(?:내|제)게)(?:는)?(?:\s|$)/u;
-const readerPerceptionAboutSource = String.raw`(?:독자|나|저|당신)에\s*(?:(?:대|관)해(?:서)?(?:는)?|대한|관한)`;
+const readerPerceptionPersonSource = String.raw`(?<![가-힣])(?:독자|나|저|당신)`;
+const readerPerceptionObjectPattern = new RegExp(
+  String.raw`${readerPerceptionPersonSource}(?:을|를)(?:\s|$)`,
+  "u",
+);
+const readerPerceptionDativePattern = new RegExp(
+  String.raw`(?:${readerPerceptionPersonSource}(?:에게|한테|께)|(?<![가-힣])(?:내|제)게)(?:는)?(?:\s|$)`,
+  "u",
+);
+const readerPerceptionAboutSource = String.raw`${readerPerceptionPersonSource}에\s*(?:(?:대|관)해(?:서)?(?:는)?|대한|관한)`;
 const readerPerceptionAboutPattern = new RegExp(
   String.raw`${readerPerceptionAboutSource}(?:\s|$)`,
   "u",
 );
-const readerPerceptionPossessivePattern =
-  /(?:(?:독자|나|저|당신)의|(?<![가-힣])(?:내|제))\s+(?=[가-힣])/u;
+const readerPerceptionPossessivePattern = new RegExp(
+  String.raw`(?:${readerPerceptionPersonSource}의|(?<![가-힣])(?:내|제))\s+(?=[가-힣])`,
+  "u",
+);
 const embeddedExternalClaimMarkerPattern = /(?:다는|다고|라는|라고)/u;
 const questionFragmentPattern = /(?:무엇|어떤|어떻게|왜|얼마나|어느)/u;
 const indirectQuestionPattern =
@@ -279,6 +287,7 @@ const workplaceExternalPossessiveEvaluationPattern = new RegExp(
   String.raw`(?:${workplaceExternalPeopleLexemeSource}|${workplaceExternalCollectiveLexemeSource})(?:의)\s*(?:평가|판단|생각|인상|시선)(?:은|는|이|가|에서)(?:\s|$)`,
   "u",
 );
+const medicationNounSource = String.raw`(?<![가-힣])약(?:물|제)?(?=(?:은|는|이|가|을|를|의|도|만|부터|까지|으로)?(?:\s|$|[,.!?]))`;
 const unsafePatterns = [
   /(?:반드시|틀림없이|확실히).{0,32}(?:연락|재회|성공|합격|결혼|일어납니다|됩니다)/u,
   /(?:반드시|틀림없이|확실히).{0,32}(?:승진|채용|퇴사|연봉|수익)/u,
@@ -290,7 +299,11 @@ const unsafePatterns = [
   /(?:주식|코인|가상화폐|부동산|투자).{0,24}(?:매수|매도|사세요|파세요|투자하세요)/u,
   /(?:주식|종목|코인|가상화폐|부동산|투자).{0,32}(?:사는|파는|매수|매도|투자).{0,20}(?:정답|해야|권합니다|좋습니다)/u,
   /(?:고소|소송|신고|합의|계약|변호사).{0,32}(?:하는\s*것이\s*(?:정답|좋습니다)|하세요|해야|권합니다|진행하세요|시작하세요)/u,
-  /(?:진단|처방|복용|약|수술|치료|병원).{0,32}(?:하는\s*것이\s*(?:정답|좋습니다)|받으세요|하세요|해야|권합니다|필요합니다)/u,
+  new RegExp(
+    String.raw`(?:진단|처방|복용|${medicationNounSource}|수술|치료|병원).{0,32}(?:하는\s*것이\s*(?:정답|좋습니다)|받으세요|하세요|해야|권합니다|필요합니다)`,
+    "u",
+  ),
+  /약(?:물|제)?(?:을|를|은|는|도|만)?\s*(?:(?:지금|오늘|먼저|계속|바로|꼭|반드시|다시|한\s*번)\s*){0,2}(?:먹(?:으세요|어\s*보세요|지\s*마세요)|드(?:세요|시(?:세요|지\s*마세요))|복용(?:하세요|해\s*보세요|하지\s*마세요))/u,
   /(?:진단|처방|복용|변호사|고소|소송).{0,24}(?:받으세요|하세요|해야|권합니다|진행하세요)/u,
   /(?:당장|즉시|오늘 바로|지금 바로).{0,24}(?:연락|퇴사|투자|찾아가|헤어지|결혼)/u,
   /자해|자살|죽는 방법|몰래\s*(?:확인|감시)|미행|강제로/u,
@@ -683,6 +696,16 @@ function hasUnaskedOtherPersonAttractionClaim(
         continue;
       }
       if (
+        isQuestionOwnedRomanticAudienceReference(
+          sentence,
+          matchStart,
+          matchStart + match[0].length,
+          questionId,
+        )
+      ) {
+        continue;
+      }
+      if (
         isQuestionOwnedImplicitReaderAttractionClaim(claimScope, questionId)
       ) {
         continue;
@@ -699,6 +722,23 @@ function hasUnaskedOtherPersonAttractionClaim(
 
     return false;
   });
+}
+
+const potentialRomanticAudiencePattern =
+  /(?<![가-힣])잠재적(?:인)?\s*연애\s*상대(?:에게|한테)(?:는|도)?(?![가-힣])/gu;
+
+function isQuestionOwnedRomanticAudienceReference(
+  sentence: string,
+  referenceStart: number,
+  referenceEnd: number,
+  questionId?: string,
+) {
+  if (questionId !== "romantic-partner-impression") return false;
+  return [...sentence.matchAll(potentialRomanticAudiencePattern)].some(
+    (audience) =>
+      audience.index <= referenceStart &&
+      referenceEnd <= audience.index + audience[0].length,
+  );
 }
 
 function isQuestionOwnedImplicitReaderAttractionClaim(
