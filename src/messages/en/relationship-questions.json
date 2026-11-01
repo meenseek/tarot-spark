@@ -81,7 +81,7 @@
     "pace-of-closeness": {
       "title": "Does our pace work for both of us?",
       "summary": "Check whether contact and meetings respect both people's limits.",
-      "focus": "Separate the pace that feels comfortable to me, the pace shown through the other person's behavior, and one small conversation that could help us coordinate.",
+      "focus": "Separate the pace that feels comfortable to the reader, what remains to be checked about the other person’s pace, and one small conversation that could help coordinate them. Do not assume past behavior was supplied.",
       "ctaLabel": "Check our pace"
     },
     "before-starting": {
@@ -93,7 +93,7 @@
     "first-contact": {
       "title": "Should I contact them first?",
       "summary": "Check your reason and when to stop, not their future reply.",
-      "focus": "Examine my purpose in reaching out, the boundaries shown so far, a low-pressure way to contact them, and a stop condition if there is no reply.",
+      "focus": "Consider the reader’s purpose for reaching out, what remains to be checked about the other person’s boundaries, a low-pressure message, and a reader-chosen waiting period or contact limit if there is no reply. Do not assume a boundary has already been expressed.",
       "ctaLabel": "Set contact limits"
     },
     "mutual-view": {

@@ -77,6 +77,13 @@ describe("OpenAI instant reading adapter", () => {
     expect(JSON.stringify(body)).not.toContain("secret-token");
     expect(JSON.stringify(body)).toContain("사전식 뜻풀이를 반복하지 마세요");
     expect(JSON.stringify(body)).toContain("기간·비용·경계");
+    expect(JSON.stringify(body)).toContain(
+      "어느 해석의 비중이 크다고 보더라도",
+    );
+    expect(JSON.stringify(body)).toContain(
+      "독자가 정해 두는 대기 기간이나 연락 횟수의 한도",
+    );
+    expect(JSON.stringify(body)).not.toContain("상대의 반응과 무관하게");
     expect(JSON.stringify(body)).toContain("양자택일로 몰지 않는");
     expect(JSON.stringify(body)).toContain("입력에 없는 사건");
     expect(JSON.stringify(body)).toContain("이 행동을 멈추고 다시 판단");
@@ -94,6 +101,23 @@ describe("OpenAI instant reading adapter", () => {
       "질문에 없는 호감 해석을 덧붙이지 마세요",
     );
   });
+
+  it.each(["pace-of-closeness", "first-contact"] as const)(
+    "keeps unprovided past behavior out of question focus: %s",
+    (questionId) => {
+      const question = getPublicQuestionCatalog("ko").questions.find(
+        (question) => question.id === questionId,
+      )!;
+      const prompt = buildInstantReadingPrompt(tarotData, {
+        ...request,
+        topicId: question.topicId,
+        questionId,
+      });
+      expect(prompt).toContain("아직 확인할 점");
+      expect(prompt).not.toContain("상대가 행동으로 보인 속도");
+      expect(prompt).not.toContain("상대가 지금까지 보인 경계");
+    },
+  );
 
   it("uses the exact direct endpoint", () => {
     expect(openaiInstantReadingUrl).toBe("https://api.openai.com/v1/responses");
