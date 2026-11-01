@@ -698,6 +698,11 @@ function hasUnaskedOtherPersonAttractionClaim(
         continue;
       }
       if (
+        isAttractionMeaningDisclaimer(sentence, matchStart + match[0].length)
+      ) {
+        continue;
+      }
+      if (
         isQuestionOwnedRomanticAudienceReference(
           sentence,
           matchStart,
@@ -724,6 +729,14 @@ function hasUnaskedOtherPersonAttractionClaim(
 
     return false;
   });
+}
+
+function isAttractionMeaningDisclaimer(sentence: string, referenceEnd: number) {
+  // Deny the meaning attached to this reference, without exempting another
+  // attraction assertion elsewhere in the sentence.
+  return /^(?:을|를)\s*(?:뜻|의미)하(?:기보다|는\s*것(?:이|은)\s*아니라)(?=\s|[,，]|$)/u.test(
+    sentence.slice(referenceEnd),
+  );
 }
 
 const potentialRomanticAudiencePattern =
@@ -2304,6 +2317,15 @@ function hasValidActionLines(value: string, questionId?: string) {
   const [smallActionLine, stopConditionLine] = value.split("\n");
   const smallAction = smallActionLine!.slice(actionLabels[0].length).trim();
   const stopCondition = stopConditionLine!.slice(actionLabels[1].length).trim();
+  const stopInstruction =
+    /이\s*행동을\s*멈추고\s*다시\s*판단하세요[.。]?$/u.exec(stopCondition);
+  const conditionBeforeInstruction = stopInstruction
+    ? stopCondition.slice(0, stopInstruction.index).trim()
+    : "";
+  const hasConditionalConnector =
+    /(?:\S면|\S\s+(?:때|경우)(?:에는|에|는)?)(?=[\s,，]|$)/u.test(
+      conditionBeforeInstruction,
+    );
   const actionForSentenceCount = maskBalancedQuotedQuestionMarks(smallAction);
   const hasOneSmallActionSentence =
     getSentencesPreservingEndings(actionForSentenceCount).length === 1;
@@ -2315,7 +2337,8 @@ function hasValidActionLines(value: string, questionId?: string) {
     hasOneSmallActionSentence &&
     !hasUnsafeAttractionActionClaim &&
     /세요[.。]?$/u.test(smallAction) &&
-    /면\s+이\s*행동을\s*멈추고\s*다시\s*판단하세요[.。]?$/u.test(stopCondition)
+    stopInstruction !== null &&
+    hasConditionalConnector
   );
 }
 

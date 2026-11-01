@@ -3474,6 +3474,71 @@ describe("instant reading domain", () => {
       ),
     ).toBeUndefined();
   });
+
+  it.each([
+    "대화가 일상에 부담을 주면, 이 행동을 멈추고 다시 판단하세요.",
+    "정해 둔 시간을 넘어 더 묻고 싶어질 때는 이 행동을 멈추고 다시 판단하세요.",
+    "대화가 한쪽의 경계를 넘으면 그 자리에서 이 행동을 멈추고 다시 판단하세요.",
+    "정해 둔 기간이 지나도 답이 없으면 이 행동을 멈추고 다시 판단하세요.",
+    "한쪽의 경계를 넘는 경우에는 이 행동을 멈추고 다시 판단하세요.",
+    "일상에 부담이 생길 때 이 행동을 멈추고 다시 판단하세요.",
+  ])(
+    "accepts natural conditional phrasing before the stop instruction: %s",
+    (condition) => {
+      const text = createValidText(3).replace(
+        "대화가 반복해서 경계를 넘거나 일상에 큰 비용을 만들면 이 행동을 멈추고 다시 판단하세요.",
+        condition,
+      );
+      expect(validateInstantReadingText(text, request)?.text).toBe(text);
+    },
+  );
+
+  it.each([
+    "정해 둔 기간이 지나면 상황을 다시 확인하세요.",
+    "정해 둔 기간이 지나면 이 행동을 멈추지 말고 계속 시도하세요.",
+    "이 행동을 멈추고 다시 판단하세요.",
+    "부디 이 행동을 멈추고 다시 판단하세요.",
+    "지금 이 행동을 멈추고 다시 판단하세요.",
+  ])(
+    "requires preceding condition text and an explicit stop instruction: %s",
+    (condition) => {
+      const text = createValidText(3).replace(
+        "대화가 반복해서 경계를 넘거나 일상에 큰 비용을 만들면 이 행동을 멈추고 다시 판단하세요.",
+        condition,
+      );
+      expect(validateInstantReadingText(text, request)).toBeUndefined();
+    },
+  );
+
+  it.each([
+    "이는 상대의 호감을 뜻하기보다 서로 다른 관점을 살피는 상징적 해석입니다.",
+    "이 해석은 상대의 연애적 관심을 의미하는 것이 아니라 서로의 관점을 살피는 상징적 관점입니다.",
+  ])(
+    "accepts a local disclaimer about an attraction meaning: %s",
+    (sentence) => {
+      const text = createValidText(3).replace(
+        "[전체 흐름]\n",
+        `[전체 흐름]\n${sentence} `,
+      );
+      expect(validateInstantReadingText(text, request)?.text).toBe(text);
+    },
+  );
+
+  it.each([
+    "상대에게 호감이 있을 가능성이 있습니다.",
+    "상대는 당신을 사랑합니다.",
+    "이는 호감을 뜻하기보다 상대가 당신을 사랑한다는 사실을 뜻합니다.",
+    "상대는 당신을 사랑합니다. 이는 호감을 뜻하기보다 관점을 바꾸라는 말입니다.",
+  ])(
+    "does not let a disclaimer hide an independent attraction assertion: %s",
+    (sentence) => {
+      const text = createValidText(3).replace(
+        "[전체 흐름]\n",
+        `[전체 흐름]\n${sentence} `,
+      );
+      expect(validateInstantReadingText(text, request)).toBeUndefined();
+    },
+  );
 });
 
 export function createValidText(cardCount: number) {

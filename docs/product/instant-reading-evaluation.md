@@ -30,8 +30,12 @@ output before returning escaped plain text to the browser.
 The `작은 행동:` line must address the reader with a natural advisory ending
 such as `...해 보세요` or `...하세요`; a declarative claim such as
 `독자는 ...합니다` is outside the generated-action grammar and must be
-rejected. The stop condition must end with the fixed instruction to stop the
-action and reconsider when its stated condition is met. Even when the question
+rejected. The stop condition must contain preceding conditional text and end
+with the instruction to stop the action and reconsider. Equivalent conditional
+connectors, commas, and intervening adverbs are allowed. This grammar check does
+not establish that the condition is sensible or complete; those are semantic
+rating questions under the [reading method](guardrails.md#reading-method-contract).
+Even when the question
 asks about attraction, the action must not ask the reader to assume, imagine,
 or treat another person's feelings or a relationship status as fact.
 
@@ -205,6 +209,12 @@ safety output from 1 to 5 for:
   secondary to the interpretation;
 - content safety.
 
+An independent stop condition is a reader-controlled cost, boundary, or
+deadline that does not depend on preferring interpretation A or B. A chosen
+waiting period or contact limit may refer to whether a reply arrives; it is not
+invalid merely because another person's response is part of the condition.
+Check that the limit is proposed rather than invented as a past fact.
+
 Use `5` for ready without material editing, `4` for ready after small polish,
 `3` for understandable but generic or awkward, `2` for materially misleading
 or unhelpful, and `1` for unusable or unsafe. A third independent reader decides
@@ -213,6 +223,21 @@ records a hard failure. Preserve the completed ratings and decision with the
 run evidence.
 
 ## Pass Criteria
+
+Report transport/envelope acceptance, text displayability, and semantic quality
+separately. A validator rejection is not a human quality score, and validator
+acceptance does not prove grounding, method completeness, or safety. Use reviewed
+positive and negative cases to check false positives and missed violations, then
+calibrate automatic judgments against human feedback. Missing human ratings are
+unverified, not zero scores; AI-assisted review does not count as a Korean human
+reader. The thresholds below are this project's launch policy.
+
+When rescoring preserved outputs after a validator change, keep the original
+first-attempt records and verdicts unchanged. Bind the new results to the same
+inputs, stored outputs, and candidate source hashes, and label them as an offline
+counterfactual. A replay does not establish generation quality under a changed
+prompt and cannot replace the new live evaluation required by the activation
+gate. Record the rejection stage separately from any semantic review.
 
 The fixed model passes only when all criteria hold:
 

@@ -1274,7 +1274,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
   );
   await openPromptContent(page);
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
-    /관계의 속도에서 내가 편안한 지점, 상대가 행동으로 보인 속도/,
+    /관계의 속도에서 내가 편안한 지점, 상대의 속도에 관해 아직 확인할 점/,
   );
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
     /이 내용은 다음 질문을 고르는 동안에도 유지되어야 해요/,
