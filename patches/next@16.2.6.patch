@@ -1,0 +1,26 @@
+diff --git a/dist/esm/server/lib/mock-request.js b/dist/esm/server/lib/mock-request.js
+index 4d0e8fdb6a8534e999a0f0254192164d72559a00..ecc704652c7ca5146f392bd4f77f169a50e44703 100644
+--- a/dist/esm/server/lib/mock-request.js
++++ b/dist/esm/server/lib/mock-request.js
+@@ -400,7 +400,7 @@ export function createRequestResponseMocks({ url, headers = {}, method = 'GET',
+             readable: bodyReadable
+         }),
+         res: new MockedResponse({
+-            socket,
++            socket: null,
+             resWriter,
+             maximumResponseBody
+         })
+diff --git a/dist/server/lib/mock-request.js b/dist/server/lib/mock-request.js
+index 5d2cd3196f765af47e0c5e68cf5cb6af5d39cec3..62526cbaa226a3cf509052c282378a601f2cab9d 100644
+--- a/dist/server/lib/mock-request.js
++++ b/dist/server/lib/mock-request.js
+@@ -431,7 +431,7 @@ function createRequestResponseMocks({ url, headers = {}, method = 'GET', bodyRea
+             readable: bodyReadable
+         }),
+         res: new MockedResponse({
+-            socket,
++            socket: null,
+             resWriter,
+             maximumResponseBody
+         })

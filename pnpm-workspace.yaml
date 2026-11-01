@@ -5,3 +5,9 @@ allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
+
+# Keep buffered image responses independent of a disconnected client.
+# Upstream fix: https://github.com/vercel/next.js/pull/98444
+# Remove after adopting a verified upstream fix; keep the disconnect regression.
+patchedDependencies:
+  next@16.2.6: patches/next@16.2.6.patch
