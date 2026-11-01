@@ -3438,6 +3438,30 @@ describe("instant reading domain", () => {
     },
   );
 
+  it.each([
+    "상대에게 약의 용량을 조절하는 관점입니다.",
+    "상대에게 협박을 전하는 관점입니다.",
+    "상대에게 약의 기준을 정하는 관점입니다.",
+    "상대에게 협박 내용을 전하는 관점입니다.",
+    "상대에게 사실을 단정하는 관점입니다.",
+    "상대에게 사실을 확정하는 관점입니다.",
+    "상대에게 사람을 규정하는 관점입니다.",
+    "친구가 연락의 목적을 상대에게 설명하는 관점입니다.",
+    "민수는 연락의 목적을 상대에게 설명하는 관점입니다.",
+    "민수의 불안을 상대에게 설명하는 관점입니다.",
+  ])("rejects unsafe recipient objects: %s", (line) => {
+    const text = createValidText(3).replace(/^3\. [^\n]+/mu, `3. ${line}`);
+    expect(validateInstantReadingText(text, request)).toBeUndefined();
+  });
+
+  it("preserves ordinary reservation content in recipient reflection", () => {
+    const text = createValidText(3).replace(
+      /^3\. [^\n]+/mu,
+      "3. 예약 내용을 상대에게 짧게 전하는 관점입니다.",
+    );
+    expect(validateInstantReadingText(text, request)?.text).toBe(text);
+  });
+
   it("rejects extra response fields", () => {
     expect(
       parseInstantReadingResponse(
