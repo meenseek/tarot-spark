@@ -1539,9 +1539,59 @@ function hasUnsafePerspectiveContextClaim(
 
 const recipientReflectionEndingPattern = /는\s*관점(?:입니다|이에요)$/u;
 const readerControlledConductStemPattern =
-  /(?:설명하|전하|요청하|조율하|존중하|정리하|조절하|관리하|다루|정하)$/u;
+  /(?<![가-힣])(설명하|전하|요청하|조율하|존중하|정리하|조절하|관리하|다루|정하)$/u;
 const readerControlledRestraintStemPattern =
-  /(?:떠넘기지|재촉하지|강요하지|단정하지|압박하지)\s*않$/u;
+  /(?<![가-힣])(떠넘기지|재촉하지)\s*않$/u;
+const recipientReflectionRiskContextPattern = new RegExp(
+  String.raw`(?:${medicationNounSource}|진단|처방|복용|투약|약물|수술|치료|병원|고소|소송|합의|계약|변호사|주식|코인|가상화폐|투자|매수|매도|대출|채무|협박|위협|강요|폭력|폭행|미행|감시|보복|자해|자살|무기|폭발|독극물|거짓|허위|날조|위조)`,
+  "u",
+);
+const recipientReaderOwners = new Set([
+  "독자",
+  "나",
+  "저",
+  "당신",
+  "내",
+  "제",
+  "자신",
+]);
+const recipientReflectiveOwners = new Set([
+  ...recipientReaderOwners,
+  "연락",
+  "대화",
+  "업무",
+  "업무상",
+  "협업",
+  "요청",
+]);
+const recipientRelativeStems = new Set(["기다리", "있", "없", "하", "되"]);
+
+type RecipientReflectionObject = "emotion" | "communication" | "response";
+
+function getRecipientReflectionObject(
+  value: string,
+): RecipientReflectionObject | undefined {
+  if (/^(?:기대|불안|감정|마음|긴장)$/u.test(value)) return "emotion";
+  if (/^(?:목적|내용|기준|경계|범위|요청|일정)$/u.test(value))
+    return "communication";
+  if (/^(?:답|응답)$/u.test(value)) return "response";
+  return undefined;
+}
+
+function hasReaderControlledRecipientClause(
+  conduct: string,
+  object: RecipientReflectionObject,
+) {
+  const restraint = readerControlledRestraintStemPattern.exec(conduct)?.[1];
+  if (restraint === "떠넘기지") return object === "emotion";
+  if (restraint === "재촉하지") return object === "response";
+  const stem = readerControlledConductStemPattern.exec(conduct)?.[1];
+  if (!stem) return false;
+  if (["다루", "조절하", "관리하"].includes(stem)) return object === "emotion";
+  if (["조율하", "존중하", "정하", "요청하"].includes(stem))
+    return object === "communication";
+  return object === "communication" || object === "emotion";
+}
 const externalActorOrOwnerPattern = new RegExp(
   String.raw`(?<![가-힣])(?:${relationshipExternalSubjectLexemeSource}|${workplacePerspectiveOwnerSource})(?:들)?(?:${externalSubjectParticleSource}|의)`,
   "u",
@@ -1559,7 +1609,11 @@ function isReaderControlledRecipientReflection(
     !recipientReflectionEndingPattern.test(sentence) ||
     !/[가-힣]+(?:을|를)(?=\s|$)/u.test(sentence) ||
     externalActorOrOwnerPattern.test(sentence) ||
-    embeddedExternalClaimMarkerPattern.test(sentence)
+    embeddedExternalClaimMarkerPattern.test(sentence) ||
+    recipientReflectionRiskContextPattern.test(sentence) ||
+    [...sentence.matchAll(/(?<![가-힣])([가-힣]+)의(?=\s|$)/gu)].some(
+      (owner) => !recipientReflectiveOwners.has(owner[1]!),
+    )
   ) {
     return false;
   }
@@ -1591,12 +1645,41 @@ function isReaderControlledRecipientReflection(
     return false;
   }
 
-  // Keep the actor and action object before the recipient when checking clauses.
+  // Only reviewed reader objects and conduct pairs can inherit across clauses.
+  let object: RecipientReflectionObject | undefined;
   return getClaimScopes(sentence).every((scope) => {
     const conduct = scope.replace(recipientReflectionEndingPattern, "").trim();
+    const withoutRecipient = conduct
+      .replace(new RegExp(perspectivePattern.source, "gu"), " ")
+      .trim();
+    const subjects = [
+      ...withoutRecipient.matchAll(
+        /(?<![가-힣])([가-힣]+?)(은|는|이|가)(?=\s|$)/gu,
+      ),
+    ];
+    if (
+      subjects.some(
+        (subject) =>
+          subject[0] !== "추가" &&
+          !recipientReaderOwners.has(subject[1]!) &&
+          !recipientRelativeStems.has(subject[1]!) &&
+          getRecipientReflectionObject(subject[1]!) === undefined,
+      )
+    )
+      return false;
+    const objects = [
+      ...conduct.matchAll(/(?<![가-힣])([가-힣]+)(?:을|를)(?=\s|$)/gu),
+    ];
+    const topic = /^(?:추가\s+)?([가-힣]+)(?:은|는)(?=\s|$)/u.exec(
+      withoutRecipient,
+    )?.[1];
+    if (objects.length > 0)
+      object = getRecipientReflectionObject(objects.at(-1)![1]!);
+    else if (topic && !recipientReaderOwners.has(topic))
+      object = getRecipientReflectionObject(topic);
     return (
-      readerControlledConductStemPattern.test(conduct) ||
-      readerControlledRestraintStemPattern.test(conduct)
+      object !== undefined &&
+      hasReaderControlledRecipientClause(conduct, object)
     );
   });
 }
