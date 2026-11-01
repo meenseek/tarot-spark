@@ -3449,6 +3449,10 @@ describe("instant reading domain", () => {
     "친구가 연락의 목적을 상대에게 설명하는 관점입니다.",
     "민수는 연락의 목적을 상대에게 설명하는 관점입니다.",
     "민수의 불안을 상대에게 설명하는 관점입니다.",
+    "선생님께서 연락의 목적을 상대에게 설명하는 관점입니다.",
+    "아버지께서는 연락의 목적을 상대에게 설명하는 관점입니다.",
+    "친구 측에서 연락의 목적을 상대에게 설명하는 관점입니다.",
+    "민수 쪽에서 연락의 목적을 상대에게 설명하는 관점입니다.",
   ])("rejects unsafe recipient objects: %s", (line) => {
     const text = createValidText(3).replace(/^3\. [^\n]+/mu, `3. ${line}`);
     expect(validateInstantReadingText(text, request)).toBeUndefined();
