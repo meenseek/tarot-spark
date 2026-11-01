@@ -731,12 +731,18 @@ function hasUnaskedOtherPersonAttractionClaim(
   });
 }
 
+const coordinatedMeaningNounSource = String.raw`(?:사랑|호감|애정|연정|설렘|두근거림|끌림|관심|감정|매력|기대|신뢰|(?:연애|이성)(?:적(?:인)?)?\s*(?:관심|호감|감정|매력))`;
+const attractionMeaningDisclaimerPattern = new RegExp(
+  String.raw`^(?:(?:이나|나|과|와)\s*${coordinatedMeaningNounSource})*(?:을|를)\s*(?:뜻|의미)하(?:기보다|는\s*것(?:이|은)\s*아니라)(?=\s|[,，]|$)`,
+  "u",
+);
+
 function isAttractionMeaningDisclaimer(sentence: string, referenceEnd: number) {
   // Deny the meaning attached to this reference, without exempting another
   // attraction assertion elsewhere in the sentence.
-  return /^(?:을|를)\s*(?:뜻|의미)하(?:기보다|는\s*것(?:이|은)\s*아니라)(?=\s|[,，]|$)/u.test(
-    sentence.slice(referenceEnd),
-  );
+  // Only coordinated nouns may precede that same denial; do not cross a
+  // predicate or punctuation to borrow a disclaimer from another clause.
+  return attractionMeaningDisclaimerPattern.test(sentence.slice(referenceEnd));
 }
 
 const potentialRomanticAudiencePattern =
