@@ -1565,6 +1565,10 @@ const recipientReflectiveOwners = new Set([
   "요청",
 ]);
 const recipientRelativeStems = new Set(["기다리", "있", "없", "하", "되"]);
+const recipientSubjectPattern = new RegExp(
+  String.raw`(?<![가-힣])([가-힣]+?)(?:${externalSubjectParticleSource}|에서(?:는)?|에선|도)(?=\s|$)`,
+  "gu",
+);
 
 type RecipientReflectionObject = "emotion" | "communication" | "response";
 
@@ -1652,11 +1656,7 @@ function isReaderControlledRecipientReflection(
     const withoutRecipient = conduct
       .replace(new RegExp(perspectivePattern.source, "gu"), " ")
       .trim();
-    const subjects = [
-      ...withoutRecipient.matchAll(
-        /(?<![가-힣])([가-힣]+?)(은|는|이|가)(?=\s|$)/gu,
-      ),
-    ];
+    const subjects = [...withoutRecipient.matchAll(recipientSubjectPattern)];
     if (
       subjects.some(
         (subject) =>
