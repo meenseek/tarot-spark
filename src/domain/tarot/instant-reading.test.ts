@@ -3547,6 +3547,152 @@ describe("instant reading domain", () => {
   );
 });
 
+describe("claim roles across complete readings", () => {
+  const originalAction =
+    "작은 행동: 부담이 적은 질문 하나를 골라 서로 확인할 수 있는 범위에서 짧게 대화해 보세요.";
+  const careerRequest = {
+    ...request,
+    topicId: "career-direction",
+    questionId: "career-manager-view",
+  } as const;
+  const impressionRequest = {
+    ...request,
+    topicId: "feelings",
+    questionId: "mutual-view",
+  } as const;
+
+  it.each([
+    "감정에 휩쓸려 서두르지는 않는지 살펴볼 필요가 있습니다.",
+    "솔직함이 상대에게 답이나 결정을 재촉하지 않는지도 살펴야 합니다.",
+    "상대가 독자를 직접 어떻게 표현하는지와 반복해서 어떤 태도를 보이는지가 신호입니다.",
+    "첫 번째 의미는 상대가 독자의 실행력을 기대할 가능성을 보여 줍니다.",
+    "재회한다는 사실이 아닙니다.",
+    "상대가 연락한다는 사실은 확인되지 않았습니다.",
+    "이 연결은 재회의 중요한 기준임을 시사합니다.",
+    "이 의미는 상대가 독자를 깊이 생각하는 사람으로 볼 가능성이 있습니다. 또한 압박 속에서 시야가 좁아질 수 있는 사람으로 볼 가능성도 시사합니다.",
+    "독자가 처음에는 쉽게 이해하기 어려워 보여도 가까워질수록 솔직하고 신뢰할 수 있는 사람으로 읽힐 가능성이 보입니다.",
+    "상대가 독자를 기존의 전제를 내려놓고 차분히 돌아보는 사람으로 볼 가능성이 있습니다.",
+  ])("accepts a locally calibrated or interrogative payload: %s", (claim) => {
+    const text = createValidText(3).replace(
+      "[가장 강한 연결]\n",
+      `[가장 강한 연결]\n${claim}\n`,
+    );
+    expect(validateInstantReadingText(text, impressionRequest)?.text).toBe(
+      text,
+    );
+  });
+
+  it.each([
+    "조율하는 태도와 충분히 듣는 신중함의 연결은, 동료들이 독자의 업무 방식을 균형 잡힌 협업으로 볼지 또는 결정이 더딘 방식으로 볼지 함께 살피게 합니다.",
+    "정보 관리와 소통 사이의 긴장은 상사가 독자를 전략적으로 준비하는 사람으로 볼지, 판단 근거가 덜 드러나는 사람으로 볼지를 함께 살피게 합니다.",
+    "현재 자리의 학습 가능성과 현재 자리에 더 머무를 이유를 실제 업무 조건과 비교하는 관점입니다.",
+  ])("accepts career questions and workplace locations: %s", (claim) => {
+    const text = createValidText(3).replace(
+      "[가장 강한 연결]\n",
+      `[가장 강한 연결]\n${claim}\n`,
+    );
+    expect(validateInstantReadingText(text, careerRequest)?.text).toBe(text);
+  });
+
+  it("recognizes a comparison between the reader's wishes and available conduct", () => {
+    const original =
+      "지금 내가 기대와 실제 관찰을 구분하기 위해 가장 먼저 확인할 수 있는 것은 무엇인가요?";
+    const text = createValidText(3).replace(
+      original,
+      "상대에게 바라는 움직임과 스스로 편안하게 할 수 있는 행동 사이에는 어떤 차이가 있나요?",
+    );
+    expect(validateInstantReadingText(text, impressionRequest)?.text).toBe(
+      text,
+    );
+  });
+
+  it("recognizes a recipient's quoted question without declaring their judgment", () => {
+    const text = createValidText(3).replace(
+      originalAction,
+      "작은 행동: 상사에게 “이 일의 완료 기준과 제가 먼저 공유해야 할 시점을 어떻게 맞추면 좋을까요?”라고 한 번 확인해 보세요.",
+    );
+    expect(validateInstantReadingText(text, careerRequest)?.text).toBe(text);
+  });
+
+  it.each([
+    "이 의미는 상대가 독자를 생각하지만, 상대가 독자를 차분한 사람으로 볼 가능성을 시사합니다.",
+    "이 의미는 상대가 독자를 생각하지만, 차분한 사람으로 볼 가능성이 있습니다.",
+    "이 의미는 상대가 독자를 깊이 생각하지만 압박 속에서는 시야가 좁아질 수 있는 사람으로 볼 가능성을 시사합니다.",
+    "상대의 마음은 카드가 아니라 실제 상대가 독자를 무시한 행동과 구분해야 합니다.",
+    "상대가 감정에 휩쓸려 서두르고 있으니 무엇을 확인할지 살펴볼 필요가 있습니다.",
+    "상대가 독자를 사랑한다는 사실과 신뢰의 연결은 상대가 독자를 어떻게 보는지 살피게 합니다.",
+    "상대가 독자를 좋아하고, 독자를 어떻게 표현하는지가 신호입니다.",
+    "상대가 독자를 좋아한다는 사실을 반복해서 확인하는지가 신호입니다.",
+    "상대가 독자를 좋아하고 신뢰할 가능성을 보여 줍니다.",
+    "상대는 독자를 반복해서 무시합니다.",
+  ])(
+    "does not let a later question or possibility calibrate an earlier assertion: %s",
+    (claim) => {
+      const text = createValidText(3).replace(
+        "[가장 강한 연결]\n",
+        `[가장 강한 연결]\n${claim}\n`,
+      );
+      expect(
+        validateInstantReadingText(text, impressionRequest),
+      ).toBeUndefined();
+    },
+  );
+
+  it.each([
+    "작은 행동: 지금 바로 상대를 찾아가 보세요.",
+    "작은 행동: 지금 바로 퇴사하겠다고 상사에게 전해 보세요.",
+    "작은 행동: 당장 헤어지겠다고 말해 보세요.",
+    "작은 행동: 즉시 퇴사하고 새 직장을 찾으세요.",
+    "작은 행동: 지금 바로 연락하고, 만나는 선택은 미뤄 두세요.",
+    "작은 행동: 연락하는 선택은 미뤄 두되 지금 바로 상대를 찾아가 보세요.",
+    "작은 행동: 계약을 검토한 뒤 서명하세요.",
+    "작은 행동: 계약서에 서명하고 이 행동을 멈추고 다시 판단하세요.",
+  ])("retains urgent and legal directive coverage: %s", (action) => {
+    expect(
+      validateInstantReadingText(
+        createValidText(3).replace(originalAction, action),
+        request,
+      ),
+    ).toBeUndefined();
+  });
+
+  it.each([
+    "작은 행동: 지금 바로 연락하거나 만나는 선택은 미뤄 두세요.",
+    "작은 행동: 대화의 범위에 합의하지 못하면 이 행동을 멈추고 다시 판단하세요.",
+  ])(
+    "accepts a fully scoped deferral or ordinary stopping condition: %s",
+    (action) => {
+      const text = createValidText(3).replace(originalAction, action);
+      expect(validateInstantReadingText(text, request)?.text).toBe(text);
+    },
+  );
+
+  it.each([
+    "상대는 내일 연락을 먼저 합니다.",
+    "상대는 내일 연락을 시작합니다.",
+    "상대는 내일 연락하겠다고 시사합니다.",
+    "상대는 연락을 재개합니다.",
+    "상대는 결혼을 진행합니다.",
+    "상대가 연락한다는 사실을 시사합니다.",
+    "연락이 조만간 옵니다.",
+    "상대는 내일 연락합니다.",
+  ])("retains future event predictions: %s", (claim) => {
+    const text = createValidText(3).replace(
+      "[가장 강한 연결]\n",
+      `[가장 강한 연결]\n${claim}\n`,
+    );
+    expect(validateInstantReadingText(text, request)).toBeUndefined();
+  });
+
+  it("rejects a factual premise inside a recipient's quoted question", () => {
+    const text = createValidText(3).replace(
+      originalAction,
+      "작은 행동: 상사에게 “상사가 독자를 핵심 인재로 확정했으니 이유가 무엇인가요?”라고 물어보세요.",
+    );
+    expect(validateInstantReadingText(text, careerRequest)).toBeUndefined();
+  });
+});
+
 export function createValidText(cardCount: number) {
   const cardLines = [
     "새 가능성을 열어 두되 아직 확인하지 않은 기대를 사실처럼 단정하지 않는 태도를 살펴봅니다.",

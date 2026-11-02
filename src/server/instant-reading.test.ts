@@ -59,6 +59,7 @@ describe("OpenAI instant reading adapter", () => {
     );
 
     const body = JSON.parse(String(fetchImpl.mock.calls[0]?.[1]?.body));
+    expect(openaiInstantReadingModel).toBe("gpt-6.1-terra");
     expect(body).toEqual(buildOpenAIInstantReadingBody(tarotData, request));
     expect(body).toMatchObject(instantReadingGenerationConfig);
     expect(body).toMatchObject({
