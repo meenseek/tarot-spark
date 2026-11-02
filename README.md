@@ -76,7 +76,8 @@ Set `NEXT_PUBLIC_KAKAO_ALLOWED_ORIGINS` to the comma-separated origins
 registered in Kakao. It must include both the running origin and the shared URL
 origin, otherwise the KakaoTalk button stays hidden.
 
-Set the server-only `OPENAI_API_KEY` to use the fixed `gpt-6-luna` model through
+Set the server-only `OPENAI_API_KEY` to use the fixed `gpt-6.1-terra` model with
+`reasoning.effort: "none"` through
 OpenAI's Responses API. For subscription API credits, first
 [claim the benefit](https://developers.openai.com/api/docs/guides/chatgpt-api-credits)
 and use a project key from the linked API organization. Keep

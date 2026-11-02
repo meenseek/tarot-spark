@@ -7,7 +7,8 @@ readings. Implementation and deterministic tests may run behind the server-side
 feature flag while it is disabled by default.
 
 - Evaluate Korean readings only.
-- Use the source-fixed OpenAI `gpt-6-luna` model and direct Responses API endpoint.
+- Use the source-fixed OpenAI `gpt-6.1-terra` model with reasoning effort `none`
+  and the direct Responses API endpoint.
 - Send only selected public options and reviewed upright meanings in draw order.
 - Keep card names, images, internal ids, and free-form situation text out of the
   provider request, logs, analytics, URLs, shares, and stored evidence.
@@ -15,6 +16,68 @@ feature flag while it is disabled by default.
 - Treat only the `relationship` and `career` taxonomies as production-eligible.
   The `self` taxonomy remains prompt-copy only until the separate expansion
   gate below passes.
+
+## Model Selection
+
+The selected configuration is GPT-6.1 Terra with effort `none` and a 2,400-token
+output bound. This is a product choice from the tested candidates, not a claim
+that every model or effort was compared or that Terra is generally superior.
+
+The 2026-11-02 comparison used the same 24 public inputs: 12 normal and 12 safety
+cases. The following results use the original validator at commit `c37afa2`.
+They preserve every first attempt, including failures.
+
+| Model, effort         | Final | App   | Median       |
+| --------------------- | ----- | ----- | ------------ |
+| GPT-6 Luna, none      | 23/24 | 12/24 | 6.5 seconds  |
+| GPT-6.1 Terra, none   | 24/24 | 16/24 | 8.3 seconds  |
+| GPT-6 Sol, none       | 24/24 | 13/24 | 5.3 seconds  |
+| GPT-6.1 Terra, medium | 24/24 | 15/24 | 10.8 seconds |
+
+Luna and Terra `none` were interleaved with only the model changed. Sol `none`
+and Terra `medium` were later extensions that reused the preserved Terra
+`none` answers. Those extensions describe observed differences across batches;
+they do not establish a causal speed or quality advantage. All four arms used
+2,400 output tokens, a 120-second diagnostic deadline and a 128-KiB capture
+bound. Compatibility with the actual 20-second and 32-KiB runtime bounds was
+reported separately.
+
+A separate Luna `none`/`high` comparison used 25,000 output tokens for both arms.
+The original app accepted 9/24 `none` and 0/24 `high` attempts; 22 `high` bodies
+exceeded 32 KiB, one failed text validation and one returned HTTP 520. Its
+different output budget prevents combining those results with the table.
+Terra `high` was not tested.
+
+Terra `none` completed every targeted answer within the observed runtime bounds.
+Raising its effort did not improve app acceptance or the independent AI content
+assessment, while adding latency. Sol was faster in its later batch, but did not
+improve answer completeness. These tradeoffs support retaining Terra `none` as
+the candidate for the full release evaluation.
+
+App rejection and answer quality are separate observations. Initial tracing
+classified seven of Terra's eight rejections as clear false positives. Cold
+review corrected that classification: six were clear false positives and two
+contained ambiguous coordination of external claims. A question about the
+reader's boundaries was treated as a factual external perception; some reader
+descriptions were split before their possibility qualifier. Those failures
+require correcting claim scope rather than raising model effort.
+
+The two ambiguous originals remain rejected. In particular, P22's
+`상대가 독자를 깊이 생각하지만 ... 사람으로 볼 가능성` can describe the
+reader or assert the other person's thought before a separate possibility.
+Accepting both readings would also let an actual external assertion borrow a
+later possibility. Keep the original frozen expectation and failed observation;
+do not relabel that case as a successful repair. Clearly scoped alternatives
+must state each possibility locally. The owner approved this correction to the
+acceptance plan on 2026-11-02;
+retain the original failed plan alongside its replacement. Public activation
+remains pending.
+
+The independent content assessments used AI readers. Their preferences varied
+and they do not substitute for the two Korean human readers below. Keep the
+original evidence in the ignored evaluation archive; label any later replay as
+an offline evaluation of preserved output. This selection does not satisfy the
+fixed review matrix or authorize public activation.
 
 ## Runtime Contract
 
@@ -77,7 +140,7 @@ Before the first evaluation call and again before public activation:
 Use the current official references when checking these facts:
 
 - [Responses API](https://developers.openai.com/api/reference/resources/responses/methods/create)
-- [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna)
+- [GPT-6.1 Terra](https://developers.openai.com/api/docs/models/gpt-6.1-terra)
 - [API subscription credits](https://developers.openai.com/api/docs/guides/chatgpt-api-credits)
 - [API data controls](https://developers.openai.com/api/docs/guides/your-data)
 - [API pricing](https://developers.openai.com/api/docs/pricing)
@@ -272,10 +335,9 @@ thresholds hold:
 - every deterministic eligibility, parser, provider-no-contact, fault, and
   fallback case passes.
 
-This product uses one source-fixed model and does not make a model-selection or
-model-superiority claim. A candidate/reference comparison is therefore not a
-launch requirement. Any future model-selection claim requires a new paired,
-blinded comparison in addition to these absolute criteria.
+The [model selection](#model-selection) uses a bounded paired comparison and
+blinded AI assessment in addition to these absolute criteria. It does not
+establish general model superiority or replace the human release evaluation.
 
 ## Activation Gate
 
