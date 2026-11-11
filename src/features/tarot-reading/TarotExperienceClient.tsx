@@ -57,12 +57,12 @@ import {
 import { CardOverview } from "./components/CardOverview";
 import { CardSpread } from "./components/CardSpread";
 import { CurrentPromptCustomization } from "./components/CurrentPromptCustomization";
+import { CurrentReadingStyle } from "./components/CurrentReadingStyle";
 import type { InstantReadingStatus } from "./components/InstantReadingPanel";
 import { LanguageSwitch } from "./components/LanguageSwitch";
 import { ReadingPreferences } from "./components/ReadingPreferences";
 import { ReadingResult } from "./components/ReadingResult";
 import { PublicQuestionPicker } from "./components/PublicQuestionPicker";
-import { SituationContextInput } from "./components/SituationContextInput";
 import { TopicSelector } from "./components/TopicSelector";
 import type { TarotReadingCopy } from "./i18n";
 import {
@@ -264,8 +264,19 @@ export function TarotExperienceClient({
     : false;
   const formInputs =
     session.mode === "result" ? session.current.inputs : session.draft;
+  const formTaxonomyEligible = isInstantReadingTaxonomyEligible(
+    getReadingTaxonomy(formInputs.topicId, formInputs.questionId),
+  );
+  const formInstantReadingAvailable =
+    instantReadingEnabled && locale === "ko" && formTaxonomyEligible;
+  const availabilityNotice = !instantReadingEnabled
+    ? undefined
+    : !formTaxonomyEligible
+      ? copy.instantReading.unsupportedTopic
+      : locale !== "ko"
+        ? copy.instantReading.koreanOnly
+        : copy.instantReading.available;
   const cards = currentResult?.cards ?? emptyDrawnCards;
-  const selectedTopic = getTopic(tarotData.topics, formInputs.topicId);
   const selectedDomainId = getTopicTaxonomy(formInputs.topicId).domainId;
   const selectedSpread = getSpread(tarotData.spreads, formInputs.spreadId);
   const selectedQuestion = formInputs.questionId
@@ -806,17 +817,6 @@ export function TarotExperienceClient({
         readingAttribution,
       ),
     );
-  }
-
-  function changeDraftUserContext(value: string) {
-    if (session.mode === "result") {
-      return;
-    }
-
-    dispatchSession({
-      type: "SET_DRAFT_PRIVATE_CONTEXT",
-      privateContext: value,
-    });
   }
 
   function changeCurrentUserContext(value: string) {
@@ -1410,10 +1410,18 @@ export function TarotExperienceClient({
               contextPlaceholder={currentTopic?.contextPlaceholder ?? ""}
               copy={copy}
               onContextChange={changeCurrentUserContext}
+              userContext={currentResult?.inputs.privateContext ?? ""}
+            />
+          ) : undefined
+        }
+        readingStyleCustomization={
+          viewMode === "generator" && session.mode === "result" ? (
+            <CurrentReadingStyle
+              copy={copy}
+              instantReadingAvailable={formInstantReadingAvailable}
               onStyleChange={chooseCurrentReadingStyle}
               readingStyles={tarotData.readingStyles}
               selectedStyleId={currentResult?.inputs.styleId ?? "balanced"}
-              userContext={currentResult?.inputs.privateContext ?? ""}
             />
           ) : undefined
         }
@@ -1426,10 +1434,16 @@ export function TarotExperienceClient({
         instantReading={instantReading}
         instantReadingEnabled={
           viewMode === "generator" &&
+          locale === "ko" &&
           instantReadingEnabled &&
           instantReadingTaxonomyEligible
         }
         instantReadingStatus={instantReadingStatus}
+        instantReadingNotice={
+          viewMode === "generator" && !formInstantReadingAvailable
+            ? availabilityNotice
+            : undefined
+        }
         {...(currentTopic?.id === "money-life"
           ? { contextNotice: copy.moneyDisclaimer }
           : {})}
@@ -1489,7 +1503,11 @@ export function TarotExperienceClient({
           : copy.heading}
       </h1>
       <p className="max-w-xl text-base leading-7 text-ts-muted">
-        {session.mode === "edit-next-draw" ? copy.editNextIntro : copy.intro}
+        {session.mode === "edit-next-draw"
+          ? copy.editNextIntro
+          : formInstantReadingAvailable
+            ? copy.instantReading.entryIntro
+            : copy.intro}
       </p>
     </div>
   );
@@ -1523,6 +1541,15 @@ export function TarotExperienceClient({
         selectedQuestion={selectedQuestion}
       />
 
+      {availabilityNotice && (
+        <p
+          className="text-sm leading-6 text-ts-muted"
+          data-testid="instant-reading-availability"
+        >
+          {availabilityNotice}
+        </p>
+      )}
+
       {formInputs.topicId === "money-life" ? (
         <p
           className="rounded-ts-control border border-ts-gold/50 bg-ts-blush px-4 py-3 text-sm font-medium leading-6 text-ts-ink"
@@ -1531,14 +1558,6 @@ export function TarotExperienceClient({
           {copy.moneyDisclaimer}
         </p>
       ) : null}
-
-      <SituationContextInput
-        contextCountLabel={contextCountLabel}
-        contextPlaceholder={selectedTopic.contextPlaceholder}
-        copy={copy}
-        onContextChange={changeDraftUserContext}
-        userContext={formInputs.privateContext}
-      />
 
       <ReadingPreferences
         copy={copy}
@@ -1549,6 +1568,15 @@ export function TarotExperienceClient({
         selectedStyleId={formInputs.styleId}
         spreads={tarotData.spreads}
       />
+
+      {formInputs.privateContext.trim() && (
+        <p
+          className="text-sm leading-6 text-ts-muted"
+          data-testid="retained-copy-context"
+        >
+          {copy.retainedCopyContext}
+        </p>
+      )}
 
       <div
         className={`grid gap-2 ${

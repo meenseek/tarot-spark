@@ -23,6 +23,9 @@ export function SituationContextInput({
       className="grid gap-2"
       data-testid="situation-context"
     >
+      <p className="text-sm leading-6 text-ts-muted" id="tarot-context-help">
+        {copy.contextHelp}
+      </p>
       <Textarea
         announceError={false}
         aria-describedby="tarot-context-help tarot-context-count"
@@ -36,12 +39,11 @@ export function SituationContextInput({
           )
         }
         placeholder={contextPlaceholder}
-        rows={2}
+        rows={3}
         value={userContext}
         wrapperClassName="ts-field ts-context-field"
       />
       <div className="grid gap-1 text-xs leading-5 text-ts-muted">
-        <p id="tarot-context-help">{copy.contextHelp}</p>
         <p className="text-right tabular-nums" id="tarot-context-count">
           {contextCountLabel}
         </p>

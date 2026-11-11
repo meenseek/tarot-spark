@@ -40,7 +40,10 @@ test("renders a localized cardless preset without JavaScript", async ({
       name: "상황이나 궁금한 점 (선택)",
       exact: true,
     }),
-  ).toBeVisible();
+  ).toHaveCount(0);
+  await expect(page.getByTestId("instant-reading-availability")).toContainText(
+    "이 주제는 여기서 바로 해석할 수 있어요.",
+  );
   await expect(
     page.getByTestId("reading-setup-form").locator(":scope > details"),
   ).toHaveCount(1);

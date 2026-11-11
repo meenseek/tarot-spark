@@ -126,13 +126,7 @@ describe("Home", () => {
       "href",
       "/privacy",
     );
-    expect(
-      screen
-        .getByTestId("situation-context")
-        .compareDocumentPosition(
-          screen.getByRole("button", { name: /Draw \d cards/ }),
-        ) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    expect(screen.queryByTestId("situation-context")).toBeNull();
     expect(
       screen
         .getByTestId("reading-preferences")
@@ -144,8 +138,8 @@ describe("Home", () => {
     expect(screen.getByRole("radio", { name: "Deep 6-card" })).toBeVisible();
     expect(screen.getByRole("radio", { name: "Balanced" })).toBeChecked();
     expect(
-      screen.getByLabelText("Your situation or question (Optional)"),
-    ).toBeVisible();
+      screen.queryByLabelText("Your situation or question (Optional)"),
+    ).not.toBeInTheDocument();
     expect(
       screen
         .getByTestId("reading-workspace")
@@ -262,8 +256,8 @@ describe("Home", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/의료·법률·재정/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/AI에 복사한 질문을 보내면 상황도 전달돼요/),
-    ).toBeInTheDocument();
+      screen.queryByRole("textbox", { name: /상황이나 궁금한 점/ }),
+    ).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "개인정보" })).toHaveAttribute(
       "href",
       "/ko/privacy",
@@ -271,6 +265,86 @@ describe("Home", () => {
     expect(
       screen.queryByRole("button", { name: "지금 바로 해석하기" }),
     ).not.toBeInTheDocument();
+  });
+
+  it.each([
+    { locale: "ko", topic: "love", enabled: true, direct: true },
+    { locale: "ko", topic: "career-direction", enabled: true, direct: true },
+    { locale: "ko", topic: "self-direction", enabled: true, direct: false },
+    { locale: "en", topic: "love", enabled: true, direct: false },
+    { locale: "en", topic: "career-direction", enabled: true, direct: false },
+    { locale: "en", topic: "self-direction", enabled: true, direct: false },
+    { locale: "ko", topic: "love", enabled: false, direct: false },
+    { locale: "en", topic: "love", enabled: false, direct: false },
+  ] as const)(
+    "explains capability and chooses the action for $locale $topic flag=$enabled",
+    ({ locale, topic, enabled, direct }) => {
+      process.env["TAROT_INSTANT_READING_ENABLED"] = String(enabled);
+      const fetchMock = vi.spyOn(globalThis, "fetch");
+      render(<TarotExperience locale={locale} />);
+      fireEvent.change(screen.getByRole("combobox"), {
+        target: { value: topic },
+      });
+      const notice = screen.queryByTestId("instant-reading-availability");
+      if (enabled) {
+        expect(notice).toBeVisible();
+        expect(notice).toHaveTextContent(
+          direct
+            ? "이 주제는 여기서 바로 해석할 수 있어요."
+            : topic === "self-direction"
+              ? locale === "ko"
+                ? "이 주제는 바로 해석을 지원하지 않아요"
+                : "not available for this topic"
+              : "available in Korean only",
+        );
+      } else expect(notice).toBeNull();
+      expect(screen.queryByTestId("situation-context")).toBeNull();
+      fireEvent.click(
+        screen.getByRole("button", {
+          name: locale === "ko" ? "카드 3장 뽑기" : "Draw 3 cards",
+        }),
+      );
+      const copy = screen.getByRole("button", {
+        name: locale === "ko" ? "질문 복사하기" : "Copy prompt",
+      });
+      if (direct) {
+        const read = screen.getByRole("button", { name: "지금 바로 해석하기" });
+        expect(read).toHaveClass("ts-primary-action");
+        expect(copy).toHaveClass("ts-secondary-action");
+        expect(
+          read.compareDocumentPosition(copy) & Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy();
+        expect(screen.getByTestId("instant-reading-primary")).toHaveAttribute(
+          "data-analytics-result-view-target",
+        );
+        expect(screen.getByTestId("prompt-ready")).not.toHaveAttribute(
+          "data-analytics-result-view-target",
+        );
+      } else {
+        expect(copy).toHaveClass("ts-primary-action");
+        expect(screen.queryByTestId("instant-reading-primary")).toBeNull();
+      }
+      expect(fetchMock).not.toHaveBeenCalled();
+    },
+  );
+
+  it("keeps a shared Korean result copy-first even while direct reading is enabled", () => {
+    process.env["TAROT_INSTANT_READING_ENABLED"] = "true";
+    const initialReadingState = getReadingStateFromUrl(
+      getTarotData("ko"),
+      "https://tarot-spark.local/ko/share?topic=love&cards=the-fool,the-magician,the-high-priestess",
+    );
+    render(
+      <TarotExperience
+        locale="ko"
+        viewMode="shared"
+        initialReadingState={initialReadingState}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "질문 복사하기" })).toHaveClass(
+      "ts-primary-action",
+    );
+    expect(screen.queryByTestId("instant-reading-primary")).toBeNull();
   });
 
   it("creates an instant Korean reading without sending free-form context", async () => {
@@ -284,6 +358,8 @@ describe("Home", () => {
 
     render(<TarotExperience locale="ko" />);
 
+    fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
+    openCopyContext();
     fireEvent.change(
       screen.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
       {
@@ -292,24 +368,26 @@ describe("Home", () => {
         },
       },
     );
-    fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
+
     fireEvent.click(screen.getByRole("button", { name: "지금 바로 해석하기" }));
 
     expect(
       screen.getByRole("button", { name: "해석 취소하기" }),
     ).toBeInTheDocument();
+    expect(screen.getByText("카드의 흐름을 정리하고 있어요…")).toBeVisible();
     await act(async () => response.resolve(Response.json(reading)));
 
     await waitFor(() => {
       expect(screen.getByTestId("instant-reading-result")).toBeInTheDocument();
     });
     const result = within(screen.getByTestId("instant-reading-result"));
-    const resultHeading = result.getByRole("heading", {
+    const resultHeading = screen.getByRole("heading", {
       name: "AI 카드 흐름 해석",
     });
     expect(resultHeading).toHaveFocus();
     const readingText = result.getByText(
-      (_content, element) => element?.textContent === reading.text,
+      (_content, element) =>
+        element?.tagName === "DIV" && element.textContent === reading.text,
     );
     expect(readingText).toHaveTextContent("다가가고 싶은 마음, 지키고 싶은 선");
     expect(readingText).not.toHaveTextContent("[가능성 B]");
@@ -373,7 +451,7 @@ describe("Home", () => {
 
     await waitFor(() => {
       expect(document.querySelector(".ts-feedback")).toHaveTextContent(
-        /지금은 바로 해석을 불러오지 못했어요/,
+        /해석을 불러오지 못했어요/,
       );
     });
     expect(
@@ -384,6 +462,58 @@ describe("Home", () => {
       screen.getByRole("button", { name: "질문 복사하기" }),
     ).toBeInTheDocument();
   });
+
+  it.each([false, true])(
+    "copies from the failed reading and handles manual recovery=%s",
+    async (blocked) => {
+      process.env["TAROT_INSTANT_READING_ENABLED"] = "true";
+      const fetchMock = vi
+        .spyOn(globalThis, "fetch")
+        .mockResolvedValue(
+          Response.json({ code: "unavailable" }, { status: 503 }),
+        );
+      const writeText = blocked
+        ? vi.fn().mockRejectedValue(new Error("blocked"))
+        : vi.fn().mockResolvedValue(undefined);
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: { writeText },
+      });
+      document.execCommand = vi.fn(() => false);
+      render(<TarotExperience locale="ko" />);
+      fireEvent.click(screen.getByRole("button", { name: "카드 3장 뽑기" }));
+      fireEvent.click(
+        screen.getByRole("button", { name: "지금 바로 해석하기" }),
+      );
+      const recovery = await screen.findByRole("button", {
+        name: "질문 복사해서 계속하기",
+      });
+      expect(
+        screen.getByRole("button", { name: "다시 시도하기" }),
+      ).toHaveFocus();
+      fireEvent.click(recovery);
+      const prompt = screen.getByLabelText(
+        "AI에 붙여 넣을 질문",
+      ) as HTMLTextAreaElement;
+      await waitFor(() => {
+        if (blocked) {
+          expect(
+            screen.getByTestId("prompt-content-disclosure"),
+          ).toHaveAttribute("open");
+          expect(prompt).toHaveFocus();
+          expect(prompt.selectionEnd - prompt.selectionStart).toBe(
+            prompt.value.length,
+          );
+        } else {
+          expect(
+            screen.getByRole("button", { name: "질문을 복사했어요" }),
+          ).toBeVisible();
+          expect(writeText).toHaveBeenCalledWith(prompt.value);
+        }
+      });
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    },
+  );
 
   it("cancels an unfinished instant reading when the cards change", () => {
     process.env["TAROT_INSTANT_READING_ENABLED"] = "true";
@@ -447,7 +577,6 @@ describe("Home", () => {
   it("matches the context example to every selected topic", () => {
     render(<Home />);
 
-    const context = screen.getByLabelText(/Your situation or question/);
     const topicExamples = [
       ["love", "Example: What should I consider before sharing my feelings?"],
       ["reunion", "Example: What needs to change before I contact my ex?"],
@@ -472,13 +601,25 @@ describe("Home", () => {
         }),
         { target: { value: topicId } },
       );
-      expect(context).toHaveAttribute("placeholder", placeholder);
+      fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
+      openCopyContext();
+      expect(
+        screen.getByLabelText(/Your situation or question/),
+      ).toHaveAttribute("placeholder", placeholder);
+      fireEvent.click(
+        screen.getByRole("button", { name: "Prepare the next draw" }),
+      );
     }
   });
 
-  it("keeps optional situation entry directly editable before drawing", () => {
+  it("collects optional context beside copying after drawing", () => {
     render(<Home />);
 
+    expect(
+      screen.queryByLabelText("Your situation or question (Optional)"),
+    ).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
+    openCopyContext();
     const context = screen.getByLabelText(
       "Your situation or question (Optional)",
     );
@@ -489,15 +630,20 @@ describe("Home", () => {
     });
     expect(context).toHaveValue("I want to understand what I can change.");
     expect(screen.getByText("39/500 characters")).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
+
     expect(screen.getByTestId("prompt-ready")).toHaveTextContent(
       "Your situation is included in the prompt.",
     );
   });
 
-  it("bounds oversized draft input before drawing a contextual prompt", () => {
+  it("bounds copied context before sharing it with another AI", () => {
     render(<Home />);
 
+    expect(
+      screen.queryByLabelText("Your situation or question (Optional)"),
+    ).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
+    openCopyContext();
     const context = screen.getByLabelText(
       "Your situation or question (Optional)",
     );
@@ -508,7 +654,7 @@ describe("Home", () => {
 
     expect(context).toHaveValue(acceptedContext);
     expect(screen.getByText("500/500 characters")).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
+
     openPromptContent();
     const prompt = screen.getByLabelText(
       "Generated prompt",
@@ -528,7 +674,7 @@ describe("Home", () => {
     render(<Home />);
     fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
     const resultUrl = window.location.href;
-    fireEvent.click(screen.getByText("Refine the prompt for these cards"));
+    openCopyContext();
 
     const context = screen.getByLabelText(
       "Your situation or question (Optional)",
@@ -741,7 +887,7 @@ describe("Home", () => {
       expect(drawStatus).toHaveTextContent("3 cards drawn.");
     });
 
-    fireEvent.click(screen.getByText("Refine the prompt for these cards"));
+    fireEvent.click(screen.getByText("Change the tone for these cards"));
     fireEvent.click(screen.getByRole("radio", { name: /Direct/ }));
 
     expect(screen.getByTestId("reading-card-0")).toBe(firstDrawCard);
@@ -799,6 +945,8 @@ describe("Home", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     render(<Home />);
 
+    fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
+    openCopyContext();
     fireEvent.change(
       screen.getByLabelText("Your situation or question (Optional)"),
       {
@@ -806,7 +954,6 @@ describe("Home", () => {
       },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
     const committedCardId = screen
       .getByTestId("reading-card-0")
       .getAttribute("data-card-id");
@@ -832,7 +979,7 @@ describe("Home", () => {
     expect(screen.queryByLabelText("Generated prompt")).toBeNull();
     expect(screen.queryByRole("button", { name: "Copy prompt" })).toBeNull();
     expect(screen.queryByTestId("share-options-disclosure")).toBeNull();
-    expect(screen.queryByText("Refine the prompt for these cards")).toBeNull();
+    expect(screen.queryByText("Change the tone for these cards")).toBeNull();
     expect(
       screen.getAllByText(
         "Tarot content is for entertainment and self-reflection only. It is not medical, legal, financial, investment, or mental-health advice.",
@@ -840,13 +987,10 @@ describe("Home", () => {
     ).toHaveLength(1);
 
     expect(
-      screen.getByLabelText("Your situation or question (Optional)"),
-    ).toHaveValue("My previous situation");
-    fireEvent.change(
-      screen.getByLabelText("Your situation or question (Optional)"),
-      {
-        target: { value: "My next situation" },
-      },
+      screen.queryByLabelText("Your situation or question (Optional)"),
+    ).toBeNull();
+    expect(screen.getByTestId("retained-copy-context")).toHaveTextContent(
+      "Your previous context is still included",
     );
     fireEvent.change(
       screen.getByRole("combobox", { name: "Broad reading topic" }),
@@ -883,13 +1027,10 @@ describe("Home", () => {
     ).toHaveValue("love");
 
     expect(
-      screen.getByLabelText("Your situation or question (Optional)"),
-    ).toHaveValue("My previous situation");
-    fireEvent.change(
-      screen.getByLabelText("Your situation or question (Optional)"),
-      {
-        target: { value: "My next situation" },
-      },
+      screen.queryByLabelText("Your situation or question (Optional)"),
+    ).toBeNull();
+    expect(screen.getByTestId("retained-copy-context")).toHaveTextContent(
+      "Your previous context is still included",
     );
     fireEvent.change(
       screen.getByRole("combobox", { name: "Broad reading topic" }),
@@ -898,7 +1039,7 @@ describe("Home", () => {
     fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
     expect(
       (screen.getByLabelText("Generated prompt") as HTMLTextAreaElement).value,
-    ).toContain("My next situation");
+    ).toContain("My previous situation");
     expect(new URL(window.location.href).searchParams.get("topic")).toBe(
       "reunion",
     );
@@ -940,7 +1081,7 @@ describe("Home", () => {
       expect(screen.getByRole("button", { name: "URL copied" })).toBeVisible();
     });
 
-    fireEvent.click(screen.getByText("Refine the prompt for these cards"));
+    fireEvent.click(screen.getByText("Change the tone for these cards"));
     fireEvent.click(screen.getByRole("radio", { name: /Direct/ }));
 
     expect(screen.getByTestId("reading-card-0")).toBe(firstCard);
@@ -976,7 +1117,7 @@ describe("Home", () => {
       announceAnalyticsReady();
       renderDrawnReading();
       fireEvent.click(screen.getByRole("button", { name: "Copy prompt" }));
-      fireEvent.click(screen.getByText("Refine the prompt for these cards"));
+      fireEvent.click(screen.getByText("Change the tone for these cards"));
       fireEvent.click(screen.getByRole("radio", { name: /Direct/ }));
 
       await act(async () => {
@@ -1055,13 +1196,14 @@ describe("Home", () => {
         />,
       );
       if (viewMode === "generator") {
+        fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
+        openCopyContext();
         fireEvent.change(
           screen.getByLabelText("Your situation or question (Optional)"),
           {
             target: { value: "A private situation" },
           },
         );
-        fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
       }
       expect(screen.getByTestId("card-overview")).toBeInTheDocument();
       fireEvent.click(screen.getByRole("button", { name: "Copy prompt" }));
@@ -1322,6 +1464,8 @@ describe("Home", () => {
     expect(screen.getByRole("radio", { name: /Deep 6-card/ })).toBeChecked();
     fireEvent.click(screen.getByRole("radio", { name: "Direct" }));
     expect(screen.getByRole("radio", { name: /Direct/ })).toBeChecked();
+    fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
+    openCopyContext();
     fireEvent.change(
       screen.getByRole("textbox", {
         name: /Your situation or question/,
@@ -1333,7 +1477,7 @@ describe("Home", () => {
         },
       },
     );
-    fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
+
     openPromptContent();
 
     const prompt = screen.getByLabelText(
@@ -1360,6 +1504,8 @@ describe("Home", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     render(<Home />);
 
+    fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
+    openCopyContext();
     fireEvent.change(
       screen.getByRole("textbox", {
         name: /Your situation or question/,
@@ -1370,7 +1516,6 @@ describe("Home", () => {
         },
       },
     );
-    fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
 
     const koreanLink = screen.getByRole("link", { name: "한국어" });
     const koreanHref = koreanLink.getAttribute("href");
@@ -1387,7 +1532,7 @@ describe("Home", () => {
         <TarotExperience locale="ko" />
       </StrictMode>,
     );
-    fireEvent.click(screen.getByText("같은 카드로 질문 다듬기"));
+    fireEvent.click(screen.getByText("다른 AI에 복사할 상황"));
 
     await waitFor(() => {
       expect(
@@ -2160,7 +2305,7 @@ describe("Home", () => {
     await waitFor(() => expect(instagramButton).toBeDisabled());
     const signal = fetchMock.mock.calls[0]?.[1]?.signal;
 
-    fireEvent.click(screen.getByText("Refine the prompt for these cards"));
+    fireEvent.click(screen.getByText("Change the tone for these cards"));
     fireEvent.click(screen.getByRole("radio", { name: /Direct/ }));
 
     await waitFor(() => expect(signal?.aborted).toBe(true));
@@ -2241,6 +2386,13 @@ function mockShareImageResponse() {
       status: 200,
     }),
   );
+}
+
+function openCopyContext() {
+  const disclosure = screen.getByTestId("current-prompt-customization");
+  const summary = disclosure.querySelector("summary");
+  if (!summary) throw new Error("Missing copy-context control");
+  if (!disclosure.hasAttribute("open")) fireEvent.click(summary);
 }
 
 function openPromptContent() {

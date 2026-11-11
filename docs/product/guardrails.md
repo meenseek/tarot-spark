@@ -2,7 +2,9 @@
 
 ## Product Boundary
 
-- The MVP is a free tarot card drawing and AI prompt generator site.
+- The site offers free tarot card drawing and copied AI prompts. Enabled Korean
+  relationship/career readings may also be interpreted directly under the
+  [instant-reading activation gate](instant-reading-evaluation.md#activation-gate).
 - The MVP should not include login, saved readings, payment, comments, advisor
   matching, or server-generated AI readings unless the current task explicitly
   asks for it.

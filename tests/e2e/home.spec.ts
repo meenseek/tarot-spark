@@ -49,7 +49,7 @@ test("loads Korean localized content", async ({ page }) => {
     }),
   ).toBeVisible();
   await expect(
-    page.getByText(/뽑은 카드로 만든 질문을 복사해 AI에 물어보세요/),
+    page.getByText(/카드를 뽑고, 궁금한 이야기의 AI 해석을 여기서 읽어보세요/),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "카드 3장 뽑기" }),
@@ -106,12 +106,11 @@ for (const locale of ["ko", "en"] as const) {
             exact: true,
           }),
         ).toBeChecked();
-        await expect(context).toHaveValue("");
+        await expect(context).toHaveCount(0);
       }
 
       await page.setViewportSize({ height: 844, width });
       await page.goto(home);
-      await context.fill("A private situation for this reading.");
       if (width === 1280) await deep.check();
       await page
         .getByRole("button", {
@@ -124,6 +123,8 @@ for (const locale of ["ko", "en"] as const) {
       await expect(page.getByTestId(/^reading-card-\d+$/)).toHaveCount(
         width === 1280 ? 6 : 3,
       );
+      await openCopyContext(page);
+      await context.fill("A private situation for this reading.");
       if (width === 390) {
         await brand.focus();
         await brand.press("Enter");
@@ -133,7 +134,7 @@ for (const locale of ["ko", "en"] as const) {
       await expectCleanHome();
 
       await page.getByTestId("topic-select").selectOption("career-direction");
-      await context.fill("A setup draft that should be cleared.");
+      await expect(context).toHaveCount(0);
       await deep.check();
       await direct.check();
       await brand.click();
@@ -146,7 +147,7 @@ for (const locale of ["ko", "en"] as const) {
         })
         .click();
       await page.getByTestId("next-reading-action").click();
-      await context.fill("An uncommitted next reading.");
+      await expect(context).toHaveCount(0);
       await deep.check();
       await direct.check();
       await brand.click();
@@ -261,7 +262,7 @@ test("keeps the YouTube profile attribution through the first draw", async ({
   });
 });
 
-test("shows draw choices and optional context without disclosure clicks", async ({
+test("shows draw settings first and collects context only for copying", async ({
   page,
 }) => {
   for (const locale of ["ko", "en"] as const) {
@@ -276,11 +277,10 @@ test("shows draw choices and optional context without disclosure clicks", async 
         : "Your situation or question (Optional)",
       exact: true,
     });
-    await expect(context).toBeVisible();
+    await expect(context).toHaveCount(0);
     await expect(form.getByRole("radio")).toHaveCount(6);
     for (const option of await form.getByRole("radio").all())
       await expect(option).toBeVisible();
-    await context.fill("I want to understand what I can change.");
     await page
       .getByRole("radio", {
         name: ko ? "심화 6장" : "Deep 6-card",
@@ -303,6 +303,8 @@ test("shows draw choices and optional context without disclosure clicks", async 
       })
       .click();
     await expect(page.getByTestId(/^reading-card-\d+$/)).toHaveCount(6);
+    await openCopyContext(page);
+    await context.fill("I want to understand what I can change.");
     await expect(page.getByTestId("prompt-ready")).toContainText(
       ko
         ? "작성한 상황도 질문에 담았어요."
@@ -317,9 +319,8 @@ test("shows draw choices and optional context without disclosure clicks", async 
         exact: true,
       })
       .click();
-    await expect(context).toHaveValue(
-      "I want to understand what I can change.",
-    );
+    await expect(context).toHaveCount(0);
+    await expect(page.getByTestId("retained-copy-context")).toBeVisible();
     await page
       .getByRole("radio", {
         name: ko ? "빠른 3장" : "Quick 3-card",
@@ -334,6 +335,10 @@ test("shows draw choices and optional context without disclosure clicks", async 
       .click();
     await expect(page.getByTestId(/^reading-card-\d+$/)).toHaveCount(6);
     expect(new URL(page.url()).searchParams.get("spread")).toBe("deep");
+    await openCopyContext(page);
+    await expect(context).toHaveValue(
+      "I want to understand what I can change.",
+    );
   }
 });
 
@@ -354,8 +359,6 @@ for (const width of [390, 1280]) {
           : "Your situation or question (Optional)",
         exact: true,
       });
-      await context.fill(`${"a".repeat(500)}discarded-tail`);
-      await expect(context).toHaveValue("a".repeat(500));
       await page
         .getByRole("button", {
           name: ko ? "카드 3장 뽑기" : "Draw 3 cards",
@@ -373,6 +376,8 @@ for (const width of [390, 1280]) {
         .getByTestId("current-prompt-customization")
         .locator("summary")
         .click();
+      await context.fill(`${"a".repeat(500)}discarded-tail`);
+      await expect(context).toHaveValue("a".repeat(500));
       await context.fill(`${"b".repeat(500)}discarded-tail`);
       await expect(context).toHaveValue("b".repeat(500));
       await expect(
@@ -453,13 +458,13 @@ for (const readingCase of [
     spread: "quick",
   },
   {
-    copyAction: "질문 복사하기",
+    copyAction: "지금 바로 해석하기",
     drawAction: "카드 6장 뽑기",
     localePath: "/ko",
     spread: "deep",
   },
 ] as const) {
-  test(`keeps the ${readingCase.spread} overview and copy action in the first mobile result viewport`, async ({
+  test(`keeps the ${readingCase.spread} overview and primary action in the first mobile result viewport`, async ({
     page,
   }) => {
     await page.setViewportSize({ height: 844, width: 390 });
@@ -482,7 +487,7 @@ for (const readingCase of [
           '[data-testid="card-overview"]',
         );
         const promptReadyElement = document.querySelector(
-          '[data-testid="prompt-ready"]',
+          "[data-analytics-result-view-target]",
         );
 
         return Boolean(
@@ -517,6 +522,7 @@ for (const width of [390, 1280] as const) {
     const nextReadingAction = page.getByRole("button", {
       name: "Prepare the next draw",
     });
+    await nextReadingAction.scrollIntoViewIfNeeded();
     await expect(nextReadingAction).toBeInViewport();
     await nextReadingAction.click();
     const prepHeading = page.getByRole("heading", {
@@ -594,7 +600,7 @@ for (const locale of ["en", "ko"] as const) {
       const currentEdit = page.getByTestId("current-prompt-customization");
       const nextAction = page.getByTestId("next-reading-action");
       await expect(currentEdit.locator("summary")).toHaveText(
-        ko ? /같은 카드로 질문 다듬기/ : /Refine the prompt for these cards/,
+        ko ? /다른 AI에 복사할 상황/ : /Add context for another AI/,
       );
       const copyBox = await copyAction.boundingBox();
       const editBox = await currentEdit.boundingBox();
@@ -604,15 +610,15 @@ for (const locale of ["en", "ko"] as const) {
       await currentEdit.locator("summary").click();
       const customizationGuidance = currentEdit.getByText(
         ko
-          ? "복사할 질문은 바로 바뀌지만 이미 복사한 내용은 그대로예요."
-          : "The prompt updates immediately, but text you already copied stays the same.",
+          ? "따로 적은 상황은 복사할 질문에만 담겨요."
+          : "Context is included only in the prompt you copy.",
         { exact: false },
       );
       await expect(customizationGuidance).toBeVisible();
       await expect(customizationGuidance).toContainText(
         ko
-          ? "바꾼 질문을 쓰려면 다시 복사해 주세요."
-          : "Copy the prompt again after making changes.",
+          ? "수정한 내용을 쓰려면 질문을 다시 복사해 주세요."
+          : "Copy the prompt again after editing.",
       );
       await currentEdit.getByRole("textbox").fill("Previous private situation");
       const cards = await page
@@ -631,10 +637,8 @@ for (const locale of ["en", "ko"] as const) {
       expect(noticeBox!.x + noticeBox!.width).toBeLessThanOrEqual(width);
       await page.getByTestId("topic-select").selectOption("reunion");
 
-      await page
-        .getByTestId("situation-context")
-        .getByRole("textbox")
-        .fill("Uncommitted next situation");
+      await expect(page.getByTestId("situation-context")).toHaveCount(0);
+      await expect(page.getByTestId("retained-copy-context")).toBeVisible();
       await page
         .getByRole("link", { name: ko ? "English" : "한국어", exact: true })
         .click();
@@ -785,7 +789,7 @@ test("keeps the first-time promise and draw usable at 320px", async ({
     {
       draw: "카드 3장 뽑기",
       heading: "카드를 뽑아보세요.",
-      intro: /뽑은 카드로 만든 질문을 복사해 AI에 물어보세요/,
+      intro: /카드를 뽑고, 궁금한 이야기의 AI 해석을 여기서 읽어보세요/,
       path: "/ko",
     },
   ]) {
@@ -853,6 +857,12 @@ test("keeps every localized context example visible at 320px", async ({
 
     for (const [topicId, placeholder] of topicExamples) {
       await page.getByTestId("topic-select").selectOption(topicId);
+      await page
+        .getByRole("button", {
+          name: path === "/ko" ? "카드 3장 뽑기" : "Draw 3 cards",
+        })
+        .click();
+      await openCopyContext(page);
       await expect(context).toHaveAttribute("placeholder", placeholder);
       const originalValue = await context.inputValue();
 
@@ -868,6 +878,7 @@ test("keeps every localized context example visible at 320px", async ({
       expect(dimensions.scrollHeight).toBeLessThanOrEqual(
         dimensions.clientHeight,
       );
+      await page.getByTestId("next-reading-action").click();
     }
   }
 });
@@ -1163,10 +1174,11 @@ test("uses a chosen relationship question in the generated prompt", async ({
     ),
   ).toBe(true);
 
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+  await openCopyContext(page);
   await page
     .getByRole("textbox", { name: /상황이나 궁금한 점/ })
     .fill("이 내용은 다음 질문을 고르는 동안에도 유지되어야 해요.");
-  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
 
   await expect(page.getByTestId("current-public-question")).toContainText(
     "우리는 서로를 어떻게 보고 있을까?",
@@ -1233,7 +1245,8 @@ test("uses a chosen relationship question in the generated prompt", async ({
 
   await expect(
     page.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
-  ).toHaveValue("이 내용은 다음 질문을 고르는 동안에도 유지되어야 해요.");
+  ).toHaveCount(0);
+  await expect(page.getByTestId("retained-copy-context")).toBeVisible();
   await expect(page.getByRole("link", { name: "English" })).toHaveAttribute(
     "href",
     /topic=feelings.*question=mutual-view/,
@@ -1612,17 +1625,17 @@ test("preserves reading and private context when switching languages", async ({
     }
   });
   await page.goto("/");
-
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
+  await openCopyContext(page);
   await page
     .getByRole("textbox", { name: /Your situation or question/ })
     .fill("My manager relationship is difficult.");
   const activeLocaleUrl = page.url();
-  await page.getByRole("link", { name: "English" }).click();
+  await page.getByRole("link", { name: "English", exact: true }).click();
   await expect(page).toHaveURL(activeLocaleUrl);
   await expect(
     page.getByRole("textbox", { name: /Your situation or question/ }),
   ).toHaveValue("My manager relationship is difficult.");
-  await page.getByRole("button", { name: "Draw 3 cards" }).click();
   await openPromptContent(page);
   await expect(page.getByLabel("Generated prompt")).toBeVisible();
   const englishCardIds = await page
@@ -1638,7 +1651,7 @@ test("preserves reading and private context when switching languages", async ({
       name: "카드를 뽑아보세요.",
     }),
   ).toBeVisible();
-  await page.getByText("같은 카드로 질문 다듬기").click();
+  await page.getByText("다른 AI에 복사할 상황").click();
   await openPromptContent(page);
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toBeVisible();
   await expect(
@@ -1662,12 +1675,14 @@ test("creates a direct six-card prompt while keeping context private", async ({
 
   await page.getByRole("radio", { name: /Deep 6-card/ }).check();
   await page.getByRole("radio", { name: /Direct/ }).check();
+
+  await page.getByRole("button", { name: "Draw 6 cards" }).click();
+  await openCopyContext(page);
   await page
     .getByRole("textbox", { name: /Your situation or question/ })
     .fill(
       "My manager relationship is exhausting. Should I stay at this company?",
     );
-  await page.getByRole("button", { name: "Draw 6 cards" }).click();
   await openPromptContent(page);
 
   await expect(page.locator('[data-testid^="reading-card-"]')).toHaveCount(6);
@@ -1702,10 +1717,11 @@ test("shows an instant Korean reading without sending private context", async ({
   });
   await page.goto("/ko");
 
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+  await openCopyContext(page);
   await page
     .getByRole("textbox", { name: /상황이나 궁금한 점/ })
     .fill("서버로 보내면 안 되는 민감한 개인 상황");
-  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
   await page.getByRole("button", { name: "지금 바로 해석하기" }).click();
 
   await expect(page.getByTestId("instant-reading-result")).toBeVisible();
@@ -1731,6 +1747,185 @@ test("shows an instant Korean reading without sending private context", async ({
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(390);
+});
+
+for (const width of [390, 1280]) {
+  test(`reads the primary interpretation comfortably at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    let requests = 0;
+    let lastRequest: Record<string, unknown> = {};
+    await page.route("**/api/reading", async (route) => {
+      requests++;
+      lastRequest = route.request().postDataJSON() as Record<string, unknown>;
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          text: createValidInstantReading(width === 390 ? 3 : 6),
+        }),
+      });
+    });
+    await page.goto("/ko");
+    await expect(
+      page.getByTestId("instant-reading-availability"),
+    ).toBeVisible();
+    await expect(page.getByTestId("situation-context")).toHaveCount(0);
+    if (width === 1280)
+      await page.getByRole("radio", { name: "심화 6장", exact: true }).check();
+    await page
+      .getByRole("button", {
+        name: width === 390 ? "카드 3장 뽑기" : "카드 6장 뽑기",
+      })
+      .click();
+    const primary = page.getByRole("button", { name: "지금 바로 해석하기" });
+    await expect(primary).toBeInViewport();
+    await expect(primary).toHaveClass(/ts-primary-action/);
+    await expect(
+      page.getByRole("button", { name: "질문 복사하기" }),
+    ).toHaveClass(/ts-secondary-action/);
+    await primary.click();
+    const heading = page.getByRole("heading", {
+      name: "AI 카드 흐름 해석",
+      exact: true,
+    });
+    await expect(heading).toBeFocused();
+    await expect(heading).toHaveCount(1);
+    const body = page.getByTestId("instant-reading-result").locator("div");
+    await expect(body).toHaveCSS("font-size", width === 390 ? "16px" : "18px");
+    expect(
+      await body.evaluate((el) => el.getBoundingClientRect().width),
+    ).toBeLessThanOrEqual(640);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBe(width);
+    await test.info().attach(`instant-reading-${width}`, {
+      body: await page.screenshot({ fullPage: true }),
+      contentType: "image/png",
+    });
+    const originalCards = await page
+      .locator("[data-card-id]")
+      .evaluateAll((elements) =>
+        elements.map((el) => el.getAttribute("data-card-id")),
+      );
+    const originalText = await body.innerText();
+    await openCopyContext(page);
+    await page
+      .getByRole("textbox", { name: /상황이나 궁금한 점/ })
+      .fill("이 상황은 복사할 질문에만 담겨야 해요.");
+    await expect(body).toHaveText(originalText);
+    expect(requests).toBe(1);
+    await page.getByTestId("current-reading-style").locator("summary").click();
+    await page
+      .getByRole("radio", { name: "솔직하고 분명하게", exact: true })
+      .check();
+    await expect(page.getByTestId("instant-reading-result")).toHaveCount(0);
+    expect(
+      await page
+        .locator("[data-card-id]")
+        .evaluateAll((elements) =>
+          elements.map((el) => el.getAttribute("data-card-id")),
+        ),
+    ).toEqual(originalCards);
+    expect(new URL(page.url()).searchParams.get("drawStyle")).toBe("balanced");
+    await page.getByRole("button", { name: "지금 바로 해석하기" }).click();
+    await expect(heading).toBeFocused();
+    expect(lastRequest["styleId"]).toBe("direct");
+    expect(JSON.stringify(lastRequest)).not.toContain("복사할 질문에만");
+    await page.getByTestId("next-reading-action").click();
+    await page
+      .getByRole("button", { name: "이전 카드 결과로 돌아가기" })
+      .click();
+    await expect(page.getByTestId("instant-reading-result")).toBeVisible();
+    expect(requests).toBe(2);
+  });
+
+  test(`recovers a failed interpretation without another API call at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: {
+          writeText: async (text: string) => {
+            sessionStorage.setItem("synthetic-copied-prompt", text);
+          },
+        },
+      });
+    });
+    let requests = 0;
+    await page.route("**/api/reading", async (route) => {
+      requests++;
+      await route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({ code: "unavailable" }),
+      });
+    });
+    await page.goto("/ko");
+    await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+    await page.getByRole("button", { name: "지금 바로 해석하기" }).click();
+    await expect(
+      page.getByRole("button", { name: "다시 시도하기" }),
+    ).toBeFocused();
+    await page.getByRole("button", { name: "질문 복사해서 계속하기" }).click();
+    await expect(
+      page.getByRole("button", { name: "질문을 복사했어요", exact: true }),
+    ).toBeVisible();
+    await openPromptContent(page);
+    expect(
+      await page.evaluate(() =>
+        sessionStorage.getItem("synthetic-copied-prompt"),
+      ),
+    ).toBe(await page.getByLabel("AI에 붙여 넣을 질문").inputValue());
+    expect(requests).toBe(1);
+  });
+}
+
+test("cancels visible loading and retries an error into a successful reading", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  let requests = 0;
+  await page.route("**/api/reading", async (route) => {
+    requests++;
+    // Leave the first intercepted request pending until the UI cancels it.
+    if (requests === 1) return;
+    await route.fulfill({
+      status: requests === 2 ? 503 : 200,
+      contentType: "application/json",
+      body: JSON.stringify(
+        requests === 2
+          ? { code: "unavailable" }
+          : { text: createValidInstantReading(3) },
+      ),
+    });
+  });
+  await page.goto("/ko");
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+  await page.getByRole("button", { name: "지금 바로 해석하기" }).click();
+  await expect(
+    page.getByText("카드의 흐름을 정리하고 있어요…", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "해석 취소하기" }),
+  ).toBeFocused();
+  await page.getByRole("button", { name: "해석 취소하기" }).click();
+  await expect(
+    page.getByRole("button", { name: "지금 바로 해석하기" }),
+  ).toBeFocused();
+  await expect(page.getByTestId("instant-reading-result")).toHaveCount(0);
+  await page.getByRole("button", { name: "지금 바로 해석하기" }).click();
+  await expect(
+    page.getByRole("button", { name: "다시 시도하기" }),
+  ).toBeFocused();
+  await page.getByRole("button", { name: "다시 시도하기" }).click();
+  await expect(
+    page.getByRole("heading", { name: "AI 카드 흐름 해석", exact: true }),
+  ).toBeFocused();
+  expect(requests).toBe(3);
 });
 
 test("draws tarot cards and copies the generated prompt", async ({ page }) => {
@@ -2009,6 +2204,19 @@ test("renders a shared reading first and keeps its localized share route", async
 function expectPathname(href: string | null, pathname: string) {
   expect(href).not.toBeNull();
   expect(new URL(href ?? "http://localhost").pathname).toBe(pathname);
+}
+
+async function openCopyContext(page: Page) {
+  const disclosure = page.getByTestId("current-prompt-customization");
+  if (!(await disclosure.getAttribute("open"))) {
+    // An open details attribute is the empty string; use the DOM property.
+    if (
+      !(await disclosure.evaluate(
+        (element) => (element as HTMLDetailsElement).open,
+      ))
+    )
+      await disclosure.locator("summary").click();
+  }
 }
 
 async function openPromptContent(page: Page) {

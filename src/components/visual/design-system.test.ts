@@ -210,7 +210,7 @@ describe("visual design system contract", () => {
     });
   });
 
-  it("keeps prompt copy primary and repeated or optional reading actions secondary", () => {
+  it("uses conditional reading-first actions and shared component primitives", () => {
     const promptResultSource = readFileSync(
       resolve(
         process.cwd(),
@@ -233,9 +233,7 @@ describe("visual design system contract", () => {
       "utf8",
     );
 
-    expect(promptResultSource).toMatch(
-      /<Button\s+className="ts-primary-action[^\"]*"\s+onClick={onCopyPrompt}/,
-    );
+    expect(instantReadingSource).toContain('className="ts-primary-action"');
     expect(instantReadingSource).toContain('className="ts-secondary-action"');
     expect(promptResultSource).toContain("Button,");
     expect(promptResultSource).toContain("InlineMessage,");
@@ -389,10 +387,10 @@ describe("visual design system contract", () => {
         imports: ["Checkbox"],
         rejectedNativeTags: ["<input"],
       },
-      "src/features/tarot-reading/components/CurrentPromptCustomization.tsx": {
-        announceErrorCount: 2,
+      "src/features/tarot-reading/components/CurrentReadingStyle.tsx": {
+        announceErrorCount: 1,
         cardAppearanceCount: 1,
-        imports: ["Radio", "RadioGroup", "Textarea"],
+        imports: ["Radio", "RadioGroup"],
         rejectedNativeTags: ["<input", "<textarea"],
       },
       "src/features/tarot-reading/components/ReadingPreferences.tsx": {
