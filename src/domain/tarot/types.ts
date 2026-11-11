@@ -1,4 +1,5 @@
 import type { ReadingStyleId, SpreadId, TarotCardId, TopicId } from "./ids";
+import type { ReadingWritingMessages } from "./reading-writing";
 import type { AnswerTargetId, ReadingTaxonomy } from "./taxonomy";
 
 export type { ReadingStyleId, SpreadId, TarotCardId, TopicId } from "./ids";
@@ -40,7 +41,7 @@ export type TarotCard = {
   readonly reflection: string;
 };
 
-export type PromptTemplate = {
+export type PromptTemplate = ReadingWritingMessages & {
   readonly cardLine: string;
   readonly questionFocusBlock: string;
   readonly topicSafetyBlock: string;

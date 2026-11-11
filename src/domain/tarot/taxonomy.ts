@@ -155,7 +155,7 @@ const relationshipQuestionEntries = [
     id: "before-starting",
     focusId: "starting",
     topicId: "love",
-    defaultAnswerTargetId: "relationship",
+    defaultAnswerTargetId: "self",
   },
   {
     id: "first-contact",
@@ -185,7 +185,7 @@ const relationshipQuestionEntries = [
     id: "unspoken-expectations",
     focusId: "perception",
     topicId: "feelings",
-    defaultAnswerTargetId: "relationship",
+    defaultAnswerTargetId: "external-perception",
   },
   {
     id: "overreading-signals",

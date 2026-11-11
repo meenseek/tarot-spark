@@ -1,4 +1,6 @@
 import { formatTemplateStrict } from "@/i18n/template";
+import { getReadingWritingInstructions } from "./reading-writing";
+import type { PublicQuestionId } from "./taxonomy";
 import type {
   AnswerTarget,
   DrawnCard,
@@ -15,6 +17,7 @@ type BuildPromptInput = {
   readonly cards: readonly DrawnCard[];
   readonly readingStyle: ReadingStyle;
   readonly questionFocus?: string;
+  readonly questionId?: PublicQuestionId;
   readonly spread: Spread;
   readonly template: PromptTemplate;
   readonly topic: Topic;
@@ -27,6 +30,7 @@ export function buildPrompt(
     cards,
     readingStyle,
     questionFocus = "",
+    questionId,
     spread,
     template,
     topic,
@@ -42,6 +46,9 @@ export function buildPrompt(
 
   const normalizedUserContext = normalizeUserContext(userContext);
   const normalizedQuestionFocus = questionFocus.trim();
+  if (questionId !== undefined && !normalizedQuestionFocus) {
+    throw new RangeError("A selected writing question requires its focus.");
+  }
   if (!answerTarget) {
     throw new RangeError("Tarot prompt requires an answer target.");
   }
@@ -96,6 +103,11 @@ export function buildPrompt(
     template.lines.join("\n"),
     {
       cards: cardLines,
+      readingInstructions: getReadingWritingInstructions(
+        template,
+        topic.id,
+        questionId,
+      ).join("\n"),
       answerTargetInstruction: answerTarget.instruction,
       readingFocusBlock,
       readingStyleInstruction: readingStyle.instruction,

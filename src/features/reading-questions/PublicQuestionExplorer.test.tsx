@@ -44,7 +44,7 @@ describe("PublicQuestionExplorer", () => {
       screen.getAllByText(/돈 질문은 수입·가격·대출·빚·투자 수익/),
     ).toHaveLength(2);
     expect(
-      screen.getByText(/카드가 시사하는 답부터 말한 뒤, 가능한 해석 두 가지/),
+      screen.getByText(/카드 뜻을 연결해 궁금한 점부터 답하고/),
     ).toBeInTheDocument();
   });
 

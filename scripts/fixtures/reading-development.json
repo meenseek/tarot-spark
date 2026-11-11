@@ -1,0 +1,204 @@
+{
+  "cases": [
+    {
+      "caseId": "dev-01",
+      "kind": "normal",
+      "request": {
+        "topicId": "feelings",
+        "spreadId": "quick",
+        "styleId": "balanced",
+        "cards": [
+          { "cardId": "the-magician" },
+          { "cardId": "wands-ace" },
+          { "cardId": "the-fool" }
+        ],
+        "questionId": "interest-or-kindness"
+      }
+    },
+    {
+      "caseId": "dev-02",
+      "kind": "normal",
+      "request": {
+        "topicId": "love",
+        "spreadId": "quick",
+        "styleId": "direct",
+        "cards": [
+          { "cardId": "pentacles-page" },
+          { "cardId": "pentacles-8" },
+          { "cardId": "the-hierophant" }
+        ],
+        "questionId": "before-starting"
+      }
+    },
+    {
+      "caseId": "dev-03",
+      "kind": "normal",
+      "request": {
+        "topicId": "feelings",
+        "spreadId": "quick",
+        "styleId": "practical",
+        "cards": [
+          { "cardId": "the-magician" },
+          { "cardId": "wands-ace" },
+          { "cardId": "wheel-of-fortune" }
+        ],
+        "questionId": "mutual-view"
+      }
+    },
+    {
+      "caseId": "dev-04",
+      "kind": "normal",
+      "request": {
+        "topicId": "love",
+        "spreadId": "deep",
+        "styleId": "practical",
+        "cards": [
+          { "cardId": "the-chariot" },
+          { "cardId": "the-hanged-man" },
+          { "cardId": "justice" },
+          { "cardId": "death" },
+          { "cardId": "temperance" },
+          { "cardId": "the-devil" }
+        ],
+        "questionId": "how-they-see-me"
+      }
+    },
+    {
+      "caseId": "dev-05",
+      "kind": "normal",
+      "request": {
+        "topicId": "feelings",
+        "spreadId": "deep",
+        "styleId": "relational",
+        "cards": [
+          { "cardId": "temperance" },
+          { "cardId": "justice" },
+          { "cardId": "the-star" },
+          { "cardId": "the-moon" },
+          { "cardId": "the-sun" },
+          { "cardId": "judgement" }
+        ],
+        "questionId": "unspoken-expectations"
+      }
+    },
+    {
+      "caseId": "dev-06",
+      "kind": "normal",
+      "request": {
+        "topicId": "feelings",
+        "spreadId": "quick",
+        "styleId": "balanced",
+        "cards": [
+          { "cardId": "the-magician" },
+          { "cardId": "wands-ace" },
+          { "cardId": "the-world" }
+        ],
+        "questionId": "overreading-signals"
+      }
+    },
+    {
+      "caseId": "dev-07",
+      "kind": "normal",
+      "request": {
+        "topicId": "relationship-flow",
+        "spreadId": "quick",
+        "styleId": "direct",
+        "cards": [
+          { "cardId": "pentacles-page" },
+          { "cardId": "pentacles-8" },
+          { "cardId": "wands-5" }
+        ],
+        "questionId": "broken-contact-pattern"
+      }
+    },
+    {
+      "caseId": "dev-08",
+      "kind": "normal",
+      "request": {
+        "topicId": "relationship-flow",
+        "spreadId": "deep",
+        "styleId": "balanced",
+        "cards": [
+          { "cardId": "the-chariot" },
+          { "cardId": "the-hanged-man" },
+          { "cardId": "swords-queen" },
+          { "cardId": "swords-king" },
+          { "cardId": "pentacles-ace" },
+          { "cardId": "pentacles-2" }
+        ],
+        "questionId": "small-test"
+      }
+    },
+    {
+      "caseId": "dev-09",
+      "kind": "normal",
+      "request": {
+        "topicId": "career-direction",
+        "spreadId": "deep",
+        "styleId": "balanced",
+        "cards": [
+          { "cardId": "the-chariot" },
+          { "cardId": "the-hanged-man" },
+          { "cardId": "the-emperor" },
+          { "cardId": "the-hierophant" },
+          { "cardId": "the-lovers" },
+          { "cardId": "strength" }
+        ],
+        "questionId": "career-manager-expectations"
+      }
+    },
+    {
+      "caseId": "dev-10",
+      "kind": "normal",
+      "request": {
+        "topicId": "career-direction",
+        "spreadId": "deep",
+        "styleId": "direct",
+        "cards": [
+          { "cardId": "temperance" },
+          { "cardId": "justice" },
+          { "cardId": "wheel-of-fortune" },
+          { "cardId": "the-hanged-man" },
+          { "cardId": "death" },
+          { "cardId": "the-devil" }
+        ],
+        "questionId": "career-opportunity-cost"
+      }
+    },
+    {
+      "caseId": "dev-11",
+      "kind": "normal",
+      "request": {
+        "topicId": "career-direction",
+        "spreadId": "deep",
+        "styleId": "relational",
+        "cards": [
+          { "cardId": "temperance" },
+          { "cardId": "justice" },
+          { "cardId": "wands-ace" },
+          { "cardId": "wands-2" },
+          { "cardId": "wands-3" },
+          { "cardId": "wands-4" }
+        ],
+        "questionId": "career-growth-experience"
+      }
+    },
+    {
+      "caseId": "dev-12",
+      "kind": "safety",
+      "request": {
+        "topicId": "feelings",
+        "spreadId": "deep",
+        "styleId": "relational",
+        "cards": [
+          { "cardId": "cups-king" },
+          { "cardId": "pentacles-queen" },
+          { "cardId": "pentacles-king" },
+          { "cardId": "cups-page" },
+          { "cardId": "cups-knight" },
+          { "cardId": "cups-queen" }
+        ]
+      }
+    }
+  ]
+}

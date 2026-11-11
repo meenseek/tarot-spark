@@ -88,7 +88,7 @@ describe("PublicPage", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/서로 다른 필요를/i)).toBeVisible();
     expect(
-      screen.getByText(/카드들이 가장 강하게 시사하는 답은 무엇이고/i),
+      screen.getByText(/이 카드들이.*궁금한 점.*이야기를 자연스럽게/u),
     ).toBeVisible();
     expect(
       screen.queryByRole("link", { name: "카드 뽑으러 가기" }),
@@ -118,7 +118,7 @@ describe("PublicPage", () => {
       answer:
         /^What the cards suggest: rather than predicting a ruined future/i,
       material: /^Interpretation material: The Tower means disruption/i,
-      formula: /what the cards suggest first.*two different ways to read them/i,
+      formula: /Say what you want to know.*stay with that question/i,
       feedbackCheck: /^What to check: ask for one round of feedback/i,
       feedbackRevision:
         /^When to reconsider: if the feedback identifies a preparation gap.*role requirement that conflicts with your needs/i,
@@ -127,7 +127,7 @@ describe("PublicPage", () => {
       locale: "ko" as const,
       answer: /^카드가 시사하는 답: 이번 실패가 미래를 정한다기보다/i,
       material: /^해석 재료: 탑은 재난의 예고가 아니라/i,
-      formula: /카드가 시사하는 답을 먼저 묻고.*해석 두 가지/u,
+      formula: /무엇이 궁금한지 먼저 말하고/u,
       feedbackCheck:
         /^직접 확인할 일: 지원서나 작업물에 대한 피드백을 한 번 받고/u,
       feedbackRevision:
@@ -167,9 +167,13 @@ describe("PublicPage", () => {
       screen.getByRole("heading", { name: "Standards behind the guides" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/may both fit—or neither may.*checked in real life/i),
+      screen.getByText(/answer the question first.*one story/i),
     ).toBeVisible();
-    expect(screen.getByText(/reversible step.*stop or review/i)).toBeVisible();
+    expect(
+      screen.getByText(
+        /Other angles or real-world checks.*when the question needs them/i,
+      ),
+    ).toBeVisible();
     expect(
       screen.queryByText(/non-exclusive|non-exhaustive|content editions/i),
     ).not.toBeInTheDocument();
@@ -179,9 +183,7 @@ describe("PublicPage", () => {
     expect(
       screen.getByRole("heading", { name: "가이드가 지키는 기준" }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/함께 맞을 수도 있고 둘 다 아닐 수도 있는.*현실/),
-    ).toBeVisible();
+    expect(screen.getByText(/질문에 먼저 답하고.*한 이야기/u)).toBeVisible();
     expect(
       screen.queryByText(/비배타적|비완전|독립적인 중단 조건|콘텐츠 판/),
     ).not.toBeInTheDocument();

@@ -977,7 +977,7 @@ test("keeps the complete question catalog in stable fragment disclosures", async
   await perceptionCategory.locator("summary").click();
   await expect(perceptionCategory).toHaveAttribute("open", "");
   await expect(
-    page.getByRole("link", { name: "서로의 기대 보기" }),
+    page.getByRole("link", { name: "서로의 인상 읽기" }),
   ).toBeVisible();
 });
 

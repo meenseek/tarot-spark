@@ -1,6 +1,6 @@
 import "server-only";
 
-export const openaiInstantReadingModel = "gpt-6.1-terra";
+export const openaiInstantReadingModel = "gpt-6.1-sol";
 
 export type InstantReadingProviderConfig = {
   readonly apiKey: string;

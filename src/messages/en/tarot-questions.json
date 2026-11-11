@@ -6,7 +6,7 @@
   "eyebrow": "62 tarot questions",
   "title": "Choose a tarot question and draw your cards.",
   "intro": "Browse 62 questions about relationships, career, money, study, projects, and your own direction. Each link opens the card generator with that question ready.",
-  "resultContext": "The prompt asks your AI tool to answer from the cards first, then give two possible interpretations, something to check, and one small action.",
+  "resultContext": "The prompt asks your AI tool to connect the card meanings and answer your question as one short, flowing reading.",
   "browseHeading": "Browse by life area",
   "categoryNavigationLabel": "Tarot question groups",
   "disclaimer": "Tarot is for entertainment and self-reflection. Money questions do not predict income, prices, loan or debt outcomes, or investment returns; they do not tell you to buy, sell, or borrow, decide affordability, or replace qualified advice.",

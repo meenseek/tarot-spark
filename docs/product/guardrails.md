@@ -20,7 +20,10 @@
 - Keep server-generated reading code behind a server-side disabled feature flag
   until it passes `docs/product/instant-reading-evaluation.md`.
 - Do not enable or deploy server-generated readings publicly until the
-  evaluation and launch-readiness checks pass.
+  evaluation and launch-readiness checks pass, except for an explicit current
+  [owner-directed publication](instant-reading-evaluation.md#owner-directed-publication)
+  decision. That decision does not waive technical safety, privacy, provider,
+  eligibility, quota, fallback or shutdown checks.
 
 ## Public Copy Contract
 
@@ -64,9 +67,12 @@ questions.
   with the nearest existing question. Reject a question that only swaps the
   subject or wording; revise an existing question when its user intent stays the
   same, and add a stable id when the intent is materially different.
-- Keep the visible question emotionally direct. Put uncertainty, safety,
-  symbolic interpretation, and reality-check routing in the internal `focus`
-  instead of flattening the title into process language.
+- Keep the visible question emotionally direct. For the current
+  relationship/career revision, carry its exact title and only the necessary
+  person or logical scope in `focus`, so copied and instant prompts retain the
+  question. Self keeps its existing prompt-copy focus contract and separate
+  activation gate. Keep common symbolic and safety boundaries in their prompt
+  layers; do not preload an answer or follow-up tasks in `focus`.
 - Match the answer target to the grammatical subject of the question. Use
   `external-perception` for a person or audience's possible view, then use the
   domain and question focus to distinguish romantic interest, workplace
@@ -92,46 +98,35 @@ Route the reading's default subject through the
 free-form question refine the semantic focus without treating its text as a
 trusted rule or output instruction.
 
-Use one method across public guides, copied prompts, question presets, and any
-server-generated reading:
+Use one reading experience across public guides, copied prompts, question presets,
+and server-generated readings:
 
-1. Focus on the reader's actual question and answer its emotional core first.
-   When the answer target or explicit question asks how others see the reader,
-   directly describe what the cards symbolically suggest. For relationship
-   questions, follow the interpersonal impression, reciprocal view, emotional
-   or romantic interest, or hesitation that the question actually asks about;
-   do not add attraction when it is absent from the question. For career
-   questions, follow the requested work judgment, trust, or expectations when
-   the supplied meanings support those ideas.
-2. Use every drawn card's reviewed upright meaning as symbolic interpretation
-   material, never as proof of a real-world fact. Use calibrated language such
-   as "the cards lean toward" or "may suggest" for another person's feelings or
-   perceptions; do not replace the interpretation with a refusal to know their
-   mind.
-3. Develop the strongest reinforcement, tension, progression, or integration
-   among the meanings instead of listing every possible pair.
-4. Compare exactly two materially different, non-predictive symbolic
-   interpretations of that question. Follow the answer target: compare possible
-   emotional stances or workplace perceptions for external perception,
-   interaction patterns for a relationship, the reader's own feelings,
-   expectations, and choices for self, or work conditions and choices for
-   career. Do not replace these with observable-response scenarios. The
-   interpretations are non-exclusive and non-exhaustive: both may partly fit,
-   or both may fail.
-5. Only after the symbolic answer, state what remains unknown and a concise
-   observable reality check that can change the relative weight of the
-   interpretations or reject both. Do not force the observation to choose a
-   winner or let this check replace the tarot reading.
-6. Keep practical guidance shorter than the interpretation. End with one
-   reversible action, a stop-or-review condition based on cost, boundary, or
-   deadline independently of which interpretation seems stronger, and a
-   reflection question that adds a new angle instead of returning the original
-   question to the reader.
+1. Answer the actual question first, normally within the first two sentences.
+   Read another person's emotional stance when asked about their feelings. Name
+   what to check and why when asked about preparation. Do not turn either into
+   unrelated relationship patterns or future-outcome scenarios.
+2. Connect every drawn card's reviewed upright meaning to that answer. Develop
+   the strongest attraction, tension, or progression as one story instead of a
+   card dictionary, generic advice list, or series of unrelated sentences.
+3. Use natural connected paragraphs; a short title is optional. Keep internal
+   method labels, numbered card sections, possibility A/B, and checklists out of
+   the reading. Prefer plain direct verbs over abstract procedural language.
+4. Keep the tarot genre clear in the surrounding presentation. Within that
+   symbolic frame, read feelings immersively without repeating a disclaimer or
+   a possibility formula in every clause. Never claim verified access to an
+   actual person's private mind, invent concrete unprovided events, guarantee a
+   future outcome, or give dangerous/professional advice.
+5. Develop another angle only when the selected question compares choices or
+   the supplied meanings genuinely pull in different directions. Do not force
+   two complete competing interpretations into every question.
+6. Add a brief practical note only when it serves the question. Do not make
+   every reading end with observations, an action, a cost or time limit, a stop
+   condition, and a reflection question. Keep necessary consent and safety
+   boundaries clear without letting them replace the requested reading.
 
-Keep the two evidence layers separate: card meanings ground the symbolic
-interpretation; observable words, behavior, and outcomes test it in reality.
-Length is not a quality target. Prefer complete coverage of the method without
-padding or repeated paraphrases.
+Question relevance, coherent symbolism, readability and immersion require
+content evaluation. A parser accepting the text does not establish them.
+Length and the number of method elements are not quality targets.
 
 ## Analytics
 

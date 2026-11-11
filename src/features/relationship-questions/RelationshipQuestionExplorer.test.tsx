@@ -35,7 +35,7 @@ describe("RelationshipQuestionExplorer", () => {
     expect(container.querySelectorAll('a[href*="question="]')).toHaveLength(30);
     expect(
       container.querySelector('a[href*="question=mutual-view"]'),
-    ).toHaveTextContent("서로의 기대 보기");
+    ).toHaveTextContent("서로의 인상 읽기");
 
     const perceptionCategory =
       container.querySelector<HTMLDetailsElement>("#perception");
@@ -45,7 +45,7 @@ describe("RelationshipQuestionExplorer", () => {
     );
     expect(perceptionCategory).toHaveAttribute("open");
     expect(
-      screen.getByRole("link", { name: "서로의 기대 보기" }),
+      screen.getByRole("link", { name: "서로의 인상 읽기" }),
     ).toBeVisible();
     expect(container).not.toHaveTextContent(
       catalog.questions.find(({ id }) => id === "mutual-view")?.focus ?? "",
@@ -102,7 +102,7 @@ describe("RelationshipQuestionExplorer", () => {
     ).toBeInTheDocument();
     expect(
       container.querySelector('a[href*="question=mutual-view"]'),
-    ).toHaveTextContent("Read our views");
+    ).toHaveTextContent("Read our impressions");
     expect(screen.getByRole("link", { name: "한국어" })).toHaveAttribute(
       "href",
       "/ko/relationship-tarot-questions",
@@ -145,17 +145,15 @@ describe("RelationshipQuestionExplorer", () => {
     expect(en.workedExampleItems[1]).toMatch(/^What the cards suggest:/u);
   });
 
-  it("keeps the first answer separate from two readings and compares both people's expectations", () => {
+  it("keeps the question-first method and preserves a two-view example", () => {
     const ko = getRelationshipQuestionExplorerShellCopy("ko");
     const en = getRelationshipQuestionExplorerShellCopy("en");
 
-    expect(ko.methodSteps[3]).toMatch(/답을 먼저.*서로 다른 해석 두 가지/u);
+    expect(ko.methodSteps[3]).toMatch(/질문에 먼저 답하고.*한 이야기/u);
     expect(ko.workedExampleItems[9]).toMatch(
       /두 사람이 말한 기대가 서로 비슷하고 이후 행동도 그 말과 맞으면/u,
     );
-    expect(en.methodSteps[3]).toMatch(
-      /answer.*first.*two different readings/iu,
-    );
+    expect(en.methodSteps[3]).toMatch(/answer.*first.*one natural story/iu);
     expect(en.workedExampleItems[9]).toMatch(
       /both people describe similar expectations and later act in line with them/iu,
     );

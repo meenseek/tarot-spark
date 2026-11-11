@@ -1,4 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
+import enCareerMessages from "../../src/messages/en/career-questions.json";
+import enRelationshipMessages from "../../src/messages/en/relationship-questions.json";
+import enTarotMessages from "../../src/messages/en/tarot-domain.json";
+import koCareerMessages from "../../src/messages/ko/career-questions.json";
+import koRelationshipMessages from "../../src/messages/ko/relationship-questions.json";
+import koTarotMessages from "../../src/messages/ko/tarot-domain.json";
 import { rejectOptionalServices } from "./privacy-helpers";
 
 async function stubClipboard(page: Page, fail = false) {
@@ -27,6 +33,62 @@ async function readClipboard(page: Page) {
 }
 
 test.beforeEach(async ({ context }) => rejectOptionalServices(context));
+
+for (const locale of ["ko", "en"] as const) {
+  for (const width of [390, 1280]) {
+    for (const scenario of [
+      {
+        topicId: "feelings",
+        questionId: "unspoken-expectations",
+        profileId: "expectations",
+        unrelatedProfileId: "perception",
+      },
+      {
+        topicId: "career-direction",
+        questionId: "career-growth-experience",
+        profileId: "career-growth",
+        unrelatedProfileId: "career-choice",
+      },
+    ] as const) {
+      test(`${locale} copies the selected ${scenario.profileId} example at ${width}px`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await stubClipboard(page);
+        const query = new URLSearchParams({
+          topic: scenario.topicId,
+          question: scenario.questionId,
+          cards: "the-fool,the-magician,the-high-priestess",
+        });
+        await page.goto(`${locale === "ko" ? "/ko" : "/"}?${query}`);
+        await expect(page.getByTestId("prompt-ready")).toBeVisible();
+        await page
+          .getByRole("button", {
+            name: locale === "ko" ? "질문 복사하기" : "Copy prompt",
+          })
+          .click();
+        const copied = await readClipboard(page);
+        const profiles = (locale === "ko" ? koTarotMessages : enTarotMessages)
+          .promptTemplate.writingProfiles;
+        const questions =
+          locale === "ko"
+            ? {
+                ...koRelationshipMessages.questions,
+                ...koCareerMessages.questions,
+              }
+            : {
+                ...enRelationshipMessages.questions,
+                ...enCareerMessages.questions,
+              };
+        expect(copied).toContain(questions[scenario.questionId].focus);
+        expect(copied).toContain(profiles[scenario.profileId].example);
+        expect(copied).not.toContain(
+          profiles[scenario.unrelatedProfileId].example,
+        );
+      });
+    }
+  }
+}
 
 for (const locale of ["ko", "en"] as const) {
   for (const width of [390, 1280]) {

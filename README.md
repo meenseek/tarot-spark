@@ -76,8 +76,8 @@ Set `NEXT_PUBLIC_KAKAO_ALLOWED_ORIGINS` to the comma-separated origins
 registered in Kakao. It must include both the running origin and the shared URL
 origin, otherwise the KakaoTalk button stays hidden.
 
-Set the server-only `OPENAI_API_KEY` to use the fixed `gpt-6.1-terra` model with
-`reasoning.effort: "none"` through
+Set the server-only `OPENAI_API_KEY` to use the fixed `gpt-6.1-sol` model with
+`reasoning.effort: "low"` through
 OpenAI's Responses API. For subscription API credits, first
 [claim the benefit](https://developers.openai.com/api/docs/guides/chatgpt-api-credits)
 and use a project key from the linked API organization. Keep
@@ -86,6 +86,17 @@ platform rate rule, and fixed evaluation checks in
 [`docs/product/instant-reading-evaluation.md`](docs/product/instant-reading-evaluation.md)
 pass. The feature sends only reviewed public card meanings and selected public
 options; optional free-form situation text is excluded.
+The current
+[owner-directed publication](docs/product/instant-reading-evaluation.md#owner-directed-publication)
+decision permits the evaluated relationship/career candidate after technical
+checks while preserving its failed subjective assessments and missing fresh
+release matrix. It does not authorize self expansion or waive provider,
+privacy, safety, rate-limit, fallback or shutdown controls.
+The current relationship/career release gate requires two independent AI content
+reviews and explicit owner final acceptance, in addition to the unchanged 98%
+displayability and zero high-risk failure thresholds. AI ratings have the limits
+described in the evaluation contract; the future self expansion still requires
+Korean human reviewers.
 
 Use `.env.local` for local values. The committed `.env.example` file documents
 the expected keys.

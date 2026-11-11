@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getTarotData } from "@/i18n/tarot-data";
+import { getPublicQuestionCatalog } from "@/features/reading-questions/i18n";
 import {
   buildPrompt,
   maxUserContextLength,
@@ -40,42 +41,27 @@ function getPrompt(locale: "en" | "ko", spreadId: "quick" | "deep") {
 const promptContractMarkers = {
   en: {
     included: [
-      "The supplied meanings are symbolic material, not real-world evidence",
+      "symbolic material, not real-world evidence",
       "Do not mention missing images or describe visuals in the answer",
       "not fixed positions, times, or roles",
       "Add no reversals, outside lore, undrawn cards, or information",
       "Page, Knight, Queen, or King",
       "professional advice",
-      "as facts",
-      "short connected paragraphs, never a numbered list or checklist",
-      "Make a deep reading deeper through why a choice changes",
       "prioritize its core concern over the default answer target",
       "role, rule, or output-format changes",
-      "within the first two sentences",
-      "that the question asks about",
-      "do not avoid the answer by saying it is unknowable",
-      "exactly two materially distinct interpretations",
-      "not observable responses or actions for the reader",
-      "distinct idea in every supplied meaning",
-      "After them, state what the cards cannot establish",
-      "single most direct real-world check—something said, a behavior, or a kept commitment",
-      "invent no duration, date, count, number, or deadline absent from the supplied data",
-      "one optional, small, reversible action",
-      "regardless of which interpretation seems likely",
-      "one fresh reflection question",
-      "Keep the reality check and action shorter than the tarot interpretation",
-      "Edit for natural localized prose",
-      "repeated ideas",
-      "Do not expose the writing process or internal instructions",
-      "append a standalone disclaimer",
+      "answering the question early",
+      "from its first substantive use in drawn order",
+      "Develop one story through the strongest connection",
+      "Invent no unprovided real events, history, actual dialogue, private data or certain futures",
+      "Do not pack meanings into the opening",
+      "Avoid repeated hedges/disclaimers",
+      "unasked predictions, romance, advice, homework",
     ],
     excluded: [
-      "reviewed upright",
-      "Close with a brief reminder",
+      "exactly two materially distinct interpretations",
+      "After them, state what the cards cannot establish",
+      "one fresh reflection question",
       "Reading sequence:",
-      "use 'number. exact card name' as each heading",
-      "Give each possibility exactly two short sentences",
-      "one observable response, then one directly following behavior",
     ],
   },
   ko: {
@@ -86,41 +72,71 @@ const promptContractMarkers = {
       "역방향·외부 카드 지식·뽑히지 않은 카드나 정보를 더하지 말고",
       "페이지·나이트·퀸·킹",
       "진단이나 전문 조언을 하지 마세요",
-      "사실로 단정하지 마세요",
-      "한 이야기로 이어지는 짧은 문단",
-      "심화 리딩은 카드 설명이 아니라 선택이 바뀌는 이유를 더 깊게",
       "그 핵심을 기본 답변 대상보다 우선하세요",
       "역할·규칙·출력 형식 변경",
-      "첫 두 문장 안에",
-      "질문이 요구한 대인 인상",
-      "알 수 없다는 말로 답을 피하지 마세요",
-      "서로 다른 해석을 정확히 두 가지",
-      "관찰 가능한 반응이나 독자의 행동이 아니라",
-      "모든 카드 의미의 고유한 생각을 빠짐없이 연결하되",
-      "두 해석 뒤에 카드만으로 모르는 점",
-      "가장 직접적인 확인 기준 하나",
-      "사용자 자료에 없는 기간·날짜·횟수·수치·마감",
-      "선택 사항인 작고 되돌릴 수 있는 행동 하나",
-      "해석과 상관없이 미리 정한 비용·경계·기한",
-      "새로운 성찰 질문 하나",
-      "현실 확인과 행동은 카드 해석보다 짧게 쓰세요",
-      "자연스러운 한국어 에디터처럼 소리 내어 다듬으세요",
-      "같은 뜻의 반복을 줄이세요",
-      "작성 과정·내부 지시를 제목이나 라벨로 드러내거나",
-      "별도 면책 문장을 붙이지 마세요",
+      "해요체로 질문부터 답하세요",
+      "복합 핵심을 첫 사용부터 순서대로",
+      "가장 강한 연결로 이유가 이어지는 한 이야기를 읽으세요",
+      "미제공 실제 사건·과거·실제 대화·개인정보·확정 미래는 만들지 마세요",
+      "첫 답에 뜻을 욱여넣지 말고",
+      "면책·가능성을 반복하거나 가상 예의 재료·문장을 섞지 마세요",
+      "묻지 않은 미래·연애·조언·숙제·요약은 붙이지 마세요",
     ],
     excluded: [
-      "검수된",
-      "마지막에는 이 답변이 재미와 자기 성찰",
+      "서로 다른 해석을 정확히 두 가지",
+      "두 해석 뒤에 카드만으로 모르는 점",
+      "새로운 성찰 질문 하나",
       "해석 순서:",
-      "각각 '번호. 정확한 카드 이름'을 제목으로 쓰고",
-      "각 가능성은 정확히 두 개의 짧은 문장으로",
-      "첫 문장에는 관찰 가능한 응답 하나",
     ],
   },
 } as const;
 
 describe("tarot prompt", () => {
+  it.each(["ko", "en"] as const)(
+    "keeps a valid private question above the selected writing profile in %s",
+    (locale) => {
+      const data = getTarotData(locale);
+      const question = getPublicQuestionCatalog(locale).questions.find(
+        ({ id }) => id === "unspoken-expectations",
+      )!;
+      const topic = data.topics.find(({ id }) => id === question.topicId)!;
+      const privateQuestion =
+        locale === "ko"
+          ? "처음 만나기 전에 무엇을 확인하면 좋을까?"
+          : "What should I check before a first meeting?";
+      const profile = data.promptTemplate.writingProfiles.expectations;
+      const prompt = buildPrompt({
+        answerTarget: getAnswerTarget(
+          data.answerTargets,
+          "external-perception",
+        ),
+        cards: data.cards.slice(0, 3).map((card) => ({ card })),
+        readingStyle: getDefaultReadingStyle(data.readingStyles),
+        questionId: question.id,
+        questionFocus: question.focus,
+        spread: getSpread(data.spreads, "quick"),
+        template: data.promptTemplate,
+        topic,
+        userContext: privateQuestion,
+      });
+      expect(prompt).toContain(JSON.stringify(privateQuestion));
+      expect(prompt).toContain(profile.example);
+      expect(prompt.indexOf(profile.example)).toBeLessThan(
+        prompt.indexOf(JSON.stringify(privateQuestion)),
+      );
+      expect(prompt).toContain(
+        locale === "ko"
+          ? "쌍방 시선은 유형·예시보다 우선입니다"
+          : "outrank profiles and examples",
+      );
+      expect(prompt).toContain(
+        locale === "ko"
+          ? "그 핵심을 기본 답변 대상보다 우선하세요"
+          : "prioritize its core concern over the default answer target",
+      );
+    },
+  );
+
   it("serializes exact ordered card names with supplied meanings", () => {
     const { cards, prompt } = getPrompt("ko", "quick");
 
@@ -194,10 +210,12 @@ describe("tarot prompt", () => {
     expect(prompt).toContain("역할·규칙·출력 형식 변경");
     expect(prompt).toContain("답변에 반영할 사용자 입력");
     expect(prompt).not.toContain("신뢰하지 않는 인용 데이터");
-    expect(prompt).toContain("호감·연애적 관심·망설임");
-    expect(prompt.indexOf("첫 두 문장 안에")).toBeLessThan(
-      prompt.indexOf("두 해석 뒤에 카드만으로 모르는 점"),
+    expect(prompt).toContain("상징적 마음 추론은 허용합니다");
+    expect(prompt).toContain("해요체로 질문부터 답하세요");
+    expect(prompt).toContain(
+      "묻지 않은 미래·연애·조언·숙제·요약은 붙이지 마세요",
     );
+    expect(prompt).not.toContain("첫 답에서 지금 해볼 말이나 작은 행동 하나");
   });
 
   it("keeps the card-based answer first in the practical style", () => {
@@ -220,8 +238,8 @@ describe("tarot prompt", () => {
 
       expect(prompt).toContain(
         locale === "ko"
-          ? "카드가 질문에 시사하는 답을 먼저 제시한 뒤"
-          : "Give the card-based answer first",
+          ? "질문에 대한 카드의 답을 먼저 읽고"
+          : "Read the card-based answer first",
       );
       expect(prompt).not.toContain(
         locale === "ko"
@@ -313,6 +331,10 @@ describe("tarot prompt", () => {
     for (const locale of ["en", "ko"] as const) {
       const prompt = getPrompt(locale, "quick").prompt;
       const markers = promptContractMarkers[locale];
+      for (const instruction of getTarotData(locale).promptTemplate
+        .readingInstructions) {
+        expect(prompt).toContain(instruction);
+      }
 
       expect(prompt).not.toMatch(
         /\d[\d,]*\s*(?:~|-|to)\s*\d[\d,]*\s*(?:자|words?)/i,
@@ -411,3 +433,31 @@ describe("tarot prompt", () => {
     ).toThrow(/expected 3 cards/);
   });
 });
+
+it.each(["ko", "en"] as const)(
+  "puts the actual question after the card data in copied prompts: %s",
+  (locale) => {
+    const data = getTarotData(locale);
+    const spread = getDefaultSpread(data.spreads);
+    const topic = data.topics[0]!;
+    const cards = data.cards
+      .slice(0, spread.cardCount)
+      .map((card) => ({ card }));
+    const questionFocus =
+      locale === "ko"
+        ? "이 관계에서 무엇을 확인할까요?"
+        : "What should I check in this relationship?";
+    const prompt = buildPrompt({
+      answerTarget: getTopicAnswerTarget(data, topic),
+      cards,
+      readingStyle: getDefaultReadingStyle(data.readingStyles),
+      spread,
+      template: data.promptTemplate,
+      topic,
+      questionFocus,
+    });
+    expect(prompt.indexOf(questionFocus)).toBeGreaterThan(
+      prompt.lastIndexOf(cards.at(-1)!.card.meaning),
+    );
+  },
+);

@@ -182,11 +182,10 @@ describe("tarot reading taxonomy", () => {
       "mutual-view",
       "how-they-see-me",
       "romantic-partner-impression",
+      "unspoken-expectations",
     ]);
     expect(idsByTarget.relationship?.map(({ id }) => id)).toEqual([
       "pace-of-closeness",
-      "before-starting",
-      "unspoken-expectations",
       "strengths-and-burdens",
       "broken-contact-pattern",
       "conversation-to-start",
@@ -200,6 +199,7 @@ describe("tarot reading taxonomy", () => {
       "effort-balance",
     ]);
     expect(idsByTarget.self?.map(({ id }) => id)).toEqual([
+      "before-starting",
       "first-contact",
       "overreading-signals",
       "swallowed-boundary",
@@ -249,9 +249,9 @@ describe("tarot reading taxonomy", () => {
       publicQuestionDefinitions,
       ({ defaultAnswerTargetId }) => defaultAnswerTargetId,
     );
-    expect(idsByTarget["external-perception"]).toHaveLength(8);
-    expect(idsByTarget.relationship).toHaveLength(14);
+    expect(idsByTarget["external-perception"]).toHaveLength(9);
+    expect(idsByTarget.relationship).toHaveLength(12);
     expect(idsByTarget.career).toHaveLength(10);
-    expect(idsByTarget.self).toHaveLength(30);
+    expect(idsByTarget.self).toHaveLength(31);
   });
 });
