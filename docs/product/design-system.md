@@ -180,8 +180,8 @@ the number or order of its DOM wrappers.
   beside the prompt-copy region. Explain before the field that it is sent only
   when pasted into another AI, never to instant reading, analytics or shares.
   Keep existing text when preparing another draw or changing locale; show where
-  it can be edited after drawing. Use three rows so examples remain readable
-  at narrow widths, and allow resizing.
+  it can be edited after drawing. Use four initial rows so localized examples
+  remain readable at 320px, and allow resizing.
 - Keep card count and answer style directly visible in setup and next-draw
   preparation. Use compact two-column radio choices with at least 48px targets;
   describe the selected answer style beside its group. Follow them with one
