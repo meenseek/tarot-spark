@@ -10,7 +10,7 @@ import {
 } from "@/server/instant-reading-config";
 
 export const runtime = "nodejs";
-export const maxDuration = 30;
+export const maxDuration = 40;
 
 const noStoreHeaders = {
   "Cache-Control": "no-store",

@@ -13,7 +13,7 @@
       },
       "linkLabel": "Three-card method",
       "title": "How to read three tarot cards without past-present-future positions",
-      "intro": "You do not need to assign past, present, and future positions to the cards. Connect their reviewed upright meanings and answer your question first. Then consider two possible interpretations, something to check, and one small action you could try.",
+      "intro": "You do not need to assign past, present, and future positions. Connect the reviewed upright meanings, answer your question first, and develop their strongest connection as a short reading.",
       "sections": [
         {
           "heading": "What a no-position spread changes",
@@ -32,9 +32,9 @@
             "Answer the question: name one feeling, part of a relationship, or decision you want to understand, then state what the three cards most strongly suggest.",
             "Read the card meanings: use the upright meaning of every card without adding unseen artwork or fixed positions. These meanings do not prove real-world facts.",
             "Connect the cards: choose the clearest way at least two card meanings support, challenge, or build on one another.",
-            "Consider two interpretations: give two different readings supported by the same cards. For a relationship question, compare possible feelings or attitudes rather than inventing future behavior.",
-            "Check in real life: name what remains unknown and what someone could say or do that would make you reconsider or set aside both readings.",
-            "Choose a next step: pick one small action and a cost, boundary, or deadline that would make you stop or review it. End with a question that adds something new."
+            "Read another angle when the question compares choices or the meanings pull in different directions. Not every question needs two competing conclusions.",
+            "Check when useful: if it helps the question, briefly add something you can notice or ask about in real life.",
+            "Close briefly: add a check or small step only when it helps the question, keeping necessary safety and consent boundaries clear."
           ]
         },
         {
@@ -66,7 +66,7 @@
           "heading": "How to avoid a generic three-card answer",
           "paragraphs": [
             "Do not write three isolated mini-definitions and call them a reading. The useful work is the connection: explain which exact meanings support the pattern, where they disagree, and what observation could change your conclusion.",
-            "You do not need a long answer. A short one is enough when every card contributes, the two readings differ, the unknowns are clear, and you can undo the next step."
+            "A reading need not be long. A direct answer with every meaning contributing to one coherent story is enough."
           ]
         },
         {
@@ -78,9 +78,9 @@
             "Every drawn card appears, and its upright meaning contributes to the reading.",
             "No image, reversed meaning, factual hidden-feelings claim, timeline, or fixed position was invented.",
             "At least one relationship among cards is explained with the exact meanings that support it.",
-            "The answer to the question comes first, followed by two different interpretations. Either, both, or neither may fit.",
-            "The reading separates what the cards suggest, what remains unknown, and what actual words or behavior could change it.",
-            "The action is small and reversible, with a cost, boundary, or deadline for stopping regardless of the interpretation and one new question to reflect on."
+            "The answer comes first. Any other angle follows the actual question rather than a fixed template.",
+            "If another angle or real-world check is included, it serves the question and fits the meanings.",
+            "The ending leaves a clear impression rather than repeating the question or adding an advice checklist."
           ]
         }
       ],
@@ -117,15 +117,15 @@
           "items": [
             "Directness: state what the cards suggest about the question before saying what remains unknowable.",
             "Separation: read another person's feelings as possibilities and keep them distinct from behavior or evidence that can actually be checked.",
-            "Possibilities: compare two readings supported by the cards. Either, both, or neither may fit. Name what the cards cannot establish.",
+            "Answer focus: make the subject clear. A feelings question asks about feelings; a preparation question asks what to check.",
             "Scope: limit the question to a situation or near-term review point instead of an unlimited future."
           ]
         },
         {
           "heading": "A reusable question formula",
           "paragraphs": [
-            "Use: “What answer do these cards most strongly suggest about [question], what are two different interpretations supported by the same meanings, and what could revise both?”",
-            "You do not need to copy the wording exactly. Ask what the cards suggest first, then ask for two different ways to read them and one thing you can check yourself."
+            "Try: “Read the story these card meanings tell about [my question] in natural, connected paragraphs.”",
+            "You do not need to copy the wording. Say what you want to know and ask the reading to stay with that question."
           ]
         },
         {
@@ -170,9 +170,9 @@
           "items": [
             "Can I answer part of this question through my own observation or choice?",
             "Does it treat another person's feelings as possibilities rather than facts?",
-            "Does it consider two different readings and leave room for both to be wrong?",
-            "Does it name real words or behavior that could change or rule out both readings?",
-            "Can I undo the next action, and have I set a cost, boundary, or deadline for stopping regardless of the reading?",
+            "Does it answer the question instead of filling a fixed template?",
+            "When the question calls for comparison, explore the difference; otherwise follow one clear answer.",
+            "If a real-world step is suggested, keep it low-pressure and respectful of consent and boundaries.",
             "Have I moved professional or safety decisions outside tarot?"
           ]
         }
@@ -217,7 +217,7 @@
         {
           "heading": "Connect two card meanings in one sentence",
           "paragraphs": [
-            "Start with: “Because [meaning A] and [meaning B], this question leans toward [strongest symbolic answer].” Then add two interpretations supported by the same meanings and paraphrase the exact parts that ground them.",
+            "Start with the answer: “Because A’s [meaning] and B’s [meaning] appear together, this question reads as [the central answer].” Explore another angle only when the question or tension between meanings calls for it.",
             "If you cannot finish that sentence without image symbolism, a fixed position, or outside card lore, the supplied meanings do not support the connection well enough yet."
           ]
         },
@@ -284,9 +284,9 @@
             "The reading explains how the cards connect and uses each card's upright meaning.",
             "Every card contributes to the synthesis.",
             "The strongest symbolic answer to the question appears before reality checking and invents no personal facts.",
-            "The two interpretations differ, and either, both, or neither may fit.",
-            "One real word or behavior could change or rule out both interpretations.",
-            "The reading names what remains unknown, when to reconsider, one reversible action, and when to stop regardless of the interpretation."
+            "It reads as one story grounded in the question and meanings, without forced alternative conclusions.",
+            "Any useful real-world check is brief and does not overshadow the reading.",
+            "Checks or actions appear briefly only when useful to the question, without encouraging risky decisions or crossing another person’s boundaries."
           ]
         }
       ],
@@ -326,13 +326,13 @@
           "heading": "Cards and the prompt you copy",
           "paragraphs": [
             "Each draw uses local tarot card and spread data. The site does not ask for your name, birth date, contact details, or a personal question.",
-            "The prompt includes the drawn card meanings and asks for two possible interpretations. Use what helps, and set aside any part of the AI answer that does not fit."
+            "The copied prompt includes the drawn meanings and asks for a natural reading centered on your question."
           ]
         },
         {
           "heading": "Standards behind the guides",
           "paragraphs": [
-            "The guides use only reviewed upright meanings. They answer the question first, then separate two distinct interpretations that may both fit—or neither may—from what can be checked in real life. They end with one reversible step and a clear reason to stop or review it.",
+            "The guides use reviewed upright meanings to answer the question first and connect the cards as one story. Other angles or real-world checks appear briefly when the question needs them.",
             "Another person's feelings are treated only as possibilities. The guides do not invent unseen image details, reversals, or fixed card positions. Korean and English follow the same standard. Send feedback to tarotspark.app@gmail.com."
           ]
         }

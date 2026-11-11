@@ -111,7 +111,7 @@ test("renders all relationship question choices at 320px without JavaScript", as
     }),
   ).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "서로의 기대 보기" }),
+    page.getByRole("link", { name: "서로의 인상 읽기" }),
   ).toHaveAttribute("href", "/ko?topic=feelings&question=mutual-view");
   await expect(page.locator('a[href*="question="]')).toHaveCount(30);
   expect(

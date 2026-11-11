@@ -95,7 +95,7 @@ const kakaoSdkScriptUrl =
   "https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js";
 const kakaoSdkIntegrity =
   "sha384-OL+ylM/iuPLtW5U3XcvLSGhE8JzReKDank5InqlHGWPhb4140/yrBw0bg0y7+C9J";
-const instantReadingClientTimeoutMs = 22_000;
+const instantReadingClientTimeoutMs = 37_000;
 const emptyDrawnCards: readonly DrawnCard[] = [];
 const instagramShareImageFilename = "tarot-spark.png";
 
@@ -582,6 +582,7 @@ export function TarotExperienceClient({
               ...(currentQuestion
                 ? {
                     questionFocus: currentQuestion.focus,
+                    questionId: currentQuestion.id,
                   }
                 : {}),
               spread: currentSpread,

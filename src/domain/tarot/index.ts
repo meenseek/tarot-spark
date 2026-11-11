@@ -6,13 +6,22 @@ export {
 export { getDefaultReadingStyle, getReadingStyle } from "./reading-styles";
 export { getAnswerTarget } from "./answer-targets";
 export {
+  getReadingWritingInstruction,
+  getReadingWritingInstructions,
+  getReadingWritingProfileId,
+  readingWritingProfileIds,
+} from "./reading-writing";
+export type {
+  ReadingWritingMessages,
+  ReadingWritingProfileId,
+} from "./reading-writing";
+export {
   getDailyTarotCard,
   getDailyTarotCardId,
   getLocalDateKey,
 } from "./daily";
 export { drawCards, getDefaultSpread, getSpread } from "./spreads";
 export {
-  instantReadingMarkers,
   isInstantReadingTaxonomyEligible,
   parseInstantReadingRequest,
   parseInstantReadingResponse,

@@ -11,7 +11,7 @@
   },
   "the-high-priestess": {
     "name": "The High Priestess",
-    "meaning": "It points to intuition, discernment, and listening before deciding.",
+    "meaning": "Intuition and discretion, not rushing to reveal inner thoughts while listening fully before deciding.",
     "reflection": "What deserves more listening or checking before you decide?"
   },
   "the-empress": {
@@ -96,7 +96,7 @@
   },
   "the-sun": {
     "name": "The Sun",
-    "meaning": "It points to clarity, vitality, joy, and open confidence.",
+    "meaning": "Clarity of mind and renewed vitality, openly accepting joy and confidence.",
     "reflection": "What joy or strength can you acknowledge without minimizing it?"
   },
   "judgement": {
@@ -109,7 +109,6 @@
     "meaning": "It points to completion, integration, and meaningful closure.",
     "reflection": "What are you ready to recognize as complete?"
   },
-
   "wands-ace": {
     "name": "Ace of Wands",
     "meaning": "It points to new motivation, inspiration, and the will to begin.",
@@ -122,7 +121,7 @@
   },
   "wands-3": {
     "name": "Three of Wands",
-    "meaning": "It points to expansion, progress, and reviewing how effort is developing.",
+    "meaning": "Adding new attempts to expand the scope of effort, while checking how far that effort has actually progressed.",
     "reflection": "What progress should you confirm before expanding further?"
   },
   "wands-4": {
@@ -152,7 +151,7 @@
   },
   "wands-9": {
     "name": "Nine of Wands",
-    "meaning": "It points to resilience and cautious persistence despite fatigue.",
+    "meaning": "Resilience and persistence while tired, staying vigilant and carefully holding one’s ground.",
     "reflection": "What support would make continued effort sustainable?"
   },
   "wands-10": {
@@ -180,7 +179,6 @@
     "meaning": "It points to vision, leadership, and sustained action toward a direction.",
     "reflection": "What concrete action would support your longer-term direction?"
   },
-
   "cups-ace": {
     "name": "Ace of Cups",
     "meaning": "It points to emotional openness, new feeling, and compassion.",
@@ -251,7 +249,6 @@
     "meaning": "It points to emotional steadiness, compassion, and a measured response.",
     "reflection": "What would help you respond calmly without dismissing your feelings?"
   },
-
   "swords-ace": {
     "name": "Ace of Swords",
     "meaning": "It points to clarity, truth, and precise judgment.",
@@ -304,7 +301,7 @@
   },
   "swords-page": {
     "name": "Page of Swords",
-    "meaning": "It points to alert curiosity, careful inquiry, and honest communication.",
+    "meaning": "Alert curiosity and vigilance, careful verification and honest communication.",
     "reflection": "What question should you check before reaching a conclusion?"
   },
   "swords-knight": {
@@ -322,7 +319,6 @@
     "meaning": "It points to logic, fairness, and responsible strategic judgment.",
     "reflection": "What decision remains when you apply the same standard to everyone?"
   },
-
   "pentacles-ace": {
     "name": "Ace of Pentacles",
     "meaning": "It points to a practical opportunity, a stable start, and available resources.",

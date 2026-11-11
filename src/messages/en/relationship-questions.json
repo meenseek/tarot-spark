@@ -13,9 +13,9 @@
     "Choose a question: name the feeling or part of the relationship you most want to understand.",
     "Read the card meanings: use the upright meaning of all three cards, without treating them as proof of what happened.",
     "Connect the cards: choose the clearest way their meanings support, challenge, or build on one another.",
-    "Consider two interpretations: answer the question from the cards first, then compare two different readings supported by the same card meanings.",
-    "Check in real life: name what remains unknown and what someone could say or do that would make you reconsider both readings.",
-    "Choose a next step: pick one small action, a cost, boundary, or deadline that would make you stop or review, and one question to ask yourself."
+    "Connect the card meanings, answer the question first, and read them as one natural story.",
+    "Explore another angle naturally only when the question or card meanings call for it.",
+    "When useful, close with a brief check or low-pressure step while respecting the other person’s boundaries and consent."
   ],
   "comparisonHeading": "Keep a feelings question symbolically open",
   "weakQuestionLabel": "Question demanding certainty",
@@ -75,181 +75,181 @@
     "interest-or-kindness": {
       "title": "Is this interest or kindness?",
       "summary": "Separate exciting signals from kindness they may show anyone.",
-      "focus": "First read how strongly the supplied cards lean toward interest or romantic attention through exactly two symbolic interpretations, then briefly name a real-world signal that could revise them.",
+      "focus": "Is this interest or kindness?",
       "ctaLabel": "Read the signals"
     },
     "pace-of-closeness": {
       "title": "Does our pace work for both of us?",
       "summary": "Check whether contact and meetings respect both people's limits.",
-      "focus": "Separate the pace that feels comfortable to the reader, what remains to be checked about the other person’s pace, and one small conversation that could help coordinate them. Do not assume past behavior was supplied.",
+      "focus": "Does our pace work for both of us?\nRead how the two people experience their current pace and whether it feels comfortable to both of them.",
       "ctaLabel": "Check our pace"
     },
     "before-starting": {
-      "title": "What should I check before we start?",
-      "summary": "Look past excitement to values, responsibility, and readiness.",
-      "focus": "Clarify aligned values, mutual responsibility, conditions that remain unknown, and one reversible step to take before starting a relationship.",
-      "ctaLabel": "Set starting criteria"
+      "title": "What should I check before starting a relationship?",
+      "summary": "Look beyond excitement to what you need before saying yes.",
+      "focus": "What should I check before starting a relationship?\nName a concrete thing for the reader to check before beginning romance. Do not assume an existing couple or shared roles.",
+      "ctaLabel": "Check before dating"
     },
     "first-contact": {
       "title": "Should I contact them first?",
       "summary": "Check your reason and when to stop, not their future reply.",
-      "focus": "Consider the reader’s purpose for reaching out, what remains to be checked about the other person’s boundaries, a low-pressure message, and a reader-chosen waiting period or contact limit if there is no reply. Do not assume a boundary has already been expressed.",
+      "focus": "Should I contact them first?",
       "ctaLabel": "Set contact limits"
     },
     "mutual-view": {
       "title": "How do we see each other?",
-      "summary": "Read each person's possible view and hopes.",
-      "focus": "Read both how the other person may see me and how I may see them through the supplied meanings, then use two symbolic interpretations to show where those views and expectations may align or diverge. Do not state either person's thoughts as fact; briefly add one point to verify in an actual conversation.",
-      "ctaLabel": "Read our views"
+      "summary": "Read what kind of person each of you sees in the other.",
+      "focus": "How do we see each other?\nRead two distinct perspectives rather than repeating the same trait for both people.",
+      "ctaLabel": "Read our impressions"
     },
     "how-they-see-me": {
       "title": "How might this person see me?",
       "summary": "Compare my first impression with what may emerge through closeness.",
-      "focus": "Focus only on how this specific person may see me, first using two distinct symbolic interpretations for the impression I initially give and what may read differently through closeness. Do not substitute mutual expectations or the current strength of attraction; briefly add the most direct signal in actual words or repeated behavior that could revise the reading.",
+      "focus": "How might this person see me?\nRead the character and attitude the other person perceives in you. Describe how each meaning’s experience or judgment appears in the observed person, you; do not replace that subject with a story about changes you cause in the observer.",
       "ctaLabel": "Read their impression"
     },
     "romantic-partner-impression": {
       "title": "How might I come across as a partner?",
       "summary": "Explore what may feel inviting and what may create hesitation.",
-      "focus": "Do not invent any specific person's current attraction. First use two distinct symbolic interpretations to explore the partner impression I may give potential romantic partners, including what may feel inviting and what may create hesitation, then briefly add a signal from actual introductions or dates that could revise the reading.",
+      "focus": "How might I come across as a partner?\nRead a hypothetical impression as a romantic partner, without assuming a specific person’s current attraction.",
       "ctaLabel": "Read partner impression"
     },
     "unspoken-expectations": {
-      "title": "What have we left unsaid?",
-      "summary": "Check whether assumed roles and promises were ever agreed.",
-      "focus": "Separate what I expect without saying, what we have actually agreed, what the other person may reasonably expect differently, and one thing to ask clearly.",
-      "ctaLabel": "Name hidden hopes"
+      "title": "What do they hope for from me?",
+      "summary": "Read what this person quietly hopes for from you.",
+      "focus": "What do they hope for from me?",
+      "ctaLabel": "Read their hopes"
     },
     "overreading-signals": {
       "title": "Am I overreading their signals?",
       "summary": "Compare one strong signal with repeated actions.",
-      "focus": "Identify the signal I gave extra weight, the behavior that has repeated, other plausible explanations, and an observation that would make me revise my interpretation.",
+      "focus": "Am I overreading their signals?\nAnswer whether the reader is over-weighting signals; do not switch to assessing their ability to take action.",
       "ctaLabel": "Recheck the signal"
     },
     "strengths-and-burdens": {
       "title": "When do our strengths become burdens?",
       "summary": "See when a trait you like starts to strain the relationship.",
-      "focus": "Explore which qualities support the relationship, when those same qualities become burdens, a boundary we can coordinate, and what cannot yet be known.",
+      "focus": "When do our strengths become burdens?",
       "ctaLabel": "Weigh strength and strain"
     },
     "broken-contact-pattern": {
       "title": "Why does our contact keep stopping?",
       "summary": "Look at actions and hopes before and after each silence.",
-      "focus": "Map the repeated behavior before and after contact stops, the meaning I attach to it, another plausible cause, and one contact expectation we could agree directly.",
+      "focus": "Why does our contact keep stopping?",
       "ctaLabel": "Trace contact habits"
     },
     "conversation-to-start": {
       "title": "What should we talk about now?",
       "summary": "Find what cannot wait and how to ask with care.",
-      "focus": "Identify the core subject I am avoiding, facts to check before speaking, a respectful way to ask, and a condition for ending the conversation.",
+      "focus": "What should we talk about now?",
       "ctaLabel": "Find the words"
     },
     "recurring-misunderstanding": {
       "title": "Which misunderstanding keeps returning?",
       "summary": "Separate what was said, heard, and done next.",
-      "focus": "Examine the words and reactions that repeatedly miss each other, two plausible interpretations, one clarifying question, and a small change for the next conversation.",
+      "focus": "Which misunderstanding keeps returning?",
       "ctaLabel": "Trace the misunderstanding"
     },
     "initiative-balance": {
       "title": "Who reaches out first?",
       "summary": "See who starts messages, plans, and paused talks.",
-      "focus": "Compare who recently initiated contact, proposed plans, or reopened a paused conversation, other explanations for the difference, and one agreement for sharing the burden of starting.",
+      "focus": "Who reaches out first?\nDo not answer circularly by calling the initiator the person who initiates. Read which of the reader or the other person the full set points toward, keeping the actors distinct. Do not assign people by card number.",
       "ctaLabel": "Compare who starts"
     },
     "space-or-conversation": {
       "title": "Do we need space or a talk?",
       "summary": "Separate calming time from silence that avoids the issue.",
-      "focus": "Compare evidence that distance would help recovery with the risk of avoidance, conditions needed before a conversation, and a point to review the choice.",
+      "focus": "Do we need space or a talk?",
       "ctaLabel": "Compare space and talk"
     },
     "repeating-conflict": {
       "title": "Why do we keep having the same fight?",
       "summary": "Look under the topic at needs and repeated reactions.",
-      "focus": "Map the recurring conflict scene, the different needs each person may be protecting, alternative explanations, and one response I can change next time.",
+      "focus": "Why do we keep having the same fight?\nDo not turn constructive qualities into flaws or assume their absence. Only when the meanings jointly support a tension, read its connection to recurrence; do not treat one attitude or wish alone as its cause.",
       "ctaLabel": "Trace the fight"
     },
     "swallowed-boundary": {
       "title": "What happens when I keep letting things pass?",
       "summary": "Separate flexible compromise from silence that erases your limits.",
-      "focus": "Examine what I repeatedly tolerate, its short-term benefit and long-term cost, one boundary to express, and a stop condition if pressure follows.",
+      "focus": "What happens when I keep letting things pass?\nKeep the premise that the reader lets it pass and read the relationship consequence. Do not replace it with advice to confront or change behavior.",
       "ctaLabel": "Review what I allow"
     },
     "repair-evidence": {
       "title": "What would show our relationship is improving?",
       "summary": "Look for responsibility and steady action, not apologies alone.",
-      "focus": "Identify concrete behavior that would support repair, the alternative of reassurance without change, an observation period, and a criterion for reassessing.",
+      "focus": "What would show our relationship is improving?\nRead concrete criteria for recognizing improvement rather than claiming improvement has already been verified.",
       "ctaLabel": "Find signs of repair"
     },
     "person-or-familiarity": {
       "title": "Do I miss them or the familiar life?",
       "summary": "Separate the person from the routine you shared.",
-      "focus": "Distinguish what I miss about the person from what I miss about familiarity or stability, then identify an observation and action that could clarify the difference.",
+      "focus": "Do I miss them or the familiar life?\nCompare missing the particular person with wanting to return because that relationship feels familiar. Do not replace either option with an ideal version of yourself or an ideal relationship, or invent actual past events or the other person’s actions.",
       "ctaLabel": "Separate the longing"
     },
     "evidence-of-change": {
       "title": "What shows a reunion could be different?",
-      "summary": "Look for real change, not promises or longing.",
-      "focus": "Name the central problem in the old relationship, change I can actually verify, the possibility that nothing important has changed, and one small criterion to test before reunion.",
-      "ctaLabel": "Check what changed"
+      "summary": "Read the basis and obstacles for making a renewed connection different.",
+      "focus": "What shows a reunion could be different?\nRead whether there are grounds for a renewed connection being different, and different intentions, judgments or actions only as supported by the supplied meanings. Retain insufficient grounds or obstacles when supported; do not substitute verification homework or established changes.",
+      "ctaLabel": "Read signs of change"
     },
     "repeated-pattern": {
-      "title": "Which old pattern could return?",
+      "title": "Which old pattern is still here?",
       "summary": "Review old conditions and reactions without predicting the future.",
-      "focus": "Identify the behavior that repeated before, whether the same conditions remain, evidence that a different response is possible, and a reason to stop.",
+      "focus": "Which old pattern is still here?\nName the remaining habit from the first meaning, then connect the emotional reason later meanings interact with it. Read difficulty letting go only when supported; do not list unrelated wishes or separate traits.",
       "ctaLabel": "Name the old pattern"
     },
     "no-contact-meaning": {
       "title": "What can no contact show me?",
       "summary": "Treat silence as a limit for recovery, not their secret message.",
-      "focus": "Explore the emotions and needs revealed by no contact, how it supports recovery, where it becomes avoidance, and when to review the choice.",
+      "focus": "What can no contact show me?\nThis is a choice not yet carried out. Do not invent the other person’s response or use silence to test them.",
       "ctaLabel": "Review no contact"
     },
     "continue-slow-stop": {
       "title": "Should I continue, slow down, or stop?",
       "summary": "Compare three paths through actions, not strong feelings.",
-      "focus": "Separate real-world information for continuing, slowing down, and stopping the relationship, then identify the smallest reversible choice that could test the decision. These three are action options, a different layer from the reading's two symbolic interpretations.",
+      "focus": "Should I continue, slow down, or stop?",
       "ctaLabel": "Compare three paths"
     },
     "effort-balance": {
       "title": "Is our effort balanced?",
       "summary": "Look at time, responsibility, and care, not the size of feelings.",
-      "focus": "Compare the consistency of time, responsibility, and caring behavior each person has given over a defined period, other explanations for an imbalance, and one agreement that could test fairness.",
+      "focus": "Is our effort balanced?",
       "ctaLabel": "Check effort balance"
     },
     "waiting-boundary": {
       "title": "How long should I wait?",
-      "summary": "Replace endless waiting with needed change and a review date.",
-      "focus": "Clarify the reason to wait, the cost of waiting, change that needs to become visible, a review point, and a stop condition at that point.",
-      "ctaLabel": "Set a waiting limit"
+      "summary": "Read where waiting starts holding your own choices back.",
+      "focus": "How long should I wait?\nRead a limit that lets the reader preserve everyday life while waiting; do not predict a date.",
+      "ctaLabel": "Read my waiting limit"
     },
     "small-test": {
       "title": "What small change can I try?",
       "summary": "Choose one reversible step before making a big conclusion.",
-      "focus": "Identify the assumption I need to check, one small reversible action, the result to observe, and a reason to stop the test.",
+      "focus": "What small change can I try?\nBegin with one small reversible action supported by the first meaning, then let the remaining meanings develop its reason and what to notice. Do not invent past events or the other person’s response.",
       "ctaLabel": "Try one change"
     },
     "drawn-to-ambiguity": {
       "title": "Why am I drawn to unclear relationships?",
       "summary": "See what feels familiar and what you gain from uncertainty.",
-      "focus": "Map where ambiguity repeats, the familiar reward and cost it gives me, and one small action toward the clarity I say I want.",
+      "focus": "Why am I drawn to unclear relationships?",
       "ctaLabel": "Review the pattern"
     },
     "ignored-signals": {
       "title": "What am I missing because I want love?",
       "summary": "Recheck actions and limits you made smaller for a hoped-for answer.",
-      "focus": "Identify the signal I dismissed, why I minimized it, another interpretation, and one boundary I can restore now.",
+      "focus": "What am I missing because I want love?",
       "ctaLabel": "Find missed signals"
     },
     "reassurance-seeking": {
       "title": "Do I keep checking their reaction?",
       "summary": "See whether brief relief is followed by more anxiety.",
-      "focus": "Check whether reassurance-seeking behavior is actually repeating and whether anxiety returns after short-term relief; if so, identify one small alternative I can choose.",
+      "focus": "Do I keep checking their reaction?",
       "ctaLabel": "Review checking habits"
     },
     "desired-relationship": {
       "title": "What does my ideal relationship look like?",
       "summary": "Turn a broad wish into actions you can see each day.",
-      "focus": "Clarify the values of the relationship I want, concrete behavior that would express them, a non-negotiable boundary, and one choice I can practice now.",
+      "focus": "What does my ideal relationship look like?",
       "ctaLabel": "Name what I want"
     }
   }

@@ -513,6 +513,7 @@ describe("visual design system contract", () => {
     expect(packageManifest.scripts["lint"]).toContain('stylelint "**/*.css"');
   });
 
+  // Loading both real lint configurations can exceed the default unit-test budget.
   it("rejects private package contracts while allowing public and app-owned names", async () => {
     const cwd = process.cwd();
     const ruleName = "measure-twice/no-private-contracts";
@@ -563,5 +564,5 @@ describe("visual design system contract", () => {
         ({ rule }) => rule === ruleName,
       ),
     ).toEqual([]);
-  });
+  }, 15_000);
 });

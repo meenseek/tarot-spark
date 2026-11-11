@@ -54,11 +54,11 @@
     "cancel": "Cancel reading",
     "retry": "Try again",
     "unavailable": "The instant reading is unavailable right now. You can still copy the prompt below and continue in another tool.",
-    "disclosure": "This interpretation was created with generative AI.",
+    "disclosure": "An AI reading of the cards’ symbolism.",
     "resultHeading": "AI card-flow interpretation"
   },
   "promptReady": "Your prompt for an AI tool is ready.",
-  "promptValueSummary": "The prompt asks your AI tool to answer from the cards first, then give two possible interpretations, something to check, and one small action.",
+  "promptValueSummary": "The prompt asks your AI tool to connect the card meanings and answer your question as one short, flowing reading.",
   "promptContextIncluded": "Your situation is included in the prompt.",
   "promptCopySuccess": "Copied. Paste it into the AI tool you use to get the reading.",
   "promptContentDisclosure": "View prompt",

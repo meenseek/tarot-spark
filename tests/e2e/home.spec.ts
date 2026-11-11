@@ -1073,7 +1073,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
   await page.setViewportSize({ height: 844, width: 320 });
   await page.goto("/ko/relationship-tarot-questions");
   await page.locator("#perception > summary").click();
-  await page.getByRole("link", { name: "서로의 기대 보기" }).click();
+  await page.getByRole("link", { name: "서로의 인상 읽기" }).click();
 
   await expect(page).toHaveURL(/topic=feelings&question=mutual-view/);
   await expect(page.getByTestId("selected-public-question")).toContainText(
@@ -1172,7 +1172,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
     "우리는 서로를 어떻게 보고 있을까?",
   );
   await expect(page.getByTestId("current-question-frame")).toHaveText(
-    "서로의 시선과 기대를 가능성으로 읽습니다.",
+    "서로가 상대에게 어떤 사람으로 비치는지 읽습니다.",
   );
   await expect(page.getByTestId("current-question-frame")).not.toContainText(
     "호감",
@@ -1182,10 +1182,10 @@ test("uses a chosen relationship question in the generated prompt", async ({
     .locator("summary")
     .click();
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
-    /고른 질문: 상대가 독자를 보는 시선과 독자가 상대를 보는 시선을 카드 의미로 각각 읽고/,
+    /고른 질문: 우리는 서로를 어떻게 보고 있을까\?/,
   );
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
-    /첫 두 문장 안에 카드가 가장 강하게 시사하는 답을 주세요/,
+    /해요체로 질문부터 답하세요/,
   );
   await expect(page).toHaveURL(/question=mutual-view/);
   const committedUrl = page.url();
@@ -1274,7 +1274,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
   );
   await openPromptContent(page);
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
-    /관계의 속도에서 내가 편안한 지점, 상대의 속도에 관해 아직 확인할 점/,
+    /고른 질문: 우리 속도는 서로에게 맞을까\?/,
   );
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
     /이 내용은 다음 질문을 고르는 동안에도 유지되어야 해요/,
@@ -1291,7 +1291,7 @@ test("uses the selected question frame instead of broad interest copy", async ({
     "How do we see each other?",
   );
   await expect(page.getByTestId("current-question-frame")).toHaveText(
-    "Read each person's possible view and hopes.",
+    "Read what kind of person each of you sees in the other.",
   );
   await expect(page.getByTestId("current-question-frame")).not.toContainText(
     "interest",
@@ -1335,10 +1335,10 @@ test("keeps broad and partner impressions separate from current attraction", asy
   );
   await openPromptContent(page);
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
-    /고른 질문: 특정 상대의 현재 호감을 꾸며내지 말고/,
+    /고른 질문: 나는 연애 상대로 어떤 인상일까\?/,
   );
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
-    /질문에 없는 호감 해석을 덧붙이지 마세요/,
+    /묻지 않은 미래·연애·조언·숙제·요약은 붙이지 마세요/,
   );
 });
 
@@ -1386,7 +1386,7 @@ test("offers distinctive career questions under one optional hierarchy", async (
   await expect(page.getByTestId("current-public-question")).toHaveCount(0);
   await openPromptContent(page);
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
-    /주제의 세부 초점: 일에서 어디에 힘을 쏟고 있는지/,
+    /주제의 세부 초점: 일을 향한 마음이/,
   );
 
   await page.getByRole("button", { name: "다음 카드 준비하기" }).click();
@@ -1407,10 +1407,10 @@ test("offers distinctive career questions under one optional hierarchy", async (
   );
   await openPromptContent(page);
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
-    /고른 질문: 익숙해서 지나치고 있을 수 있는 강점/,
+    /고른 질문: 내가 놓치고 있는 강점은\?/,
   );
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).not.toHaveValue(
-    /주제의 세부 초점: 일에서 어디에 힘을 쏟고 있는지/,
+    /주제의 세부 초점: 일을 향한 마음이/,
   );
   expect(
     await page.evaluate(
@@ -1445,7 +1445,7 @@ test("carries a money question from the complete catalog through a safe mobile r
     "돈 리딩은 자기 성찰용이며 재정 조언이 아닙니다. 결정 전 실제 비용과 조건을 확인하세요.",
   );
   await expect(page.getByTestId("prompt-ready")).toContainText(
-    "복사할 질문은 AI에 카드가 시사하는 답부터 말한 뒤, 가능한 해석 두 가지와 직접 확인할 점, 해볼 일 하나를 알려 달라고 요청해요.",
+    "복사할 질문은 AI에 카드 뜻을 연결해 궁금한 점부터 답하고, 한 편의 짧은 이야기처럼 읽어 달라고 요청해요.",
   );
   await expect(
     page.getByRole("button", { name: "지금 바로 해석하기" }),
@@ -1713,13 +1713,13 @@ test("shows an instant Korean reading without sending private context", async ({
     page.getByRole("heading", { name: "AI 카드 흐름 해석" }),
   ).toBeFocused();
   await expect(page.getByTestId("instant-reading-result")).toContainText(
-    "[가능성 A]",
+    "다가가고 싶은 마음, 지키고 싶은 선",
   );
-  await expect(page.getByTestId("instant-reading-result")).toContainText(
+  await expect(page.getByTestId("instant-reading-result")).not.toContainText(
     "멈추거나 다시 볼 조건:",
   );
   await expect(
-    page.getByText("생성형 AI를 활용해 작성한 해석입니다."),
+    page.getByText("AI가 카드의 상징을 읽어 전하는 이야기입니다."),
   ).toBeVisible();
   await openPromptContent(page);
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toBeVisible();
@@ -2040,36 +2040,12 @@ function getSitemapLocPathnames(sitemapXml: string) {
   );
 }
 
-function createValidInstantReading(cardCount: number) {
-  const cardLines = [
-    "새로운 시도를 열어 두되 아직 확인하지 않은 기대를 사실처럼 단정하지 않는 태도를 살펴봅니다.",
-    "표현할 수 있는 선택과 자원을 구체적으로 사용하면 원하는 경계를 더 분명히 전할 수 있습니다.",
-    "아픈 감정을 서둘러 지우기보다 실제로 확인한 행동과 해석을 나누어 바라볼 필요가 있습니다.",
-    "서로 주고받는 균형이 한쪽의 희생으로 기울지 않는지 현실의 부담을 함께 확인해 봅니다.",
-    "감정의 친밀함과 실제 약속의 범위가 같은 방향인지 행동을 통해 천천히 살펴봅니다.",
-    "공정함을 원하는 마음이 단단한 경계로 이어지는지 같은 기준을 적용하는지 봅니다.",
-  ]
-    .slice(0, cardCount)
-    .map((line, index) => `${index + 1}. ${line}`)
-    .join("\n");
+function createValidInstantReading(_cardCount: number) {
+  return `다가가고 싶은 마음, 지키고 싶은 선
 
-  return `[전체 흐름]
-새로운 가능성과 분명한 표현이 함께 필요하지만 확인하지 않은 부분은 현실의 대화로 살펴야 기대와 관찰을 구분할 수 있습니다.
-[카드별 흐름]
-${cardLines}
-[가장 강한 연결]
-열린 가능성과 능동적인 표현이 서로 힘을 보태지만 감정을 건너뛰면 속도가 현실보다 앞설 수 있다는 긴장이 두드러집니다.
-[가능성 A]
-서로 표현하는 속도가 달라서 같은 행동을 다르게 받아들이며 불확실성이 커졌을 수 있습니다.
-[가능성 B]
-기대가 실제로 확인한 신호보다 앞서서 관계의 빈칸을 스스로 채우고 있을 수 있습니다.
-[현실 확인]
-아직 모르는 점: 현재 정보만으로는 서로 같은 기대와 관계의 속도를 원하는지 알 수 없습니다.
-관찰할 점: 다음 대화에서 질문에 대한 답과 이후 행동이 일정하게 이어지는지 살펴보세요.
-다시 볼 조건: 말과 행동이 계속 어긋나면 두 가능성을 모두 내려놓고 다시 살펴보세요.
-[다음 행동]
-작은 행동: 부담이 적은 질문 하나를 골라 서로 확인할 수 있는 범위에서 짧게 대화해 보세요.
-멈추거나 다시 볼 조건: 대화가 반복해서 경계를 넘거나 일상에 큰 비용을 만들면 이 행동을 멈추고 다시 판단하세요.
-[성찰 질문]
-지금 내가 기대와 실제 관찰을 구분하기 위해 가장 먼저 확인할 수 있는 것은 무엇인가요?`;
+당신에게는 설렘과 조심스러움이 함께 있어요. 새로운 만남을 향해 한 걸음 내딛고 싶지만, 좋아하는 마음만으로 자신의 속도를 놓치고 싶지는 않아요.
+
+가볍게 시작하는 용기에 자신을 표현하는 힘이 더해져요. 여기에 상처를 경계하는 마음도 나란히 놓여 있어서, 모든 것을 한꺼번에 보여주기보다 편안한 만큼 가까워지는 쪽이 잘 어울립니다. 잘 보이려고 괜찮지 않은 것까지 괜찮다고 넘길 필요는 없어요.
+
+지금은 큰 약속보다 서로 부담 없이 대화를 이어갈 수 있는지를 느껴보세요. 작은 표현에도 자신답게 웃을 수 있는 만남을 바라고 있어요.`;
 }

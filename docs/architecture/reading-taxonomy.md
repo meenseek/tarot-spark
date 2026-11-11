@@ -95,7 +95,8 @@ taxonomy.
 
 ## Self Catalog Decision Record
 
-The catalog grows from 44 to 62 questions. Domain counts move from
+At the self catalog introduction, the catalog grew from 44 to 62 questions.
+Domain counts move from
 `relationship: 30, career: 14` to
 `relationship: 30, career: 14, self: 18`. Answer-target counts move from
 `external-perception: 8, relationship: 14, self: 12, career: 10` to
@@ -129,3 +130,10 @@ not a subject-only rewrite of its nearest existing question.
 | `project-pause-signal`     | Predefine a project pause checkpoint                | `continue-slow-stop`          | Does not choose an immediate relationship direction           |
 
 <!-- markdownlint-enable MD013 -->
+
+The narrative question alignment routes `before-starting` to `self` and
+`unspoken-expectations` to `external-perception`, matching the person and
+action named by each current question. Current public totals are
+`external-perception: 9, relationship: 12, self: 31, career: 10`. The earlier
+expansion counts above describe that historical expansion, not these later
+question refinements.

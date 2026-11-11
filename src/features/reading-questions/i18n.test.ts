@@ -8,6 +8,7 @@ import {
   getDefaultReadingStyle,
   getDefaultSpread,
   getReadingTaxonomy,
+  getReadingWritingInstruction,
   getTopic,
   publicQuestionDefinitions,
   selfQuestionDefinitions,
@@ -36,76 +37,76 @@ const pickerCopyLimits = {
 
 const selfContentDecisionDigests = {
   "self-priority-now": {
-    en: "778200a8f8e05500ed49af83c7d5c9840ea215434525f0f5ed43fadc41be9f31",
-    ko: "3498cde34795e1bf1ad9d1aa25b23b557fe07ad1205a66cd90ca46024867e341",
+    en: "7256a4f605bf1315c013f27e108b37d796a42abbab1fbf1727118f6d8e36a451",
+    ko: "3842c03454e1126779bc8dd4b6b5a619a57a6d5c65675551c11e081d2517cc22",
   },
   "self-expectation-source": {
-    en: "f7e7358127fb9791382290eee388d5f293b5c257a05e5ff2d5245ced4a422fed",
-    ko: "0d46f3e76e5f1faf1c938573b95e28867482fbf0dce0341c96bade972b00ad9e",
+    en: "eda02e880c6aebfead00ad3e7fb073d96b551a512873c808cf9a8d2ea24469b2",
+    ko: "bc8715663a16fc1e80d669c86d0d106e151e83b6be5097b199cc86f0db89d3cb",
   },
   "self-review-condition": {
-    en: "4254c6786c162c0d5b9e5cf891e47c7d3ef5ee004c1d397791209520599ba656",
-    ko: "8d64abd559719bedbd5cbbd63b0f87f1f1ec9b746c2b429fb858961b1d1abf7d",
+    en: "7c70fded53a228a681f97dacebd254d1d98ee3e03bb7074298b7ee9802969b0f",
+    ko: "7db770f23a1542a55f8e4af7c549e3cd76a0ec65399e29041f3207002405632c",
   },
   "self-repeating-delay": {
-    en: "4e02f6c45fc884ea6544b194c680860ad463de270f7b50bd0dde8bd5bc5167ad",
-    ko: "c0ddc9bc9eb40c2f4b7a02a40d842252fb62007b045c0b188059659088dfa550",
+    en: "62fd2a3a93352f240c046136d2dd3d30fbd135169e3539c9e16a1e8eb720ffe6",
+    ko: "d9490545fba6eed51beb3e45534be6e59edd45b3d7714585e7e9a58c10a8a108",
   },
   "self-energy-focus": {
-    en: "8541574a75578778642c39204f4ba9e86a80d874f098fe12586871f37b6b1657",
-    ko: "0ae5f6205bd52ebe1346977132102a80fe7a67772da5a26629154262129ae864",
+    en: "549aeacbea29e5a3bc785c431a6fb8d08acfcb6742f649eb53245a6832a50ddf",
+    ko: "0e05d175f907e9b131191d88cb7f285c1f0e5f46a3549deb5dd2de42dcf30a64",
   },
   "self-supportive-pattern": {
-    en: "cd2f1dcf4fa9341cead22c877195e2d29249bdc672858910aab8fb14c771256e",
-    ko: "7f998ee94a617c6b9f447dfae19ab0b3ec9712b12425c0ad91a1adb431c057b1",
+    en: "d14d2547897537ca5585ccf5ba8cdd4b1798d6b747b467ec30725b257359623c",
+    ko: "6489284ba4212c4e7c24f07744f6b3c5b1b91c2b97310a4566783bbd22eacfc8",
   },
   "money-spending-priority": {
-    en: "85851ee5cfb5e08836f93ebace0c8e80b838508a324f6931f6049fbc1df5bb7c",
-    ko: "d6c01f5ea310ef1b560da62ac89e9443b34bb277163b7e17868549c9107f30ac",
+    en: "819d5685309f5de8713041109a78305e55bd89db1881c61eeeb68d6f421be7ed",
+    ko: "247981b9b79adabab4d5482dc1d3da81fa5de2a247a063c511eb67042a0c2d46",
   },
   "money-want-or-need": {
-    en: "aa7756414bd441e7c981d3e272cab3c41478bf08440a074b1119f87226f3e9df",
-    ko: "6997d37dbae84944790988a2e5a966f17388f9af80d587530f8aa8f6ea88b439",
+    en: "b7ba6c878b6fb0db905ca146c6f0be1ee3b0d6a55238c5a406815c84341ac741",
+    ko: "d00fb50275d0df00c4afb9bccdf71705c2a865430252de249ddb51f1beda06c5",
   },
   "money-sustainable-habit": {
-    en: "603940291b3995f44d4342e7a6d379109dccfd9943bf2c19bb071220b49b1fbe",
-    ko: "13a8c052a74aa59f1961994a7ff55f6509d17cb49d3b56aaa29fcc90c509905a",
+    en: "37f2677d86f903ae95142f7a91140843dbc1d44972a8e8a8415433553a1be705",
+    ko: "6dd7f9998a8ba0c6c533d34aaf10b343664408348b84f0a4e98ef5ebc0c67f34",
   },
   "money-big-purchase-check": {
-    en: "6bbc6c8f9856a904a364b684efae977686aac5b8a268d1f2510f23ae15e9b687",
-    ko: "e557f3e6d448ea66651de6ad45aa817859f1e7f0792919085c257a665213bd17",
+    en: "3cfd2ebbb064307eba03f03d033fd39c4feb6efbd2c13a9dabf6d24d693a30f6",
+    ko: "3c4e6ec14d5c5cf5657d541c4361295ef49e5905925bcd44e5159b30e6e731e7",
   },
   "money-shared-cost": {
-    en: "2202bfb8b6b43e42cc667d4bc9322be361b5de53b0ec120d8d190b28d7f0eabf",
-    ko: "cdee25156f4487c88926200b728d8e500e596e74e4de073a52ca3223dcaf3074",
+    en: "faf00535fbfd03f9fd1ccf8ce3365bbe074dcae9be79ba5b9ee4407bc600dcf1",
+    ko: "936e4e822feaa003e779265f1ac895dd7fecd538d8f3e65aca9cf2e76b92a09f",
   },
   "money-helping-boundary": {
-    en: "0c965e8ac03d8f8f72c5423d679a5a8cc2a62b5a1f22697c86bc45c11b2c83ca",
-    ko: "bbaaea46412835d8851e5f952edb1f9f7110f221b50425500266e599b2850d6d",
+    en: "85505a2fada2b3d8cc884baa30af047d78bf2f8e47ed587ad5f33cdbfc87a085",
+    ko: "6578abb40c8895358398fdf25b437c6557bcafda961d30cbd782e44c01bc3744",
   },
   "study-next-focus": {
-    en: "ea47135273afd51db395bdff80b5571fa683312ef79a04abedc2f651bfe5c65e",
-    ko: "83e736cde537880af8c5eea67206da8b30a2019a3cf6001b4cc7f8451b63125a",
+    en: "83e2e828507e2828fa363eddaea29ef419b2ccd70da3fe1151c92e68454574a8",
+    ko: "62ffdfda428549aeef9c1c611f6e3b5c2488bbdc578589d78308cbc1ce9358d1",
   },
   "study-method-fit": {
-    en: "64bdb7780356914a7562866778b691c23d99b8e3efa2aa356b43328955e37256",
-    ko: "c238e25c352a2bce6341bcbcc2036421d4f1dd9860ff00539b2e7114d1648cf4",
+    en: "b4fb990976a53494b71da4ec409a4f88d36ece5b64af04c96beb278792cb4876",
+    ko: "289689da31815fbc65812a8d5d89174436dbb1ecc3baeb38ac22ebdd4e6b1dcb",
   },
   "study-feedback-gap": {
-    en: "89b3cf8b60086addd61971721e53840ffb8f55cbca718407f34ac26cd57cbe7a",
-    ko: "b786657087a081fc622ab3ae0be81ba15d219c0047a1d4659761440a229365d7",
+    en: "d2d32b36a79205956f396a2660612fc107605071eb6510ceacea07de84a6d290",
+    ko: "998787652e338d5391c8536b562bf09b51cac4dea1fd42835f73dc9b24c23386",
   },
   "project-next-step": {
-    en: "8f2eb3d010cef319c92298ca228105d5b702ffcd3cc6d31eafde2380328aa3d3",
-    ko: "3d4bbb254311e5ffb9598a1ccbfdaa10051f08e910ae3705c6d85f3b1a35f50a",
+    en: "078ddeaffb03f68bba731728d37bc52d9c49bc92c169ebd4b6d242fb42b509ac",
+    ko: "70cb45fcb6350b2e5c44a6bf2e90e9b080c2515c68f324b1177f1c15f09d5fe0",
   },
   "project-scope-boundary": {
-    en: "552bc6a1a190cd7a896fdb7f9d4b71774d89eff11a7b2ac1194b95944734cbd2",
-    ko: "6097cdf1f5a7d2ce68f45f648e363904ef945c662ef90486a88c937b394b47e9",
+    en: "24e9c54ef21024548db611f6fb1934ba9f9ab433b755bdb4b5b04ff764370cf3",
+    ko: "977751cbbfe71c9c3ff7bc90c0e04d73fecff38a9af4d411fb0e0b3a9942f6bb",
   },
   "project-pause-signal": {
-    en: "64576e3fe0468dde02db785139e39f9ce9bb711dc555c6776a7a6a09bc38f25a",
-    ko: "3b57d6516bb0ffc20747ffa793bdc198ba71bdb1fde966296c5fa23d64ae164a",
+    en: "5ace2bc499c919aab0ce72a99830fdf29eb15441f95b4c3b3398daae3f7f05a3",
+    ko: "b5ea066e7987420fe28c25a275fcdbee7d1967ff7bcc3a6b2ad3f0697c5d5c2d",
   },
 } as const satisfies Record<
   (typeof selfQuestionDefinitions)[number]["id"],
@@ -256,7 +257,64 @@ describe("public question catalog", () => {
     }
   });
 
-  it("keeps self questions observable, reversible, and reviewable", () => {
+  it("keeps every public question on the shared narrative contract", () => {
+    const obsoleteMandate =
+      /exactly two symbolic interpretations|use two (?:distinct |symbolic )?interpretations|서로 다른 두 상징적 해석|두 가지 상징적 해석으로/iu;
+    for (const locale of ["ko", "en"] as const) {
+      const data = getTarotData(locale);
+      const spread = getDefaultSpread(data.spreads);
+      for (const question of getPublicQuestionCatalog(locale).questions) {
+        const prompt = buildPrompt({
+          answerTarget: getAnswerTarget(
+            data.answerTargets,
+            question.defaultAnswerTargetId,
+          ),
+          cards: data.cards
+            .slice(0, spread.cardCount)
+            .map((card) => ({ card })),
+          questionFocus: question.focus,
+          questionId: question.id,
+          readingStyle: getDefaultReadingStyle(data.readingStyles),
+          spread,
+          template: data.promptTemplate,
+          topic: getTopic(data.topics, question.topicId),
+        });
+        expect(prompt, `${locale} ${question.id}`).toContain(question.focus);
+        if (question.domainId !== "self") {
+          expect(prompt, `${locale} ${question.id}`).toContain(question.title);
+        }
+        expect(prompt, `${locale} ${question.id}`).not.toMatch(obsoleteMandate);
+        for (const instruction of data.promptTemplate.readingInstructions) {
+          expect(prompt).toContain(instruction);
+        }
+      }
+    }
+  });
+
+  it("makes the before-starting question explicitly about my readiness for romance", () => {
+    for (const locale of ["ko", "en"] as const) {
+      const question = getPublicQuestionCatalog(locale).questions.find(
+        ({ id }) => id === "before-starting",
+      )!;
+      expect(question.topicId).toBe("love");
+      expect(question.defaultAnswerTargetId).toBe("self");
+      expect(question.title).toMatch(
+        locale === "ko"
+          ? /연애를 시작하기 전/u
+          : /before starting a relationship/iu,
+      );
+      expect(question.focus).toMatch(
+        locale === "ko"
+          ? /확인할 구체적인 대상/u
+          : /a concrete thing for the reader to check/iu,
+      );
+      expect(question.focus).not.toMatch(
+        /가치 일치|서로의 책임|shared values|mutual responsibilities/iu,
+      );
+    }
+  });
+
+  it("keeps self questions grounded and optional guidance reversible", () => {
     for (const locale of ["ko", "en"] as const) {
       const questions = getPublicQuestionCatalog(locale).questions.filter(
         ({ domainId }) => domainId === "self",
@@ -273,11 +331,23 @@ describe("public question catalog", () => {
         expect(question.focus).toMatch(
           locale === "ko" ? /되돌릴 수/u : /reversible/iu,
         );
-        expect(question.focus).toMatch(
-          locale === "ko"
-            ? /멈추|다시 볼|다시 정할|바꿀|고칠|복구/u
-            : /stop|review|revise|change course/iu,
-        );
+        if (
+          question.focus.includes(
+            locale === "ko" ? "도움이 될 때만" : "Only when useful",
+          )
+        ) {
+          expect(question.focus).not.toMatch(
+            locale === "ko"
+              ? /조건을 제시하세요/u
+              : /give a condition|name a condition/iu,
+          );
+        } else {
+          expect(question.focus).toMatch(
+            locale === "ko"
+              ? /멈추|다시 볼|다시 정할|바꿀|고칠|복구/u
+              : /stop|review|revise|change course/iu,
+          );
+        }
       }
     }
   });
@@ -316,6 +386,7 @@ describe("public question catalog", () => {
           answerTarget: getAnswerTarget(tarotData.answerTargets, "self"),
           cards,
           questionFocus: question.focus,
+          questionId: question.id,
           readingStyle: getDefaultReadingStyle(tarotData.readingStyles),
           spread,
           template: tarotData.promptTemplate,
@@ -329,7 +400,7 @@ describe("public question catalog", () => {
     }
   });
 
-  it("keeps career copy reflective, evidence-led, and non-predictive", () => {
+  it("keeps career copy grounded and non-predictive", () => {
     const definiteCareerClaim =
       /(?:반드시|확실히|틀림없이).{0,40}(?:합격|승진|퇴사|연봉|수익)|(?:당장|즉시|오늘 바로).{0,30}퇴사|\b(?:definitely|guaranteed|certainly)\b.{0,50}\b(?:hired|promoted|resign|salary|profit)\b|\b(?:resign|quit)\s+(?:now|immediately)\b/iu;
     const professionalAdvice =
@@ -339,6 +410,8 @@ describe("public question catalog", () => {
       const questions = getPublicQuestionCatalog(locale).questions.filter(
         ({ domainId }) => domainId === "career",
       );
+      const data = getTarotData(locale);
+      const spread = getDefaultSpread(data.spreads);
       const copy = questions
         .flatMap(({ title, summary, focus }) => [title, summary, focus])
         .join("\n");
@@ -346,11 +419,48 @@ describe("public question catalog", () => {
       expect(copy).not.toMatch(definiteCareerClaim);
       expect(copy).not.toMatch(professionalAdvice);
       for (const question of questions) {
-        expect(question.focus).toMatch(
+        expect(question.focus).toContain(question.title);
+        const prompt = buildPrompt({
+          answerTarget: getAnswerTarget(
+            data.answerTargets,
+            question.defaultAnswerTargetId,
+          ),
+          cards: data.cards
+            .slice(0, spread.cardCount)
+            .map((card) => ({ card })),
+          questionFocus: question.focus,
+          questionId: question.id,
+          readingStyle: getDefaultReadingStyle(data.readingStyles),
+          spread,
+          template: data.promptTemplate,
+          topic: getTopic(data.topics, question.topicId),
+        });
+        expect(prompt).toContain(question.title);
+        expect(prompt).toContain(
           locale === "ko"
-            ? /확인|근거|기록|실험|시도|역할|경계/u
-            : /evidence|record|experiment|attempt|role|boundary|verify/iu,
+            ? "진단이나 전문 조언을 하지 마세요"
+            : "diagnosis or professional advice",
         );
+        expect(prompt).toContain(
+          locale === "ko"
+            ? "현실의 증거가 아니므로"
+            : "symbolic material, not real-world evidence",
+        );
+        if (question.id === "career-opportunity-cost") {
+          const guard =
+            locale === "ko"
+              ? "선택의 실제 조건·현재 일의 종료나 뜻마다 새 손실을 만들지 마세요."
+              : "Invent no actual opportunity terms, end of current work, or new loss for every meaning.";
+          const policy = getReadingWritingInstruction(
+            data.promptTemplate,
+            question.topicId,
+            question.id,
+          );
+          expect(question.focus).toBe(question.title);
+          expect(question.focus).not.toContain(guard);
+          expect(policy.split(guard)).toHaveLength(2);
+          expect(prompt.split(guard)).toHaveLength(2);
+        }
       }
     }
   });
@@ -452,6 +562,7 @@ describe("public question catalog", () => {
           ),
           cards,
           questionFocus: question.focus,
+          questionId: question.id,
           readingStyle: getDefaultReadingStyle(tarotData.readingStyles),
           spread,
           template: tarotData.promptTemplate,
@@ -482,6 +593,7 @@ describe("public question catalog", () => {
           .slice(0, spread.cardCount)
           .map((card) => ({ card })),
         questionFocus: question.focus,
+        questionId: question.id,
         readingStyle: getDefaultReadingStyle(tarotData.readingStyles),
         spread,
         template: tarotData.promptTemplate,
@@ -493,8 +605,8 @@ describe("public question catalog", () => {
       expect(prompt).not.toContain(topic.promptLead);
       expect(question.focus).toMatch(
         locale === "ko"
-          ? /특정 상대의 현재 호감을 꾸며내지 말고/u
-          : /Do not invent any specific person's current attraction/u,
+          ? /특정 상대의 현재 호감을 전제하지 않고/u
+          : /without assuming a specific person[’']s current attraction/u,
       );
       expect(topic.resultFrame).toMatch(
         locale === "ko" ? /인상/u : /interpersonal/iu,
@@ -529,6 +641,7 @@ describe("public question catalog", () => {
             ),
             cards,
             questionFocus: question.focus,
+            questionId: question.id,
             readingStyle: getDefaultReadingStyle(tarotData.readingStyles),
             spread,
             template: tarotData.promptTemplate,
@@ -539,9 +652,7 @@ describe("public question catalog", () => {
 
       const attraction = buildQuestionPrompt("interest-or-kindness");
       expect(attraction.focus).toMatch(
-        locale === "ko"
-          ? /호감이나 연애적 관심/u
-          : /romantic (?:interest|attention)/iu,
+        locale === "ko" ? /호감.*친절/u : /interest.*kindness/iu,
       );
       expect(attraction.prompt).toContain(attraction.focus);
 
@@ -554,8 +665,8 @@ describe("public question catalog", () => {
         expect(impression.prompt).toContain(impression.focus);
         expect(impression.prompt).toContain(
           locale === "ko"
-            ? "질문에 없는 호감 해석을 덧붙이지 마세요"
-            : "Do not add an attraction interpretation when the question does not ask for one",
+            ? "묻지 않은 미래·연애·조언·숙제·요약은 붙이지 마세요"
+            : "unasked predictions, romance",
         );
       }
 
@@ -564,4 +675,58 @@ describe("public question catalog", () => {
       );
     }
   });
+});
+
+it("keeps the old-pattern question in the present in both locales", () => {
+  for (const locale of ["ko", "en"] as const) {
+    const question = getPublicQuestionCatalog(locale).questions.find(
+      (q) => q.id === "repeated-pattern",
+    )!;
+    expect(question.focus).toContain(question.title);
+    expect(question.title).toMatch(locale === "ko" ? /남아/u : /still/iu);
+    expect(question.focus).not.toMatch(/could return/iu);
+  }
+});
+
+describe("question material and owned writing policy", () => {
+  it.each(["ko", "en"] as const)(
+    "keeps contact and effort focus as titles with policy in the copied prompt in %s",
+    (locale) => {
+      const data = getTarotData(locale);
+      const catalog = getPublicQuestionCatalog(locale);
+      const spread = getDefaultSpread(data.spreads);
+      for (const id of ["broken-contact-pattern", "effort-balance"] as const) {
+        const question = catalog.questions.find((q) => q.id === id)!;
+        expect(question.focus).toBe(question.title);
+        const policy = getReadingWritingInstruction(
+          data.promptTemplate,
+          question.topicId,
+          id,
+        );
+        expect(policy).toBe(
+          data.promptTemplate.questionWritingInstructions?.[id],
+        );
+        const taxonomy = getReadingTaxonomy(question.topicId, id);
+        const prompt = buildPrompt({
+          answerTarget: getAnswerTarget(
+            data.answerTargets,
+            taxonomy.defaultAnswerTargetId,
+          ),
+          cards: data.cards
+            .slice(0, spread.cardCount)
+            .map((card) => ({ card })),
+          readingStyle: getDefaultReadingStyle(data.readingStyles),
+          questionFocus: question.focus,
+          questionId: id,
+          spread,
+          template: data.promptTemplate,
+          topic: getTopic(data.topics, question.topicId),
+        });
+        expect(prompt.split(policy)).toHaveLength(2);
+        expect(
+          prompt.split(data.promptTemplate.narrationInstruction),
+        ).toHaveLength(2);
+      }
+    },
+  );
 });
