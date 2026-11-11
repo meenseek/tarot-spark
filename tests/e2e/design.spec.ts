@@ -631,12 +631,12 @@ test("uses state-specific generator layouts and one filled result action", async
   const localizedResultWorkspace = page.getByTestId("reading-workspace");
   await expect(page.getByRole("button", { name: "질문 복사하기" })).toHaveCSS(
     "background-color",
-    colors.action,
+    colors.surface,
   );
   await page.mouse.move(0, 0);
   await expect(
     page.getByRole("button", { name: "지금 바로 해석하기" }),
-  ).toHaveCSS("background-color", colors.surface);
+  ).toHaveCSS("background-color", colors.action);
   const filledPrimaryCount = await localizedResultWorkspace
     .locator("button")
     .evaluateAll(
@@ -693,7 +693,7 @@ for (const ko of [true, false]) {
         await expect(page.getByTestId("topic-select")).toBeInViewport();
       }
       await expect(form.locator(":scope > details")).toHaveCount(1);
-      await expect(form.getByRole("textbox")).toBeVisible();
+      await expect(form.getByRole("textbox")).toHaveCount(0);
       await expect(form.getByRole("radio")).toHaveCount(6);
       const names = ko
         ? [
@@ -874,9 +874,6 @@ test("completes an expanded-question setup by keyboard in short windows", async 
       await expect(picker).not.toHaveAttribute("open", "");
       await expect(summary).toBeFocused();
       await page.keyboard.press("Tab");
-      await expect(form.getByRole("textbox")).toBeFocused();
-      await page.keyboard.insertText("I want to pause before replying.");
-      await page.keyboard.press("Tab");
       await expect(
         form.getByRole("radio", { name: ko ? /빠른 3장/ : /Quick 3-card/ }),
       ).toBeFocused();
@@ -1037,6 +1034,12 @@ test("preserves app-owned textarea geometry after package styles", async ({
 }) => {
   await page.setViewportSize({ height: 844, width: 390 });
   await page.goto("/");
+  await expect(page.getByTestId("situation-context")).toHaveCount(0);
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
+  await page
+    .getByTestId("current-prompt-customization")
+    .locator("summary")
+    .click();
 
   const setupContext = page.getByLabel(
     "Your situation or question (Optional)",
@@ -1075,7 +1078,7 @@ test("preserves app-owned textarea geometry after package styles", async ({
     "Your situation or question (Optional)",
   );
   await expect(currentContext).toBeVisible();
-  await expect(currentContext).toHaveCSS("min-height", "112px");
+  await expect(currentContext).toHaveCSS("min-height", "72px");
   await expect(currentContext).toHaveCSS("padding", "12px");
 
   await page
@@ -1133,6 +1136,11 @@ test("keeps situation-textarea keyboard focus visible in forced colors", async (
     await page.evaluate(() => matchMedia("(forced-colors: active)").matches),
   ).toBe(true);
   await page.goto("/");
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
+  await page
+    .getByTestId("current-prompt-customization")
+    .locator("summary")
+    .click();
 
   const context = page.getByLabel("Your situation or question (Optional)", {
     exact: true,

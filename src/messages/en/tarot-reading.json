@@ -13,7 +13,7 @@
   "contextLabel": "Add your situation",
   "contextInputLabel": "Your situation or question",
   "contextOptional": "Optional",
-  "contextHelp": "Not in share links or analytics. Your situation goes to AI if you paste the prompt there. Avoid personal or confidential details.",
+  "contextHelp": "This text is sent only when you copy the prompt and paste it into another AI. It stays out of shared links and analytics. Do not include personal or confidential information.",
   "contextCountLabel": "{count}/{max} characters",
   "topicSelectorLabel": "What do you want to explore?",
   "topicSelectorDescription": "Draw with a broad topic, or choose a specific question below.",
@@ -33,8 +33,8 @@
   "resultHeading": "Your cards and AI question",
   "cardOverviewLabel": "Drawn cards",
   "currentReadingSettings": "Current reading",
-  "customizeCurrent": "Refine the prompt for these cards",
-  "customizeCurrentIntro": "Keep these cards and change the answer style or your situation. The prompt updates immediately, but text you already copied stays the same. Copy the prompt again after making changes.",
+  "customizeCurrent": "Add context for another AI",
+  "customizeCurrentIntro": "Context is included only in the prompt you copy. It is not used for an instant reading here. Copy the prompt again after editing.",
   "editNextReading": "Prepare the next draw",
   "editNextHeading": "Prepare the next draw",
   "editNextIntro": "Your previous question and settings are ready. Keep or edit them to draw new cards. You can return to your previous result until you draw.",
@@ -48,14 +48,20 @@
   },
   "instantReading": {
     "heading": "Read the card flow",
-    "intro": "Create one connected interpretation from the drawn cards and selected reading options. Optional situation text is not sent or used.",
+    "intro": "Read your selected question and card meanings as one connected story.",
     "generate": "Read these cards now",
     "loading": "Reading the flow of the cards…",
     "cancel": "Cancel reading",
     "retry": "Try again",
-    "unavailable": "The instant reading is unavailable right now. You can still copy the prompt below and continue in another tool.",
+    "unavailable": "The reading could not be loaded. Try again, or copy the prompt to continue in another AI.",
     "disclosure": "An AI reading of the cards’ symbolism.",
-    "resultHeading": "AI card-flow interpretation"
+    "resultHeading": "AI card-flow interpretation",
+    "entryIntro": "Draw your cards and read an AI interpretation here.",
+    "available": "This topic supports an instant reading here.",
+    "unsupportedTopic": "Instant readings are not available for this topic. Copy the prompt and ask your usual AI.",
+    "koreanOnly": "Instant readings are currently available in Korean only. Copy the prompt and ask your usual AI.",
+    "recoveryCopy": "Copy prompt to continue",
+    "recoveryCopied": "Prompt copied"
   },
   "promptReady": "Your prompt for an AI tool is ready.",
   "promptValueSummary": "The prompt asks your AI tool to connect the card meanings and answer your question as one short, flowing reading.",
@@ -104,5 +110,9 @@
     "chatgpt": "Open ChatGPT",
     "claude": "Open Claude",
     "gemini": "Open Gemini"
-  }
+  },
+  "customizeReadingStyle": "Change the tone for these cards",
+  "customizeReadingStyleIntro": "Keep the cards and change the tone. This also updates the prompt; copy it again to use the new tone.",
+  "styleResetNotice": "Changing the tone clears the current instant reading. Request another reading to use the new tone.",
+  "retainedCopyContext": "Your previous context is still included in the copyable prompt. After drawing, edit it under “Add context for another AI”."
 }

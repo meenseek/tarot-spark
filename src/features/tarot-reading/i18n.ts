@@ -50,6 +50,10 @@ export type TarotReadingMessages = {
   readonly currentReadingSettings: string;
   readonly customizeCurrent: string;
   readonly customizeCurrentIntro: string;
+  readonly customizeReadingStyle: string;
+  readonly customizeReadingStyleIntro: string;
+  readonly styleResetNotice: string;
+  readonly retainedCopyContext: string;
   readonly editNextReading: string;
   readonly editNextHeading: string;
   readonly editNextIntro: string;
@@ -72,6 +76,12 @@ export type TarotReadingMessages = {
     readonly unavailable: string;
     readonly disclosure: string;
     readonly resultHeading: string;
+    readonly entryIntro: string;
+    readonly available: string;
+    readonly unsupportedTopic: string;
+    readonly koreanOnly: string;
+    readonly recoveryCopy: string;
+    readonly recoveryCopied: string;
   };
   readonly promptReady: string;
   readonly promptValueSummary: string;
@@ -143,6 +153,10 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     currentReadingSettings: copy.currentReadingSettings,
     customizeCurrent: copy.customizeCurrent,
     customizeCurrentIntro: copy.customizeCurrentIntro,
+    customizeReadingStyle: copy.customizeReadingStyle,
+    customizeReadingStyleIntro: copy.customizeReadingStyleIntro,
+    styleResetNotice: copy.styleResetNotice,
+    retainedCopyContext: copy.retainedCopyContext,
     dailyQuestionLink: copy.dailyQuestionLink,
     disclaimer: copy.disclaimer,
     drawButton: copy.drawButton,

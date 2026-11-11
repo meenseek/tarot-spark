@@ -395,6 +395,11 @@ test("revokes analytics without losing private reading context", async ({
 }) => {
   await setStoredConsent(page, { analytics: false, advertising: false });
   await page.goto("/");
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
+  await page
+    .getByTestId("current-prompt-customization")
+    .locator("summary")
+    .click();
 
   const contextInput = page.getByRole("textbox", {
     name: /Your situation or question/,
@@ -422,6 +427,10 @@ test("revokes analytics without losing private reading context", async ({
   await page.getByRole("button", { name: "Save choices" }).click();
   await reloaded;
 
+  await page
+    .getByTestId("current-prompt-customization")
+    .locator("summary")
+    .click();
   await expect(contextInput).toHaveValue(
     "Keep this private context through consent changes.",
   );
@@ -733,6 +742,14 @@ test("clears stale private handoff before opening a clean attributed generator",
   ]);
 
   await expect(
+    page.getByRole("textbox", { name: /Your situation or question/ }),
+  ).toHaveCount(0);
+  await page.getByRole("button", { name: "Draw 3 cards" }).click();
+  await page
+    .getByTestId("current-prompt-customization")
+    .locator("summary")
+    .click();
+  await expect(
     page.getByRole("textbox", {
       name: /Your situation or question/,
     }),
@@ -819,6 +836,14 @@ test("clears stale private handoff before consecutive pre-hydration navigation",
     )
     .toBeNull();
 
+  await expect(
+    page.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
+  ).toHaveCount(0);
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+  await page
+    .getByTestId("current-prompt-customization")
+    .locator("summary")
+    .click();
   await expect(
     page.getByRole("textbox", {
       name: /상황이나 궁금한 점/,

@@ -46,7 +46,7 @@ export function TarotExperience({
       <TarotExperienceClient
         copy={getTarotReadingCopy(locale)}
         dailyQuestionPath={getDailyQuestionPath(locale)}
-        instantReadingEnabled={locale === "ko" && isInstantReadingEnabled()}
+        instantReadingEnabled={isInstantReadingEnabled()}
         initialAttribution={initialAttribution}
         initialReadingState={initialReadingState}
         kakaoAllowedOrigins={getKakaoAllowedOrigins()}

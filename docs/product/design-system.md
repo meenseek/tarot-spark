@@ -119,10 +119,11 @@ the number or order of its DOM wrappers.
 
 - Use at most one filled primary action in one task region. A region is a
   visually bounded form, result panel, or call-to-action section.
-- While Tarot Spark is a prompt generator, prompt copy is the primary result
-  action. Optional instant interpretation remains secondary. If the product
-  contract changes to interpretation-first, invert that hierarchy everywhere
-  in one change instead of presenting both actions as primary.
+- In an enabled Korean relationship/career generator result, instant reading is
+  the first action after the card overview and the single filled primary. Keep
+  prompt copy secondary. For other locales, shared results, ineligible topics
+  and feature-off operation, keep prompt copy primary. Generation always
+  requires an explicit click; copying must never request a reading.
 - Use secondary or text-link treatment for repeated catalog choices, locale
   controls, disclosures, navigation, and supporting actions.
 - Do not use blush fill or a two-pixel action border to make an optional panel
@@ -175,9 +176,12 @@ the number or order of its DOM wrappers.
   Selecting a question may adjust the broad topic to match; clearing only the
   question keeps that adjusted topic. Close the question picker and return
   focus to its summary after either action.
-- Keep the optional situation textarea directly visible between topic selection
-  and reading preferences. Mark it optional and show the privacy notice and
-  character count without a disclosure. Start with two rows and allow resizing.
+- Collect optional situation text only in the result’s copy-context disclosure
+  beside the prompt-copy region. Explain before the field that it is sent only
+  when pasted into another AI, never to instant reading, analytics or shares.
+  Keep existing text when preparing another draw or changing locale; show where
+  it can be edited after drawing. Use three rows so examples remain readable
+  at narrow widths, and allow resizing.
 - Keep card count and answer style directly visible in setup and next-draw
   preparation. Use compact two-column radio choices with at least 48px targets;
   describe the selected answer style beside its group. Follow them with one
@@ -215,14 +219,15 @@ the number or order of its DOM wrappers.
 - Fit each overview frame inside its own column. Use at most 80px of art below
   640px and 112px above it, shrinking in narrow columns while retaining the 5:7
   ratio and keeping retry controls inside the frame.
-- Place the single generated-prompt copy action before prompt source, card
-  details, sharing options, and shared-reading creation actions.
-- Label current-prompt customization as editing the prompt for the same cards,
-  and place it before the next-draw action. State that edits update the copyable
-  prompt immediately; they do not update text already copied to the clipboard.
-  Keep current-prompt customization separate from edit-next-draw. Current style
-  or private-context changes may update the prompt and share URL, but must not
-  redraw cards or rewrite the recorded draw-style provenance.
+- Place the generated-prompt copy action before prompt source, card details,
+  sharing options, and shared-reading creation actions. An unavailable instant
+  reading may also offer a secondary copy recovery action in the error panel.
+  Reuse the same prompt and copy state; preserve manual-copy focus on failure.
+- Keep same-card answer-style controls separate from copy-only context. Explain
+  before changing style that an existing instant reading will be cleared and
+  must be requested again. Copy-context edits update the prompt immediately,
+  not the clipboard or instant reading. Neither control redraws cards or
+  rewrites draw-style provenance. Keep both separate from next-draw preparation.
 - Keep the full generated prompt available for review and manual-copy recovery,
   but collapse it by default.
 - Keep the entertainment and advice disclaimer visible outside collapsed
@@ -258,3 +263,19 @@ the number or order of its DOM wrappers.
 
 Keep third-party brand artwork in its official colors. Surrounding button
 borders, focus, hover, and pressed states still use semantic Tarot Spark tokens.
+
+## Instant Reading Presentation
+
+- Explain availability beside the selected topic before drawing, using the same
+  taxonomy gate as generation. Do not promise direct interpretation when the
+  locale, topic or server flag does not support it. Feature-off operation keeps
+  the ordinary prompt-copy flow.
+- Keep the reading body at 16px on narrow screens and 18px from 640px, with a
+  40rem maximum reading width and generous leading. Preserve the card overview,
+  outer workspace and action widths. Use one visible reading title and retain
+  an accessible success-focus target.
+- Show loading text with cancellation. Offer retry and prompt-copy recovery at
+  the failed reading. Announce state changes once and show copy success at the
+  recovery control as well as the normal handoff feedback.
+- Observe the currently primary result region for the existing `result_view`
+  event; do not attach a second impression event to the secondary copy panel.

@@ -179,7 +179,7 @@ for (const locale of ["ko", "en"] as const) {
         await details.locator("summary").click();
         await expect(art.locator("img")).toHaveCount(0);
         await page
-          .getByTestId("current-prompt-customization")
+          .getByTestId("current-reading-style")
           .locator("summary")
           .click();
         await page
@@ -201,10 +201,7 @@ test("manual copy recovery offers AI links and hides them when the prompt change
   await expect(page.getByTestId("ai-handoff")).toContainText(
     "Copy the question manually",
   );
-  await page
-    .getByTestId("current-prompt-customization")
-    .locator("summary")
-    .click();
+  await page.getByTestId("current-reading-style").locator("summary").click();
   await page.getByRole("radio", { name: /Direct/ }).check();
   await expect(page.getByTestId("ai-handoff")).toHaveCount(0);
 });

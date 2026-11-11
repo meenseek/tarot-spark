@@ -59,6 +59,42 @@ independent code/document review, then verify the actual deployed source and a
 minimal live reading. Stop activation or disable the flag if a technical control
 fails. The ordinary evaluation criteria below remain unchanged for future work.
 
+## Reading-depth experiment and UI-only release
+
+The later 2026-11-11 reading-depth experiment does not inherit the publication
+exception above. Its original 54-case development assessment is **FAIL**.
+The original 37-case gates passed, but only 16 of the 17 follow-up cases met
+every content requirement. The initiative-balance case failed immersion and
+exposed the reading method. Preserve those first attempts and raw assessments.
+
+A question-scoped revision then made exactly two new first attempts: the failed
+deep-reading input and a distinct quick-reading transfer input. Both passed the
+runtime and response envelope checks. The transfer passed all six content
+dimensions; the deep reading resolved to 3.5/5 for immersion against the required
+4/5. This revised candidate is also **FAIL**, despite both readers preferring it
+to its baseline. No fresh 100-case release batch was run or claimed.
+
+All 56 calls, both failed verdicts, original reader receipts, cost accounting and
+the failed candidate source remain in the ignored evaluation archive. The last
+revision is recoverable from experiment commit
+`bb10b82188405e5ae98082fbd22de97f33984156` in its verified Git bundle. That
+revision binds the final two calls, not all 56 calls to one source revision.
+The 56 calls cost $0.38388; conservative cumulative evaluation usage is
+$11.8978405 against the approved $15 ceiling, including earlier unknown-usage
+reservations. A future attempt must fit its complete remaining path within that
+ceiling and pass the unchanged gates; these failures do not authorize retries.
+
+The UI release therefore retains the shipped `e071d568` generation behavior.
+An offline comparison executed the baseline and release candidate builders in
+separate processes: 2,240 copied prompts and 1,568 canonical Korean provider
+request bodies were byte-identical, with zero network or provider calls. The
+matrix covered both UI locales, all public topics and questions, both spreads,
+all four styles, empty and synthetic copy-only contexts, and all 78 cards.
+English and self-topic flows remain copy-only; their matrix controls do not
+expand provider eligibility. Model, runtime, request parsing and safety
+validation are unchanged. Readability, capability notices, result action order
+and recovery controls are UI changes, not evidence of better generated content.
+
 ## Model Selection
 
 Freeze each candidate's model, effort-selection rule, per-case effort, output

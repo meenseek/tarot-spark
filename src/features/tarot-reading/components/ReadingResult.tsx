@@ -28,6 +28,8 @@ type ReadingResultProps = {
   readonly copy: TarotReadingCopy;
   readonly copyState: CopyState;
   readonly currentCustomization?: ReactNode;
+  readonly readingStyleCustomization?: ReactNode;
+  readonly instantReadingNotice?: string | undefined;
   readonly hasKakaoShare: boolean;
   readonly hasNativeShare: boolean;
   readonly hasUserContext: boolean;
@@ -57,6 +59,8 @@ export function ReadingResult({
   copy,
   copyState,
   currentCustomization,
+  readingStyleCustomization,
+  instantReadingNotice,
   hasKakaoShare,
   hasNativeShare,
   hasUserContext,
@@ -122,12 +126,32 @@ export function ReadingResult({
     <div className="grid gap-4">
       {cards.length > 0 ? (
         <>
+          {instantReadingEnabled && (
+            <section
+              data-analytics-result-view-target=""
+              data-testid="instant-reading-primary"
+              ref={promptReadyRef}
+            >
+              <InstantReadingPanel
+                copy={copy.instantReading}
+                copyState={copyState}
+                onCancel={onCancelInstantReading}
+                onCopyPrompt={onCopyPrompt}
+                onGenerate={onGenerateInstantReading}
+                reading={instantReading}
+                status={instantReadingStatus}
+              />
+            </section>
+          )}
+          {instantReadingEnabled && readingStyleCustomization}
           <section
             aria-labelledby="prompt-ready-heading"
             className="flex flex-col gap-4 rounded-ts-control border border-ts-divider bg-ts-canvas p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5"
-            data-analytics-result-view-target=""
+            data-analytics-result-view-target={
+              instantReadingEnabled ? undefined : ""
+            }
             data-testid="prompt-ready"
-            ref={promptReadyRef}
+            ref={instantReadingEnabled ? undefined : promptReadyRef}
           >
             <div className="grid gap-1">
               <h2
@@ -139,6 +163,11 @@ export function ReadingResult({
               <p className="text-sm leading-6 text-ts-ink">
                 {copy.promptValueSummary}
               </p>
+              {instantReadingNotice && (
+                <p className="text-sm leading-6 text-ts-muted">
+                  {instantReadingNotice}
+                </p>
+              )}
               {contextNotice ? (
                 <p
                   className="text-xs font-medium leading-5 text-ts-action"
@@ -161,13 +190,18 @@ export function ReadingResult({
               </ol>
             </div>
             <Button
-              className="ts-primary-action shrink-0 whitespace-nowrap"
+              className={`${instantReadingEnabled ? "ts-secondary-action" : "ts-primary-action"} shrink-0 whitespace-nowrap`}
               onClick={onCopyPrompt}
+              {...(instantReadingEnabled
+                ? { tone: "neutral" as const, variant: "outline" as const }
+                : {})}
               type="button"
             >
               {copyState === "copied" ? copy.copied : copy.copyPrompt}
             </Button>
           </section>
+          {!instantReadingEnabled && readingStyleCustomization}
+          {currentCustomization}
 
           {copyState === "copied" && (
             <div
@@ -226,18 +260,6 @@ export function ReadingResult({
               </div>
             </div>
           )}
-
-          {instantReadingEnabled && (
-            <InstantReadingPanel
-              copy={copy.instantReading}
-              onCancel={onCancelInstantReading}
-              onGenerate={onGenerateInstantReading}
-              reading={instantReading}
-              status={instantReadingStatus}
-            />
-          )}
-
-          {currentCustomization}
 
           {resultActions}
 
