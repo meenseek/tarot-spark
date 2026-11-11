@@ -39,7 +39,7 @@ export function SituationContextInput({
           )
         }
         placeholder={contextPlaceholder}
-        rows={3}
+        rows={4}
         value={userContext}
         wrapperClassName="ts-field ts-context-field"
       />
