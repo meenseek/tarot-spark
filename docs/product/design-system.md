@@ -206,11 +206,13 @@ the number or order of its DOM wrappers.
   the next draw shows only its choices and focuses its heading. Preserve the
   committed result in state; cancelling discards the draft, restores the result
   and trigger focus, and does not replay the card reveal.
-- After a successful instant reading without direct context, place one primary
-  same-settings redraw action immediately after the reading. Otherwise retain
-  redraw as a supporting action. Redraw opens a new result without changing
-  the committed settings or calling AI automatically. Keep question and settings
-  edits secondary and staged so cancelling does not replace the prior result.
+- Put same-settings redraw and question/settings edits before all optional
+  result disclosures. Place them right after the copy/AI actions and their
+  feedback, or directly after the answer when an instant reading succeeds.
+  Make redraw primary after a successful instant reading without direct context
+  and supporting otherwise. Redraw keeps the committed settings without calling
+  AI automatically. Keep question and settings edits secondary and staged so
+  cancelling does not replace the prior result.
 - Keep preset-question changes inside the next-draw draft so cancelling restores
   the committed result and private context. Do not use catalog navigation as a
   draft control. Locale navigation uses the committed result and may discard an
