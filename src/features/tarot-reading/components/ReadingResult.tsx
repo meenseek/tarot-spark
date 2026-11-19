@@ -120,11 +120,6 @@ export function ReadingResult({
     manualShareUrlRef.current?.select();
   }, [hasShareFailure]);
 
-  const nextAfterReading =
-    instantReadingEnabled &&
-    instantReadingStatus === "success" &&
-    !hasUserContext;
-
   const canAsk = instantReadingEnabled && instantReadingStatus !== "success";
   const isLoading = instantReadingStatus === "loading";
   const askFirst = instantReadingEnabled && !hasUserContext;
@@ -251,10 +246,9 @@ export function ReadingResult({
               status={instantReadingStatus}
             />
           )}
-          {nextAfterReading && resultActions}
+          {resultActions}
           {readingStyleCustomization}
           {currentCustomization}
-          {!nextAfterReading && resultActions}
 
           <details
             className="group rounded-ts-control border border-ts-divider bg-ts-surface"

@@ -607,8 +607,14 @@ for (const locale of ["en", "ko"] as const) {
       const copyBox = await copyAction.boundingBox();
       const editBox = await currentEdit.boundingBox();
       const nextBox = await nextAction.boundingBox();
-      expect(copyBox!.y + copyBox!.height).toBeLessThanOrEqual(editBox!.y);
-      expect(editBox!.y + editBox!.height).toBeLessThanOrEqual(nextBox!.y);
+      expect(copyBox!.y + copyBox!.height).toBeLessThanOrEqual(nextBox!.y);
+      expect(nextBox!.y + nextBox!.height).toBeLessThanOrEqual(editBox!.y);
+      await expectRedrawTabOrderAfter(
+        ko
+          ? page.getByRole("button", { name: "AI에게 바로 질문하기" })
+          : copyAction,
+        page,
+      );
       await currentEdit.locator("summary").click();
       const customizationGuidance = currentEdit.getByText(
         ko
@@ -1751,6 +1757,7 @@ test("shows an instant Korean reading without sending private context", async ({
   const instant = actions.getByRole("button", { name: "AI에게 바로 질문하기" });
   await expect(actions.getByRole("button")).toHaveCount(2);
   await expect(instant).toHaveClass(/ts-secondary-action/);
+  await expectRedrawTabOrderAfter(instant, page);
   await expect(instant).toHaveAccessibleDescription(
     "직접 쓴 질문은 복사할 때만 포함돼요.",
   );
@@ -1766,9 +1773,9 @@ test("shows an instant Korean reading without sending private context", async ({
   await instant.click();
 
   await expect(page.getByTestId("instant-reading-result")).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "AI 카드 흐름 해석" }),
-  ).toBeFocused();
+  const heading = page.getByRole("heading", { name: "AI 카드 흐름 해석" });
+  await expect(heading).toBeFocused();
+  await expectRedrawTabOrderAfter(heading, page);
   await expect(page.getByTestId("instant-reading-result")).toContainText(
     "다가가고 싶은 마음, 지키고 싶은 선",
   );
@@ -1826,6 +1833,7 @@ for (const width of [390, 1280]) {
       .click();
     const primary = page.getByRole("button", { name: "AI에게 바로 질문하기" });
     await expect(primary).toBeInViewport();
+    await expectRedrawTabOrderAfter(primary, page);
     await expect(primary).toHaveClass(/ts-primary-action/);
     await expect(
       page.getByRole("button", { name: "프롬프트 복사하기" }),
@@ -1873,6 +1881,7 @@ for (const width of [390, 1280]) {
         );
       }),
     ).toBe(true);
+    await expectRedrawTabOrderAfter(heading, page);
     const originalCards = await page
       .locator("[data-card-id]")
       .evaluateAll((elements) =>
@@ -1936,9 +1945,9 @@ for (const width of [390, 1280]) {
     await page.goto("/ko");
     await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
     await page.getByRole("button", { name: "AI에게 바로 질문하기" }).click();
-    await expect(
-      page.getByRole("button", { name: "다시 시도하기" }),
-    ).toBeFocused();
+    const retry = page.getByRole("button", { name: "다시 시도하기" });
+    await expect(retry).toBeFocused();
+    await expectRedrawTabOrderAfter(retry, page);
     await page.getByRole("button", { name: "프롬프트 복사하기" }).click();
     await expect(page.getByTestId("prompt-copy-success")).toHaveText(
       "복사했어요",
@@ -2052,6 +2061,7 @@ test("redraws with the committed settings and ignores an older AI response", asy
   await expect(page.getByTestId("card-overview").locator("li")).toHaveCount(6);
   await expect(result).toHaveCount(0);
   await expect(ask).toBeEnabled();
+  await expectRedrawTabOrderAfter(ask, page);
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
     new RegExp(privateQuestion),
   );
@@ -2469,6 +2479,21 @@ test("renders a shared reading first and keeps its localized share route", async
 function expectPathname(href: string | null, pathname: string) {
   expect(href).not.toBeNull();
   expect(new URL(href ?? "http://localhost").pathname).toBe(pathname);
+}
+
+async function expectRedrawTabOrderAfter(
+  previousAction: ReturnType<Page["locator"]>,
+  page: Page,
+) {
+  await previousAction.focus();
+  await page.keyboard.press("Tab");
+  await expect(page.getByTestId("redraw-action")).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.getByTestId("next-reading-action")).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(
+    page.getByTestId("current-reading-style").locator("summary"),
+  ).toBeFocused();
 }
 
 async function openReadingPreferences(page: Page) {

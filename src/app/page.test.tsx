@@ -1158,19 +1158,17 @@ describe("Home", () => {
     fireEvent.click(screen.getByRole("button", { name: /Draw \d cards/ }));
     const firstCard = screen.getByTestId("reading-card-0");
     expect(screen.queryByTestId("next-reading-locale-notice")).toBeNull();
+    const editNext = screen.getByRole("button", {
+      name: "Change question or settings",
+    });
     expect(
-      screen
-        .getByTestId("prompt-ready")
-        .compareDocumentPosition(
-          screen.getByTestId("current-prompt-customization"),
-        ) & Node.DOCUMENT_POSITION_FOLLOWING,
+      screen.getByTestId("prompt-ready").compareDocumentPosition(editNext) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(
-      screen
-        .getByTestId("current-prompt-customization")
-        .compareDocumentPosition(
-          screen.getByRole("button", { name: "Change question or settings" }),
-        ) & Node.DOCUMENT_POSITION_FOLLOWING,
+      editNext.compareDocumentPosition(
+        screen.getByTestId("current-prompt-customization"),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     openShareOptions();
     fireEvent.click(screen.getByRole("button", { name: "Copy URL" }));
