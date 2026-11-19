@@ -37,6 +37,7 @@ type ReadingResultProps = {
   readonly contextNotice?: string;
   readonly prompt: string;
   readonly promptReadyRef?: Ref<HTMLElement>;
+  readonly reservePrivateContextSpace: boolean;
   readonly resultActions?: ReactNode;
   readonly shareFeedback: ShareFeedback | undefined;
   readonly shareUrl: string;
@@ -68,6 +69,7 @@ export function ReadingResult({
   contextNotice,
   prompt,
   promptReadyRef,
+  reservePrivateContextSpace,
   resultActions,
   shareFeedback,
   shareUrl,
@@ -161,9 +163,10 @@ export function ReadingResult({
                 {contextNotice}
               </p>
             )}
-            {hasUserContext && (
+            {(hasUserContext || reservePrivateContextSpace) && (
               <p
-                className="text-xs leading-5 text-ts-muted"
+                aria-hidden={!hasUserContext || undefined}
+                className={`text-xs leading-5 text-ts-muted${hasUserContext ? "" : " invisible"}`}
                 id="result-private-context"
               >
                 {instantReadingEnabled

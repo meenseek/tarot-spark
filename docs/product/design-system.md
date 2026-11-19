@@ -227,7 +227,9 @@ the number or order of its DOM wrappers.
   ratio and keeping retry controls inside the frame.
 - Keep the same action labels and positions when direct context exists. Make
   copy primary and explain that the typed question is only included when
-  copied. Never submit that text to instant reading.
+  copied. Never submit that text to instant reading. Keep the notice's space
+  stable when private context is restored so a result control cannot move while
+  being pressed. Hide the notice when no private context exists.
 - Place the action group before the generated prompt, details, sharing options,
   and shared-reading creation. Keep the same copy action available when instant
   reading fails; do not add a second recovery copy control.

@@ -1678,6 +1678,69 @@ test("preserves reading and private context when switching languages", async ({
   expect(hydrationErrors).toEqual([]);
 });
 
+for (const width of [320, 1280]) {
+  test(`opens copy context on the first press across hydration at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 844 });
+    const context = "Synthetic private context";
+    await page.addInitScript((value) => {
+      if (window.location.pathname !== "/ko") return;
+      sessionStorage.setItem(
+        "tarot-spark.private-context-handoff",
+        JSON.stringify({ context: value, expiresAt: Date.now() + 30_000 }),
+      );
+    }, context);
+    let releaseHydration!: () => void;
+    const hydrationGate = new Promise<void>((resolve) => {
+      releaseHydration = resolve;
+    });
+    await page.route(/\/_next\/static\/.*\.js(?:\?.*)?$/, async (route) => {
+      await hydrationGate;
+      await route.continue();
+    });
+    let providerRequests = 0;
+    await page.route("**/api/reading", async (route) => {
+      providerRequests++;
+      await route.abort();
+    });
+
+    const details = page.getByTestId("current-prompt-customization");
+    const summary = details.locator(":scope > summary");
+    try {
+      await page.goto(
+        "/ko?topic=love&cards=the-fool,the-magician,the-high-priestess",
+        {
+          waitUntil: "commit",
+        },
+      );
+      await expect(summary).toBeVisible();
+      await expect(page.getByTestId("redraw-action")).toBeDisabled();
+      await page.evaluate(() => document.fonts.ready);
+      await summary.scrollIntoViewIfNeeded();
+      const before = await summary.boundingBox();
+      if (!before)
+        throw new Error("Copy-context summary is not in the layout.");
+      await page.mouse.move(before.x + 48, before.y + before.height / 2);
+      await page.mouse.down();
+
+      releaseHydration();
+      await expect(page.locator("#result-private-context")).toBeVisible();
+      const after = await summary.boundingBox();
+      await page.mouse.up();
+      await expect(details).toHaveAttribute("open", "");
+      expect(after?.y).toBeCloseTo(before.y, 0);
+      await expect(
+        details.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
+      ).toHaveValue(context);
+      await expect(page).not.toHaveURL(/Synthetic|private.context/i);
+      expect(providerRequests).toBe(0);
+    } finally {
+      releaseHydration();
+    }
+  });
+}
+
 test("creates a direct six-card prompt while keeping context private", async ({
   page,
 }) => {
