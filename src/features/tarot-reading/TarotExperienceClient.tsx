@@ -1473,6 +1473,7 @@ export function TarotExperienceClient({
         {...(viewMode === "generator"
           ? { promptReadyRef: resultViewTargetRef }
           : {})}
+        reservePrivateContextSpace={viewMode === "generator"}
         resultActions={
           viewMode === "generator" && session.mode === "result" ? (
             <div className="grid gap-2 sm:flex sm:flex-wrap">
@@ -1684,9 +1685,6 @@ export function TarotExperienceClient({
             <p className="text-xs leading-5 text-ts-muted">
               {copy.currentReadingSettings}: {currentSpread.label} ·{" "}
               {currentReadingStyle.label}
-              {currentResult.inputs.privateContext.trim().length > 0
-                ? ` · ${copy.promptContextIncluded}`
-                : ""}
             </p>
           </div>
 
