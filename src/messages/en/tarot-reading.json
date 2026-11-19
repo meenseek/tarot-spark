@@ -1,7 +1,5 @@
 {
-  "instantWithoutContext": "Read without my question",
-  "copyPersonalQuestion": "Copy my question",
-  "instantContextNotice": "Instant reading uses only your selected topic and suggested question, not the question you typed.",
+  "instantContextNotice": "Your own question is included only when you copy the prompt.",
   "metadata": {
     "title": "tarot-spark",
     "description": "Draw cards for free on Tarot Spark, then copy a prompt with your question and the cards' meanings into the AI tool you already use."
@@ -38,8 +36,9 @@
   "currentReadingSettings": "Current reading",
   "customizeCurrent": "Add context for another AI",
   "customizeCurrentIntro": "Context is included only in the prompt you copy. It is not used for an instant reading here. Copy the prompt again after editing.",
-  "editNextReading": "Prepare the next draw",
-  "editNextHeading": "Prepare the next draw",
+  "editNextReading": "Change question or settings",
+  "redrawSameSettings": "Draw again with the same settings",
+  "editNextHeading": "Change question or settings",
   "editNextIntro": "Your previous question and settings are ready. Keep or edit them to draw new cards. You can return to your previous result until you draw.",
   "cancelEdit": "Back to previous result",
   "workspaceLabel": "Your cards and AI question",
@@ -50,8 +49,6 @@
     "createOwn": "Draw my cards"
   },
   "instantReading": {
-    "heading": "Read the card flow",
-    "intro": "Read your selected question and card meanings as one connected story.",
     "generate": "Read these cards now",
     "loading": "Reading the flow of the cards…",
     "cancel": "Cancel reading",
@@ -62,14 +59,11 @@
     "entryIntro": "Draw your cards and read an AI interpretation here.",
     "available": "This topic supports an instant reading here.",
     "unsupportedTopic": "Instant readings are not available for this topic. Copy the prompt and ask your usual AI.",
-    "koreanOnly": "Instant readings are currently available in Korean only. Copy the prompt and ask your usual AI.",
-    "recoveryCopy": "Copy prompt to continue",
-    "recoveryCopied": "Prompt copied"
+    "koreanOnly": "Instant readings are currently available in Korean only. Copy the prompt and ask your usual AI."
   },
   "promptReady": "Your prompt for an AI tool is ready.",
-  "promptValueSummary": "The prompt asks your AI tool to connect the card meanings and answer your question as one short, flowing reading.",
   "promptContextIncluded": "Your situation is included in the prompt.",
-  "promptCopySuccess": "Copied. Paste it into the AI tool you use to get the reading.",
+  "promptCopySuccess": "Copied",
   "promptContentDisclosure": "View prompt",
   "promptContentClose": "Hide prompt",
   "cardDetailsDisclosure": "View card meanings",
@@ -80,7 +74,6 @@
   },
   "generatedPromptLabel": "Generated prompt",
   "copyPrompt": "Copy prompt",
-  "copied": "Copied",
   "copyUrl": "Copy URL",
   "copiedUrl": "URL copied",
   "instagramImageShare": "Share image for Instagram",
@@ -107,13 +100,6 @@
   "shareText": "{topicLabel} tarot prompt: {cardNames}",
   "placeholderCardName": "Ready",
   "editLocaleNotice": "Changing language cancels these edits and returns to your previous result.",
-  "aiHandoff": {
-    "intro": "Open an AI and paste the question you copied.",
-    "manualIntro": "Copy the question manually, then open an AI and paste it.",
-    "chatgpt": "Open ChatGPT",
-    "claude": "Open Claude",
-    "gemini": "Open Gemini"
-  },
   "customizeReadingStyle": "Change the tone for these cards",
   "customizeReadingStyleIntro": "Keep the cards and change the tone. This also updates the prompt; copy it again to use the new tone.",
   "styleResetNotice": "Changing the tone clears the current instant reading. Request another reading to use the new tone."

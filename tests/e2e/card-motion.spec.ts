@@ -78,13 +78,14 @@ test("uses one true two-sided flip without making cards interactive", async ({
 test("keeps the back pending and independently reveals delayed art", async ({
   page,
 }) => {
-  await page.route("**/_next/image**", (route) => {
+  let releaseDelayedArt!: () => void;
+  const delayedArtCanFinish = new Promise<void>((resolve) => {
+    releaseDelayedArt = resolve;
+  });
+  await page.route("**/_next/image**", async (route) => {
     const optimizedUrl = new URL(route.request().url()).searchParams.get("url");
-
-    return fulfillCardArt(
-      route,
-      optimizedUrl === "/cards/the-fool.jpg" ? 350 : 0,
-    );
+    if (optimizedUrl === "/cards/the-fool.jpg") await delayedArtCanFinish;
+    await fulfillCardArt(route);
   });
   await page.goto("/");
   await useDeterministicDraw(page);
@@ -94,27 +95,41 @@ test("keeps the back pending and independently reveals delayed art", async ({
   const secondCard = page.getByTestId("reading-card-1");
   const firstVisual = firstCard.locator("[data-card-visual-state]");
   const firstPlane = firstCard.locator("[data-card-plane]");
-  await expect(firstVisual).toHaveAttribute(
-    "data-card-visual-state",
-    "pending",
-  );
-  await expect(firstCard.locator("[data-card-back]")).toBeVisible();
-  await expect(firstPlane).toHaveCSS("animation-name", "none");
-  await expect(secondCard.locator("[data-art-id]")).toHaveAttribute(
-    "data-art-ready",
-    "true",
-  );
-  await expect(secondCard.locator("[data-card-visual-state]")).toHaveAttribute(
-    "data-card-visual-state",
-    /^(?:flipping|front)$/,
-  );
-
+  try {
+    await expect(firstVisual).toHaveAttribute(
+      "data-card-visual-state",
+      "pending",
+    );
+    await expect(firstCard.locator("[data-card-back]")).toBeVisible();
+    await expect(firstPlane).toHaveCSS("animation-name", "none");
+    await expect(secondCard.locator("[data-art-id]")).toHaveAttribute(
+      "data-art-ready",
+      "true",
+    );
+    await expect(
+      secondCard.locator("[data-card-visual-state]"),
+    ).toHaveAttribute("data-card-visual-state", /^(?:flipping|front)$/);
+    await firstPlane.evaluate((plane) => {
+      plane.addEventListener("animationstart", (event) => {
+        if (
+          event.target === plane &&
+          event instanceof AnimationEvent &&
+          event.animationName === "ts-card-plane-flip"
+        ) {
+          plane.setAttribute("data-test-observed-flip", "true");
+        }
+      });
+    });
+  } finally {
+    releaseDelayedArt();
+  }
   await expect(firstCard.locator("[data-art-id]")).toHaveAttribute(
     "data-art-ready",
     "true",
     { timeout: 10_000 },
   );
-  await expect(firstPlane).toHaveClass(/ts-card-plane-flip/);
+  await expect(firstPlane).toHaveAttribute("data-test-observed-flip", "true");
+  await expect(firstVisual).toHaveAttribute("data-card-visual-state", "front");
 });
 
 test("keeps the deep six-card reveal within the locked stagger", async ({
@@ -244,7 +259,9 @@ test("drops stale motion and announcements on a rapid redraw", async ({
 
   const drawButton = page.getByRole("button", { name: "Draw 3 cards" });
   await drawButton.click();
-  await page.getByRole("button", { name: "Prepare the next draw" }).click();
+  await page
+    .getByRole("button", { name: "Change question or settings" })
+    .click();
   await drawButton.click();
 
   await expect(page.getByTestId("reading-card-0")).toHaveAttribute(

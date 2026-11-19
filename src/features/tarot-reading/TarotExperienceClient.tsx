@@ -865,12 +865,19 @@ export function TarotExperienceClient({
       return;
     }
 
-    performDraw(event, formInputs);
+    performDraw(event, formInputs, "DRAW_COMMIT");
+  }
+
+  function redraw(event: MouseEvent<HTMLButtonElement>) {
+    if (session.mode === "result") {
+      performDraw(event, session.current.inputs, "REDRAW_COMMIT");
+    }
   }
 
   function performDraw(
     event: MouseEvent<HTMLButtonElement>,
     inputs: typeof formInputs,
+    action: "DRAW_COMMIT" | "REDRAW_COMMIT",
   ) {
     resetInstantReading();
     shouldScrollToResultRef.current = true;
@@ -896,7 +903,7 @@ export function TarotExperienceClient({
       cardCount: drawnCards.length,
       sequence: nextDrawSequenceId,
     });
-    dispatchSession({ type: "DRAW_COMMIT", cards: drawnCards });
+    dispatchSession({ type: action, cards: drawnCards });
     setCopyState("idle");
     setShareFeedback(undefined);
     replaceBrowserUrl(
@@ -1468,20 +1475,38 @@ export function TarotExperienceClient({
           : {})}
         resultActions={
           viewMode === "generator" && session.mode === "result" ? (
-            <Button
-              className={`${instantReadingStatus === "success" && !currentResult?.inputs.privateContext.trim() ? "ts-primary-action" : "ts-secondary-action"} w-full sm:w-fit`}
-              data-testid="next-reading-action"
-              disabled={!isHydrated}
-              onClick={enterEditNextDraw}
-              ref={editTriggerRef}
-              {...(instantReadingStatus === "success" &&
-              !currentResult?.inputs.privateContext.trim()
-                ? {}
-                : { tone: "neutral" as const, variant: "outline" as const })}
-              type="button"
-            >
-              {copy.editNextReading}
-            </Button>
+            <div className="grid gap-2 sm:flex sm:flex-wrap">
+              <Button
+                className={
+                  instantReadingStatus === "success" &&
+                  !currentResult?.inputs.privateContext.trim()
+                    ? "ts-primary-action"
+                    : "ts-secondary-action"
+                }
+                data-testid="redraw-action"
+                disabled={!isHydrated}
+                onClick={redraw}
+                {...(instantReadingStatus === "success" &&
+                !currentResult?.inputs.privateContext.trim()
+                  ? {}
+                  : { tone: "neutral" as const, variant: "outline" as const })}
+                type="button"
+              >
+                {copy.redrawSameSettings}
+              </Button>
+              <Button
+                className="ts-secondary-action"
+                data-testid="next-reading-action"
+                disabled={!isHydrated}
+                onClick={enterEditNextDraw}
+                ref={editTriggerRef}
+                tone="neutral"
+                variant="outline"
+                type="button"
+              >
+                {copy.editNextReading}
+              </Button>
+            </div>
           ) : undefined
         }
         shareFeedback={shareFeedback}
@@ -1495,7 +1520,7 @@ export function TarotExperienceClient({
       className="grid content-start gap-3 sm:gap-4"
       data-testid="generator-intro"
     >
-      <CelestialMark className="h-8 w-16 text-ts-gold" />
+      <CelestialMark className="hidden h-8 w-16 text-ts-gold sm:block" />
       <h1
         id={
           session.mode === "edit-next-draw"
@@ -1552,24 +1577,6 @@ export function TarotExperienceClient({
         userContext={formInputs.privateContext}
       />
 
-      <PublicQuestionPicker
-        copy={copy}
-        groups={visibleQuestionGroups}
-        key={selectedDomainId}
-        onClear={clearPublicQuestion}
-        onSelect={choosePublicQuestion}
-        selectedQuestion={selectedQuestion}
-      />
-
-      {availabilityNotice && (
-        <p
-          className="text-sm leading-6 text-ts-muted"
-          data-testid="instant-reading-availability"
-        >
-          {availabilityNotice}
-        </p>
-      )}
-
       {formInputs.topicId === "money-life" ? (
         <p
           className="rounded-ts-control border border-ts-gold/50 bg-ts-blush px-4 py-3 text-sm font-medium leading-6 text-ts-ink"
@@ -1578,16 +1585,6 @@ export function TarotExperienceClient({
           {copy.moneyDisclaimer}
         </p>
       ) : null}
-
-      <ReadingPreferences
-        copy={copy}
-        onSpreadChange={chooseSpread}
-        onStyleChange={chooseDraftReadingStyle}
-        readingStyles={tarotData.readingStyles}
-        selectedSpreadId={formInputs.spreadId}
-        selectedStyleId={formInputs.styleId}
-        spreads={tarotData.spreads}
-      />
 
       <div
         className={`grid gap-2 ${
@@ -1610,6 +1607,34 @@ export function TarotExperienceClient({
           {drawButtonLabel}
         </Button>
       </div>
+      <PublicQuestionPicker
+        copy={copy}
+        groups={visibleQuestionGroups}
+        key={selectedDomainId}
+        onClear={clearPublicQuestion}
+        onSelect={choosePublicQuestion}
+        selectedQuestion={selectedQuestion}
+      />
+
+      {availabilityNotice && (
+        <p
+          className="text-sm leading-6 text-ts-muted"
+          data-testid="instant-reading-availability"
+        >
+          {availabilityNotice}
+        </p>
+      )}
+
+      <ReadingPreferences
+        copy={copy}
+        onSpreadChange={chooseSpread}
+        onStyleChange={chooseDraftReadingStyle}
+        readingStyles={tarotData.readingStyles}
+        selectedSpreadId={formInputs.spreadId}
+        selectedStyleId={formInputs.styleId}
+        spreads={tarotData.spreads}
+      />
+
       <p className="text-xs leading-5 text-ts-muted">{copy.disclaimer}</p>
     </div>
   );
@@ -1807,12 +1832,12 @@ export function TarotExperienceClient({
       skipToContentLabel={skipToContentLabel}
     >
       <section
-        className="grid flex-1 gap-8 py-8"
+        className="grid flex-1 gap-6 py-5 sm:gap-8 sm:py-8"
         data-layout-mode={session.mode}
         data-testid="generator-layout"
       >
         <div
-          className={`w-full gap-8 ${
+          className={`w-full gap-5 sm:gap-8 ${
             session.mode !== "result"
               ? "grid lg:grid-cols-[0.85fr_1.15fr] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-12"
               : "mx-auto grid max-w-5xl"
