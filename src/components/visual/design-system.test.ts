@@ -233,13 +233,15 @@ describe("visual design system contract", () => {
       "utf8",
     );
 
-    expect(instantReadingSource).toContain(
-      'className={secondary ? "ts-secondary-action" : "ts-primary-action"}',
+    expect(promptResultSource).toContain(
+      'askFirst ? "ts-primary-action" : "ts-secondary-action"',
     );
-    expect(instantReadingSource).toContain('className="ts-secondary-action"');
+    expect(promptResultSource).toContain(
+      'askFirst ? "ts-secondary-action" : "ts-primary-action"',
+    );
     expect(promptResultSource).toContain("Button,");
     expect(promptResultSource).toContain("InlineMessage,");
-    expect(instantReadingSource).toContain("Button, InlineMessage");
+    expect(instantReadingSource).toContain("InlineMessage");
     expect(promptResultSource).not.toContain("<InlineMessage role=");
     expect(instantReadingSource).not.toContain("<InlineMessage role=");
     expect(instantReadingSource).not.toContain("primaryButtonClassName");

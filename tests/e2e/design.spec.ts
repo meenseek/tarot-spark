@@ -511,9 +511,9 @@ test("uses state-specific generator layouts and one filled result action", async
   const preferencesBox = await page
     .getByTestId("reading-preferences")
     .boundingBox();
-  expect(setupActionsBox?.y ?? 0).toBeGreaterThanOrEqual(
-    (preferencesBox?.y ?? 0) + (preferencesBox?.height ?? 0),
-  );
+  expect(
+    (setupActionsBox?.y ?? 0) + (setupActionsBox?.height ?? 0),
+  ).toBeLessThanOrEqual(preferencesBox?.y ?? 0);
   await setupDrawButton.scrollIntoViewIfNeeded();
   await expect(setupDrawButton).toBeInViewport();
 
@@ -532,13 +532,15 @@ test("uses state-specific generator layouts and one filled result action", async
   const cardOverview = page.getByTestId("card-overview");
   const promptReady = page.getByTestId("prompt-ready");
 
-  await page.getByRole("button", { name: "Prepare the next draw" }).click();
+  await page
+    .getByRole("button", { name: "Change question or settings" })
+    .click();
   await expect(generatorLayout).toHaveAttribute(
     "data-layout-mode",
     "edit-next-draw",
   );
   const nextReadingEditor = page.getByRole("region", {
-    name: "Prepare the next draw",
+    name: "Change question or settings",
   });
   await expect(nextReadingEditor).toBeVisible();
   await expect(page.getByTestId("reading-setup-panel")).toBeVisible();
@@ -550,10 +552,10 @@ test("uses state-specific generator layouts and one filled result action", async
     width: setupPanelBox?.width,
   });
   await expect(
-    page.getByRole("heading", { name: "Prepare the next draw" }),
+    page.getByRole("heading", { name: "Change question or settings" }),
   ).toBeFocused();
   await expect(
-    page.getByRole("heading", { name: "Prepare the next draw" }),
+    page.getByRole("heading", { name: "Change question or settings" }),
   ).toBeInViewport();
   const editorFilledPrimaryCount = await nextReadingEditor
     .locator("button")
@@ -629,13 +631,12 @@ test("uses state-specific generator layouts and one filled result action", async
   await page.goto("/ko");
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
   const localizedResultWorkspace = page.getByTestId("reading-workspace");
-  await expect(page.getByRole("button", { name: "질문 복사하기" })).toHaveCSS(
-    "background-color",
-    colors.surface,
-  );
+  await expect(
+    page.getByRole("button", { name: "프롬프트 복사하기" }),
+  ).toHaveCSS("background-color", colors.surface);
   await page.mouse.move(0, 0);
   await expect(
-    page.getByRole("button", { name: "지금 바로 해석하기" }),
+    page.getByRole("button", { name: "AI에게 바로 질문하기" }),
   ).toHaveCSS("background-color", colors.action);
   const filledPrimaryCount = await localizedResultWorkspace
     .locator("button")
@@ -905,11 +906,18 @@ test("completes an expanded-question setup by keyboard in short windows", async 
       await expect(
         form.getByRole("radio", { name: ko ? /솔직하고 분명하게/ : /Direct/ }),
       ).toBeChecked();
-      await page.keyboard.press("Tab");
       const draw = page.getByRole("button", {
         name: ko ? "카드 6장 뽑기" : "Draw 6 cards",
         exact: true,
       });
+      for (
+        let step = 0;
+        step < 6 &&
+        !(await draw.evaluate((element) => element === document.activeElement));
+        step++
+      ) {
+        await page.keyboard.press("Shift+Tab");
+      }
       await expect(draw).toBeFocused();
       await expect(draw).toBeInViewport();
       await page.keyboard.press("Enter");
@@ -927,13 +935,13 @@ test("keeps the grouped topic select compact in the next-reading editor", async 
 }) => {
   const localeCases = [
     {
-      editAction: "Prepare the next draw",
+      editAction: "Change question or settings",
       label: "English",
       path: "/?topic=love&cards=the-fool,the-magician,the-high-priestess",
       widths: [390, 640, 764, 1024, 1280],
     },
     {
-      editAction: "다음 카드 준비하기",
+      editAction: "질문·설정 바꾸기",
       label: "Korean",
       path: "/ko?topic=love&cards=the-fool,the-magician,the-high-priestess",
       widths: [390, 764, 1280],
@@ -1388,7 +1396,9 @@ test("stages only a user-initiated card reveal with locked timing", async ({
   });
   expect(flipKeyframes).toEqual(["rotateY(0deg)", "rotateY(180deg)"]);
 
-  await page.getByRole("button", { name: "Prepare the next draw" }).click();
+  await page
+    .getByRole("button", { name: "Change question or settings" })
+    .click();
   await page.getByRole("button", { name: "Draw 3 cards" }).click();
   await expect(page.getByTestId("reading-card-0")).toHaveAttribute(
     "data-reveal-sequence",
@@ -1478,7 +1488,6 @@ test("keeps Korean result title words intact without changing English", async ({
     await page.evaluate(() => document.fonts.ready);
     for (const [id, text] of [
       ["prompt-ready-heading", "AI에 물어볼 질문이 준비됐어요."],
-      ["instant-reading-heading", "카드의 흐름 바로 읽기"],
     ] as const) {
       const heading = page.locator(`#${id}`);
       await expect(heading).toBeVisible();
@@ -1547,7 +1556,7 @@ for (const width of [320, 360, 390] as const) {
     await expect(page.getByTestId("card-overview")).toBeVisible();
     await expect(page.locator('[data-testid^="reading-card-"]')).toHaveCount(3);
     await expect(
-      page.getByRole("button", { name: "질문 복사하기" }),
+      page.getByRole("button", { name: "프롬프트 복사하기" }),
     ).toBeVisible();
 
     const interactiveTargets = page.locator(

@@ -16,13 +16,6 @@ export type TarotReadingMessages = {
   readonly intro: string;
   readonly personalizationHeading: string;
   readonly personalizationIntro: string;
-  readonly aiHandoff: {
-    readonly intro: string;
-    readonly manualIntro: string;
-    readonly chatgpt: string;
-    readonly claude: string;
-    readonly gemini: string;
-  };
   readonly spreadSelectorLabel: string;
   readonly readingStyleSelectorLabel: string;
   readonly contextLabel: string;
@@ -54,6 +47,7 @@ export type TarotReadingMessages = {
   readonly customizeReadingStyleIntro: string;
   readonly styleResetNotice: string;
   readonly editNextReading: string;
+  readonly redrawSameSettings: string;
   readonly editNextHeading: string;
   readonly editNextIntro: string;
   readonly editLocaleNotice: string;
@@ -66,8 +60,6 @@ export type TarotReadingMessages = {
     readonly createOwn: string;
   };
   readonly instantReading: {
-    readonly heading: string;
-    readonly intro: string;
     readonly generate: string;
     readonly loading: string;
     readonly cancel: string;
@@ -79,11 +71,8 @@ export type TarotReadingMessages = {
     readonly available: string;
     readonly unsupportedTopic: string;
     readonly koreanOnly: string;
-    readonly recoveryCopy: string;
-    readonly recoveryCopied: string;
   };
   readonly promptReady: string;
-  readonly promptValueSummary: string;
   readonly promptContextIncluded: string;
   readonly promptCopySuccess: string;
   readonly promptContentDisclosure: string;
@@ -96,10 +85,7 @@ export type TarotReadingMessages = {
   };
   readonly generatedPromptLabel: string;
   readonly copyPrompt: string;
-  readonly copyPersonalQuestion: string;
   readonly instantContextNotice: string;
-  readonly instantWithoutContext: string;
-  readonly copied: string;
   readonly copyUrl: string;
   readonly copiedUrl: string;
   readonly instagramImageShare: string;
@@ -139,17 +125,13 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
 
   return {
     brand: copy.brand,
-    aiHandoff: copy.aiHandoff,
     cardCountLabel: copy.cardCountLabel,
     cardDetails: copy.cardDetails,
     cardMarkLabel: copy.cardMarkLabel,
-    copied: copy.copied,
     copiedUrl: copy.copiedUrl,
     copyUrl: copy.copyUrl,
     copyPrompt: copy.copyPrompt,
-    copyPersonalQuestion: copy.copyPersonalQuestion,
     instantContextNotice: copy.instantContextNotice,
-    instantWithoutContext: copy.instantWithoutContext,
     contextCountLabel: copy.contextCountLabel,
     contextHelp: copy.contextHelp,
     contextInputLabel: copy.contextInputLabel,
@@ -169,6 +151,7 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     editNextIntro: copy.editNextIntro,
     editLocaleNotice: copy.editLocaleNotice,
     editNextReading: copy.editNextReading,
+    redrawSameSettings: copy.redrawSameSettings,
     cancelEdit: copy.cancelEdit,
     emptyBody: copy.emptyBody,
     emptyHeading: copy.emptyHeading,
@@ -191,7 +174,6 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     personalizationIntro: copy.personalizationIntro,
     placeholderCardName: copy.placeholderCardName,
     promptReady: copy.promptReady,
-    promptValueSummary: copy.promptValueSummary,
     promptContextIncluded: copy.promptContextIncluded,
     promptCopySuccess: copy.promptCopySuccess,
     promptContentDisclosure: copy.promptContentDisclosure,

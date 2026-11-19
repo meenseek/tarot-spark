@@ -8,10 +8,7 @@ import {
 } from "@measure-twice/react";
 import Image from "next/image";
 import { type ReactNode, type Ref, useEffect, useRef, useState } from "react";
-import {
-  brandLinkClassName,
-  secondaryButtonClassName,
-} from "@/components/visual/class-names";
+import { secondaryButtonClassName } from "@/components/visual/class-names";
 import { TarotCardArt } from "@/components/visual/TarotCardArt";
 import type { DrawnCard, InstantReading } from "@/domain/tarot";
 import type { TarotReadingCopy } from "../i18n";
@@ -87,6 +84,7 @@ export function ReadingResult({
   useEffect(() => {
     setCardDetailsOpen(cardDetailsRef.current?.open ?? false);
   }, []);
+  const instantActionRef = useRef<HTMLButtonElement | null>(null);
   const promptDisclosureRef = useRef<HTMLDetailsElement | null>(null);
   const promptTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const shareDisclosureRef = useRef<HTMLDetailsElement | null>(null);
@@ -127,105 +125,100 @@ export function ReadingResult({
     instantReadingStatus === "success" &&
     !hasUserContext;
 
-  const instantPanel = (
-    <>
-      {instantReadingEnabled && (
-        <section
-          data-analytics-result-view-target=""
-          data-testid="instant-reading-primary"
-          ref={hasUserContext ? undefined : promptReadyRef}
-        >
-          <InstantReadingPanel
-            copy={copy.instantReading}
-            secondary={hasUserContext}
-            generateLabel={
-              hasUserContext ? copy.instantWithoutContext : undefined
-            }
-            contextNotice={
-              hasUserContext ? copy.instantContextNotice : undefined
-            }
-            copyState={copyState}
-            onCancel={onCancelInstantReading}
-            onCopyPrompt={onCopyPrompt}
-            onGenerate={onGenerateInstantReading}
-            reading={instantReading}
-            status={instantReadingStatus}
-          />
-        </section>
-      )}
-      {nextAfterReading && resultActions}
-      {instantReadingEnabled && readingStyleCustomization}
-    </>
-  );
+  const canAsk = instantReadingEnabled && instantReadingStatus !== "success";
+  const isLoading = instantReadingStatus === "loading";
+  const askFirst = instantReadingEnabled && !hasUserContext;
 
   return (
     <div className="grid gap-4">
       {cards.length > 0 ? (
         <>
-          {!hasUserContext && instantPanel}
           <section
             aria-labelledby="prompt-ready-heading"
-            className="flex flex-col gap-4 rounded-ts-control border border-ts-divider bg-ts-canvas p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5"
-            data-analytics-result-view-target={
-              instantReadingEnabled ? undefined : ""
-            }
+            className="grid gap-3 rounded-ts-control border border-ts-divider bg-ts-canvas p-4 sm:p-5"
+            data-analytics-result-view-target=""
             data-testid="prompt-ready"
-            ref={
-              instantReadingEnabled && !hasUserContext
-                ? undefined
-                : promptReadyRef
-            }
+            ref={promptReadyRef}
           >
-            <div className="grid gap-1">
-              <h2
-                className="font-ts-display text-xl font-semibold text-ts-ink [&:lang(ko)]:break-keep"
-                id="prompt-ready-heading"
-              >
-                {copy.promptReady}
-              </h2>
-              <p className="text-sm leading-6 text-ts-ink">
-                {copy.promptValueSummary}
-              </p>
-              {instantReadingNotice && (
-                <p className="text-sm leading-6 text-ts-muted">
-                  {instantReadingNotice}
-                </p>
-              )}
-              {contextNotice ? (
-                <p
-                  className="text-xs font-medium leading-5 text-ts-action"
-                  data-testid="result-context-notice"
-                >
-                  {contextNotice}
-                </p>
-              ) : null}
-              {hasUserContext && (
-                <p className="text-xs leading-5 text-ts-muted">
-                  {copy.promptContextIncluded}
-                </p>
-              )}
-              <ol className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold text-ts-action">
-                {cards.map(({ card }, index) => (
-                  <li key={card.id}>
-                    {index + 1}. {card.name}
-                  </li>
-                ))}
-              </ol>
-            </div>
-            <Button
-              className={`${instantReadingEnabled && !hasUserContext ? "ts-secondary-action" : "ts-primary-action"} shrink-0 whitespace-nowrap`}
-              onClick={onCopyPrompt}
-              {...(instantReadingEnabled && !hasUserContext
-                ? { tone: "neutral" as const, variant: "outline" as const }
-                : {})}
-              type="button"
+            <h2
+              className="font-ts-display text-xl font-semibold text-ts-ink [&:lang(ko)]:break-keep"
+              id="prompt-ready-heading"
             >
-              {copyState === "copied"
-                ? copy.copied
-                : hasUserContext
-                  ? copy.copyPersonalQuestion
-                  : copy.copyPrompt}
-            </Button>
+              {copy.promptReady}
+            </h2>
+            <ol className="flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold text-ts-action">
+              {cards.map(({ card }, index) => (
+                <li key={card.id}>
+                  {index + 1}. {card.name}
+                </li>
+              ))}
+            </ol>
+            {instantReadingNotice && (
+              <p className="text-sm leading-6 text-ts-muted">
+                {instantReadingNotice}
+              </p>
+            )}
+            {contextNotice && (
+              <p
+                className="text-xs font-medium leading-5 text-ts-action"
+                data-testid="result-context-notice"
+              >
+                {contextNotice}
+              </p>
+            )}
+            {hasUserContext && (
+              <p
+                className="text-xs leading-5 text-ts-muted"
+                id="result-private-context"
+              >
+                {instantReadingEnabled
+                  ? copy.instantContextNotice
+                  : copy.promptContextIncluded}
+              </p>
+            )}
+            <div className="flex flex-col flex-wrap gap-2 sm:flex-row">
+              <Button
+                className={
+                  askFirst ? "ts-secondary-action" : "ts-primary-action"
+                }
+                onClick={onCopyPrompt}
+                {...(askFirst
+                  ? { tone: "neutral" as const, variant: "outline" as const }
+                  : {})}
+                type="button"
+              >
+                {copy.copyPrompt}
+              </Button>
+              {canAsk && (
+                <Button
+                  aria-describedby={
+                    hasUserContext ? "result-private-context" : undefined
+                  }
+                  className={
+                    askFirst ? "ts-primary-action" : "ts-secondary-action"
+                  }
+                  onClick={
+                    isLoading
+                      ? onCancelInstantReading
+                      : onGenerateInstantReading
+                  }
+                  ref={instantActionRef}
+                  {...(askFirst
+                    ? {}
+                    : {
+                        tone: "neutral" as const,
+                        variant: "outline" as const,
+                      })}
+                  type="button"
+                >
+                  {isLoading
+                    ? copy.instantReading.cancel
+                    : instantReadingStatus === "unavailable"
+                      ? copy.instantReading.retry
+                      : copy.instantReading.generate}
+                </Button>
+              )}
+            </div>
           </section>
 
           {copyState === "copied" && (
@@ -250,46 +243,17 @@ export function ReadingResult({
 
           {afterPromptAction}
 
-          {(copyState === "copied" || copyState === "failed") && (
-            <div className="grid gap-2" data-testid="ai-handoff">
-              <p className="text-sm leading-6 text-ts-muted">
-                {copyState === "failed"
-                  ? copy.aiHandoff.manualIntro
-                  : copy.aiHandoff.intro}
-              </p>
-              <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold text-ts-action">
-                <a
-                  className={brandLinkClassName}
-                  href="https://chatgpt.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {copy.aiHandoff.chatgpt}
-                </a>
-                <a
-                  className={brandLinkClassName}
-                  href="https://claude.ai/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {copy.aiHandoff.claude}
-                </a>
-                <a
-                  className={brandLinkClassName}
-                  href="https://gemini.google.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {copy.aiHandoff.gemini}
-                </a>
-              </div>
-            </div>
+          {instantReadingEnabled && (
+            <InstantReadingPanel
+              actionRef={instantActionRef}
+              copy={copy.instantReading}
+              reading={instantReading}
+              status={instantReadingStatus}
+            />
           )}
-
-          {!instantReadingEnabled && readingStyleCustomization}
+          {nextAfterReading && resultActions}
+          {readingStyleCustomization}
           {currentCustomization}
-          {hasUserContext && instantPanel}
-
           {!nextAfterReading && resultActions}
 
           <details

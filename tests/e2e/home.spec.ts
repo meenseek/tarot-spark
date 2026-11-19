@@ -308,7 +308,7 @@ test("carries a question from setup to the copy result", async ({ page }) => {
     );
     await expect(page.getByTestId("prompt-ready")).toContainText(
       ko
-        ? "작성한 상황도 질문에 담았어요."
+        ? "직접 쓴 질문은 복사할 때만 포함돼요."
         : "Your situation is included in the prompt.",
     );
     expect(new URL(page.url()).searchParams.get("spread")).toBe("deep");
@@ -316,7 +316,7 @@ test("carries a question from setup to the copy result", async ({ page }) => {
     expect(page.url()).not.toContain("I+want");
     await page
       .getByRole("button", {
-        name: ko ? "다음 카드 준비하기" : "Prepare the next draw",
+        name: ko ? "질문·설정 바꾸기" : "Change question or settings",
         exact: true,
       })
       .click();
@@ -397,16 +397,13 @@ for (const width of [390, 1280]) {
       await expect(prompt).not.toContainText("discarded-tail");
       await page
         .getByRole("button", {
-          name: ko ? "내 질문 복사하기" : "Copy my question",
+          name: ko ? "프롬프트 복사하기" : "Copy prompt",
           exact: true,
         })
         .click();
-      await expect(
-        page.getByRole("button", {
-          name: ko ? "복사했어요" : "Copied",
-          exact: true,
-        }),
-      ).toBeVisible();
+      await expect(page.getByTestId("prompt-copy-success")).toHaveText(
+        ko ? "복사했어요" : "Copied",
+      );
       expect(page.url()).toBe(resultUrl);
       expect(page.url()).not.toContain("context");
       expect(page.url()).not.toContain("b".repeat(500));
@@ -437,7 +434,7 @@ for (const width of [320, 390]) {
     await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
 
     const copyButton = page.getByRole("button", {
-      name: "질문 복사하기",
+      name: "프롬프트 복사하기",
     });
     await expect(copyButton).toBeVisible();
     expect(
@@ -462,7 +459,7 @@ for (const readingCase of [
     spread: "quick",
   },
   {
-    copyAction: "지금 바로 해석하기",
+    copyAction: "AI에게 바로 질문하기",
     drawAction: "카드 6장 뽑기",
     localePath: "/ko",
     spread: "deep",
@@ -525,18 +522,18 @@ for (const width of [390, 1280] as const) {
       .inputValue();
 
     const nextReadingAction = page.getByRole("button", {
-      name: "Prepare the next draw",
+      name: "Change question or settings",
     });
     await nextReadingAction.scrollIntoViewIfNeeded();
     await expect(nextReadingAction).toBeInViewport();
     await nextReadingAction.click();
     const prepHeading = page.getByRole("heading", {
-      name: "Prepare the next draw",
+      name: "Change question or settings",
     });
     await expect(prepHeading).toBeFocused();
     await expect(prepHeading).toBeInViewport();
     await expect(
-      page.getByRole("region", { name: "Prepare the next draw" }),
+      page.getByRole("region", { name: "Change question or settings" }),
     ).toBeVisible();
     await expect(page.getByTestId("reading-setup-panel")).toBeVisible();
     await expect(page.getByTestId("card-overview")).toHaveCount(0);
@@ -600,7 +597,7 @@ for (const locale of ["en", "ko"] as const) {
         `${ko ? "/ko" : "/"}?topic=love&cards=the-fool,the-magician,the-high-priestess`,
       );
       const copyAction = page.getByRole("button", {
-        name: ko ? "질문 복사하기" : "Copy prompt",
+        name: ko ? "프롬프트 복사하기" : "Copy prompt",
       });
       const currentEdit = page.getByTestId("current-prompt-customization");
       const nextAction = page.getByTestId("next-reading-action");
@@ -667,7 +664,7 @@ for (const locale of ["en", "ko"] as const) {
       await expect(page.getByTestId("prompt-ready")).toContainText(
         ko
           ? "Your situation is included in the prompt."
-          : "작성한 상황도 질문에 담았어요.",
+          : "직접 쓴 질문은 복사할 때만 포함돼요.",
       );
       await page
         .getByTestId("current-prompt-customization")
@@ -1215,9 +1212,9 @@ test("uses a chosen relationship question in the generated prompt", async ({
       elements.map((element) => element.getAttribute("data-card-id")),
     );
 
-  await page.getByRole("button", { name: "다음 카드 준비하기" }).click();
+  await page.getByRole("button", { name: "질문·설정 바꾸기" }).click();
   await expect(
-    page.getByRole("region", { name: "다음 카드 준비하기" }),
+    page.getByRole("region", { name: "질문·설정 바꾸기" }),
   ).toBeVisible();
   await expect(page.getByTestId("card-overview")).toHaveCount(0);
   await expect(page.getByTestId("prompt-ready")).toHaveCount(0);
@@ -1273,7 +1270,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
       ),
   ).toEqual(committedCards);
 
-  await page.getByRole("button", { name: "다음 카드 준비하기" }).click();
+  await page.getByRole("button", { name: "질문·설정 바꾸기" }).click();
   await page.getByTestId("topic-select").selectOption("love");
   await page
     .getByTestId("public-question-picker")
@@ -1409,7 +1406,7 @@ test("offers distinctive career questions under one optional hierarchy", async (
     /주제의 세부 초점: 일을 향한 마음이/,
   );
 
-  await page.getByRole("button", { name: "다음 카드 준비하기" }).click();
+  await page.getByRole("button", { name: "질문·설정 바꾸기" }).click();
   await page
     .getByTestId("public-question-picker")
     .locator("summary")
@@ -1465,10 +1462,10 @@ test("carries a money question from the complete catalog through a safe mobile r
     "돈 리딩은 자기 성찰용이며 재정 조언이 아닙니다. 결정 전 실제 비용과 조건을 확인하세요.",
   );
   await expect(page.getByTestId("prompt-ready")).toContainText(
-    "복사할 질문은 AI에 카드 뜻을 연결해 궁금한 점부터 답하고, 한 편의 짧은 이야기처럼 읽어 달라고 요청해요.",
+    "이 주제는 바로 해석을 지원하지 않아요.",
   );
   await expect(
-    page.getByRole("button", { name: "지금 바로 해석하기" }),
+    page.getByRole("button", { name: "AI에게 바로 질문하기" }),
   ).toHaveCount(0);
   await openPromptContent(page);
   await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
@@ -1507,15 +1504,15 @@ for (const width of [390, 1280]) {
     await expect(page.getByTestId("current-public-question")).toContainText(
       "원하는 소비와 필요한 소비를 어떻게 나눌까?",
     );
-    await page.getByRole("button", { name: "질문 복사하기" }).click();
+    await page.getByRole("button", { name: "프롬프트 복사하기" }).click();
     await expect(page.getByTestId("prompt-copy-success")).toContainText(
       "복사했어요",
     );
     await expect(
-      page.getByRole("button", { name: "지금 바로 해석하기" }),
+      page.getByRole("button", { name: "AI에게 바로 질문하기" }),
     ).toHaveCount(0);
 
-    await page.getByRole("button", { name: "다음 카드 준비하기" }).click();
+    await page.getByRole("button", { name: "질문·설정 바꾸기" }).click();
     await page.getByTestId("topic-select").selectOption("self-direction");
     await expect(page.getByTestId("selected-public-question")).toHaveCount(0);
     await expect(
@@ -1536,7 +1533,7 @@ for (const width of [390, 1280]) {
       /남의 기대와 사용자가 실제로 중요하게 여기는 가치를 나누고/,
     );
     await expect(
-      page.getByRole("button", { name: "지금 바로 해석하기" }),
+      page.getByRole("button", { name: "AI에게 바로 질문하기" }),
     ).toHaveCount(0);
     expect(
       await page.evaluate(
@@ -1746,47 +1743,26 @@ test("shows an instant Korean reading without sending private context", async ({
     .fill("서버로 보내면 안 되는 민감한 개인 상황");
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
   const copy = page.getByRole("button", {
-    name: "내 질문 복사하기",
+    name: "프롬프트 복사하기",
     exact: true,
   });
   await expect(copy).toHaveClass(/ts-primary-action/);
-  const instant = page
-    .getByTestId("instant-reading-primary")
-    .getByRole("button", { name: "내 입력 없이 바로 해석" });
+  const actions = page.getByTestId("prompt-ready");
+  const instant = actions.getByRole("button", { name: "AI에게 바로 질문하기" });
+  await expect(actions.getByRole("button")).toHaveCount(2);
   await expect(instant).toHaveClass(/ts-secondary-action/);
-  expect(
-    await copy.evaluate((button) =>
-      Boolean(
-        button.compareDocumentPosition(
-          document.querySelector('[data-testid="instant-reading-primary"]')!,
-        ) & Node.DOCUMENT_POSITION_FOLLOWING,
-      ),
-    ),
-  ).toBe(true);
+  await expect(instant).toHaveAccessibleDescription(
+    "직접 쓴 질문은 복사할 때만 포함돼요.",
+  );
+  await expect(page.getByTestId("instant-reading-primary")).toHaveCount(0);
   await copy.click();
   await expect
     .poll(() => copiedPrompt)
     .toContain("서버로 보내면 안 되는 민감한 개인 상황");
-  const handoff = page.getByTestId("ai-handoff");
-  await expect(handoff).toBeVisible();
-  expect(
-    await handoff.evaluate((element) => {
-      const copySection = document.querySelector(
-        '[data-testid="prompt-ready"]',
-      );
-      const instantSection = document.querySelector(
-        '[data-testid="instant-reading-primary"]',
-      );
-      return Boolean(
-        copySection &&
-        instantSection &&
-        copySection.compareDocumentPosition(element) &
-          Node.DOCUMENT_POSITION_FOLLOWING &&
-        element.compareDocumentPosition(instantSection) &
-          Node.DOCUMENT_POSITION_FOLLOWING,
-      );
-    }),
-  ).toBe(true);
+  await expect(page.getByTestId("prompt-copy-success")).toHaveText(
+    "복사했어요",
+  );
+  await expect(page.getByTestId("ai-handoff")).toHaveCount(0);
   await instant.click();
 
   await expect(page.getByTestId("instant-reading-result")).toBeVisible();
@@ -1848,11 +1824,11 @@ for (const width of [390, 1280]) {
         name: width === 390 ? "카드 3장 뽑기" : "카드 6장 뽑기",
       })
       .click();
-    const primary = page.getByRole("button", { name: "지금 바로 해석하기" });
+    const primary = page.getByRole("button", { name: "AI에게 바로 질문하기" });
     await expect(primary).toBeInViewport();
     await expect(primary).toHaveClass(/ts-primary-action/);
     await expect(
-      page.getByRole("button", { name: "질문 복사하기" }),
+      page.getByRole("button", { name: "프롬프트 복사하기" }),
     ).toHaveClass(/ts-secondary-action/);
     await primary.click();
     const heading = page.getByRole("heading", {
@@ -1873,8 +1849,14 @@ for (const width of [390, 1280]) {
       body: await page.screenshot({ fullPage: true }),
       contentType: "image/png",
     });
-    const nextAction = page.getByTestId("next-reading-action");
+    const nextAction = page.getByTestId("redraw-action");
     await expect(nextAction).toHaveClass(/ts-primary-action/);
+    await expect(page.getByTestId("next-reading-action")).toHaveClass(
+      /ts-secondary-action/,
+    );
+    await expect(
+      page.getByRole("button", { name: "프롬프트 복사하기" }),
+    ).toHaveClass(/ts-secondary-action/);
     expect(
       await nextAction.evaluate((element) => {
         const instant = document.querySelector(
@@ -1884,9 +1866,9 @@ for (const width of [390, 1280]) {
         return Boolean(
           instant &&
           copy &&
-          instant.compareDocumentPosition(element) &
+          copy.compareDocumentPosition(instant) &
             Node.DOCUMENT_POSITION_FOLLOWING &&
-          element.compareDocumentPosition(copy) &
+          instant.compareDocumentPosition(element) &
             Node.DOCUMENT_POSITION_FOLLOWING,
         );
       }),
@@ -1916,7 +1898,7 @@ for (const width of [390, 1280]) {
         ),
     ).toEqual(originalCards);
     expect(new URL(page.url()).searchParams.get("drawStyle")).toBe("balanced");
-    await page.getByRole("button", { name: "내 입력 없이 바로 해석" }).click();
+    await page.getByRole("button", { name: "AI에게 바로 질문하기" }).click();
     await expect(heading).toBeFocused();
     expect(lastRequest["styleId"]).toBe("direct");
     expect(JSON.stringify(lastRequest)).not.toContain("복사할 질문에만");
@@ -1953,14 +1935,14 @@ for (const width of [390, 1280]) {
     });
     await page.goto("/ko");
     await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
-    await page.getByRole("button", { name: "지금 바로 해석하기" }).click();
+    await page.getByRole("button", { name: "AI에게 바로 질문하기" }).click();
     await expect(
       page.getByRole("button", { name: "다시 시도하기" }),
     ).toBeFocused();
-    await page.getByRole("button", { name: "질문 복사해서 계속하기" }).click();
-    await expect(
-      page.getByRole("button", { name: "질문을 복사했어요", exact: true }),
-    ).toBeVisible();
+    await page.getByRole("button", { name: "프롬프트 복사하기" }).click();
+    await expect(page.getByTestId("prompt-copy-success")).toHaveText(
+      "복사했어요",
+    );
     await openPromptContent(page);
     expect(
       await page.evaluate(() =>
@@ -1970,6 +1952,207 @@ for (const width of [390, 1280]) {
     expect(requests).toBe(1);
   });
 }
+
+test("shows the first draw action without scrolling at 390px in both locales", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const ko of [true, false]) {
+    await page.goto(ko ? "/ko" : "/");
+    await page.evaluate(() => document.fonts.ready);
+    const draw = page.getByRole("button", {
+      name: ko ? "카드 3장 뽑기" : "Draw 3 cards",
+      exact: true,
+    });
+    await expect(draw).toBeInViewport({ ratio: 1 });
+    const order = await page.evaluate(() => {
+      const draw = document.querySelector(
+        "[data-testid=reading-setup-actions]",
+      );
+      const question = document.querySelector(
+        "[data-testid=situation-context]",
+      );
+      const settings = document.querySelector(
+        "[data-testid=reading-preferences]",
+      );
+      return (
+        !!draw &&
+        !!question &&
+        !!settings &&
+        question.getBoundingClientRect().bottom <=
+          draw.getBoundingClientRect().top &&
+        draw.getBoundingClientRect().bottom <=
+          settings.getBoundingClientRect().top
+      );
+    });
+    expect(order).toBe(true);
+  }
+});
+
+test("redraws with the committed settings and ignores an older AI response", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const requests: Record<string, unknown>[] = [];
+  let releaseOldRequest!: () => void;
+  let finishOldRequest!: () => void;
+  const oldRequestCanFinish = new Promise<void>((resolve) => {
+    releaseOldRequest = resolve;
+  });
+  const oldRouteFinished = new Promise<void>((resolve) => {
+    finishOldRequest = resolve;
+  });
+  await page.route("**/api/reading", async (route) => {
+    const request = route.request().postDataJSON() as Record<string, unknown>;
+    requests.push(request);
+    const first = requests.length === 1;
+    if (first) await oldRequestCanFinish;
+    try {
+      const cards = request["cards"] as { cardId: string }[];
+      await route.fulfill({
+        json: { text: createValidInstantReading(cards.length) },
+      });
+    } catch (err) {
+      if (!first) throw err;
+    } finally {
+      if (first) finishOldRequest();
+    }
+  });
+  await page.goto("/ko?topic=love&spread=deep&style=direct");
+  const privateQuestion = "두 번째에도 복사할 가상 질문";
+  await page
+    .getByRole("textbox", { name: /상황이나 궁금한 점/ })
+    .fill(privateQuestion);
+  await page.getByRole("button", { name: "카드 6장 뽑기" }).click();
+  const result = page.getByTestId("instant-reading-result");
+  const drawStatus = page.getByTestId("draw-status");
+  const ask = page.getByRole("button", { name: "AI에게 바로 질문하기" });
+  const redraw = page.getByRole("button", { name: "같은 설정으로 다시 뽑기" });
+  await expect(drawStatus).toHaveAttribute(
+    "data-draw-announcement-sequence",
+    "1",
+  );
+  try {
+    await ask.click();
+    await expect.poll(() => requests.length).toBe(1);
+    await redraw.click();
+    await expect(drawStatus).toHaveAttribute(
+      "data-draw-announcement-sequence",
+      "2",
+    );
+  } finally {
+    releaseOldRequest();
+  }
+  await oldRouteFinished;
+  await expect(
+    page.getByRole("heading", { name: "내 카드와 AI 질문" }),
+  ).toBeFocused();
+  await expect(page.getByTestId("reading-setup-panel")).toHaveCount(0);
+  await expect(page.getByTestId("card-overview").locator("li")).toHaveCount(6);
+  await expect(result).toHaveCount(0);
+  await expect(ask).toBeEnabled();
+  await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
+    new RegExp(privateQuestion),
+  );
+  expect(decodeURIComponent(page.url())).not.toContain(privateQuestion);
+  expect(requests).toHaveLength(1);
+  await ask.click();
+  await expect(result).toBeVisible();
+  expect(requests).toHaveLength(2);
+  expect(requests[1]).toMatchObject({
+    topicId: "love",
+    spreadId: "deep",
+    styleId: "direct",
+  });
+  expect(JSON.stringify(requests[1])).not.toContain(privateQuestion);
+  const cards = new URL(page.url()).searchParams.get("cards")?.split(",");
+  expect(
+    (requests[1]?.["cards"] as { cardId: string }[]).map(
+      ({ cardId }) => cardId,
+    ),
+  ).toEqual(cards);
+});
+
+test("uses one AI action for the first draw and the committed next draw", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 844 });
+  const requests: Record<string, unknown>[] = [];
+  await page.route("**/api/reading", async (route) => {
+    const request = route.request().postDataJSON() as Record<string, unknown>;
+    requests.push(request);
+    const cards = request["cards"] as { cardId: string }[];
+    await route.fulfill({
+      status: requests.length === 2 ? 503 : 200,
+      contentType: "application/json",
+      body: JSON.stringify(
+        requests.length === 2
+          ? { code: "unavailable" }
+          : { text: createValidInstantReading(cards.length) },
+      ),
+    });
+  });
+  await page.goto("/ko?topic=love");
+  const actions = page.getByTestId("prompt-ready");
+  const ask = actions.getByRole("button", { name: "AI에게 바로 질문하기" });
+  const copy = actions.getByRole("button", { name: "프롬프트 복사하기" });
+  const answer = page.getByTestId("instant-reading-result");
+  const next = page.getByTestId("next-reading-action");
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+  await expect(copy).toBeVisible();
+  await expect(ask).toBeVisible();
+  expect(requests).toHaveLength(0);
+  await ask.click();
+  await expect(answer).toBeVisible();
+  const firstUrl = page.url();
+  expect(requests[0]?.["topicId"]).toBe("love");
+  const openNext = async () => {
+    await next.click();
+    await page.getByTestId("topic-select").selectOption("career-direction");
+  };
+  await openNext();
+  await page.getByRole("button", { name: "이전 카드 결과로 돌아가기" }).click();
+  await expect(page).toHaveURL(firstUrl);
+  await expect(answer).toBeVisible();
+  expect(requests).toHaveLength(1);
+  await openNext();
+  await page
+    .getByRole("textbox", { name: /상황이나 궁금한 점/ })
+    .fill("두 번째 테스트 입력은 복사에만 사용");
+  await page.getByTestId("reading-preferences").locator("summary").click();
+  await page.getByRole("radio", { name: "심화 6장", exact: true }).check();
+  await page.getByRole("button", { name: "카드 6장 뽑기" }).click();
+  await expect(answer).toHaveCount(0);
+  await expect(ask).toBeVisible();
+  await expect(copy).toBeVisible();
+  await expect(ask).toHaveAccessibleDescription(
+    "직접 쓴 질문은 복사할 때만 포함돼요.",
+  );
+  expect(requests).toHaveLength(1);
+  await expect(page.locator("[data-analytics-result-view-target]")).toHaveCount(
+    1,
+  );
+  const secondCards = new URL(page.url()).searchParams.get("cards")?.split(",");
+  expect(secondCards).toHaveLength(6);
+  await ask.click();
+  const retry = actions.getByRole("button", { name: "다시 시도하기" });
+  await expect(retry).toBeFocused();
+  expect(requests[1]?.["topicId"]).toBe("career-direction");
+  expect(
+    (requests[1]?.["cards"] as { cardId: string }[]).map(
+      ({ cardId }) => cardId,
+    ),
+  ).toEqual(secondCards);
+  expect(JSON.stringify(requests[1])).not.toContain("두 번째 테스트 입력");
+  await retry.click();
+  await expect(answer).toBeVisible();
+  expect(requests).toHaveLength(3);
+  expect(requests[2]).toEqual(requests[1]);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(320);
+});
 
 test("cancels visible loading and retries an error into a successful reading", async ({
   page,
@@ -1992,7 +2175,7 @@ test("cancels visible loading and retries an error into a successful reading", a
   });
   await page.goto("/ko");
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
-  await page.getByRole("button", { name: "지금 바로 해석하기" }).click();
+  await page.getByRole("button", { name: "AI에게 바로 질문하기" }).click();
   await expect(
     page.getByText("카드의 흐름을 정리하고 있어요…", { exact: true }),
   ).toBeVisible();
@@ -2001,10 +2184,10 @@ test("cancels visible loading and retries an error into a successful reading", a
   ).toBeFocused();
   await page.getByRole("button", { name: "해석 취소하기" }).click();
   await expect(
-    page.getByRole("button", { name: "지금 바로 해석하기" }),
+    page.getByRole("button", { name: "AI에게 바로 질문하기" }),
   ).toBeFocused();
   await expect(page.getByTestId("instant-reading-result")).toHaveCount(0);
-  await page.getByRole("button", { name: "지금 바로 해석하기" }).click();
+  await page.getByRole("button", { name: "AI에게 바로 질문하기" }).click();
   await expect(
     page.getByRole("button", { name: "다시 시도하기" }),
   ).toBeFocused();
@@ -2056,12 +2239,7 @@ test("draws tarot cards and copies the generated prompt", async ({ page }) => {
 
   await page.getByRole("button", { name: "Copy prompt" }).click();
 
-  await expect(page.getByRole("button", { name: "Copied" })).toBeVisible();
-  await expect(
-    page.getByText(
-      "Copied. Paste it into the AI tool you use to get the reading.",
-    ),
-  ).toBeVisible();
+  await expect(page.getByTestId("prompt-copy-success")).toHaveText("Copied");
 
   await openShareOptions(page);
   await page.getByRole("button", { name: "Copy URL" }).click();

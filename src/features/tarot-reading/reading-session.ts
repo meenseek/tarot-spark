@@ -49,6 +49,7 @@ export type SessionAction =
   | { readonly type: "ENTER_EDIT" }
   | { readonly type: "CANCEL_EDIT" }
   | { readonly type: "DRAW_COMMIT"; readonly cards: readonly DrawnCard[] }
+  | { readonly type: "REDRAW_COMMIT"; readonly cards: readonly DrawnCard[] }
   | { readonly type: "SET_CURRENT_STYLE"; readonly styleId: ReadingStyleId }
   | {
       readonly type: "SET_CURRENT_PRIVATE_CONTEXT";
@@ -118,6 +119,10 @@ export function readingSessionReducer(
         action.cards,
         session.mode === "edit-next-draw" ? session.current : undefined,
       );
+    case "REDRAW_COMMIT":
+      return session.mode === "result"
+        ? commitDraw(session.current.inputs, action.cards, session.current)
+        : session;
     case "SET_CURRENT_STYLE":
       if (
         session.mode !== "result" ||

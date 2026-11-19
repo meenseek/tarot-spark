@@ -1,7 +1,5 @@
 {
-  "instantWithoutContext": "내 입력 없이 바로 해석",
-  "copyPersonalQuestion": "내 질문 복사하기",
-  "instantContextNotice": "바로 해석은 선택한 주제·추천 질문만 사용하며, 직접 쓴 질문은 반영하지 않아요.",
+  "instantContextNotice": "직접 쓴 질문은 복사할 때만 포함돼요.",
   "metadata": {
     "title": "타로 스파크",
     "description": "타로 스파크에서 무료로 카드를 뽑고, 고른 질문과 카드 뜻을 담은 문장을 복사해 평소 쓰는 AI에 물어보세요."
@@ -38,8 +36,9 @@
   "currentReadingSettings": "현재 리딩",
   "customizeCurrent": "다른 AI에 복사할 상황",
   "customizeCurrentIntro": "따로 적은 상황은 복사할 질문에만 담겨요. 여기서 바로 읽는 해석에는 사용하지 않아요. 수정한 내용을 쓰려면 질문을 다시 복사해 주세요.",
-  "editNextReading": "다음 카드 준비하기",
-  "editNextHeading": "다음 카드 준비하기",
+  "editNextReading": "질문·설정 바꾸기",
+  "redrawSameSettings": "같은 설정으로 다시 뽑기",
+  "editNextHeading": "질문·설정 바꾸기",
   "editNextIntro": "이전 질문과 설정을 가져왔어요. 그대로 쓰거나 바꿔서 새 카드를 뽑으세요. 뽑기 전에는 이전 카드 결과로 돌아갈 수 있어요.",
   "cancelEdit": "이전 카드 결과로 돌아가기",
   "workspaceLabel": "내 카드와 AI 질문",
@@ -50,9 +49,7 @@
     "createOwn": "내 카드 뽑기"
   },
   "instantReading": {
-    "heading": "카드의 흐름 바로 읽기",
-    "intro": "고른 질문과 카드의 뜻을 이어 하나의 이야기로 읽어 드려요.",
-    "generate": "지금 바로 해석하기",
+    "generate": "AI에게 바로 질문하기",
     "loading": "카드의 흐름을 정리하고 있어요…",
     "cancel": "해석 취소하기",
     "retry": "다시 시도하기",
@@ -62,14 +59,11 @@
     "entryIntro": "카드를 뽑고, 궁금한 이야기의 AI 해석을 여기서 읽어보세요.",
     "available": "이 주제는 여기서 바로 해석할 수 있어요.",
     "unsupportedTopic": "이 주제는 바로 해석을 지원하지 않아요. 질문을 복사해 사용하는 AI에 물어보세요.",
-    "koreanOnly": "바로 해석은 한국어에서만 지원해요. 질문을 복사해 사용하는 AI에 물어보세요.",
-    "recoveryCopy": "질문 복사해서 계속하기",
-    "recoveryCopied": "질문을 복사했어요"
+    "koreanOnly": "바로 해석은 한국어에서만 지원해요. 질문을 복사해 사용하는 AI에 물어보세요."
   },
   "promptReady": "AI에 물어볼 질문이 준비됐어요.",
-  "promptValueSummary": "복사할 질문은 AI에 카드 뜻을 연결해 궁금한 점부터 답하고, 한 편의 짧은 이야기처럼 읽어 달라고 요청해요.",
   "promptContextIncluded": "작성한 상황도 질문에 담았어요.",
-  "promptCopySuccess": "복사했어요. 사용하는 AI에 붙여 넣어 해석을 받아보세요.",
+  "promptCopySuccess": "복사했어요",
   "promptContentDisclosure": "질문 내용 보기",
   "promptContentClose": "질문 내용 접기",
   "cardDetailsDisclosure": "카드 뜻 자세히 보기",
@@ -79,8 +73,7 @@
     "reflection": "나에게 묻기"
   },
   "generatedPromptLabel": "AI에 붙여 넣을 질문",
-  "copyPrompt": "질문 복사하기",
-  "copied": "복사했어요",
+  "copyPrompt": "프롬프트 복사하기",
   "copyUrl": "URL 복사",
   "copiedUrl": "URL을 복사했어요",
   "instagramImageShare": "Instagram용 이미지 공유",
@@ -107,13 +100,6 @@
   "shareText": "{topicLabel} 타로 질문: {cardNames}",
   "placeholderCardName": "카드를 기다리는 중",
   "editLocaleNotice": "언어를 바꾸면 준비 중인 변경은 취소되고 이전 카드 결과로 돌아가요.",
-  "aiHandoff": {
-    "intro": "AI를 열고 복사한 질문을 붙여넣어 주세요.",
-    "manualIntro": "질문을 수동으로 복사한 다음 AI를 열어 붙여넣어 주세요.",
-    "chatgpt": "ChatGPT 열기",
-    "claude": "Claude 열기",
-    "gemini": "Gemini 열기"
-  },
   "customizeReadingStyle": "같은 카드의 답변 느낌 바꾸기",
   "customizeReadingStyleIntro": "카드는 그대로 두고 답변 느낌을 바꿔요. 복사할 질문도 바로 바뀌므로, 새 느낌으로 읽으려면 다시 복사해 주세요.",
   "styleResetNotice": "느낌을 바꾸면 지금 해석은 지워져요. 바꾼 느낌으로 읽으려면 해석을 다시 요청해 주세요."

@@ -64,7 +64,7 @@ for (const locale of ["ko", "en"] as const) {
         await expect(page.getByTestId("prompt-ready")).toBeVisible();
         await page
           .getByRole("button", {
-            name: locale === "ko" ? "질문 복사하기" : "Copy prompt",
+            name: locale === "ko" ? "프롬프트 복사하기" : "Copy prompt",
           })
           .click();
         const copied = await readClipboard(page);
@@ -141,23 +141,14 @@ for (const locale of ["ko", "en"] as const) {
         ).toHaveCount(0);
         expect(largeRequests).toHaveLength(0);
         await page
-          .getByRole("button", { name: ko ? "질문 복사하기" : "Copy prompt" })
+          .getByRole("button", {
+            name: ko ? "프롬프트 복사하기" : "Copy prompt",
+          })
           .click();
         expect(await readClipboard(page)).not.toBe("");
-        const handoff = page.getByTestId("ai-handoff");
-        await expect(handoff).toBeVisible();
-        await expect(handoff).toContainText(
-          ko ? "복사한 질문을 붙여넣어" : "paste the question you copied",
-        );
-        for (const href of [
-          "https://chatgpt.com/",
-          "https://claude.ai/",
-          "https://gemini.google.com/",
-        ]) {
-          const link = handoff.locator(`a[href="${href}"]`);
-          await expect(link).toHaveAttribute("target", "_blank");
-          await expect(link).toHaveAttribute("rel", "noopener noreferrer");
-        }
+        const feedback = page.getByTestId("prompt-copy-success");
+        await expect(feedback).toHaveText(ko ? "복사했어요" : "Copied");
+        await expect(page.getByTestId("ai-handoff")).toHaveCount(0);
         const details = page.getByTestId("card-details-disclosure");
         await details.locator("summary").focus();
         await details.locator("summary").press("Enter");
@@ -190,25 +181,35 @@ for (const locale of ["ko", "en"] as const) {
         await page
           .getByRole("radio", { name: ko ? /솔직하고 분명하게/ : /Direct/ })
           .check();
-        await expect(handoff).toHaveCount(0);
+        await expect(feedback).toHaveCount(0);
       });
     }
   }
 }
 
-test("manual copy recovery offers AI links and hides them when the prompt changes", async ({
+test("manual copy recovery selects the prompt and clears feedback when it changes", async ({
   page,
 }) => {
   await stubClipboard(page, true);
   await page.goto("/?cards=the-fool,the-magician,the-high-priestess");
   await page.getByRole("button", { name: "Copy prompt" }).click();
   await expect(page.getByLabel("Generated prompt")).toBeFocused();
-  await expect(page.getByTestId("ai-handoff")).toContainText(
-    "Copy the question manually",
+  const status = page.locator("#prompt-copy-failure");
+  await expect(status).toBeVisible();
+  const prompt = page.getByLabel("Generated prompt");
+  await expect(prompt).toHaveAttribute(
+    "aria-describedby",
+    /prompt-copy-failure/,
   );
+  expect(
+    await prompt.evaluate((el) => {
+      const field = el as HTMLTextAreaElement;
+      return field.selectionEnd - field.selectionStart === field.value.length;
+    }),
+  ).toBe(true);
   await page.getByTestId("current-reading-style").locator("summary").click();
   await page.getByRole("radio", { name: /Direct/ }).check();
-  await expect(page.getByTestId("ai-handoff")).toHaveCount(0);
+  await expect(status).toHaveCount(0);
 });
 
 test("restored-open card details mount large art without replaying the reveal", async ({
@@ -239,39 +240,25 @@ test("restored-open card details mount large art without replaying the reveal", 
   ).toHaveCount(0);
 });
 
-test("opens each AI homepage only after an explicit click without sending the question", async ({
+test("copies without opening or contacting an external AI provider", async ({
   page,
   context,
 }) => {
   await stubClipboard(page);
-  const destinations = [
-    "https://chatgpt.com/",
-    "https://claude.ai/",
-    "https://gemini.google.com/",
-  ];
-  for (const href of destinations) {
-    await context.route(href, (route) =>
-      route.fulfill({
-        contentType: "text/html",
-        body: "<title>AI entry fixture</title>Ready",
-      }),
-    );
-  }
+  const requests: string[] = [];
+  await context.route(
+    /https:\/\/(chatgpt\.com|claude\.ai|gemini\.google\.com)\//,
+    (route) => {
+      requests.push(route.request().url());
+      return route.abort();
+    },
+  );
   await page.goto("/?cards=the-fool,the-magician,the-high-priestess");
   await page.getByRole("button", { name: "Copy prompt" }).click();
+  await expect(page.getByTestId("prompt-copy-success")).toHaveText("Copied");
+  expect(await readClipboard(page)).not.toBe("");
   expect(context.pages()).toHaveLength(1);
-  for (const href of destinations) {
-    const [popup] = await Promise.all([
-      page.waitForEvent("popup"),
-      page.getByTestId("ai-handoff").locator(`a[href="${href}"]`).click(),
-    ]);
-    await expect(popup).toHaveURL(href);
-    await expect(popup).toHaveTitle("AI entry fixture");
-    expect(await popup.evaluate(() => document.referrer)).toBe("");
-    expect(await popup.evaluate(() => window.opener === null)).toBe(true);
-    await popup.close();
-  }
-  expect(context.pages()).toHaveLength(1);
+  expect(requests).toHaveLength(0);
 });
 
 test("retries a failed enlarged image without replaying the reveal", async ({

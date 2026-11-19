@@ -120,9 +120,9 @@ the number or order of its DOM wrappers.
 - Use at most one filled primary action in one task region. A region is a
   visually bounded form, result panel, or call-to-action section.
 - In an enabled Korean relationship/career generator result without direct
-  context, instant reading is the first action after the card overview and the
-  single filled primary. Keep
-  prompt copy secondary. For other locales, shared results, ineligible topics
+  context, instant reading is the single filled primary in the action group
+  after the card overview. Keep prompt copy secondary. For other locales,
+  shared results, ineligible topics
   and feature-off operation, keep prompt copy primary. Generation always
   requires an explicit click; copying must never request a reading.
 - Use secondary or text-link treatment for repeated catalog choices, locale
@@ -191,27 +191,26 @@ the number or order of its DOM wrappers.
   inspiration and optional settings are distinct choices rather than mandatory
   steps.
 - Show the labeled start of setup on entry. Keep one draw action directly after
-  the settings in reading and keyboard order, reachable by normal page scroll
-  without covering fields. Longer copy, an expanded catalog, and short windows
-  may place the action below the initial viewport.
+  the optional direct question and any topic-specific disclaimer, above the
+  suggested-question and settings disclosures. At 390 × 844 the default draw
+  action should fit in the first viewport. Keep a normal scrolling path at
+  smaller heights; do not overlay the form.
 - Mount larger 5:7 artwork only while card details are open: 140px on narrow
   screens and 180px from 640px. Synchronize with restored disclosure state,
   reuse loading and retry behavior, and do not replay the reveal.
-- Keep copy feedback and quiet ChatGPT, Claude, and Gemini homepage links
-  immediately after the copy action, without an instant-reading panel between
-  them. On failure, show them with manual-copy-first instructions. Require a
-  user click, open a new tab without a referrer, and send no prompt data. Hide
-  the links when prompt changes invalidate the copy state.
+- Put prompt copy and eligible instant reading in the same result action group
+  for the first draw and all later draws. Do not show a separate introduction or
+  provider links. Announce copy success once; on failure open and select the
+  full prompt for manual copy. Copying never opens or contacts an AI.
 - Treat setup, committed result, and edit-next-draw as distinct modes. Preparing
   the next draw shows only its choices and focuses its heading. Preserve the
   committed result in state; cancelling discards the draft, restores the result
   and trigger focus, and does not replay the card reveal.
 - After a successful instant reading without direct context, place one primary
-  next-reading action immediately after the reading. Otherwise retain it as a
-  supporting action after the copy flow. Route it
-  through edit-next-draw so users can keep or change their choices before a new
-  draw replaces the committed result. Do not use browser Back as a reading
-  reset or add a separate immediate-redraw path.
+  same-settings redraw action immediately after the reading. Otherwise retain
+  redraw as a supporting action. Redraw opens a new result without changing
+  the committed settings or calling AI automatically. Keep question and settings
+  edits secondary and staged so cancelling does not replace the prior result.
 - Keep preset-question changes inside the next-draw draft so cancelling restores
   the committed result and private context. Do not use catalog navigation as a
   draft control. Locale navigation uses the committed result and may discard an
@@ -224,14 +223,12 @@ the number or order of its DOM wrappers.
 - Fit each overview frame inside its own column. Use at most 80px of art below
   640px and 112px above it, shrinking in narrow columns while retaining the 5:7
   ratio and keeping retry controls inside the frame.
-- When direct context exists, lead with its prompt-copy action. Label the
-  secondary instant-reading action as excluding that input and explain that it
-  uses the selected topic, question and cards only. Without direct context,
-  retain the instant-first flow. Never automatically send text or open another AI.
-- Place the generated-prompt copy action before prompt source, card details,
-  sharing options, and shared-reading creation actions. An unavailable instant
-  reading may also offer a secondary copy recovery action in the error panel.
-  Reuse the same prompt and copy state; preserve manual-copy focus on failure.
+- Keep the same action labels and positions when direct context exists. Make
+  copy primary and explain that the typed question is only included when
+  copied. Never submit that text to instant reading.
+- Place the action group before the generated prompt, details, sharing options,
+  and shared-reading creation. Keep the same copy action available when instant
+  reading fails; do not add a second recovery copy control.
 - Keep same-card answer-style controls separate from copy-only context. Explain
   before changing style that an existing instant reading will be cleared and
   must be requested again. Copy-context edits update the prompt immediately,
@@ -283,8 +280,7 @@ borders, focus, hover, and pressed states still use semantic Tarot Spark tokens.
   40rem maximum reading width and generous leading. Preserve the card overview,
   outer workspace and action widths. Use one visible reading title and retain
   an accessible success-focus target.
-- Show loading text with cancellation. Offer retry and prompt-copy recovery at
-  the failed reading. Announce state changes once and show copy success at the
-  recovery control as well as the normal handoff feedback.
-- Observe the currently primary result region for the existing `result_view`
-  event; do not attach a second impression event to the secondary copy panel.
+- Show the loading message with cancellation and show a retry action after
+  failure. Do not render a reading panel before an explicit request.
+- Observe the shared result action group for the existing `result_view`
+  event. Do not attach a second impression to the reading output.

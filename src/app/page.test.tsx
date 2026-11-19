@@ -132,7 +132,7 @@ describe("Home", () => {
         .getByTestId("reading-preferences")
         .compareDocumentPosition(
           screen.getByRole("button", { name: /Draw \d cards/ }),
-        ) & Node.DOCUMENT_POSITION_FOLLOWING,
+        ) & Node.DOCUMENT_POSITION_PRECEDING,
     ).toBeTruthy();
     const settings = screen.getByTestId("reading-preferences");
     expect(settings).not.toHaveAttribute("open");
@@ -232,7 +232,7 @@ describe("Home", () => {
       "Money readings are for self-reflection, not financial advice. Check actual costs and terms before deciding.",
     );
     expect(
-      picker.compareDocumentPosition(notice) & Node.DOCUMENT_POSITION_FOLLOWING,
+      picker.compareDocumentPosition(notice) & Node.DOCUMENT_POSITION_PRECEDING,
     ).toBeTruthy();
   });
 
@@ -272,7 +272,7 @@ describe("Home", () => {
       "/ko/privacy",
     );
     expect(
-      screen.queryByRole("button", { name: "지금 바로 해석하기" }),
+      screen.queryByRole("button", { name: "AI에게 바로 질문하기" }),
     ).not.toBeInTheDocument();
   });
 
@@ -314,21 +314,19 @@ describe("Home", () => {
         }),
       );
       const copy = screen.getByRole("button", {
-        name: locale === "ko" ? "질문 복사하기" : "Copy prompt",
+        name: locale === "ko" ? "프롬프트 복사하기" : "Copy prompt",
       });
       if (direct) {
-        const read = screen.getByRole("button", { name: "지금 바로 해석하기" });
+        const read = screen.getByRole("button", {
+          name: "AI에게 바로 질문하기",
+        });
         expect(read).toHaveClass("ts-primary-action");
         expect(copy).toHaveClass("ts-secondary-action");
-        expect(
-          read.compareDocumentPosition(copy) & Node.DOCUMENT_POSITION_FOLLOWING,
-        ).toBeTruthy();
-        expect(screen.getByTestId("instant-reading-primary")).toHaveAttribute(
-          "data-analytics-result-view-target",
-        );
-        expect(screen.getByTestId("prompt-ready")).not.toHaveAttribute(
-          "data-analytics-result-view-target",
-        );
+        const actions = screen.getByTestId("prompt-ready");
+        expect(actions).toContainElement(read);
+        expect(actions).toContainElement(copy);
+        expect(actions).toHaveAttribute("data-analytics-result-view-target");
+        expect(screen.queryByTestId("instant-reading-primary")).toBeNull();
       } else {
         expect(copy).toHaveClass("ts-primary-action");
         expect(screen.queryByTestId("instant-reading-primary")).toBeNull();
@@ -350,9 +348,9 @@ describe("Home", () => {
         initialReadingState={initialReadingState}
       />,
     );
-    expect(screen.getByRole("button", { name: "질문 복사하기" })).toHaveClass(
-      "ts-primary-action",
-    );
+    expect(
+      screen.getByRole("button", { name: "프롬프트 복사하기" }),
+    ).toHaveClass("ts-primary-action");
     expect(screen.queryByTestId("instant-reading-primary")).toBeNull();
   });
 
@@ -378,21 +376,17 @@ describe("Home", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
     expect(
-      screen.getByRole("button", { name: "내 질문 복사하기" }),
+      screen.getByRole("button", { name: "프롬프트 복사하기" }),
     ).toHaveClass("ts-primary-action");
-    expect(
-      screen
-        .getByTestId("prompt-ready")
-        .compareDocumentPosition(
-          screen.getByTestId("instant-reading-primary"),
-        ) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    expect(screen.getByTestId("prompt-ready")).toContainElement(
+      screen.getByRole("button", { name: "AI에게 바로 질문하기" }),
+    );
     expect(
       (screen.getByLabelText("AI에 붙여 넣을 질문") as HTMLTextAreaElement)
         .value,
     ).toContain("서버로 보내면 안 되는 민감한 개인 상황");
     fireEvent.click(
-      screen.getByRole("button", { name: "내 입력 없이 바로 해석" }),
+      screen.getByRole("button", { name: "AI에게 바로 질문하기" }),
     );
 
     expect(
@@ -453,10 +447,10 @@ describe("Home", () => {
       "돈 리딩은 자기 성찰용이며 재정 조언이 아닙니다. 결정 전 실제 비용과 조건을 확인하세요.",
     );
     expect(screen.getByTestId("prompt-ready")).toHaveTextContent(
-      "복사할 질문은 AI에 카드 뜻을 연결해 궁금한 점부터 답하고, 한 편의 짧은 이야기처럼 읽어 달라고 요청해요.",
+      "이 주제는 바로 해석을 지원하지 않아요.",
     );
     expect(
-      screen.queryByRole("button", { name: "지금 바로 해석하기" }),
+      screen.queryByRole("button", { name: "AI에게 바로 질문하기" }),
     ).not.toBeInTheDocument();
     expect(fetchMock).not.toHaveBeenCalled();
   });
@@ -471,7 +465,9 @@ describe("Home", () => {
     render(<TarotExperience locale="ko" />);
 
     fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
-    fireEvent.click(screen.getByRole("button", { name: "지금 바로 해석하기" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "AI에게 바로 질문하기" }),
+    );
 
     await waitFor(() => {
       expect(document.querySelector(".ts-feedback")).toHaveTextContent(
@@ -483,7 +479,7 @@ describe("Home", () => {
     ).toBeInTheDocument();
     expect(screen.getByLabelText("AI에 붙여 넣을 질문")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "질문 복사하기" }),
+      screen.getByRole("button", { name: "프롬프트 복사하기" }),
     ).toBeInTheDocument();
   });
 
@@ -507,14 +503,16 @@ describe("Home", () => {
       render(<TarotExperience locale="ko" />);
       fireEvent.click(screen.getByRole("button", { name: "카드 3장 뽑기" }));
       fireEvent.click(
-        screen.getByRole("button", { name: "지금 바로 해석하기" }),
+        screen.getByRole("button", { name: "AI에게 바로 질문하기" }),
       );
       const recovery = await screen.findByRole("button", {
-        name: "질문 복사해서 계속하기",
+        name: "프롬프트 복사하기",
       });
-      expect(
-        screen.getByRole("button", { name: "다시 시도하기" }),
-      ).toHaveFocus();
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: "다시 시도하기" }),
+        ).toHaveFocus();
+      });
       fireEvent.click(recovery);
       const prompt = screen.getByLabelText(
         "AI에 붙여 넣을 질문",
@@ -529,15 +527,90 @@ describe("Home", () => {
             prompt.value.length,
           );
         } else {
-          expect(
-            screen.getByRole("button", { name: "질문을 복사했어요" }),
-          ).toBeVisible();
+          expect(screen.getByTestId("prompt-copy-success")).toBeVisible();
           expect(writeText).toHaveBeenCalledWith(prompt.value);
         }
       });
       expect(fetchMock).toHaveBeenCalledTimes(1);
     },
   );
+
+  it("uses the same instant action after committing a second draw", async () => {
+    process.env["TAROT_INSTANT_READING_ENABLED"] = "true";
+    const random = vi.spyOn(Math, "random").mockReturnValue(0);
+    const answer = createValidInstantReading();
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(Response.json(answer))
+      .mockResolvedValueOnce(
+        Response.json({ code: "unavailable" }, { status: 503 }),
+      )
+      .mockResolvedValueOnce(Response.json(answer));
+    render(<TarotExperience locale="ko" />);
+    const resultAction = (name: string) =>
+      within(screen.getByTestId("prompt-ready")).getByRole("button", { name });
+    const draw = () =>
+      fireEvent.click(screen.getByRole("button", { name: "카드 3장 뽑기" }));
+    const next = () => {
+      fireEvent.click(screen.getByRole("button", { name: "질문·설정 바꾸기" }));
+      fireEvent.change(screen.getByRole("combobox"), {
+        target: { value: "career-direction" },
+      });
+    };
+    const cardIds = () =>
+      screen
+        .getAllByTestId(/^reading-card-\d+$/)
+        .map((card) => card.getAttribute("data-card-id"));
+    const payload = (index: number) =>
+      JSON.parse(String(fetchMock.mock.calls[index]?.[1]?.body)) as {
+        cards: { cardId: string }[];
+        topicId: string;
+      };
+
+    draw();
+    const firstCards = cardIds();
+    expect(fetchMock).not.toHaveBeenCalled();
+    fireEvent.click(resultAction("AI에게 바로 질문하기"));
+    await screen.findByTestId("instant-reading-result");
+    expect(payload(0).topicId).toBe("love");
+    expect(payload(0).cards.map(({ cardId }) => cardId)).toEqual(firstCards);
+
+    next();
+    fireEvent.click(
+      screen.getByRole("button", { name: "이전 카드 결과로 돌아가기" }),
+    );
+    expect(screen.getByTestId("instant-reading-result")).toBeVisible();
+    expect(cardIds()).toEqual(firstCards);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    next();
+    fireEvent.change(
+      screen.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
+      {
+        target: { value: "두 번째 테스트 입력은 복사에만 사용" },
+      },
+    );
+    random.mockReturnValue(0.71);
+    draw();
+    const secondCards = cardIds();
+    expect(secondCards).not.toEqual(firstCards);
+    expect(screen.queryByTestId("instant-reading-result")).toBeNull();
+    expect(resultAction("프롬프트 복사하기")).toBeVisible();
+    expect(resultAction("AI에게 바로 질문하기")).toHaveAccessibleDescription(
+      "직접 쓴 질문은 복사할 때만 포함돼요.",
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    fireEvent.click(resultAction("AI에게 바로 질문하기"));
+    const retry = await screen.findByRole("button", { name: "다시 시도하기" });
+    expect(retry).toHaveFocus();
+    expect(payload(1).topicId).toBe("career-direction");
+    expect(payload(1).cards.map(({ cardId }) => cardId)).toEqual(secondCards);
+    expect(JSON.stringify(payload(1))).not.toContain("두 번째 테스트 입력");
+    fireEvent.click(retry);
+    await screen.findByTestId("instant-reading-result");
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(payload(2)).toEqual(payload(1));
+  });
 
   it("cancels an unfinished instant reading when the cards change", () => {
     process.env["TAROT_INSTANT_READING_ENABLED"] = "true";
@@ -552,17 +625,19 @@ describe("Home", () => {
       name: /카드 \d장 뽑기/,
     });
     fireEvent.click(drawButton);
-    fireEvent.click(screen.getByRole("button", { name: "지금 바로 해석하기" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "AI에게 바로 질문하기" }),
+    );
 
     const signal = fetchMock.mock.calls[0]?.[1]?.signal;
     expect(signal?.aborted).toBe(false);
 
-    fireEvent.click(screen.getByRole("button", { name: "다음 카드 준비하기" }));
+    fireEvent.click(screen.getByRole("button", { name: "질문·설정 바꾸기" }));
     fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
 
     expect(signal?.aborted).toBe(true);
     expect(
-      screen.getByRole("button", { name: "지금 바로 해석하기" }),
+      screen.getByRole("button", { name: "AI에게 바로 질문하기" }),
     ).toBeInTheDocument();
   });
 
@@ -580,7 +655,7 @@ describe("Home", () => {
 
     render(<TarotExperience locale="ko" />);
     fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
-    const action = screen.getByRole("button", { name: "지금 바로 해석하기" });
+    const action = screen.getByRole("button", { name: "AI에게 바로 질문하기" });
     action.focus();
     fireEvent.click(action);
 
@@ -591,7 +666,7 @@ describe("Home", () => {
 
     expect(fetchMock.mock.calls[0]?.[1]?.signal?.aborted).toBe(true);
     expect(
-      screen.getByRole("button", { name: "지금 바로 해석하기" }),
+      screen.getByRole("button", { name: "AI에게 바로 질문하기" }),
     ).toHaveFocus();
     expect(
       screen.queryByTestId("instant-reading-result"),
@@ -631,7 +706,7 @@ describe("Home", () => {
         screen.getByLabelText(/Your situation or question/),
       ).toHaveAttribute("placeholder", placeholder);
       fireEvent.click(
-        screen.getByRole("button", { name: "Prepare the next draw" }),
+        screen.getByRole("button", { name: "Change question or settings" }),
       );
     }
   });
@@ -708,7 +783,7 @@ describe("Home", () => {
     });
     expect(context).toHaveValue(acceptedContext);
     expect(screen.getByText("500/500 characters")).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Copy my question" }));
+    fireEvent.click(screen.getByRole("button", { name: "Copy prompt" }));
     await waitFor(() => {
       expect(writeText).toHaveBeenCalledWith(
         expect.stringContaining(acceptedContext),
@@ -919,7 +994,7 @@ describe("Home", () => {
     expect(drawStatus).toHaveAttribute("data-draw-announcement-sequence", "1");
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Prepare the next draw" }),
+      screen.getByRole("button", { name: "Change question or settings" }),
     );
     fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
 
@@ -950,7 +1025,7 @@ describe("Home", () => {
     expect(firstDrawTimerCount).toBeGreaterThan(baselineTimerCount);
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Prepare the next draw" }),
+      screen.getByRole("button", { name: "Change question or settings" }),
     );
     fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
     expect(drawStatus).toHaveAttribute("data-draw-announcement-sequence", "2");
@@ -986,15 +1061,15 @@ describe("Home", () => {
     const committedUrl = window.location.href;
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Prepare the next draw" }),
+      screen.getByRole("button", { name: "Change question or settings" }),
     );
     await waitFor(() => {
       expect(
-        screen.getByRole("heading", { name: "Prepare the next draw" }),
+        screen.getByRole("heading", { name: "Change question or settings" }),
       ).toHaveFocus();
     });
     const setupPanel = screen.getByRole("region", {
-      name: "Prepare the next draw",
+      name: "Change question or settings",
     });
     expect(setupPanel).toBe(screen.getByTestId("reading-setup-panel"));
     expect(screen.queryByTestId("card-overview")).toBeNull();
@@ -1028,7 +1103,7 @@ describe("Home", () => {
     );
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: "Prepare the next draw" }),
+        screen.getByRole("button", { name: "Change question or settings" }),
       ).toHaveFocus();
     });
     expect(screen.getByTestId("reading-card-0")).toHaveAttribute(
@@ -1045,7 +1120,7 @@ describe("Home", () => {
     expect(screen.queryByTestId("reading-setup-panel")).toBeNull();
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Prepare the next draw" }),
+      screen.getByRole("button", { name: "Change question or settings" }),
     );
     expect(
       screen.getByRole("combobox", { name: "Broad reading topic" }),
@@ -1094,7 +1169,7 @@ describe("Home", () => {
       screen
         .getByTestId("current-prompt-customization")
         .compareDocumentPosition(
-          screen.getByRole("button", { name: "Prepare the next draw" }),
+          screen.getByRole("button", { name: "Change question or settings" }),
         ) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     openShareOptions();
@@ -1147,7 +1222,7 @@ describe("Home", () => {
         await Promise.resolve();
       });
 
-      expect(screen.queryByRole("button", { name: "Copied" })).toBeNull();
+      expect(screen.queryByTestId("prompt-copy-success")).toBeNull();
       expect(events.filter(({ name }) => name === "prompt_copy")).toHaveLength(
         1,
       );
@@ -1184,7 +1259,7 @@ describe("Home", () => {
         await Promise.resolve();
       });
 
-      expect(screen.getByRole("button", { name: "Copied" })).toBeVisible();
+      expect(screen.getByTestId("prompt-copy-success")).toBeVisible();
       expect(events.filter(({ name }) => name === "prompt_copy")).toHaveLength(
         0,
       );
@@ -1230,11 +1305,11 @@ describe("Home", () => {
       expect(screen.getByTestId("card-overview")).toBeInTheDocument();
       fireEvent.click(
         screen.getByRole("button", {
-          name: viewMode === "generator" ? "Copy my question" : "Copy prompt",
+          name: viewMode === "generator" ? "Copy prompt" : "Copy prompt",
         }),
       );
       await waitFor(() =>
-        expect(screen.getByRole("button", { name: "Copied" })).toBeVisible(),
+        expect(screen.getByTestId("prompt-copy-success")).toBeVisible(),
       );
       expect(() =>
         fireEvent.click(screen.getByRole("link", { name: "한국어" })),
@@ -1691,7 +1766,7 @@ describe("Home", () => {
       setReadingResultIntersection(true);
       setReadingResultIntersection(false);
       fireEvent.click(
-        screen.getByRole("button", { name: "Prepare the next draw" }),
+        screen.getByRole("button", { name: "Change question or settings" }),
       );
       const nextReadingEditor = screen.getByTestId("reading-setup-panel");
       expect(
@@ -1738,7 +1813,7 @@ describe("Home", () => {
       setReadingResultIntersection(true);
 
       fireEvent.click(
-        screen.getByRole("button", { name: "Prepare the next draw" }),
+        screen.getByRole("button", { name: "Change question or settings" }),
       );
       setReadingResultIntersection(true);
       fireEvent.click(
@@ -1751,7 +1826,7 @@ describe("Home", () => {
       );
 
       fireEvent.click(
-        screen.getByRole("button", { name: "Prepare the next draw" }),
+        screen.getByRole("button", { name: "Change question or settings" }),
       );
       fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
       setReadingResultIntersection(true);
@@ -2058,7 +2133,7 @@ describe("Home", () => {
     render(<TarotExperience locale="ko" />);
 
     fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
-    fireEvent.click(screen.getByRole("button", { name: "질문 복사하기" }));
+    fireEvent.click(screen.getByRole("button", { name: "프롬프트 복사하기" }));
 
     await waitFor(() => {
       const failureMessage = screen.getByText(/질문을 복사하지 못했어요/);
