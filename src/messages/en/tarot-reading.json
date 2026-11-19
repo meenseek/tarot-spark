@@ -1,4 +1,7 @@
 {
+  "instantWithoutContext": "Read without my question",
+  "copyPersonalQuestion": "Copy my question",
+  "instantContextNotice": "Instant reading uses only your selected topic and suggested question, not the question you typed.",
   "metadata": {
     "title": "tarot-spark",
     "description": "Draw cards for free on Tarot Spark, then copy a prompt with your question and the cards' meanings into the AI tool you already use."
@@ -6,14 +9,14 @@
   "brand": "tarot-spark",
   "heading": "Draw your cards.",
   "intro": "Copy your card prompt and ask your AI.",
-  "personalizationHeading": "Cards and answer style",
+  "personalizationHeading": "Card and answer settings",
   "personalizationIntro": "Read feelings as possibilities, not facts.",
   "spreadSelectorLabel": "Number of cards",
   "readingStyleSelectorLabel": "Answer style",
   "contextLabel": "Add your situation",
   "contextInputLabel": "Your situation or question",
   "contextOptional": "Optional",
-  "contextHelp": "This text is sent only when you copy the prompt and paste it into another AI. It stays out of shared links and analytics. Do not include personal or confidential information.",
+  "contextHelp": "Your own question is included only when you copy it to another AI. Instant reading uses only the selected topic and suggested question. It stays out of sharing and analytics. Do not include personal or company secrets.",
   "contextCountLabel": "{count}/{max} characters",
   "topicSelectorLabel": "What do you want to explore?",
   "topicSelectorDescription": "Draw with a broad topic, or choose a specific question below.",
@@ -113,6 +116,5 @@
   },
   "customizeReadingStyle": "Change the tone for these cards",
   "customizeReadingStyleIntro": "Keep the cards and change the tone. This also updates the prompt; copy it again to use the new tone.",
-  "styleResetNotice": "Changing the tone clears the current instant reading. Request another reading to use the new tone.",
-  "retainedCopyContext": "Your previous context is still included in the copyable prompt. After drawing, edit it under “Add context for another AI”."
+  "styleResetNotice": "Changing the tone clears the current instant reading. Request another reading to use the new tone."
 }

@@ -56,6 +56,7 @@ import {
 } from "./analytics";
 import { CardOverview } from "./components/CardOverview";
 import { CardSpread } from "./components/CardSpread";
+import { SituationContextInput } from "./components/SituationContextInput";
 import { CurrentPromptCustomization } from "./components/CurrentPromptCustomization";
 import { CurrentReadingStyle } from "./components/CurrentReadingStyle";
 import type { InstantReadingStatus } from "./components/InstantReadingPanel";
@@ -819,6 +820,13 @@ export function TarotExperienceClient({
     );
   }
 
+  function changeDraftUserContext(value: string) {
+    dispatchSession({
+      type: "SET_DRAFT_PRIVATE_CONTEXT",
+      privateContext: value,
+    });
+  }
+
   function changeCurrentUserContext(value: string) {
     if (!currentResult || currentResult.inputs.privateContext === value) {
       return;
@@ -1461,14 +1469,16 @@ export function TarotExperienceClient({
         resultActions={
           viewMode === "generator" && session.mode === "result" ? (
             <Button
-              className="ts-secondary-action w-full sm:w-fit"
+              className={`${instantReadingStatus === "success" && !currentResult?.inputs.privateContext.trim() ? "ts-primary-action" : "ts-secondary-action"} w-full sm:w-fit`}
               data-testid="next-reading-action"
               disabled={!isHydrated}
               onClick={enterEditNextDraw}
               ref={editTriggerRef}
-              tone="neutral"
+              {...(instantReadingStatus === "success" &&
+              !currentResult?.inputs.privateContext.trim()
+                ? {}
+                : { tone: "neutral" as const, variant: "outline" as const })}
               type="button"
-              variant="outline"
             >
               {copy.editNextReading}
             </Button>
@@ -1532,6 +1542,16 @@ export function TarotExperienceClient({
         topics={tarotData.topics}
       />
 
+      <SituationContextInput
+        contextCountLabel={contextCountLabel}
+        contextPlaceholder={
+          getTopic(tarotData.topics, formInputs.topicId).contextPlaceholder
+        }
+        copy={copy}
+        onContextChange={changeDraftUserContext}
+        userContext={formInputs.privateContext}
+      />
+
       <PublicQuestionPicker
         copy={copy}
         groups={visibleQuestionGroups}
@@ -1568,15 +1588,6 @@ export function TarotExperienceClient({
         selectedStyleId={formInputs.styleId}
         spreads={tarotData.spreads}
       />
-
-      {formInputs.privateContext.trim() && (
-        <p
-          className="text-sm leading-6 text-ts-muted"
-          data-testid="retained-copy-context"
-        >
-          {copy.retainedCopyContext}
-        </p>
-      )}
 
       <div
         className={`grid gap-2 ${

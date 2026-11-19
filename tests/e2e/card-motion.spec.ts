@@ -124,6 +124,10 @@ test("keeps the deep six-card reveal within the locked stagger", async ({
   await page.goto("/");
   await useDeterministicDraw(page);
 
+  await page
+    .getByTestId("reading-preferences")
+    .locator(":scope > summary")
+    .click();
   await page.getByRole("radio", { name: /Deep 6-card/ }).check();
   await page.getByRole("button", { name: "Draw 6 cards" }).click();
 

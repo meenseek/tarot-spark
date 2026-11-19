@@ -53,7 +53,6 @@ export type TarotReadingMessages = {
   readonly customizeReadingStyle: string;
   readonly customizeReadingStyleIntro: string;
   readonly styleResetNotice: string;
-  readonly retainedCopyContext: string;
   readonly editNextReading: string;
   readonly editNextHeading: string;
   readonly editNextIntro: string;
@@ -97,6 +96,9 @@ export type TarotReadingMessages = {
   };
   readonly generatedPromptLabel: string;
   readonly copyPrompt: string;
+  readonly copyPersonalQuestion: string;
+  readonly instantContextNotice: string;
+  readonly instantWithoutContext: string;
   readonly copied: string;
   readonly copyUrl: string;
   readonly copiedUrl: string;
@@ -145,6 +147,9 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     copiedUrl: copy.copiedUrl,
     copyUrl: copy.copyUrl,
     copyPrompt: copy.copyPrompt,
+    copyPersonalQuestion: copy.copyPersonalQuestion,
+    instantContextNotice: copy.instantContextNotice,
+    instantWithoutContext: copy.instantWithoutContext,
     contextCountLabel: copy.contextCountLabel,
     contextHelp: copy.contextHelp,
     contextInputLabel: copy.contextInputLabel,
@@ -156,7 +161,6 @@ export function getTarotReadingCopy(locale: Locale): TarotReadingCopy {
     customizeReadingStyle: copy.customizeReadingStyle,
     customizeReadingStyleIntro: copy.customizeReadingStyleIntro,
     styleResetNotice: copy.styleResetNotice,
-    retainedCopyContext: copy.retainedCopyContext,
     dailyQuestionLink: copy.dailyQuestionLink,
     disclaimer: copy.disclaimer,
     drawButton: copy.drawButton,

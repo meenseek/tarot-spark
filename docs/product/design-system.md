@@ -119,8 +119,9 @@ the number or order of its DOM wrappers.
 
 - Use at most one filled primary action in one task region. A region is a
   visually bounded form, result panel, or call-to-action section.
-- In an enabled Korean relationship/career generator result, instant reading is
-  the first action after the card overview and the single filled primary. Keep
+- In an enabled Korean relationship/career generator result without direct
+  context, instant reading is the first action after the card overview and the
+  single filled primary. Keep
   prompt copy secondary. For other locales, shared results, ineligible topics
   and feature-off operation, keep prompt copy primary. Generation always
   requires an explicit click; copying must never request a reading.
@@ -176,18 +177,19 @@ the number or order of its DOM wrappers.
   Selecting a question may adjust the broad topic to match; clearing only the
   question keeps that adjusted topic. Close the question picker and return
   focus to its summary after either action.
-- Collect optional situation text only in the result’s copy-context disclosure
-  beside the prompt-copy region. Explain before the field that it is sent only
-  when pasted into another AI, never to instant reading, analytics or shares.
-  Keep existing text when preparing another draw or changing locale; show where
-  it can be edited after drawing. Use four initial rows so localized examples
-  remain readable at 320px, and allow resizing.
-- Keep card count and answer style directly visible in setup and next-draw
-  preparation. Use compact two-column radio choices with at least 48px targets;
-  describe the selected answer style beside its group. Follow them with one
-  count-specific draw action. Defaults must remain usable without extra choices.
-- Reserve setup disclosures for the long specific-question catalog. Do not make
-  users expand a panel to inspect or change the basic draw settings.
+- Show optional question or situation text in setup, before the suggested-question
+  picker. Explain before drawing that it is included only in a prompt copied to
+  another AI, never in instant reading, analytics or shares. Keep the committed
+  text editable in the result's copy-context disclosure, with only one input
+  mounted at a time. Preserve the existing locale handoff and next-draw cancel
+  behavior. Use four initial rows and allow resizing at narrow widths.
+- Put card count and answer style in one native settings disclosure, closed by
+  default. Always show both selected values in its summary. Inside, retain
+  two-column radio choices with at least 48px targets and the selected style
+  description. Defaults must work without opening settings.
+- Keep the suggested-question catalog in its own disclosure so direct writing,
+  inspiration and optional settings are distinct choices rather than mandatory
+  steps.
 - Show the labeled start of setup on entry. Keep one draw action directly after
   the settings in reading and keyboard order, reachable by normal page scroll
   without covering fields. Longer copy, an expanded catalog, and short windows
@@ -195,15 +197,18 @@ the number or order of its DOM wrappers.
 - Mount larger 5:7 artwork only while card details are open: 140px on narrow
   screens and 180px from 640px. Synchronize with restored disclosure state,
   reuse loading and retry behavior, and do not replay the reveal.
-- After successful prompt copy, show quiet ChatGPT, Claude, and Gemini homepage
-  links. On failure, show them with manual-copy-first instructions. Require a
+- Keep copy feedback and quiet ChatGPT, Claude, and Gemini homepage links
+  immediately after the copy action, without an instant-reading panel between
+  them. On failure, show them with manual-copy-first instructions. Require a
   user click, open a new tab without a referrer, and send no prompt data. Hide
   the links when prompt changes invalidate the copy state.
 - Treat setup, committed result, and edit-next-draw as distinct modes. Preparing
   the next draw shows only its choices and focuses its heading. Preserve the
   committed result in state; cancelling discards the draft, restores the result
   and trigger focus, and does not replay the card reveal.
-- Offer one next-reading action after the primary prompt action. Route it
+- After a successful instant reading without direct context, place one primary
+  next-reading action immediately after the reading. Otherwise retain it as a
+  supporting action after the copy flow. Route it
   through edit-next-draw so users can keep or change their choices before a new
   draw replaces the committed result. Do not use browser Back as a reading
   reset or add a separate immediate-redraw path.
@@ -219,6 +224,10 @@ the number or order of its DOM wrappers.
 - Fit each overview frame inside its own column. Use at most 80px of art below
   640px and 112px above it, shrinking in narrow columns while retaining the 5:7
   ratio and keeping retry controls inside the frame.
+- When direct context exists, lead with its prompt-copy action. Label the
+  secondary instant-reading action as excluding that input and explain that it
+  uses the selected topic, question and cards only. Without direct context,
+  retain the instant-first flow. Never automatically send text or open another AI.
 - Place the generated-prompt copy action before prompt source, card details,
   sharing options, and shared-reading creation actions. An unavailable instant
   reading may also offer a secondary copy recovery action in the error panel.

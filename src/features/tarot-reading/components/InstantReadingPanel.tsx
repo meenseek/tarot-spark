@@ -11,6 +11,9 @@ export type InstantReadingStatus =
   | "unavailable";
 
 type InstantReadingPanelProps = {
+  readonly secondary?: boolean;
+  readonly generateLabel?: string | undefined;
+  readonly contextNotice?: string | undefined;
   readonly copy: TarotReadingCopy["instantReading"];
   readonly reading: InstantReading | undefined;
   readonly status: InstantReadingStatus;
@@ -22,6 +25,9 @@ type InstantReadingPanelProps = {
 
 export function InstantReadingPanel({
   copy,
+  secondary = false,
+  generateLabel,
+  contextNotice,
   reading,
   status,
   copyState,
@@ -64,6 +70,9 @@ export function InstantReadingPanel({
           <p className="text-sm leading-6 text-ts-muted">{copy.intro}</p>
         )}
         <p className="text-xs leading-5 text-ts-muted">{copy.disclosure}</p>
+        {contextNotice && (
+          <p className="text-sm leading-6 text-ts-ink">{contextNotice}</p>
+        )}
       </div>
 
       <p
@@ -90,7 +99,10 @@ export function InstantReadingPanel({
       ) : (
         <>
           <Button
-            className="ts-primary-action"
+            className={secondary ? "ts-secondary-action" : "ts-primary-action"}
+            {...(secondary
+              ? { tone: "neutral" as const, variant: "outline" as const }
+              : {})}
             onClick={isLoading ? onCancel : onGenerate}
             ref={actionRef}
             type="button"
@@ -99,7 +111,7 @@ export function InstantReadingPanel({
               ? copy.cancel
               : status === "unavailable"
                 ? copy.retry
-                : copy.generate}
+                : (generateLabel ?? copy.generate)}
           </Button>
           {status === "unavailable" && (
             <div className="grid gap-3">

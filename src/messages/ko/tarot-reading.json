@@ -1,4 +1,7 @@
 {
+  "instantWithoutContext": "내 입력 없이 바로 해석",
+  "copyPersonalQuestion": "내 질문 복사하기",
+  "instantContextNotice": "바로 해석은 선택한 주제·추천 질문만 사용하며, 직접 쓴 질문은 반영하지 않아요.",
   "metadata": {
     "title": "타로 스파크",
     "description": "타로 스파크에서 무료로 카드를 뽑고, 고른 질문과 카드 뜻을 담은 문장을 복사해 평소 쓰는 AI에 물어보세요."
@@ -6,14 +9,14 @@
   "brand": "tarot-spark",
   "heading": "카드를 뽑아보세요.",
   "intro": "뽑은 카드로 만든 질문을 복사해 AI에 물어보세요.",
-  "personalizationHeading": "카드 수와 답변 느낌",
+  "personalizationHeading": "카드·답변 설정",
   "personalizationIntro": "상대의 마음은 사실이 아닌 가능성으로 읽어요.",
   "spreadSelectorLabel": "카드 수",
   "readingStyleSelectorLabel": "답변 느낌",
   "contextLabel": "내 상황 더하기",
   "contextInputLabel": "상황이나 궁금한 점",
   "contextOptional": "선택",
-  "contextHelp": "여기에 적은 내용은 질문을 복사해 다른 AI에 붙여 넣을 때만 전달돼요. 공유 링크·분석에는 남지 않아요. 개인정보·회사 기밀은 적지 마세요.",
+  "contextHelp": "직접 쓴 질문은 다른 AI에 복사할 때만 반영돼요. 바로 해석은 선택한 주제·추천 질문만 사용해요. 공유·분석에는 남지 않아요. 개인정보·회사 기밀은 적지 마세요.",
   "contextCountLabel": "{count}/{max}자",
   "topicSelectorLabel": "무엇을 볼까요?",
   "topicSelectorDescription": "넓은 주제로 바로 뽑거나, 아래에서 질문을 골라도 돼요.",
@@ -113,6 +116,5 @@
   },
   "customizeReadingStyle": "같은 카드의 답변 느낌 바꾸기",
   "customizeReadingStyleIntro": "카드는 그대로 두고 답변 느낌을 바꿔요. 복사할 질문도 바로 바뀌므로, 새 느낌으로 읽으려면 다시 복사해 주세요.",
-  "styleResetNotice": "느낌을 바꾸면 지금 해석은 지워져요. 바꾼 느낌으로 읽으려면 해석을 다시 요청해 주세요.",
-  "retainedCopyContext": "복사할 질문에 이전 상황이 포함돼 있어요. 카드를 뽑은 뒤 ‘다른 AI에 복사할 상황’에서 바꿀 수 있어요."
+  "styleResetNotice": "느낌을 바꾸면 지금 해석은 지워져요. 바꾼 느낌으로 읽으려면 해석을 다시 요청해 주세요."
 }

@@ -126,7 +126,7 @@ describe("Home", () => {
       "href",
       "/privacy",
     );
-    expect(screen.queryByTestId("situation-context")).toBeNull();
+    expect(screen.getByTestId("situation-context")).toBeVisible();
     expect(
       screen
         .getByTestId("reading-preferences")
@@ -134,12 +134,21 @@ describe("Home", () => {
           screen.getByRole("button", { name: /Draw \d cards/ }),
         ) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
+    const settings = screen.getByTestId("reading-preferences");
+    expect(settings).not.toHaveAttribute("open");
+    expect(settings.querySelector("summary")).toHaveTextContent(
+      "Card and answer settings",
+    );
+    expect(settings.querySelector("summary")).toHaveTextContent(
+      /Quick 3-card.*Balanced/,
+    );
+    settings.setAttribute("open", "");
     expect(screen.getByRole("radio", { name: "Quick 3-card" })).toBeVisible();
     expect(screen.getByRole("radio", { name: "Deep 6-card" })).toBeVisible();
     expect(screen.getByRole("radio", { name: "Balanced" })).toBeChecked();
     expect(
-      screen.queryByLabelText("Your situation or question (Optional)"),
-    ).not.toBeInTheDocument();
+      screen.getByLabelText("Your situation or question (Optional)"),
+    ).toBeVisible();
     expect(
       screen
         .getByTestId("reading-workspace")
@@ -256,8 +265,8 @@ describe("Home", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/의료·법률·재정/i)).toBeInTheDocument();
     expect(
-      screen.queryByRole("textbox", { name: /상황이나 궁금한 점/ }),
-    ).not.toBeInTheDocument();
+      screen.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
+    ).toBeVisible();
     expect(screen.getByRole("link", { name: "개인정보" })).toHaveAttribute(
       "href",
       "/ko/privacy",
@@ -298,7 +307,7 @@ describe("Home", () => {
               : "available in Korean only",
         );
       } else expect(notice).toBeNull();
-      expect(screen.queryByTestId("situation-context")).toBeNull();
+      expect(screen.getByTestId("situation-context")).toBeVisible();
       fireEvent.click(
         screen.getByRole("button", {
           name: locale === "ko" ? "카드 3장 뽑기" : "Draw 3 cards",
@@ -358,8 +367,6 @@ describe("Home", () => {
 
     render(<TarotExperience locale="ko" />);
 
-    fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
-    openCopyContext();
     fireEvent.change(
       screen.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
       {
@@ -369,7 +376,24 @@ describe("Home", () => {
       },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "지금 바로 해석하기" }));
+    fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
+    expect(
+      screen.getByRole("button", { name: "내 질문 복사하기" }),
+    ).toHaveClass("ts-primary-action");
+    expect(
+      screen
+        .getByTestId("prompt-ready")
+        .compareDocumentPosition(
+          screen.getByTestId("instant-reading-primary"),
+        ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      (screen.getByLabelText("AI에 붙여 넣을 질문") as HTMLTextAreaElement)
+        .value,
+    ).toContain("서버로 보내면 안 되는 민감한 개인 상황");
+    fireEvent.click(
+      screen.getByRole("button", { name: "내 입력 없이 바로 해석" }),
+    );
 
     expect(
       screen.getByRole("button", { name: "해석 취소하기" }),
@@ -612,14 +636,9 @@ describe("Home", () => {
     }
   });
 
-  it("collects optional context beside copying after drawing", () => {
+  it("carries one editable optional context into the result", () => {
     render(<Home />);
 
-    expect(
-      screen.queryByLabelText("Your situation or question (Optional)"),
-    ).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
-    openCopyContext();
     const context = screen.getByLabelText(
       "Your situation or question (Optional)",
     );
@@ -628,7 +647,15 @@ describe("Home", () => {
     fireEvent.change(context, {
       target: { value: "I want to understand what I can change." },
     });
-    expect(context).toHaveValue("I want to understand what I can change.");
+    fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
+    openCopyContext();
+    const resultInputs = screen.getAllByLabelText(
+      "Your situation or question (Optional)",
+    );
+    expect(resultInputs).toHaveLength(1);
+    expect(resultInputs[0]).toHaveValue(
+      "I want to understand what I can change.",
+    );
     expect(screen.getByText("39/500 characters")).toBeVisible();
 
     expect(screen.getByTestId("prompt-ready")).toHaveTextContent(
@@ -639,11 +666,6 @@ describe("Home", () => {
   it("bounds copied context before sharing it with another AI", () => {
     render(<Home />);
 
-    expect(
-      screen.queryByLabelText("Your situation or question (Optional)"),
-    ).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
-    openCopyContext();
     const context = screen.getByLabelText(
       "Your situation or question (Optional)",
     );
@@ -655,6 +677,7 @@ describe("Home", () => {
     expect(context).toHaveValue(acceptedContext);
     expect(screen.getByText("500/500 characters")).toBeVisible();
 
+    fireEvent.click(screen.getByRole("button", { name: "Draw 3 cards" }));
     openPromptContent();
     const prompt = screen.getByLabelText(
       "Generated prompt",
@@ -685,7 +708,7 @@ describe("Home", () => {
     });
     expect(context).toHaveValue(acceptedContext);
     expect(screen.getByText("500/500 characters")).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Copy prompt" }));
+    fireEvent.click(screen.getByRole("button", { name: "Copy my question" }));
     await waitFor(() => {
       expect(writeText).toHaveBeenCalledWith(
         expect.stringContaining(acceptedContext),
@@ -987,11 +1010,13 @@ describe("Home", () => {
     ).toHaveLength(1);
 
     expect(
-      screen.queryByLabelText("Your situation or question (Optional)"),
-    ).toBeNull();
-    expect(screen.getByTestId("retained-copy-context")).toHaveTextContent(
-      "Your previous context is still included",
+      screen.getByLabelText("Your situation or question (Optional)"),
+    ).toHaveValue("My previous situation");
+    fireEvent.change(
+      screen.getByLabelText("Your situation or question (Optional)"),
+      { target: { value: "Discarded draft question" } },
     );
+
     fireEvent.change(
       screen.getByRole("combobox", { name: "Broad reading topic" }),
       { target: { value: "reunion" } },
@@ -1027,11 +1052,8 @@ describe("Home", () => {
     ).toHaveValue("love");
 
     expect(
-      screen.queryByLabelText("Your situation or question (Optional)"),
-    ).toBeNull();
-    expect(screen.getByTestId("retained-copy-context")).toHaveTextContent(
-      "Your previous context is still included",
-    );
+      screen.getByLabelText("Your situation or question (Optional)"),
+    ).toHaveValue("My previous situation");
     fireEvent.change(
       screen.getByRole("combobox", { name: "Broad reading topic" }),
       { target: { value: "reunion" } },
@@ -1206,7 +1228,11 @@ describe("Home", () => {
         );
       }
       expect(screen.getByTestId("card-overview")).toBeInTheDocument();
-      fireEvent.click(screen.getByRole("button", { name: "Copy prompt" }));
+      fireEvent.click(
+        screen.getByRole("button", {
+          name: viewMode === "generator" ? "Copy my question" : "Copy prompt",
+        }),
+      );
       await waitFor(() =>
         expect(screen.getByRole("button", { name: "Copied" })).toBeVisible(),
       );
@@ -1460,6 +1486,7 @@ describe("Home", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     render(<Home />);
 
+    screen.getByTestId("reading-preferences").setAttribute("open", "");
     fireEvent.click(screen.getByRole("radio", { name: "Deep 6-card" }));
     expect(screen.getByRole("radio", { name: /Deep 6-card/ })).toBeChecked();
     fireEvent.click(screen.getByRole("radio", { name: "Direct" }));

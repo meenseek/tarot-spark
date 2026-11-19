@@ -20,12 +20,11 @@ test("keeps an English guide campaign through the first completed reading", asyn
   await expect(page.getByTestId("topic-select")).toHaveValue(
     "relationship-flow",
   );
-  await expect(
-    page.getByRole("radio", { name: "Quick 3-card", exact: true }),
-  ).toBeChecked();
-  await expect(
-    page.getByRole("radio", { name: "Relationship focus", exact: true }),
-  ).toBeChecked();
+  const settings = page.getByTestId("reading-preferences");
+  await expect(settings).not.toHaveAttribute("open", "");
+  await expect(settings.locator(":scope > summary")).toContainText(
+    /Quick 3-card.*Relationship focus/,
+  );
   await expect(page).toHaveURL((url) => {
     return (
       url.pathname === "/" &&
