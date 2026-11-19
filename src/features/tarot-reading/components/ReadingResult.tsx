@@ -122,28 +122,47 @@ export function ReadingResult({
     manualShareUrlRef.current?.select();
   }, [hasShareFailure]);
 
+  const nextAfterReading =
+    instantReadingEnabled &&
+    instantReadingStatus === "success" &&
+    !hasUserContext;
+
+  const instantPanel = (
+    <>
+      {instantReadingEnabled && (
+        <section
+          data-analytics-result-view-target=""
+          data-testid="instant-reading-primary"
+          ref={hasUserContext ? undefined : promptReadyRef}
+        >
+          <InstantReadingPanel
+            copy={copy.instantReading}
+            secondary={hasUserContext}
+            generateLabel={
+              hasUserContext ? copy.instantWithoutContext : undefined
+            }
+            contextNotice={
+              hasUserContext ? copy.instantContextNotice : undefined
+            }
+            copyState={copyState}
+            onCancel={onCancelInstantReading}
+            onCopyPrompt={onCopyPrompt}
+            onGenerate={onGenerateInstantReading}
+            reading={instantReading}
+            status={instantReadingStatus}
+          />
+        </section>
+      )}
+      {nextAfterReading && resultActions}
+      {instantReadingEnabled && readingStyleCustomization}
+    </>
+  );
+
   return (
     <div className="grid gap-4">
       {cards.length > 0 ? (
         <>
-          {instantReadingEnabled && (
-            <section
-              data-analytics-result-view-target=""
-              data-testid="instant-reading-primary"
-              ref={promptReadyRef}
-            >
-              <InstantReadingPanel
-                copy={copy.instantReading}
-                copyState={copyState}
-                onCancel={onCancelInstantReading}
-                onCopyPrompt={onCopyPrompt}
-                onGenerate={onGenerateInstantReading}
-                reading={instantReading}
-                status={instantReadingStatus}
-              />
-            </section>
-          )}
-          {instantReadingEnabled && readingStyleCustomization}
+          {!hasUserContext && instantPanel}
           <section
             aria-labelledby="prompt-ready-heading"
             className="flex flex-col gap-4 rounded-ts-control border border-ts-divider bg-ts-canvas p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5"
@@ -151,7 +170,11 @@ export function ReadingResult({
               instantReadingEnabled ? undefined : ""
             }
             data-testid="prompt-ready"
-            ref={instantReadingEnabled ? undefined : promptReadyRef}
+            ref={
+              instantReadingEnabled && !hasUserContext
+                ? undefined
+                : promptReadyRef
+            }
           >
             <div className="grid gap-1">
               <h2
@@ -190,18 +213,20 @@ export function ReadingResult({
               </ol>
             </div>
             <Button
-              className={`${instantReadingEnabled ? "ts-secondary-action" : "ts-primary-action"} shrink-0 whitespace-nowrap`}
+              className={`${instantReadingEnabled && !hasUserContext ? "ts-secondary-action" : "ts-primary-action"} shrink-0 whitespace-nowrap`}
               onClick={onCopyPrompt}
-              {...(instantReadingEnabled
+              {...(instantReadingEnabled && !hasUserContext
                 ? { tone: "neutral" as const, variant: "outline" as const }
                 : {})}
               type="button"
             >
-              {copyState === "copied" ? copy.copied : copy.copyPrompt}
+              {copyState === "copied"
+                ? copy.copied
+                : hasUserContext
+                  ? copy.copyPersonalQuestion
+                  : copy.copyPrompt}
             </Button>
           </section>
-          {!instantReadingEnabled && readingStyleCustomization}
-          {currentCustomization}
 
           {copyState === "copied" && (
             <div
@@ -261,7 +286,11 @@ export function ReadingResult({
             </div>
           )}
 
-          {resultActions}
+          {!instantReadingEnabled && readingStyleCustomization}
+          {currentCustomization}
+          {hasUserContext && instantPanel}
+
+          {!nextAfterReading && resultActions}
 
           <details
             className="group rounded-ts-control border border-ts-divider bg-ts-surface"

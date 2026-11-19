@@ -743,7 +743,7 @@ test("clears stale private handoff before opening a clean attributed generator",
 
   await expect(
     page.getByRole("textbox", { name: /Your situation or question/ }),
-  ).toHaveCount(0);
+  ).toHaveValue("");
   await page.getByRole("button", { name: "Draw 3 cards" }).click();
   await page
     .getByTestId("current-prompt-customization")
@@ -838,7 +838,7 @@ test("clears stale private handoff before consecutive pre-hydration navigation",
 
   await expect(
     page.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
-  ).toHaveCount(0);
+  ).toHaveValue("");
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
   await page
     .getByTestId("current-prompt-customization")

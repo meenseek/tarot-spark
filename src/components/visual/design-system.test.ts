@@ -233,7 +233,9 @@ describe("visual design system contract", () => {
       "utf8",
     );
 
-    expect(instantReadingSource).toContain('className="ts-primary-action"');
+    expect(instantReadingSource).toContain(
+      'className={secondary ? "ts-secondary-action" : "ts-primary-action"}',
+    );
     expect(instantReadingSource).toContain('className="ts-secondary-action"');
     expect(promptResultSource).toContain("Button,");
     expect(promptResultSource).toContain("InlineMessage,");

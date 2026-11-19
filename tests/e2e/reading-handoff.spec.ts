@@ -110,10 +110,15 @@ for (const locale of ["ko", "en"] as const) {
         });
         const ko = locale === "ko";
         await page.goto(ko ? "/ko" : "/");
-        if (count === 6)
+        if (count === 6) {
+          await page
+            .getByTestId("reading-preferences")
+            .locator(":scope > summary")
+            .click();
           await page
             .getByRole("radio", { name: ko ? /심화 6장/ : /Deep 6-card/ })
             .check();
+        }
         await page
           .getByRole("button", {
             name: ko ? `카드 ${count}장 뽑기` : `Draw ${count} cards`,

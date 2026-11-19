@@ -29,24 +29,23 @@ test("renders a localized cardless preset without JavaScript", async ({
   await expect(page.locator('input[name="reading-style"]:checked')).toHaveValue(
     "direct",
   );
-  await expect(
-    page.getByRole("radio", { name: "심화 6장", exact: true }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("radio", { name: "솔직하고 분명하게", exact: true }),
-  ).toBeVisible();
+  const settings = page.getByTestId("reading-preferences");
+  await expect(settings).not.toHaveAttribute("open", "");
+  await expect(settings.locator(":scope > summary")).toContainText(
+    /카드·답변 설정.*심화 6장.*솔직하고 분명하게/,
+  );
   await expect(
     page.getByRole("textbox", {
       name: "상황이나 궁금한 점 (선택)",
       exact: true,
     }),
-  ).toHaveCount(0);
+  ).toHaveValue("");
   await expect(page.getByTestId("instant-reading-availability")).toContainText(
     "이 주제는 여기서 바로 해석할 수 있어요.",
   );
   await expect(
     page.getByTestId("reading-setup-form").locator(":scope > details"),
-  ).toHaveCount(1);
+  ).toHaveCount(2);
 });
 
 test("renders a selected career question without JavaScript", async ({

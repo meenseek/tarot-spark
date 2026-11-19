@@ -692,8 +692,17 @@ for (const ko of [true, false]) {
         expect(panelBox?.width ?? 0).toBeLessThan(stateBox?.width ?? 0);
         await expect(page.getByTestId("topic-select")).toBeInViewport();
       }
-      await expect(form.locator(":scope > details")).toHaveCount(1);
-      await expect(form.getByRole("textbox")).toHaveCount(0);
+      await expect(form.locator(":scope > details")).toHaveCount(2);
+      await expect(form.getByRole("textbox")).toBeVisible();
+      const preferences = page.getByTestId("reading-preferences");
+      const settings = preferences.locator(":scope > summary");
+      await expect(preferences).not.toHaveAttribute("open", "");
+      await expect(settings).toContainText(
+        ko
+          ? /카드·답변 설정.*빠른 3장.*균형 있게/
+          : /Card and answer settings.*Quick 3-card.*Balanced/,
+      );
+      await settings.click();
       await expect(form.getByRole("radio")).toHaveCount(6);
       const names = ko
         ? [
@@ -795,7 +804,8 @@ for (const ko of [true, false]) {
         `${width}px overflow`,
       ).toBe(true);
       if (width === 320) {
-        // Always-visible choices and optional input replace two disclosure rows.
+        await settings.click();
+        // Measure the default collapsed flow separately from opened choice geometry.
         expect(
           await draw.evaluate((el) => el.getBoundingClientRect().top + scrollY),
         ).toBeLessThanOrEqual(1400);
@@ -811,6 +821,7 @@ for (const ko of [true, false]) {
         "career-direction",
       );
 
+      if (width === 320) await settings.click();
       const preferenceGroups = page
         .getByTestId("reading-preferences")
         .locator(".ts-choice-group--settings");
@@ -825,6 +836,7 @@ for (const ko of [true, false]) {
         expect(styleBox?.x ?? 0).toBeGreaterThan(spreadBox?.x ?? 0);
       }
 
+      await settings.click();
       const picker = page.getByTestId("public-question-picker");
       await picker.locator(":scope > summary").click();
       const options = page.getByTestId("public-question-option");
@@ -865,14 +877,18 @@ test("completes an expanded-question setup by keyboard in short windows", async 
       const picker = page.getByTestId("public-question-picker");
       const summary = picker.locator(":scope > summary");
       await tabTo(page, topic);
-      await page.keyboard.press("Tab");
-      await expect(summary).toBeFocused();
+      await tabTo(page, summary);
       await page.keyboard.press("Enter");
       await expect(picker).toHaveAttribute("open", "");
       await tabTo(page, page.getByTestId("public-question-option").first());
       await page.keyboard.press("Enter");
       await expect(picker).not.toHaveAttribute("open", "");
       await expect(summary).toBeFocused();
+      await page.keyboard.press("Tab");
+      const settings = page.getByTestId("reading-preferences");
+      await expect(settings.locator(":scope > summary")).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(settings).toHaveAttribute("open", "");
       await page.keyboard.press("Tab");
       await expect(
         form.getByRole("radio", { name: ko ? /빠른 3장/ : /Quick 3-card/ }),
@@ -1034,13 +1050,7 @@ test("preserves app-owned textarea geometry after package styles", async ({
 }) => {
   await page.setViewportSize({ height: 844, width: 390 });
   await page.goto("/");
-  await expect(page.getByTestId("situation-context")).toHaveCount(0);
-  await page.getByRole("button", { name: "Draw 3 cards" }).click();
-  await page
-    .getByTestId("current-prompt-customization")
-    .locator("summary")
-    .click();
-
+  await expect(page.getByTestId("situation-context")).toBeVisible();
   const setupContext = page.getByLabel(
     "Your situation or question (Optional)",
     {
@@ -1098,6 +1108,10 @@ test("leaves choice-card colors with the package in forced-colors mode", async (
   await page.emulateMedia({ forcedColors: "active" });
   await page.goto("/");
 
+  await page
+    .getByTestId("reading-preferences")
+    .locator(":scope > summary")
+    .click();
   const quick = page.getByRole("radio", { name: /Quick 3-card/ });
   const quickCard = page.locator(".ts-choice-card").filter({ has: quick });
 
@@ -1154,6 +1168,10 @@ test("keeps adopted choice cards on public tokens and full-card activation", asy
   await page.setViewportSize({ height: 844, width: 390 });
   await page.goto("/");
 
+  await page
+    .getByTestId("reading-preferences")
+    .locator(":scope > summary")
+    .click();
   const quick = page.getByRole("radio", { name: /Quick 3-card/ });
   const deep = page.getByRole("radio", { name: /Deep 6-card/ });
   const quickCard = page.locator(".ts-choice-card").filter({ has: quick });

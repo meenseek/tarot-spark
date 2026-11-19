@@ -69,10 +69,6 @@ for (const locale of ["ko", "en"] as const) {
           : "Your situation or question (Optional)",
         exact: true,
       });
-      const quick = page.getByRole("radio", {
-        name: ko ? "빠른 3장" : "Quick 3-card",
-        exact: true,
-      });
       const deep = page.getByRole("radio", {
         name: ko ? "심화 6장" : "Deep 6-card",
         exact: true,
@@ -99,19 +95,20 @@ for (const locale of ["ko", "en"] as const) {
         );
         await expect(page.getByTestId("next-reading-action")).toHaveCount(0);
         await expect(page.getByTestId("topic-select")).toHaveValue("love");
-        await expect(quick).toBeChecked();
-        await expect(
-          page.getByRole("radio", {
-            name: ko ? "균형 있게" : "Balanced",
-            exact: true,
-          }),
-        ).toBeChecked();
-        await expect(context).toHaveCount(0);
+        const settings = page.getByTestId("reading-preferences");
+        await expect(settings).not.toHaveAttribute("open", "");
+        await expect(settings.locator(":scope > summary")).toContainText(
+          ko ? /빠른 3장.*균형 있게/ : /Quick 3-card.*Balanced/,
+        );
+        await expect(context).toHaveValue("");
       }
 
       await page.setViewportSize({ height: 844, width });
       await page.goto(home);
-      if (width === 1280) await deep.check();
+      if (width === 1280) {
+        await openReadingPreferences(page);
+        await deep.check();
+      }
       await page
         .getByRole("button", {
           name: ko
@@ -134,7 +131,8 @@ for (const locale of ["ko", "en"] as const) {
       await expectCleanHome();
 
       await page.getByTestId("topic-select").selectOption("career-direction");
-      await expect(context).toHaveCount(0);
+      await expect(context).toHaveValue("");
+      await openReadingPreferences(page);
       await deep.check();
       await direct.check();
       await brand.click();
@@ -147,7 +145,8 @@ for (const locale of ["ko", "en"] as const) {
         })
         .click();
       await page.getByTestId("next-reading-action").click();
-      await expect(context).toHaveCount(0);
+      await expect(context).toHaveValue("");
+      await openReadingPreferences(page);
       await deep.check();
       await direct.check();
       await brand.click();
@@ -188,12 +187,11 @@ test("keeps the Korean Instagram campaign through the first draw", async ({
   await expect(page.getByTestId("topic-select")).toHaveValue(
     "relationship-flow",
   );
-  await expect(
-    page.getByRole("radio", { name: "빠른 3장", exact: true }),
-  ).toBeChecked();
-  await expect(
-    page.getByRole("radio", { name: "마음과 관계에 초점", exact: true }),
-  ).toBeChecked();
+  const settings = page.getByTestId("reading-preferences");
+  await expect(settings).not.toHaveAttribute("open", "");
+  await expect(settings.locator(":scope > summary")).toContainText(
+    /빠른 3장.*마음과 관계에 초점/,
+  );
 
   await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
 
@@ -262,22 +260,21 @@ test("keeps the YouTube profile attribution through the first draw", async ({
   });
 });
 
-test("shows draw settings first and collects context only for copying", async ({
-  page,
-}) => {
+test("carries a question from setup to the copy result", async ({ page }) => {
   for (const locale of ["ko", "en"] as const) {
     const ko = locale === "ko";
     await page.setViewportSize({ height: 844, width: 390 });
     await page.goto(ko ? "/ko" : "/");
     const form = page.getByTestId("reading-setup-form");
-    await expect(form.locator(":scope > details")).toHaveCount(1);
+    await expect(form.locator(":scope > details")).toHaveCount(2);
     const context = page.getByRole("textbox", {
       name: ko
         ? "상황이나 궁금한 점 (선택)"
         : "Your situation or question (Optional)",
       exact: true,
     });
-    await expect(context).toHaveCount(0);
+    await expect(context).toHaveValue("");
+    await openReadingPreferences(page);
     await expect(form.getByRole("radio")).toHaveCount(6);
     for (const option of await form.getByRole("radio").all())
       await expect(option).toBeVisible();
@@ -296,6 +293,7 @@ test("shows draw settings first and collects context only for copying", async ({
     await expect(
       page.getByText(ko ? /돌려 말하지 않고/ : /Name the clearest theme/),
     ).toBeVisible();
+    await context.fill("I want to understand what I can change.");
     await page
       .getByRole("button", {
         name: ko ? "카드 6장 뽑기" : "Draw 6 cards",
@@ -304,7 +302,10 @@ test("shows draw settings first and collects context only for copying", async ({
       .click();
     await expect(page.getByTestId(/^reading-card-\d+$/)).toHaveCount(6);
     await openCopyContext(page);
-    await context.fill("I want to understand what I can change.");
+    await expect(context).toHaveCount(1);
+    await expect(context).toHaveValue(
+      "I want to understand what I can change.",
+    );
     await expect(page.getByTestId("prompt-ready")).toContainText(
       ko
         ? "작성한 상황도 질문에 담았어요."
@@ -319,8 +320,11 @@ test("shows draw settings first and collects context only for copying", async ({
         exact: true,
       })
       .click();
-    await expect(context).toHaveCount(0);
-    await expect(page.getByTestId("retained-copy-context")).toBeVisible();
+    await expect(context).toHaveValue(
+      "I want to understand what I can change.",
+    );
+    await context.fill("Discarded draft question");
+    await openReadingPreferences(page);
     await page
       .getByRole("radio", {
         name: ko ? "빠른 3장" : "Quick 3-card",
@@ -393,7 +397,7 @@ for (const width of [390, 1280]) {
       await expect(prompt).not.toContainText("discarded-tail");
       await page
         .getByRole("button", {
-          name: ko ? "질문 복사하기" : "Copy prompt",
+          name: ko ? "내 질문 복사하기" : "Copy my question",
           exact: true,
         })
         .click();
@@ -471,6 +475,7 @@ for (const readingCase of [
     await page.goto(readingCase.localePath);
 
     if (readingCase.spread === "deep") {
+      await openReadingPreferences(page);
       await page.getByRole("radio", { name: /심화 6장/ }).check();
     }
 
@@ -637,8 +642,11 @@ for (const locale of ["en", "ko"] as const) {
       expect(noticeBox!.x + noticeBox!.width).toBeLessThanOrEqual(width);
       await page.getByTestId("topic-select").selectOption("reunion");
 
-      await expect(page.getByTestId("situation-context")).toHaveCount(0);
-      await expect(page.getByTestId("retained-copy-context")).toBeVisible();
+      const draftContext = page
+        .getByTestId("situation-context")
+        .getByRole("textbox");
+      await expect(draftContext).toHaveValue("Previous private situation");
+      await draftContext.fill("Discarded locale draft");
       await page
         .getByRole("link", { name: ko ? "English" : "한국어", exact: true })
         .click();
@@ -1245,8 +1253,7 @@ test("uses a chosen relationship question in the generated prompt", async ({
 
   await expect(
     page.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
-  ).toHaveCount(0);
-  await expect(page.getByTestId("retained-copy-context")).toBeVisible();
+  ).toHaveValue("이 내용은 다음 질문을 고르는 동안에도 유지되어야 해요.");
   await expect(page.getByRole("link", { name: "English" })).toHaveAttribute(
     "href",
     /topic=feelings.*question=mutual-view/,
@@ -1673,6 +1680,7 @@ test("creates a direct six-card prompt while keeping context private", async ({
 }) => {
   await page.goto("/");
 
+  await openReadingPreferences(page);
   await page.getByRole("radio", { name: /Deep 6-card/ }).check();
   await page.getByRole("radio", { name: /Direct/ }).check();
 
@@ -1704,6 +1712,22 @@ test("shows an instant Korean reading without sending private context", async ({
   page,
 }) => {
   await page.setViewportSize({ height: 844, width: 390 });
+  let copiedPrompt = "";
+  await page.exposeFunction("captureCopiedPrompt", (prompt: string) => {
+    copiedPrompt = prompt;
+  });
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: (
+          window as unknown as Window & {
+            captureCopiedPrompt: (value: string) => Promise<void>;
+          }
+        ).captureCopiedPrompt,
+      },
+    });
+  });
   let providerRequest: Record<string, unknown> | undefined;
   await page.route("**/api/reading", async (route) => {
     providerRequest = route.request().postDataJSON() as Record<string, unknown>;
@@ -1717,12 +1741,53 @@ test("shows an instant Korean reading without sending private context", async ({
   });
   await page.goto("/ko");
 
-  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
-  await openCopyContext(page);
   await page
     .getByRole("textbox", { name: /상황이나 궁금한 점/ })
     .fill("서버로 보내면 안 되는 민감한 개인 상황");
-  await page.getByRole("button", { name: "지금 바로 해석하기" }).click();
+  await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+  const copy = page.getByRole("button", {
+    name: "내 질문 복사하기",
+    exact: true,
+  });
+  await expect(copy).toHaveClass(/ts-primary-action/);
+  const instant = page
+    .getByTestId("instant-reading-primary")
+    .getByRole("button", { name: "내 입력 없이 바로 해석" });
+  await expect(instant).toHaveClass(/ts-secondary-action/);
+  expect(
+    await copy.evaluate((button) =>
+      Boolean(
+        button.compareDocumentPosition(
+          document.querySelector('[data-testid="instant-reading-primary"]')!,
+        ) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ),
+    ),
+  ).toBe(true);
+  await copy.click();
+  await expect
+    .poll(() => copiedPrompt)
+    .toContain("서버로 보내면 안 되는 민감한 개인 상황");
+  const handoff = page.getByTestId("ai-handoff");
+  await expect(handoff).toBeVisible();
+  expect(
+    await handoff.evaluate((element) => {
+      const copySection = document.querySelector(
+        '[data-testid="prompt-ready"]',
+      );
+      const instantSection = document.querySelector(
+        '[data-testid="instant-reading-primary"]',
+      );
+      return Boolean(
+        copySection &&
+        instantSection &&
+        copySection.compareDocumentPosition(element) &
+          Node.DOCUMENT_POSITION_FOLLOWING &&
+        element.compareDocumentPosition(instantSection) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+    }),
+  ).toBe(true);
+  await instant.click();
 
   await expect(page.getByTestId("instant-reading-result")).toBeVisible();
   await expect(
@@ -1738,7 +1803,9 @@ test("shows an instant Korean reading without sending private context", async ({
     page.getByText("AI가 카드의 상징을 읽어 전하는 이야기입니다."),
   ).toBeVisible();
   await openPromptContent(page);
-  await expect(page.getByLabel("AI에 붙여 넣을 질문")).toBeVisible();
+  await expect(page.getByLabel("AI에 붙여 넣을 질문")).toHaveValue(
+    /서버로 보내면 안 되는 민감한 개인 상황/,
+  );
   expect(Object.keys(providerRequest ?? {}).sort()).toEqual(
     ["cards", "spreadId", "styleId", "topicId"].sort(),
   );
@@ -1771,9 +1838,11 @@ for (const width of [390, 1280]) {
     await expect(
       page.getByTestId("instant-reading-availability"),
     ).toBeVisible();
-    await expect(page.getByTestId("situation-context")).toHaveCount(0);
-    if (width === 1280)
+    await expect(page.getByTestId("situation-context")).toBeVisible();
+    if (width === 1280) {
+      await openReadingPreferences(page);
       await page.getByRole("radio", { name: "심화 6장", exact: true }).check();
+    }
     await page
       .getByRole("button", {
         name: width === 390 ? "카드 3장 뽑기" : "카드 6장 뽑기",
@@ -1804,6 +1873,24 @@ for (const width of [390, 1280]) {
       body: await page.screenshot({ fullPage: true }),
       contentType: "image/png",
     });
+    const nextAction = page.getByTestId("next-reading-action");
+    await expect(nextAction).toHaveClass(/ts-primary-action/);
+    expect(
+      await nextAction.evaluate((element) => {
+        const instant = document.querySelector(
+          '[data-testid="instant-reading-primary"]',
+        );
+        const copy = document.querySelector('[data-testid="prompt-ready"]');
+        return Boolean(
+          instant &&
+          copy &&
+          instant.compareDocumentPosition(element) &
+            Node.DOCUMENT_POSITION_FOLLOWING &&
+          element.compareDocumentPosition(copy) &
+            Node.DOCUMENT_POSITION_FOLLOWING,
+        );
+      }),
+    ).toBe(true);
     const originalCards = await page
       .locator("[data-card-id]")
       .evaluateAll((elements) =>
@@ -1829,7 +1916,7 @@ for (const width of [390, 1280]) {
         ),
     ).toEqual(originalCards);
     expect(new URL(page.url()).searchParams.get("drawStyle")).toBe("balanced");
-    await page.getByRole("button", { name: "지금 바로 해석하기" }).click();
+    await page.getByRole("button", { name: "내 입력 없이 바로 해석" }).click();
     await expect(heading).toBeFocused();
     expect(lastRequest["styleId"]).toBe("direct");
     expect(JSON.stringify(lastRequest)).not.toContain("복사할 질문에만");
@@ -2204,6 +2291,13 @@ test("renders a shared reading first and keeps its localized share route", async
 function expectPathname(href: string | null, pathname: string) {
   expect(href).not.toBeNull();
   expect(new URL(href ?? "http://localhost").pathname).toBe(pathname);
+}
+
+async function openReadingPreferences(page: Page) {
+  await page
+    .getByTestId("reading-preferences")
+    .locator(":scope > summary")
+    .click();
 }
 
 async function openCopyContext(page: Page) {
