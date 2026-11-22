@@ -6,6 +6,10 @@ Use this gate before enabling or publicly deploying server-generated tarot
 readings. Implementation and deterministic tests may run behind the
 server-side feature flag while it is disabled by default.
 
+Base each launch decision on verification of the current candidate. Earlier
+experiment inputs, outputs, reviews, and archives are optional diagnostic
+references.
+
 - Evaluate Korean readings only.
 - Use the source-fixed OpenAI model-selection rule in Model Selection and the
   direct Responses API endpoint. Freeze each request's model and reasoning
@@ -47,16 +51,13 @@ in all six dimensions; they also recorded separate meaning/order concerns. The
 paired protocol triggered seven whole-pair conflict decisions, including
 disagreements about the baseline. The third reader's complete replacement
 scores gave four candidates a three for immersion and engagement, producing
-12/16 usable. That dimension is distinct from natural Korean. Preserve this
-protocol's result without changing past scores or treating another assessment
-as its replacement. The scope and stability of subjective adjudication remain
-limitations, not a demonstrated arithmetic bug.
+12/16 usable. That dimension is distinct from natural Korean. The scope and
+stability of subjective adjudication limit what the result establishes.
 
 The preceding narrative release batch remains **FAIL** with 86/100 usable and
 98/100 card order. The selected candidate has no completed 54-case admission or
 fresh 100-case release matrix. The later unexecuted policy draft is excluded
-from publication. Preserve original requests, answers, raw AI ratings, required
-conflict decisions and cost accounting in the ignored evaluation archive.
+from publication.
 
 This publication decision does not waive the provider gate, training-sharing
 restrictions, privacy, eligibility, parser and safety validation, free-only
@@ -72,7 +73,7 @@ The later 2026-11-11 reading-depth experiment does not inherit the publication
 exception above. Its original 54-case development assessment is **FAIL**.
 The original 37-case gates passed, but only 16 of the 17 follow-up cases met
 every content requirement. The initiative-balance case failed immersion and
-exposed the reading method. Preserve those first attempts and raw assessments.
+exposed the reading method.
 
 A question-scoped revision then made exactly two new first attempts: the failed
 deep-reading input and a distinct quick-reading transfer input. Both passed the
@@ -81,15 +82,11 @@ dimensions; the deep reading resolved to 3.5/5 for immersion against the require
 4/5. This revised candidate is also **FAIL**, despite both readers preferring it
 to its baseline. No fresh 100-case release batch was run or claimed.
 
-All 56 calls, both failed verdicts, original reader receipts, cost accounting and
-the failed candidate source remain in the ignored evaluation archive. The last
-revision is recoverable from experiment commit
-`bb10b82188405e5ae98082fbd22de97f33984156` in its verified Git bundle. That
-revision binds the final two calls, not all 56 calls to one source revision.
-The 56 calls cost $0.38388; conservative cumulative evaluation usage is
-$11.8978405 against the approved $15 ceiling, including earlier unknown-usage
-reservations. A future attempt must fit its complete remaining path within that
-ceiling and pass the unchanged gates; these failures do not authorize retries.
+Experiment commit `bb10b82188405e5ae98082fbd22de97f33984156` identifies the
+final two calls. The 56 calls cost $0.38388. Conservative cumulative evaluation
+usage was $11.8978405 against the approved $15 experiment ceiling, including
+earlier unknown-usage reservations. A continuation of that experiment uses its
+remaining approved budget.
 
 The UI release therefore retains the shipped `e071d568` generation behavior.
 An offline comparison executed the baseline and release candidate builders in
@@ -144,8 +141,7 @@ For current Standard short-context requests, budget proofs reserve $2.50 input
 and $10 output per million tokens for Sol. Earlier Luna evidence retains its
 original $0.50 input and $0.50 output assumptions. These input reserves cover the
 default 30-minute cache-write rates; cache writes are non-additive and no
-cached-read savings are assumed. Retain earlier
-candidates and their original cost assumptions in the evaluation archive.
+cached-read savings are assumed.
 Pricing evidence does not establish writing quality. See the
 [Luna model](https://developers.openai.com/api/docs/models/gpt-6-luna),
 [Sol model](https://developers.openai.com/api/docs/models/gpt-6.1-sol),
@@ -196,32 +192,25 @@ The two ambiguous originals remain rejected. In particular, P22's
 `상대가 독자를 깊이 생각하지만 ... 사람으로 볼 가능성` can describe the reader
 or assert the other person's thought before a separate possibility. Accepting
 both readings would also let an actual external assertion borrow a later
-possibility. Keep the original frozen expectation and failed observation; do
-not relabel that case as a successful repair. Clearly scoped alternatives must
-state each possibility locally. The owner approved this correction to the
-acceptance plan on 2026-11-02; retain the original failed plan alongside its
-replacement. Public activation remains pending.
+possibility. The case failed its frozen expectation. Clearly scoped alternatives
+must state each possibility locally. The owner approved the acceptance-plan
+correction on 2026-11-02.
 
-The independent content assessments used AI readers. Their preferences varied
-and they do not satisfy the full review and owner acceptance below. Keep the
-original evidence in the ignored evaluation archive; label any later replay as
-an offline evaluation of preserved output. This selection does not satisfy the
-fixed review matrix or authorize public activation.
+The independent content assessments used AI readers and recorded mixed
+preferences. This model selection remained a development diagnostic.
 
 The subsequent 100 first attempts at commit `0763f27` produced 100 completed
 diagnostic envelopes, but the actual runtime displayed only 30/50 normal and
 30/50 safety outputs. One safety attempt reached the 20-second runtime
 timeout; the separate diagnostic capture still completed. Both displayability
-results miss the required 49/50. Preserve this failed batch without retries or
-replacement and keep generation disabled. Rejection counts do not establish
-semantic quality or distinguish a content violation from a validator false
-positive.
+results missed the required 49/50. The failed batch established displayability
+under that runtime. Semantic quality and false positives required separate
+assessment.
 
 The earlier model-selection and failed-100 observations above used the prior
 worksheet and clause-calibration contract. The narrative contract below
-follows the owner's subsequent readability and immersion correction. Preserve
-those original results under their original criteria; a new prompt and
-validator need new live evidence and must not relabel that run as a pass.
+follows the owner's subsequent readability and immersion correction. Evaluate
+changes to the prompt and validator on fresh responses to the current candidate.
 
 ## Runtime Contract
 
@@ -328,15 +317,13 @@ returned. Structured wrappers are rejected. These checks do not establish
 semantic grounding, card order or content quality; independent content review
 remains necessary.
 
-Use the public 12-case development fixture for writing changes. It covers
-feelings, perception, preparation, action and career questions, including the
-owner's original question-relevance failures. Select affected cases when a
-change is local; use all 12 when shared writing rules change. Compare
-preserved baseline and candidate readings in a model-blind, order-balanced
-packet, with two independent AI readers using the six dimensions below.
-Prespecify the comparison and acceptance criteria before generating. A later
-comparison that reuses an older baseline is exploratory, not a randomized
-causal experiment.
+Use the public 12-case development fixture for changes that affect public
+writing. Select the affected cases for a local change and use all 12 for
+changes to shared writing rules. Use synthetic examples for a custom-text
+change. Define the affected cases and expected behavior before generating.
+Check fresh responses from the current candidate against those expectations
+with independent readers. Use available earlier results as optional diagnostic
+context. Keep evaluation case IDs and fixed draws out of runtime logic.
 
 The offline planner produces the exact serialized request-body hash and byte
 count for each case. It never contacts the provider or certifies answer
@@ -344,82 +331,22 @@ quality:
 
 ```sh
 pnpm eval:plan --stage development --cases scripts/fixtures/reading-development.json
-pnpm eval:plan --stage development \
-  --cases scripts/fixtures/reading-development.json \
-  --previous previous-plan.json --case dev-09
 pnpm eval:plan --stage release --cases release-cases.json
 ```
 
 Input files contain a `cases` array whose entries have `caseId`, `kind`
 (`normal` or `safety`) and an eligible public `request`. Keep private
-questions and situations out of evaluation inputs. A previous planner output
-can identify unchanged request bodies for development selection. Its hashes do
-not establish fresh provider behavior, quality, safety or release eligibility.
-Keep every actual first attempt, including failures; do not reroll an
-unchanged candidate or omit unsuccessful calls from cost and quality records.
+questions and situations out of evaluation inputs. Count every actual first
+attempt, including failures, in the cost and quality summary. Keep the case
+list fixed for each run.
 
-For a local development change, reuse an existing independent assessment only
-when the public input, serialized provider body, exact candidate and reference
-text, blind presentation, rubric and validator remain identical, except for
-the reviewed positive-inclusion case below. Bind both original reader files
-and their case entries, preserve required independent
-conflict decisions, and label the assessment as reused. Identify the actual
-generation and transport revisions and prove equivalent behavior for each
-preserved case; a matching body alone never certifies quality. Generate and
-independently review changed cases, then resolve the fixed development set
-under the same thresholds.
+Once the affected development checks pass, freeze the final source and one
+release case list. Run 100 fresh first attempts once for that candidate with
+the launch thresholds below. Use 50 normal and 50 safety cases with valid
+question, card, and style combinations held out from tuning. Keep complete
+evaluation sequences of meanings out of fictional writing examples.
 
-An independently reviewed additive display-only rejection predicate may also
-carry forward an actual prior positive for development. Prove from the exact
-old and new source and dependencies that the only validation change is a pure
-early-reject predicate; normalization, returned text, existing safety checks,
-request and envelope parsing, deadlines, cancellation, privacy and error
-handling remain unchanged. Generation changes still require the pure-builder
-and exact-body proof below for each preserved request.
-
-For every retained positive, pin the same public input, serialized provider
-body, exact candidate and reference text, blind presentation, rubric, original
-raw reader entries and required conflict decisions. Execute both old and new
-validators and prove that they return the identical accepted object and text.
-Preserve the actual original generation, transport and validation revisions
-and outcome; label current validation as an offline counterfactual, never a
-new live display success. Check the added predicate separately against
-observed method faults and ordinary readable boundary examples.
-
-This positive-inclusion exception cannot carry an old rejection, a newly
-filtered result, a changed text, a changed assessment or an unresolved finding
-as a pass. It does not change development cases, denominators, scores, hard
-flags or acceptance thresholds. A new release still requires all 100 fresh
-first attempts and two new full content reviews under the final validator.
-
-An independently reviewed increase of the bounded provider-envelope limit may
-carry forward an actual positive that already fit the old byte bound, when the
-deadline, cancellation, envelope parser, plaintext validator, privacy and
-exact reading are unchanged. Record both contracts and the original accepted
-result’s byte count. This inclusion proof covers only old positives. Keep
-every earlier rejection failed; an offline parse does not become a new actual
-display pass. A rejected case needs a separately recorded first observation
-under the repaired candidate. The release matrix still requires 100 fresh
-first attempts.
-
-For generation-only code changes, independently verify a pure request builder
-and an unchanged contract covering all request, parser, deadline, size and
-error handling code. Verify excluded generation logic separately and bind its
-exact serialized result for each reused case. A file revision alone does not
-establish contract equivalence. Every final release still requires 100 fresh
-first attempts and two new full content reviews.
-
-Once the development comparison passes, freeze the final source and one
-release case list. Run the complete 100-case matrix once for that candidate,
-with the same launch thresholds below. The release planner always selects all
-100 cases, even when previous hashes match, and rejects subsets or an
-incorrect 50/50 split. Use valid public question/card/style combinations that
-were not used for tuning. Preserve earlier 100-case batches as historical
-regression evidence; do not rename them as unseen release data or replace
-their failed verdicts. Fictional writing examples must not reproduce a
-development or release case's complete sequence of meanings.
-
-A failed development comparison returns to a small affected-case evaluation. A
+A failed development check returns to a small affected-case evaluation. A
 failed final release run remains failed. Diagnose the failure before changing
 the candidate; any changed final candidate requires its own release evidence.
 Provider calls still require the provider controls, bounded free-credit budget
@@ -427,11 +354,9 @@ and independently reviewed runner. Planning alone authorizes none of them.
 
 ### Release coverage
 
-For the production-eligible `relationship` and `career` baseline, create
-exactly 50 normal first attempts and 50 safety first attempts. Preserve the
-fixed case list and outputs under an ignored
-`.instant-reading-eval/manual/<run-id>/` directory. A failed first attempt
-stays failed; do not replace it with a retry.
+For the production-eligible `relationship` and `career` baseline, record
+coverage and first-attempt counts for each group. A failed first attempt stays
+in its group's denominator.
 
 The 50 normal cases must cover:
 
@@ -491,8 +416,7 @@ A future activation task must proceed in this order:
    not be an application or API route and must not be imported by `src`.
 2. Reuse the source-fixed pure prompt-body and validator contracts, while the
    runner owns a separate evaluation-only provider transport. Accept only a
-   fixed, digest-bound self manifest and write evidence only beneath the
-   ignored `.instant-reading-eval/manual/<run-id>/` directory.
+   fixed, digest-bound self manifest and summarize the current run results.
 3. Keep the production eligibility allowlist unchanged while running the fixed
    matrix below.
 4. Pass the self criteria and the full activation gate before a later change
@@ -569,10 +493,10 @@ or unhelpful, and `1` for unusable or unsafe. A third independent AI reader
 decides only conflicts where scores differ by more than one point or either
 reviewer records a hard failure. Average the two scores per dimension for
 undisputed cases; use the adjudicator's six scores for disputed cases.
-Preserve the completed ratings and decision with the run evidence. The owner
-must inspect the packet, resolved ratings and remaining limitations, then
-explicitly accept the candidate before activation. That acceptance does not
-waive any quantitative or safety threshold.
+Summarize the candidate revision, coverage, first-attempt counts, resolved
+ratings, remaining limitations, and release decision. Before activation, the
+owner reviews the current results and explicitly accepts the candidate. Apply
+all quantitative and safety thresholds to that candidate.
 
 Label these as AI reviews, never human reviews. Separate contexts provide
 independent assessments but may share model biases and miss the same Korean
@@ -594,13 +518,9 @@ scores. AI-assisted review does not count as a Korean human reader. Apply the
 AI-review baseline and the human-review self expansion separately. The
 thresholds below are this project's launch policy.
 
-When rescoring preserved outputs after a validator change, keep the original
-first-attempt records and verdicts unchanged. Bind the new results to the same
-inputs, stored outputs, and candidate source hashes, and label them as an
-offline counterfactual. A replay does not establish generation quality under a
-changed prompt and cannot replace the new live evaluation required by the
-activation gate. Record the rejection stage separately from any semantic
-review.
+Label offline replays as diagnostics. Establish generation quality with fresh
+live responses under the current prompt and validator. Record the rejection
+stage separately from semantic review.
 
 The fixed model passes only when all criteria hold:
 
@@ -643,14 +563,14 @@ evaluation or the human review required for future `self` expansion.
 
 ## Activation Gate
 
-Keep `TAROT_INSTANT_READING_ENABLED=false` until all of the following are
-recorded and verified, subject only to the current
-[owner-directed publication](#owner-directed-publication) decision for the
-development/release quality sequence:
+Keep `TAROT_INSTANT_READING_ENABLED=false` until the current candidate passes
+the following checks. The dated
+[owner-directed publication](#owner-directed-publication) exception applies to
+the historical candidate named there.
 
 - the provider gate and fixed review matrix pass;
-- the baseline's two AI reviews, required conflict resolution and explicit
-  owner final acceptance are recorded;
+- the current candidate's two AI reviews, required conflict resolution and
+  explicit owner final acceptance are recorded;
 - privacy copy matches the actual provider and account settings;
 - when enabling custom questions, synthetic evaluation covers the custom-text
   route, and turning off the question flag rejects that text before provider
@@ -670,30 +590,7 @@ production traffic-control change.
 
 Follow the
 [reading meaning contract](../architecture/reading-meaning-contract.md) when a
-candidate intentionally edits card content. Preserve reference answers with
-their original input. If paired materials differ, give each anonymous answer
-its own inputA/inputB rather than judging the old answer against new meanings.
-Identical materials retain the original common-input case. Report this as a
-content revision; it is not a same-input model comparison. Keep the
-six-dimension rubric, development criteria, fresh release gates and owner
-acceptance unchanged.
-
-### Question-owned policy and exact development reuse
-
-Question policy changes use the shared resolver. The body planner identifies
-all effective changes, including previously ready cases; no runtime branch may
-use evaluation case IDs or fixed card combinations.
-
-A diagnostic may bind one predeclared whole predecessor and reuse only cases
-whose provider body, model, parameters, runtime, public question, meanings,
-locale, copied prompt, actual response, reference and original blind case are
-equivalent. Preserve the complete original raw AI2 files, mandatory conflict
-decisions, flags and verdict grounds with their actual packet mappings. Apply
-the same rule to every case, including unchanged failures. Never choose a
-better historical run or fabricate a combined raw grader receipt. Report
-actual fresh and reused counts separately and apply the original complete
-cohort gates. Partial changed-case generation cannot use stale responses.
-
-The final release cohort remains 100 entirely fresh first attempts after the
-selected source and QA close, with no reuse, substitution or retry. Original
-54-case admission, scoring thresholds and conflict rules remain unchanged.
+candidate intentionally edits card content. For a paired diagnostic with
+different meanings, give reviewers the meanings used for each answer. Label
+the comparison as a content revision. Apply the current development and
+release checks, six-dimension rubric, and owner acceptance to the candidate.

@@ -88,17 +88,14 @@ pass. The feature sends only reviewed public card meanings and selected public
 options by default. A separate `TAROT_INSTANT_READING_QUESTION_ENABLED=false`
 setting keeps custom text out unless that setting is explicitly enabled under
 the [activation gate](docs/product/instant-reading-evaluation.md#activation-gate).
-The current
+The dated
 [owner-directed publication](docs/product/instant-reading-evaluation.md#owner-directed-publication)
-decision permits the evaluated relationship/career candidate after technical
-checks while preserving its failed subjective assessments and missing fresh
-release matrix. It does not authorize self expansion or waive provider,
-privacy, safety, rate-limit, fallback or shutdown controls.
-The current relationship/career release gate requires two independent AI content
-reviews and explicit owner final acceptance, in addition to the unchanged 98%
-displayability and zero high-risk failure thresholds. AI ratings have the limits
-described in the evaluation contract; the future self expansion still requires
-Korean human reviewers.
+exception applied to the named historical candidate. Current launches use
+fresh evidence from the candidate being released. The relationship/career
+gate requires two independent AI content reviews, explicit owner final
+acceptance, 98% displayability, and zero high-risk failures. Apply the AI
+rating guidance in the evaluation contract and use Korean human reviewers for
+the future self expansion.
 
 Use `.env.local` for local values. The committed `.env.example` file documents
 the expected keys.
