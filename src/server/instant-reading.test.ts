@@ -109,6 +109,12 @@ describe("OpenAI instant reading adapter", () => {
     expect(body.instructions).toContain(
       "frame an inferred cause as a card-supported possibility on first mention",
     );
+    expect(body.instructions).toContain(
+      "describe the impression that person gives without substituting the observer's feelings",
+    );
+    expect(body.instructions).toContain(
+      "describe possible tradeoffs without asserting those conditions",
+    );
     expect(body).not.toHaveProperty("text");
     expect(body.instructions).not.toContain("[전체 흐름]");
     expect(body.input).not.toContain("[가능성 A]");
