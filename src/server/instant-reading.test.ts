@@ -91,10 +91,10 @@ describe("OpenAI instant reading adapter", () => {
     );
 
     const body = JSON.parse(String(fetchImpl.mock.calls[0]?.[1]?.body));
-    expect(openaiInstantReadingModel).toBe("gpt-6.1-sol");
+    expect(openaiInstantReadingModel).toBe("gpt-6.2-sol");
     expect(body).toEqual(buildOpenAIInstantReadingBody(tarotData, request));
     expect(body).toMatchObject({
-      model: "gpt-6.1-sol",
+      model: "gpt-6.2-sol",
       store: false,
       stream: false,
       reasoning: { effort: "low" },
@@ -105,6 +105,9 @@ describe("OpenAI instant reading adapter", () => {
     expect(body).not.toHaveProperty("previous_response_id");
     expect(body.instructions).toContain(
       "explicit hypothetical, never asserted history",
+    );
+    expect(body.instructions).toContain(
+      "frame an inferred cause as a card-supported possibility on first mention",
     );
     expect(body).not.toHaveProperty("text");
     expect(body.instructions).not.toContain("[전체 흐름]");
@@ -135,13 +138,23 @@ describe("OpenAI instant reading adapter", () => {
     expect(body.input.split("\n")[0]).toBe(
       "사용자가 쓴 질문이나 상황: " + JSON.stringify(userQuestion),
     );
-    expect(body.input).toContain("선택한 기본 질문: " + question.title);
+    const fallbackStart = body.input.indexOf(
+      "직접 쓴 타로 질문이나 리딩 요청이 없을 때만 적용할 기본 초점:",
+    );
+    const commonStart = body.input.indexOf("공통 리딩 자료:");
+    expect(fallbackStart).toBeGreaterThan(0);
+    expect(commonStart).toBeGreaterThan(fallbackStart);
+    const fallback = body.input.slice(fallbackStart, commonStart);
+    expect(fallback).toContain("질문: " + question.title);
+    expect(fallback).toContain("대상: ");
+    expect(fallback).toContain("질문에 맞는 읽기: ");
+    expect(fallback).not.toContain("말투: ");
     expect(body.instructions).not.toContain(userQuestion);
     expect(body.instructions).toContain(
-      "Answer an explicit question in the first one or two sentences",
+      "A written question or request controls the subject and scope and must be answered in the first one or two sentences",
     );
     expect(body.instructions).toContain(
-      "Use the selected topic, preset, target, and writing guide only where compatible",
+      "Use the default focus, including its topic, preset, target, and writing guide, only if the text contains no tarot question or reading request",
     );
     expect(body.instructions).toContain(
       "When a question asks for a real count or unverified fact, first say in one short sentence that tarot cannot verify it. If that is all it asks, stop without adding a general reading.",
@@ -344,7 +357,7 @@ describe("OpenAI instant reading adapter", () => {
               continue;
             const body = buildOpenAIInstantReadingBody(tarotData, candidate);
             expect(body).toMatchObject({
-              model: "gpt-6.1-sol",
+              model: "gpt-6.2-sol",
               reasoning: { effort: "low" },
               max_output_tokens: 1200,
               store: false,

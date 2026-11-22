@@ -108,7 +108,7 @@ bound and complete serialized provider body before generation. The initial
 tested candidates, not a claim that every model or effort was compared or that
 Terra is generally superior.
 
-The current candidate sends one Responses request per reading with GPT-6.1
+The current candidate sends one Responses request per reading with GPT-6.2
 Sol, `low` effort and a 1,200-token total output bound, including hidden
 reasoning. The model and generation settings are fixed across eligible public
 questions, topics, styles, spreads and draws. Writing profiles select the
@@ -144,7 +144,7 @@ default 30-minute cache-write rates; cache writes are non-additive and no
 cached-read savings are assumed.
 Pricing evidence does not establish writing quality. See the
 [Luna model](https://developers.openai.com/api/docs/models/gpt-6-luna),
-[Sol model](https://developers.openai.com/api/docs/models/gpt-6.1-sol),
+[Sol model](https://developers.openai.com/api/docs/models/gpt-6.2-sol),
 [pricing](https://developers.openai.com/api/docs/pricing) and
 [cache billing](https://developers.openai.com/api/docs/guides/prompt-caching).
 
@@ -286,7 +286,7 @@ Before the first evaluation call and again before public activation:
 Use the current official references when checking these facts:
 
 - [Responses API](https://developers.openai.com/api/reference/resources/responses/methods/create)
-- [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna)
+- [GPT-6.2 Sol](https://developers.openai.com/api/docs/models/gpt-6.2-sol)
 - [API subscription credits](https://developers.openai.com/api/docs/guides/chatgpt-api-credits)
 - [API data controls](https://developers.openai.com/api/docs/guides/your-data)
 - [API pricing](https://developers.openai.com/api/docs/pricing)
