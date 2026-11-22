@@ -262,10 +262,11 @@ body or calling `fetch`.
 
 With the question flag on, the request accepts up to 500 characters of optional
 text. Treat the text as reading content. Start by answering an explicit question
-and use a situation description to refine the selected focus. Start by
-acknowledging when the supplied meanings cannot establish a real count or fact.
-Allow a complete one-sentence Korean reply to typed text. Keep response upper
-bounds, language and safety checks, and preserve the standard reading minimums.
+and use a situation description to refine the selected focus. When the question
+asks for an unverifiable real count or fact, state that limit first in one short
+Korean sentence. Stop there unless the user separately requests a supported
+symbolic reading, then answer only that part. Keep response upper bounds,
+language and safety checks, and preserve the standard reading minimums.
 Verify blank text, a conflicting preset, untrusted instructions, edits during
 generation, and the prompt-copy fallback with synthetic inputs before activation.
 
