@@ -7,6 +7,7 @@ import {
 import {
   getInstantReadingProviderConfig,
   isInstantReadingEnabled,
+  isInstantReadingQuestionEnabled,
 } from "@/server/instant-reading-config";
 
 export const runtime = "nodejs";
@@ -65,7 +66,10 @@ export async function POST(request: Request) {
   }
 
   const readingRequest = parseInstantReadingRequest(value);
-  if (!readingRequest) {
+  if (
+    !readingRequest ||
+    (readingRequest.userQuestion && !isInstantReadingQuestionEnabled())
+  ) {
     return jsonResponse({ code: "invalid-request" }, 400);
   }
 

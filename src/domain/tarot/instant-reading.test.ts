@@ -7,6 +7,7 @@ import {
   type InstantReadingRequest,
 } from "./instant-reading";
 import { getReadingTaxonomy } from "./taxonomy";
+import { maxUserContextLength } from "./prompts";
 
 const request = {
   cards: [
@@ -37,7 +38,32 @@ describe("instant reading domain", () => {
     ).toBe(false);
   });
 
-  it("accepts only the exact public request shape", () => {
+  it("normalizes an optional typed question with or without a public preset", () => {
+    const publicSelection = {
+      ...request,
+      topicId: "feelings",
+      questionId: "mutual-view",
+    };
+    for (const selection of [request, publicSelection]) {
+      expect(
+        parseInstantReadingRequest({
+          ...selection,
+          userQuestion: " 어떻게\r\n보일까요? ",
+        }),
+      ).toEqual({ ...selection, userQuestion: "어떻게\n보일까요?" });
+    }
+    const atLimit = "가".repeat(maxUserContextLength);
+    expect(
+      parseInstantReadingRequest({ ...request, userQuestion: atLimit }),
+    ).toEqual({ ...request, userQuestion: atLimit });
+    for (const userQuestion of ["", " \n ", 123, null, atLimit + "나"]) {
+      expect(
+        parseInstantReadingRequest({ ...request, userQuestion }),
+      ).toBeUndefined();
+    }
+  });
+
+  it("accepts only the exact request shape", () => {
     expect(parseInstantReadingRequest(request)).toEqual(request);
     expect(
       parseInstantReadingRequest({ ...request, privateContext: "비밀 상황" }),
@@ -301,6 +327,51 @@ describe("instant reading domain", () => {
       validateInstantReadingText(text, {
         ...request,
         topicId: "career-direction",
+      }),
+    ).toEqual({ text });
+  });
+
+  it("allows a concise Korean answer to typed text while retaining output guards", () => {
+    const typed = { ...request, userQuestion: "어떤 점을 살펴볼까요?" };
+    const concise = "내가 편하게 마음을 표현할 수 있는 순간부터 살펴봐요.";
+    expect(validateInstantReadingText(concise, typed)).toEqual({
+      text: concise,
+    });
+    expect(validateInstantReadingText(concise, request)).toBeUndefined();
+    for (const text of [
+      "",
+      "…?",
+      "The cards cannot tell.",
+      "계약서에 서명하세요.",
+    ]) {
+      expect(validateInstantReadingText(text, typed)).toBeUndefined();
+    }
+    expect(
+      validateInstantReadingText("한".repeat(1601), typed),
+    ).toBeUndefined();
+  });
+
+  it.each([
+    "목숨을 끊으세요.",
+    "스스로를 해쳐 보세요.",
+    "차라리 죽는 게 나아요.",
+    "목숨을 끊는 게 나아요.",
+    "죽는 게 더 나아요.",
+  ])("rejects direct self-harm encouragement in a typed reply: %s", (text) => {
+    expect(
+      validateInstantReadingText(text, {
+        ...request,
+        userQuestion: "어떤 점을 살펴볼까요?",
+      }),
+    ).toBeUndefined();
+  });
+
+  it("accepts a concise answer that discourages harm", () => {
+    const text = "목숨을 끊는 게 답은 아니에요.";
+    expect(
+      validateInstantReadingText(text, {
+        ...request,
+        userQuestion: "어떤 점을 살펴볼까요?",
       }),
     ).toEqual({ text });
   });

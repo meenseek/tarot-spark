@@ -34,6 +34,75 @@ async function readClipboard(page: Page) {
 
 test.beforeEach(async ({ context }) => rejectOptionalServices(context));
 
+for (const width of [390, 1280]) {
+  test(`Korean custom question reading from the result at ${width}px`, async ({
+    page,
+  }) => {
+    test.skip(
+      process.env["TAROT_INSTANT_READING_QUESTION_ENABLED"] !== "true",
+      "Run with the custom-question flag enabled",
+    );
+    await page.setViewportSize({ width, height: 900 });
+    const requests: { userQuestion?: string; cards?: unknown }[] = [];
+    const question = "이 관계에서 제가 먼저 무엇을 살펴보면 좋을까요?";
+    const revised = "나는 무엇 때문에 거리를 두고 싶은 걸까요?";
+    const answer = "내가 편하게 마음을 표현할 수 있는 순간부터 살펴봐요.";
+    const revisedAnswer = "관계에서 내 속도를 되찾고 싶은 마음이 먼저 보여요.";
+    await page.route("**/api/reading", async (route) => {
+      requests.push(route.request().postDataJSON());
+      await route.fulfill(
+        requests.length === 1
+          ? { json: { code: "instant-reading-unavailable" }, status: 503 }
+          : { json: { text: requests.length === 2 ? answer : revisedAnswer } },
+      );
+    });
+
+    await page.goto("/ko?topic=relationship-flow");
+    const contextField = page.getByRole("textbox", {
+      name: /상황이나 궁금한 점/,
+    });
+    await contextField.fill(question);
+    await page.getByRole("button", { name: "카드 3장 뽑기" }).click();
+    const resultActions = page.getByTestId("prompt-ready");
+    const editor = resultActions.getByText("내 질문 쓰기·수정");
+    const ask = resultActions.getByRole("button", {
+      name: "AI에게 바로 질문하기",
+    });
+    await expect(editor).toBeVisible();
+    await expect(ask).toHaveAccessibleDescription(/OpenAI/);
+    expect(requests).toHaveLength(0);
+    await ask.click();
+
+    const retry = resultActions.getByRole("button", { name: "다시 시도하기" });
+    await expect(retry).toBeFocused();
+    await expect(retry).toHaveAccessibleDescription(/OpenAI/);
+    await expect(
+      resultActions.getByRole("button", { name: "프롬프트 복사하기" }),
+    ).toBeEnabled();
+    expect(requests[0]?.userQuestion).toBe(question);
+    await retry.click();
+    await expect(
+      page.getByRole("heading", { name: "AI 카드 흐름 해석" }),
+    ).toBeFocused();
+    await expect(page.getByTestId("instant-reading-result")).toHaveText(answer);
+    expect(requests[1]?.userQuestion).toBe(question);
+
+    await editor.click();
+    await contextField.fill(revised);
+    await expect(page.getByTestId("instant-reading-result")).toHaveCount(0);
+    expect(requests).toHaveLength(2);
+    await ask.click();
+    await expect(page.getByTestId("instant-reading-result")).toHaveText(
+      revisedAnswer,
+    );
+    expect(requests[2]).toMatchObject({
+      userQuestion: revised,
+      cards: requests[0]?.cards,
+    });
+    expect(decodeURIComponent(page.url())).not.toContain(revised);
+  });
+}
+
 for (const locale of ["ko", "en"] as const) {
   for (const width of [390, 1280]) {
     for (const scenario of [

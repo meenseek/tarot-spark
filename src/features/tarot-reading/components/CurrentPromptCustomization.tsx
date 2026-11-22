@@ -5,6 +5,7 @@ type CurrentPromptCustomizationProps = {
   readonly contextCountLabel: string;
   readonly contextPlaceholder: string;
   readonly copy: TarotReadingCopy;
+  readonly instantReadingQuestionAvailable: boolean;
   readonly onContextChange: (value: string) => void;
   readonly userContext: string;
 };
@@ -13,6 +14,7 @@ export function CurrentPromptCustomization({
   contextCountLabel,
   contextPlaceholder,
   copy,
+  instantReadingQuestionAvailable,
   onContextChange,
   userContext,
 }: CurrentPromptCustomizationProps) {
@@ -24,7 +26,9 @@ export function CurrentPromptCustomization({
     >
       <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 rounded-ts-control px-4 py-3 marker:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ts-action [&::-webkit-details-marker]:hidden">
         <span className="font-semibold text-ts-ink">
-          {copy.customizeCurrent}
+          {instantReadingQuestionAvailable
+            ? copy.instantReading.editQuestion
+            : copy.customizeCurrent}
         </span>
         <span
           aria-hidden="true"
@@ -35,13 +39,16 @@ export function CurrentPromptCustomization({
       </summary>
       <div className="grid gap-5 border-t border-ts-divider p-4">
         <p className="text-sm leading-6 text-ts-muted">
-          {copy.customizeCurrentIntro}
+          {instantReadingQuestionAvailable
+            ? copy.instantReading.editQuestionHelp
+            : copy.customizeCurrentIntro}
         </p>
 
         <SituationContextInput
           contextCountLabel={contextCountLabel}
           contextPlaceholder={contextPlaceholder}
           copy={copy}
+          instantReadingQuestionAvailable={instantReadingQuestionAvailable}
           onContextChange={onContextChange}
           userContext={userContext}
         />

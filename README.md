@@ -85,7 +85,9 @@ and use a project key from the linked API organization. Keep
 platform rate rule, and fixed evaluation checks in
 [`docs/product/instant-reading-evaluation.md`](docs/product/instant-reading-evaluation.md)
 pass. The feature sends only reviewed public card meanings and selected public
-options; optional free-form situation text is excluded.
+options by default. A separate `TAROT_INSTANT_READING_QUESTION_ENABLED=false`
+setting keeps custom text out unless that setting is explicitly enabled under
+the [activation gate](docs/product/instant-reading-evaluation.md#activation-gate).
 The current
 [owner-directed publication](docs/product/instant-reading-evaluation.md#owner-directed-publication)
 decision permits the evaluated relationship/career candidate after technical

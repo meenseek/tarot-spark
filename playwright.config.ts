@@ -19,7 +19,10 @@ export default defineConfig({
       NEXT_PUBLIC_ADSENSE_SCRIPT_ENABLED: "true",
       NEXT_PUBLIC_GA_ID: "G-TEST1234",
       NEXT_PUBLIC_SITE_URL: baseURL,
+      OPENAI_API_KEY: "",
       TAROT_INSTANT_READING_ENABLED: "true",
+      TAROT_INSTANT_READING_QUESTION_ENABLED:
+        process.env["TAROT_INSTANT_READING_QUESTION_ENABLED"] ?? "false",
     },
     url: baseURL,
     reuseExistingServer: !process.env["CI"],

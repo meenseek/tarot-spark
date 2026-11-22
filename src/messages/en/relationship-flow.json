@@ -91,7 +91,7 @@
     },
     {
       "question": "Where does my situation text go?",
-      "answer": "Optional context stays in your browser. It is excluded from reading URLs and analytics, and leaves the site only if you choose to copy or share it elsewhere."
+      "answer": "Optional context is excluded from reading URLs and analytics. It leaves the site if you request an instant reading with the OpenAI notice, share the generated prompt, or paste it into another service."
     },
     {
       "question": "What does the copied prompt include?",

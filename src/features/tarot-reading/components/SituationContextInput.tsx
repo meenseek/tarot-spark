@@ -6,6 +6,7 @@ type SituationContextInputProps = {
   readonly contextCountLabel: string;
   readonly contextPlaceholder: string;
   readonly copy: TarotReadingCopy;
+  readonly instantReadingQuestionAvailable: boolean;
   readonly onContextChange: (value: string) => void;
   readonly userContext: string;
 };
@@ -14,6 +15,7 @@ export function SituationContextInput({
   contextCountLabel,
   contextPlaceholder,
   copy,
+  instantReadingQuestionAvailable,
   onContextChange,
   userContext,
 }: SituationContextInputProps) {
@@ -24,7 +26,9 @@ export function SituationContextInput({
       data-testid="situation-context"
     >
       <p className="text-sm leading-6 text-ts-muted" id="tarot-context-help">
-        {copy.contextHelp}
+        {instantReadingQuestionAvailable
+          ? copy.instantReading.questionNotice
+          : copy.contextHelp}
       </p>
       <Textarea
         announceError={false}

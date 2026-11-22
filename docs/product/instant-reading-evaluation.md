@@ -10,10 +10,17 @@ server-side feature flag while it is disabled by default.
 - Use the source-fixed OpenAI model-selection rule in Model Selection and the
   direct Responses API endpoint. Freeze each request's model and reasoning
   effort under that candidate rule before evaluation.
-- Send only selected public options and reviewed upright meanings in draw
-  order.
-- Keep card names, images, internal ids, and free-form situation text out of
-  the provider request, logs, analytics, URLs, shares, and stored evidence.
+- Standard requests send selected public options and reviewed upright meanings
+  in draw order.
+- Keep card names, images, and internal ids out of the provider request. Keep
+  real user text out of logs, analytics, URLs, shares, and stored evidence.
+- Keep free-form text out of the provider request while
+  `TAROT_INSTANT_READING_QUESTION_ENABLED` is off or unset. For local evaluation
+  with that flag on, use only synthetic questions and situations in requests
+  and evaluation records. The notice beside the action identifies OpenAI, and
+  only requesting a reading submits the optional text. Keep the setting off in
+  production until the changed input contract passes the activation gate and
+  the owner approves it.
 - Keep the existing prompt-copy flow available whenever generation fails.
 - Treat only the `relationship` and `career` taxonomies as
   production-eligible. The `self` taxonomy remains prompt-copy only until the
@@ -252,6 +259,15 @@ request parser, consistency check, committed-result UI, and provider-contact
 function must all apply the canonical eligibility predicate. The
 provider-contact function must reject an ineligible taxonomy before building a
 body or calling `fetch`.
+
+With the question flag on, the request accepts up to 500 characters of optional
+text. Treat the text as reading content. Start by answering an explicit question
+and use a situation description to refine the selected focus. Start by
+acknowledging when the supplied meanings cannot establish a real count or fact.
+Allow a complete one-sentence Korean reply to typed text. Keep response upper
+bounds, language and safety checks, and preserve the standard reading minimums.
+Verify blank text, a conflicting preset, untrusted instructions, edits during
+generation, and the prompt-copy fallback with synthetic inputs before activation.
 
 ## Provider Gate
 
@@ -635,6 +651,9 @@ development/release quality sequence:
 - the baseline's two AI reviews, required conflict resolution and explicit
   owner final acceptance are recorded;
 - privacy copy matches the actual provider and account settings;
+- when enabling custom questions, synthetic evaluation covers the custom-text
+  route, and turning off the question flag rejects that text before provider
+  contact while retaining standard instant readings;
 - the production front door applies a tested rate rule to `POST /api/reading`;
 - direct deployment or origin access cannot bypass that rule;
 - quota exhaustion preserves the prompt-copy fallback without exposing

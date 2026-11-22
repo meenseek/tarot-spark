@@ -64,7 +64,9 @@ describe("RelationshipFlowLanding", () => {
       "/?topic=relationship-flow&spread=deep&style=relational",
     );
     expect(
-      screen.getByText(/optional context stays in your browser/i),
+      screen.getByText(
+        /Optional context is excluded from reading URLs and analytics.*instant reading with the OpenAI notice/i,
+      ),
     ).toBeInTheDocument();
   });
 

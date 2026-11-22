@@ -8,6 +8,7 @@ import {
   type TarotCardId,
   type TopicId,
 } from "./ids";
+import { maxUserContextLength, normalizeUserContext } from "./prompts";
 import {
   getReadingTaxonomy,
   getPublicQuestionDefinition,
@@ -26,6 +27,7 @@ export type InstantReadingRequest = {
   readonly styleId: ReadingStyleId;
   readonly cards: readonly InstantReadingCardInput[];
   readonly questionId?: PublicQuestionId;
+  readonly userQuestion?: string;
 };
 
 export type InstantReading = {
@@ -39,7 +41,6 @@ export function isInstantReadingTaxonomyEligible(
 }
 
 const requestKeys = ["topicId", "spreadId", "styleId", "cards"] as const;
-const requestKeysWithQuestion = [...requestKeys, "questionId"] as const;
 const cardInputKeys = ["cardId"] as const;
 const responseKeys = ["text"] as const;
 const technicalPattern =
@@ -73,6 +74,9 @@ const legalActionDirectivePattern =
 
 const urgentChoicePattern =
   /(?:당장|즉시|오늘\s*바로|지금\s*바로)[^.!?！？\n]{0,24}(?:찾아가|헤어지|퇴사|투자|결혼)[^.!?！？\n]{0,12}(?:하세요|해야|해요|권합니다)/u;
+
+const directSelfHarmPattern =
+  /(?:(?:목숨|생명|삶|생)을?\s*(?:스스로\s*)?(?:끊(?:으|어\s*보)?|끝내(?:\s*보)?|포기하)|(?:자신|스스로)를?\s*(?:해치|해쳐\s*보)|(?<![가-힣])죽으?)(?:세요|십시오|는\s*(?:게|것이)\s*(?:(?:훨씬|더|가장|제일)\s*){0,2}(?:나아요|낫습니다|좋아요|좋습니다|(?:정답|답)이에요))/u;
 
 const medicationNounEndSource = String.raw`(?=(?:은|는|이|가|을|를|의|도|만|부터|까지|으로)?(?:\s|$|[,.!?]|중단|변경|조절|증량|감량|복용|투약|먹|드))`;
 const ordinaryYakNounSource = String.raw`(?:[가-힣]*(?:(?:예약|청약)(?:제)?|요약|활약)|절약|기약|도약|비약|서약|언약|공약|조약|협약|계약|특약|제약|집약|축약)`;
@@ -109,10 +113,14 @@ const unsafePatterns = [
 export function parseInstantReadingRequest(
   value: unknown,
 ): InstantReadingRequest | undefined {
+  if (!isRecord(value)) return undefined;
+
   if (
-    !isRecord(value) ||
-    (!hasExactKeys(value, requestKeys) &&
-      !hasExactKeys(value, requestKeysWithQuestion))
+    !hasExactKeys(value, [
+      ...requestKeys,
+      ...("questionId" in value ? ["questionId"] : []),
+      ...("userQuestion" in value ? ["userQuestion"] : []),
+    ])
   ) {
     return undefined;
   }
@@ -139,6 +147,16 @@ export function parseInstantReadingRequest(
       getPublicQuestionDefinition(questionId).topicId !== value["topicId"])
   ) {
     return undefined;
+  }
+
+  let userQuestion: string | undefined;
+  if ("userQuestion" in value) {
+    const input = value["userQuestion"];
+    if (typeof input !== "string" || input.length > maxUserContextLength) {
+      return undefined;
+    }
+    userQuestion = normalizeUserContext(input);
+    if (!userQuestion) return undefined;
   }
 
   let taxonomy: ReadingTaxonomy;
@@ -174,6 +192,7 @@ export function parseInstantReadingRequest(
     styleId: value["styleId"],
     topicId: value["topicId"],
     ...(questionId ? { questionId } : {}),
+    ...(userQuestion ? { userQuestion } : {}),
   };
 }
 
@@ -198,6 +217,7 @@ export function validateInstantReadingText(
   if (!parseInstantReadingRequest(request)) return undefined;
   const text = input.replace(/\r\n?/gu, "\n").trim();
   const length = [...text].length;
+  const hasUserQuestion = request.userQuestion !== undefined;
   const range =
     request.spreadId === "quick"
       ? { min: 120, max: 1_600 }
@@ -206,14 +226,15 @@ export function validateInstantReadingText(
   const korean = text.match(/[가-힣]/gu) ?? [];
 
   if (
-    length < range.min ||
+    (!hasUserQuestion && length < range.min) ||
     length > range.max ||
-    korean.length < 60 ||
+    korean.length < (hasUserQuestion ? 1 : 60) ||
     korean.length / Math.max(letters.length, 1) < 0.55 ||
     technicalPattern.test(text) ||
     exposedReadingMethodPattern.test(text) ||
     worksheetPattern.test(text) ||
     unsafePatterns.some((pattern) => pattern.test(text)) ||
+    (hasUserQuestion && directSelfHarmPattern.test(text)) ||
     verifiedPrivateFactPattern.test(text) ||
     explicitMindVerificationPattern.test(text) ||
     affirmativeTarotProofPattern.test(text) ||

@@ -10,6 +10,13 @@ export function isInstantReadingEnabled() {
   return process.env["TAROT_INSTANT_READING_ENABLED"] === "true";
 }
 
+export function isInstantReadingQuestionEnabled() {
+  return (
+    isInstantReadingEnabled() &&
+    process.env["TAROT_INSTANT_READING_QUESTION_ENABLED"] === "true"
+  );
+}
+
 export function getInstantReadingProviderConfig():
   | InstantReadingProviderConfig
   | undefined {
