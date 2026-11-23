@@ -1,6 +1,6 @@
 import "server-only";
 
-export const openaiInstantReadingModel = "gpt-6.1-sol";
+export const openaiInstantReadingModel = "gpt-6.2-sol";
 
 export type InstantReadingProviderConfig = {
   readonly apiKey: string;
@@ -8,6 +8,13 @@ export type InstantReadingProviderConfig = {
 
 export function isInstantReadingEnabled() {
   return process.env["TAROT_INSTANT_READING_ENABLED"] === "true";
+}
+
+export function isInstantReadingQuestionEnabled() {
+  return (
+    isInstantReadingEnabled() &&
+    process.env["TAROT_INSTANT_READING_QUESTION_ENABLED"] === "true"
+  );
 }
 
 export function getInstantReadingProviderConfig():

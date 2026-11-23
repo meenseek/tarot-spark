@@ -14,10 +14,17 @@ references.
 - Use the source-fixed OpenAI model-selection rule in Model Selection and the
   direct Responses API endpoint. Freeze each request's model and reasoning
   effort under that candidate rule before evaluation.
-- Send only selected public options and reviewed upright meanings in draw
-  order.
-- Keep card names, images, internal ids, and free-form situation text out of
-  the provider request, logs, analytics, URLs, shares, and stored evidence.
+- Standard requests send selected public options and reviewed upright meanings
+  in draw order.
+- Keep card names, images, and internal ids out of the provider request. Keep
+  real user text out of logs, analytics, URLs, shares, and stored evidence.
+- Keep free-form text out of the provider request while
+  `TAROT_INSTANT_READING_QUESTION_ENABLED` is off or unset. For local evaluation
+  with that flag on, use only synthetic questions and situations in requests
+  and evaluation records. The notice beside the action identifies OpenAI, and
+  only requesting a reading submits the optional text. Keep the setting off in
+  production until the changed input contract passes the activation gate and
+  the owner approves it.
 - Keep the existing prompt-copy flow available whenever generation fails.
 - Treat only the `relationship` and `career` taxonomies as
   production-eligible. The `self` taxonomy remains prompt-copy only until the
@@ -101,7 +108,7 @@ bound and complete serialized provider body before generation. The initial
 tested candidates, not a claim that every model or effort was compared or that
 Terra is generally superior.
 
-The current candidate sends one Responses request per reading with GPT-6.1
+The current candidate sends one Responses request per reading with GPT-6.2
 Sol, `low` effort and a 1,200-token total output bound, including hidden
 reasoning. The model and generation settings are fixed across eligible public
 questions, topics, styles, spreads and draws. Writing profiles select the
@@ -137,7 +144,7 @@ default 30-minute cache-write rates; cache writes are non-additive and no
 cached-read savings are assumed.
 Pricing evidence does not establish writing quality. See the
 [Luna model](https://developers.openai.com/api/docs/models/gpt-6-luna),
-[Sol model](https://developers.openai.com/api/docs/models/gpt-6.1-sol),
+[Sol model](https://developers.openai.com/api/docs/models/gpt-6.2-sol),
 [pricing](https://developers.openai.com/api/docs/pricing) and
 [cache billing](https://developers.openai.com/api/docs/guides/prompt-caching).
 
@@ -242,6 +249,16 @@ function must all apply the canonical eligibility predicate. The
 provider-contact function must reject an ineligible taxonomy before building a
 body or calling `fetch`.
 
+With the question flag on, the request accepts up to 500 characters of optional
+text. Treat the text as reading content. Start by answering an explicit question
+and use a situation description to refine the selected focus. When the question
+asks for an unverifiable real count or fact, state that limit first in one short
+Korean sentence. Stop there unless the user separately requests a supported
+symbolic reading, then answer only that part. Keep response upper bounds,
+language and safety checks, and preserve the standard reading minimums.
+Verify blank text, a conflicting preset, untrusted instructions, edits during
+generation, and the prompt-copy fallback with synthetic inputs before activation.
+
 ## Provider Gate
 
 Before the first evaluation call and again before public activation:
@@ -269,7 +286,7 @@ Before the first evaluation call and again before public activation:
 Use the current official references when checking these facts:
 
 - [Responses API](https://developers.openai.com/api/reference/resources/responses/methods/create)
-- [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna)
+- [GPT-6.2 Sol](https://developers.openai.com/api/docs/models/gpt-6.2-sol)
 - [API subscription credits](https://developers.openai.com/api/docs/guides/chatgpt-api-credits)
 - [API data controls](https://developers.openai.com/api/docs/guides/your-data)
 - [API pricing](https://developers.openai.com/api/docs/pricing)
@@ -302,8 +319,8 @@ remains necessary.
 
 Use the public 12-case development fixture for changes that affect public
 writing. Select the affected cases for a local change and use all 12 for
-changes to shared writing rules. Define affected cases and expected behavior
-before generating.
+changes to shared writing rules. Use synthetic examples for a custom-text
+change. Define the affected cases and expected behavior before generating.
 Check fresh responses from the current candidate against those expectations
 with independent readers. Use available earlier results as optional diagnostic
 context. Keep evaluation case IDs and fixed draws out of runtime logic.
@@ -555,6 +572,9 @@ the historical candidate named there.
 - the current candidate's two AI reviews, required conflict resolution and
   explicit owner final acceptance are recorded;
 - privacy copy matches the actual provider and account settings;
+- when enabling custom questions, synthetic evaluation covers the custom-text
+  route, and turning off the question flag rejects that text before provider
+  contact while retaining standard instant readings;
 - the production front door applies a tested rate rule to `POST /api/reading`;
 - direct deployment or origin access cannot bypass that rule;
 - quota exhaustion preserves the prompt-copy fallback without exposing

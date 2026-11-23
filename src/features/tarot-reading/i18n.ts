@@ -61,6 +61,9 @@ export type TarotReadingMessages = {
   };
   readonly instantReading: {
     readonly generate: string;
+    readonly questionNotice: string;
+    readonly editQuestion: string;
+    readonly editQuestionHelp: string;
     readonly loading: string;
     readonly cancel: string;
     readonly retry: string;

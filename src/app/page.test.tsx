@@ -33,6 +33,8 @@ const originalSiteUrl = process.env["NEXT_PUBLIC_SITE_URL"];
 const originalShareSiteUrl = process.env["NEXT_PUBLIC_SHARE_SITE_URL"];
 const originalInstantReadingEnabled =
   process.env["TAROT_INSTANT_READING_ENABLED"];
+const originalInstantReadingQuestionEnabled =
+  process.env["TAROT_INSTANT_READING_QUESTION_ENABLED"];
 const originalUrl = window.location.href;
 const originalShare = navigator.share;
 const originalCanShare = navigator.canShare;
@@ -46,6 +48,7 @@ const testIntersectionObservers = new Set<TestIntersectionObserver>();
 describe("Home", () => {
   beforeEach(() => {
     testIntersectionObservers.clear();
+    delete process.env["TAROT_INSTANT_READING_QUESTION_ENABLED"];
     vi.stubGlobal("IntersectionObserver", TestIntersectionObserver);
   });
 
@@ -61,6 +64,10 @@ describe("Home", () => {
     restoreEnv("NEXT_PUBLIC_SITE_URL", originalSiteUrl);
     restoreEnv("NEXT_PUBLIC_SHARE_SITE_URL", originalShareSiteUrl);
     restoreEnv("TAROT_INSTANT_READING_ENABLED", originalInstantReadingEnabled);
+    restoreEnv(
+      "TAROT_INSTANT_READING_QUESTION_ENABLED",
+      originalInstantReadingQuestionEnabled,
+    );
     document.getElementById(kakaoSdkScriptId)?.remove();
     window.history.replaceState(null, "", originalUrl);
     window.sessionStorage.clear();
@@ -354,7 +361,7 @@ describe("Home", () => {
     expect(screen.queryByTestId("instant-reading-primary")).toBeNull();
   });
 
-  it("creates an instant Korean reading without sending free-form context", async () => {
+  it("creates an instant Korean reading without sending free-form context by default", async () => {
     process.env["TAROT_INSTANT_READING_ENABLED"] = "true";
     vi.spyOn(Math, "random").mockReturnValue(0);
     const reading = createValidInstantReading();
@@ -423,6 +430,65 @@ describe("Home", () => {
     );
     expect(JSON.stringify(body)).not.toContain("민감한 개인 상황");
     expect(JSON.stringify(body)).not.toContain("userContext");
+  });
+
+  it("sends the disclosed question only on request and aborts stale answers after editing", async () => {
+    process.env["TAROT_INSTANT_READING_ENABLED"] = "true";
+    process.env["TAROT_INSTANT_READING_QUESTION_ENABLED"] = "true";
+    const firstResponse = Promise.withResolvers<Response>();
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockReturnValueOnce(firstResponse.promise)
+      .mockResolvedValueOnce(Response.json(createValidInstantReading()));
+    const question = "이 관계에서 서로 바라는 게 뭘까요?";
+    const revisedQuestion = "이 관계는 누가 먼저 다가갈까요?";
+
+    render(<TarotExperience locale="ko" />);
+    expect(screen.getByText(/직접 쓴 내용이 OpenAI로 전송/)).toBeVisible();
+    fireEvent.change(
+      screen.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
+      {
+        target: { value: question },
+      },
+    );
+    fireEvent.click(screen.getByRole("button", { name: /카드 \d장 뽑기/ }));
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(window.location.search).not.toContain("userQuestion");
+    expect(decodeURIComponent(window.location.search)).not.toContain(question);
+
+    const ask = screen.getByRole("button", { name: "AI에게 바로 질문하기" });
+    expect(ask).toHaveAccessibleDescription(/OpenAI/);
+    expect(ask).toHaveClass("ts-primary-action");
+    fireEvent.click(ask);
+    const firstOptions = fetchMock.mock.calls[0]?.[1];
+    expect(JSON.parse(String(firstOptions?.body))).toMatchObject({
+      userQuestion: question,
+    });
+
+    fireEvent.click(screen.getByText("내 질문 쓰기·수정"));
+    fireEvent.change(
+      screen.getByRole("textbox", { name: /상황이나 궁금한 점/ }),
+      {
+        target: { value: revisedQuestion },
+      },
+    );
+    expect(firstOptions?.signal?.aborted).toBe(true);
+    await act(async () =>
+      firstResponse.resolve(Response.json(createValidInstantReading())),
+    );
+    expect(
+      screen.queryByTestId("instant-reading-result"),
+    ).not.toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "AI에게 바로 질문하기" }),
+    );
+    const secondOptions = fetchMock.mock.calls[1]?.[1];
+    expect(JSON.parse(String(secondOptions?.body))).toMatchObject({
+      userQuestion: revisedQuestion,
+    });
+    expect(await screen.findByTestId("instant-reading-result")).toBeVisible();
   });
 
   it("does not offer an instant reading for a committed self-domain result", () => {

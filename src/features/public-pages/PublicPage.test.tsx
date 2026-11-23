@@ -213,7 +213,7 @@ describe("PublicPage", () => {
     expect(screen.queryByText(/Google Gemini API/i)).not.toBeInTheDocument();
     expect(
       screen.getByText(
-        /사용자가 직접 작성한 자유 형식 질문은 보내지 않습니다/i,
+        /전송 안내가 표시된 경우, 바로 해석을 요청할 때 직접 쓴 질문이나 상황도 OpenAI로 보냅니다/i,
       ),
     ).toBeVisible();
     expect(

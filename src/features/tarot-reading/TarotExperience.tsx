@@ -7,7 +7,10 @@ import {
 } from "@/features/public-pages";
 import { getDailyQuestionPath } from "@/features/daily-question";
 import { getPublicQuestionCatalog } from "@/features/reading-questions";
-import { isInstantReadingEnabled } from "@/server/instant-reading-config";
+import {
+  isInstantReadingEnabled,
+  isInstantReadingQuestionEnabled,
+} from "@/server/instant-reading-config";
 import { TarotExperienceClient } from "./TarotExperienceClient";
 import { getTarotReadingCopy } from "./i18n";
 import {
@@ -47,6 +50,7 @@ export function TarotExperience({
         copy={getTarotReadingCopy(locale)}
         dailyQuestionPath={getDailyQuestionPath(locale)}
         instantReadingEnabled={isInstantReadingEnabled()}
+        instantReadingQuestionEnabled={isInstantReadingQuestionEnabled()}
         initialAttribution={initialAttribution}
         initialReadingState={initialReadingState}
         kakaoAllowedOrigins={getKakaoAllowedOrigins()}

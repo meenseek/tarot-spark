@@ -50,6 +50,9 @@
   },
   "instantReading": {
     "generate": "AI에게 바로 질문하기",
+    "questionNotice": "바로 해석을 요청하면 직접 쓴 내용이 OpenAI로 전송돼요. 개인정보나 기밀은 적지 마세요.",
+    "editQuestion": "내 질문 쓰기·수정",
+    "editQuestionHelp": "질문을 수정한 뒤 같은 카드로 다시 해석을 요청할 수 있어요.",
     "loading": "카드의 흐름을 정리하고 있어요…",
     "cancel": "해석 취소하기",
     "retry": "다시 시도하기",

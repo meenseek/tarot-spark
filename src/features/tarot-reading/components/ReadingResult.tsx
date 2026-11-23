@@ -33,6 +33,7 @@ type ReadingResultProps = {
   readonly instagramImageStatus: InstagramImageStatus;
   readonly instantReading: InstantReading | undefined;
   readonly instantReadingEnabled: boolean;
+  readonly instantReadingQuestionAvailable: boolean;
   readonly instantReadingStatus: InstantReadingStatus;
   readonly contextNotice?: string;
   readonly prompt: string;
@@ -65,6 +66,7 @@ export function ReadingResult({
   instagramImageStatus,
   instantReading,
   instantReadingEnabled,
+  instantReadingQuestionAvailable,
   instantReadingStatus,
   contextNotice,
   prompt,
@@ -124,7 +126,9 @@ export function ReadingResult({
 
   const canAsk = instantReadingEnabled && instantReadingStatus !== "success";
   const isLoading = instantReadingStatus === "loading";
-  const askFirst = instantReadingEnabled && !hasUserContext;
+  const askFirst =
+    instantReadingEnabled &&
+    (!hasUserContext || instantReadingQuestionAvailable);
 
   return (
     <div className="grid gap-4">
@@ -169,11 +173,14 @@ export function ReadingResult({
                 className={`text-xs leading-5 text-ts-muted${hasUserContext ? "" : " invisible"}`}
                 id="result-private-context"
               >
-                {instantReadingEnabled
-                  ? copy.instantContextNotice
-                  : copy.promptContextIncluded}
+                {instantReadingQuestionAvailable
+                  ? copy.instantReading.questionNotice
+                  : instantReadingEnabled
+                    ? copy.instantContextNotice
+                    : copy.promptContextIncluded}
               </p>
             )}
+            {instantReadingQuestionAvailable && currentCustomization}
             <div className="flex flex-col flex-wrap gap-2 sm:flex-row">
               <Button
                 className={
@@ -251,7 +258,7 @@ export function ReadingResult({
           )}
           {resultActions}
           {readingStyleCustomization}
-          {currentCustomization}
+          {!instantReadingQuestionAvailable && currentCustomization}
 
           <details
             className="group rounded-ts-control border border-ts-divider bg-ts-surface"

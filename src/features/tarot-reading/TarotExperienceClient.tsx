@@ -124,6 +124,7 @@ type TarotExperienceClientProps = {
   readonly copy: TarotReadingCopy;
   readonly dailyQuestionPath: string;
   readonly instantReadingEnabled: boolean;
+  readonly instantReadingQuestionEnabled: boolean;
   readonly kakaoAllowedOrigins: readonly string[];
   readonly kakaoJavaScriptKey: string | undefined;
   readonly publicPageLinks: readonly PublicPageLink[];
@@ -148,6 +149,7 @@ export function TarotExperienceClient({
   copy,
   dailyQuestionPath,
   instantReadingEnabled,
+  instantReadingQuestionEnabled,
   kakaoAllowedOrigins,
   kakaoJavaScriptKey,
   publicPageLinks,
@@ -270,6 +272,10 @@ export function TarotExperienceClient({
   );
   const formInstantReadingAvailable =
     instantReadingEnabled && locale === "ko" && formTaxonomyEligible;
+  const instantReadingQuestionAvailable =
+    viewMode === "generator" &&
+    formInstantReadingAvailable &&
+    instantReadingQuestionEnabled;
   const availabilityNotice = !instantReadingEnabled
     ? undefined
     : !formTaxonomyEligible
@@ -832,6 +838,8 @@ export function TarotExperienceClient({
       return;
     }
 
+    if (instantReadingQuestionAvailable) resetInstantReading();
+
     dispatchSession({
       type: "SET_CURRENT_PRIVATE_CONTEXT",
       privateContext: value,
@@ -947,6 +955,9 @@ export function TarotExperienceClient({
     instantReadingRequestRef.current?.abort();
     const controller = new AbortController();
     instantReadingRequestRef.current = controller;
+    const userQuestion = instantReadingQuestionAvailable
+      ? currentResult.inputs.privateContext.trim()
+      : "";
     const readingRequest = {
       cards: cards.map(({ card }) => ({ cardId: card.id })),
       spreadId: currentResult.inputs.spreadId,
@@ -955,6 +966,7 @@ export function TarotExperienceClient({
       ...(currentResult.inputs.questionId
         ? { questionId: currentResult.inputs.questionId }
         : {}),
+      ...(userQuestion ? { userQuestion } : {}),
     } satisfies InstantReadingRequest;
 
     setInstantReading(undefined);
@@ -1424,6 +1436,7 @@ export function TarotExperienceClient({
               contextCountLabel={contextCountLabel}
               contextPlaceholder={currentTopic?.contextPlaceholder ?? ""}
               copy={copy}
+              instantReadingQuestionAvailable={instantReadingQuestionAvailable}
               onContextChange={changeCurrentUserContext}
               userContext={currentResult?.inputs.privateContext ?? ""}
             />
@@ -1454,6 +1467,7 @@ export function TarotExperienceClient({
           instantReadingTaxonomyEligible
         }
         instantReadingStatus={instantReadingStatus}
+        instantReadingQuestionAvailable={instantReadingQuestionAvailable}
         instantReadingNotice={
           viewMode === "generator" && !formInstantReadingAvailable
             ? availabilityNotice
@@ -1574,6 +1588,7 @@ export function TarotExperienceClient({
           getTopic(tarotData.topics, formInputs.topicId).contextPlaceholder
         }
         copy={copy}
+        instantReadingQuestionAvailable={instantReadingQuestionAvailable}
         onContextChange={changeDraftUserContext}
         userContext={formInputs.privateContext}
       />

@@ -253,6 +253,9 @@ const uiCopySchema = {
   },
   instantReading: {
     generate: "string",
+    questionNotice: "string",
+    editQuestion: "string",
+    editQuestionHelp: "string",
     loading: "string",
     cancel: "string",
     retry: "string",

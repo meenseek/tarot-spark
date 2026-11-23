@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { POST } from "./route";
 
 const originalEnabled = process.env["TAROT_INSTANT_READING_ENABLED"];
+const originalQuestionEnabled =
+  process.env["TAROT_INSTANT_READING_QUESTION_ENABLED"];
 const originalKey = process.env["OPENAI_API_KEY"];
 const validRequest = {
   cards: [
@@ -17,11 +19,16 @@ const validRequest = {
 describe("POST /api/reading", () => {
   beforeEach(() => {
     process.env["TAROT_INSTANT_READING_ENABLED"] = "true";
+    delete process.env["TAROT_INSTANT_READING_QUESTION_ENABLED"];
     process.env["OPENAI_API_KEY"] = "test-token";
   });
 
   afterEach(() => {
     restoreEnv("TAROT_INSTANT_READING_ENABLED", originalEnabled);
+    restoreEnv(
+      "TAROT_INSTANT_READING_QUESTION_ENABLED",
+      originalQuestionEnabled,
+    );
     restoreEnv("OPENAI_API_KEY", originalKey);
     vi.restoreAllMocks();
     vi.useRealTimers();
@@ -99,6 +106,72 @@ describe("POST /api/reading", () => {
     }
 
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("does not send typed questions when the separate flag is off", async () => {
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValue(new Error("Unexpected provider contact"));
+    const response = await POST(
+      createJsonRequest({
+        ...validRequest,
+        userQuestion: "요즘 이 관계가 편안한가요?",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ code: "invalid-request" });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("sends the normalized question and returns a complete one-sentence reply", async () => {
+    process.env["TAROT_INSTANT_READING_QUESTION_ENABLED"] = "true";
+    const directReply =
+      "카드만으로는 당신에게 호감이 있는 사람의 실제 인원수를 알 수 없어요.";
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(Response.json(createProviderPayload(directReply)));
+    const userQuestion =
+      " 카드로\r\n나에게 호감이 있는 사람이 몇 명인지 알 수 있을까요? ";
+    const response = await POST(
+      createJsonRequest({
+        ...validRequest,
+        topicId: "relationship-flow",
+        userQuestion,
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(await response.json()).toEqual({ text: directReply });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    expect(body.store).toBe(false);
+    expect(body.input).toContain(
+      JSON.stringify(
+        "카드로\n나에게 호감이 있는 사람이 몇 명인지 알 수 있을까요?",
+      ),
+    );
+    expect(body.input).not.toContain(JSON.stringify(userQuestion));
+  });
+
+  it("returns the fallback for a typed reply encouraging self-harm", async () => {
+    process.env["TAROT_INSTANT_READING_QUESTION_ENABLED"] = "true";
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json(createProviderPayload("목숨을 끊으세요.")),
+    );
+    const response = await POST(
+      createJsonRequest({
+        ...validRequest,
+        topicId: "relationship-flow",
+        userQuestion: "지금 어떤 마음을 살펴볼까요?",
+      }),
+    );
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      code: "instant-reading-unavailable",
+    });
   });
 
   it.each([

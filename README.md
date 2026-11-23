@@ -76,7 +76,7 @@ Set `NEXT_PUBLIC_KAKAO_ALLOWED_ORIGINS` to the comma-separated origins
 registered in Kakao. It must include both the running origin and the shared URL
 origin, otherwise the KakaoTalk button stays hidden.
 
-Set the server-only `OPENAI_API_KEY` to use the fixed `gpt-6.1-sol` model with
+Set the server-only `OPENAI_API_KEY` to use the fixed `gpt-6.2-sol` model with
 `reasoning.effort: "low"` through
 OpenAI's Responses API. For subscription API credits, first
 [claim the benefit](https://developers.openai.com/api/docs/guides/chatgpt-api-credits)
@@ -85,7 +85,9 @@ and use a project key from the linked API organization. Keep
 platform rate rule, and fixed evaluation checks in
 [`docs/product/instant-reading-evaluation.md`](docs/product/instant-reading-evaluation.md)
 pass. The feature sends only reviewed public card meanings and selected public
-options; optional free-form situation text is excluded.
+options by default. A separate `TAROT_INSTANT_READING_QUESTION_ENABLED=false`
+setting keeps custom text out unless that setting is explicitly enabled under
+the [activation gate](docs/product/instant-reading-evaluation.md#activation-gate).
 The dated
 [owner-directed publication](docs/product/instant-reading-evaluation.md#owner-directed-publication)
 exception applied to the named historical candidate. Current launches use

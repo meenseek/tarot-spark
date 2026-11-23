@@ -49,6 +49,9 @@
     "createOwn": "Draw my cards"
   },
   "instantReading": {
+    "questionNotice": "When you request an instant reading, your text is sent to OpenAI. Keep personal or confidential details out.",
+    "editQuestion": "Write or edit my question",
+    "editQuestionHelp": "After editing your question, you can request another reading with the same cards.",
     "generate": "Read these cards now",
     "loading": "Reading the flow of the cards…",
     "cancel": "Cancel reading",
