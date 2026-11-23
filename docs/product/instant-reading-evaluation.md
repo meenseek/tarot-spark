@@ -101,6 +101,12 @@ and recovery controls are UI changes, not evidence of better generated content.
 
 ## Model Selection
 
+When OpenAI makes a successor in the same tier generally available, evaluate
+it under the [activation gate](#activation-gate). In the production request
+configuration, pin the exact model ID of the newest candidate that passes.
+After deployment, verify the model used by the live API and the displayed
+answer to a question entered on the site.
+
 Freeze each candidate's model, effort-selection rule, per-case effort, output
 bound and complete serialized provider body before generation. The initial
 2026-11-02 comparison selected GPT-6.1 Terra with effort `none` and a
